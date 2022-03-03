@@ -1245,7 +1245,22 @@ class PulpoProAPI(View):
         vehiculo.save()
         return JsonResponse(jd)
 
+class TireEyeAPI(View):
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        llanta = Llanta.objects.get(numero_economico=jd['numero_economico'], vehiculo__compania=Compania.objects.get(compania=jd['compania']))
+        Inspeccion.objects.create(llanta=llanta,
+                                fecha_hora=date.today(),
+                                km=jd['km'],
+                                min_profundidad=jd['min_profundidad'],
+                                max_profundidad=jd['max_profundidad']
+        )
+        return JsonResponse(jd)
 
 
 class PulpoView(LoginRequiredMixin, ListView):
@@ -1317,6 +1332,19 @@ class PulpoView(LoginRequiredMixin, ListView):
             else:
                 vehiculo_periodo_status[v] = "Entrada Correctas"
 
+        vehiculo_malos_status = {}
+        bitacora_mala = bitacora.filter(numero_economico__in=vehiculo)
+        mala_entrada = functions.mala_entrada(vehiculo)
+        for v in vehiculo:
+            if v in doble_mala_entrada:
+                vehiculo_malos_status[v] = "Doble Entrada"
+            elif v in mala_entrada:
+                vehiculo_malos_status[v] = "Mala Entrada"
+
+
+
+
+
         my_profile = Perfil.objects.get(user=self.request.user)
 
         radar_min = functions.radar_min(vehiculo_fecha, self.request.user.perfil.compania)
@@ -1378,8 +1406,13 @@ class PulpoView(LoginRequiredMixin, ListView):
         context["rango_4"] = my_profile.compania.periodo2_inflado + 1
         context["tiempo_promedio"] = functions.inflado_promedio(vehiculo_fecha)
         context["vehiculos"] = vehiculo_fecha
+        print(vehiculo_malos_status)
+        print(vehiculo_periodo_status)
+        print(vehiculo)
+        context["vehiculos_malos"] = vehiculo_malos_status
         context["vehiculos_periodo"] = vehiculo_periodo_status
         context["vehiculos_todos"] = vehiculo
+
         return context
 
 
@@ -1796,6 +1829,7 @@ def buscar(request):
                     vehiculo_periodo_status[v] = "Mala Entrada"
                 else:
                     vehiculo_periodo_status[v] = True
+
         elif boton_intuitivo == "Malas Entradas":
             vehiculo_periodo = vehiculo
             bitacora_periodo = bitacora.filter(numero_economico__in=vehiculo_periodo)
@@ -1805,6 +1839,7 @@ def buscar(request):
                     vehiculo_periodo_status[v] = "Doble Entrada"
                 elif v in mala_entrada:
                     vehiculo_periodo_status[v] = "Mala Entrada"
+
 
         my_profile = Perfil.objects.get(user=request.user)
 

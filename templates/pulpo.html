@@ -314,7 +314,8 @@
                     {% endif %}
                     </table>
                     <table class="data1" qdata1>
-                        
+                    
+                    {% if vehiculos_malos %}
                         <thead class="thead1">
                             <tr class="tr1">
                                 <th class="espacio">aaaa</th>
@@ -326,17 +327,25 @@
                             </tr>
                         </thead>
                         
+                     
+                        {% for vehiculo_p, status in vehiculos_malos.items %}
                         <tbody>
-
                             <tr class="tr2">
                                 <td class="espacio">aaaa</td>
                                 <td class="td-color"><img src="{% static 'images/truck.png' %}" alt=""></td>
-                                <td class="td-noColor"><a class="td-truck" href="">num-economico</a></td>
-                                <td class="td-color">vehiculo</td>
-                                <td class="td-noColor" id="dias"></td>
-                                <td class="td-color"><span class="icon-cross"></span><span class="icon-cross"></span></td>
+                                <td class="td-noColor"><a class="td-truck" href="{% url 'dashboards:detail' vehiculo_p.id %}">{{vehiculo_p.numero_economico}}</a></td>
+                                <td class="td-color">{{vehiculo_p.clase}}</td>
+                                <td class="td-noColor" id="dias_malos {{vehiculo_p.id}}"></td>
+                                {% if status == "Doble Entrada" %}
+                                    <td class="td-color"><span class="icon-cross"></span><span class="icon-cross"></span></td>
+                                {% elif status == "Mala Entrada" %}
+                                    <td class="td-color"><span class="icon-cross"></span></td>
+                                {% endif %}
                             </tr>
                         </tbody>
+
+                        {% endfor %}
+                    {% endif %}
                     </table>
                 </div>
             </div>                
@@ -654,6 +663,9 @@
                         days = Math.round(difference/(1000 * 3600 * 24));
                         {% if vehiculo in vehiculos_periodo %}
                             document.getElementById("dias {{vehiculo.id}}").innerText = days;
+                        {% endif %}
+                        {% if vehiculo in vehiculos_malos %}
+                            document.getElementById("dias_malos {{vehiculo.id}}").innerText = days;
                         {% endif %}
                         if (0<=days && days<= {{rango_1}} ){
                             rango_1 = rango_1 + 1;

@@ -7,7 +7,11 @@
     <h2>Filtros</h2>
 
     <div class="control-group">
-      <label for="">Producto</label>
+      <label for="">
+        <strong>
+          Producto
+        </strong>
+      </label>
       <input type="text" list="product" class="form-control" />
       <datalist id="product">
         <option value="option 1"></option>
@@ -19,34 +23,43 @@
     </div>
 
     <div class="control-group">
-      <label for="profundidad">Profundidad</label>
-      
-      <div class="input-group">
-        <div id="min-range">
-          <label for="min">Min</label>
-          <input type="number" class="input-value" name="min" id="min" value="25">
+      <label for="profundidad">
+        <strong>
+          Profundidad
+        </strong>
+      </label>
+
+      <div class="price-input">
+        <div class="field">
+          <strong>Min</strong>
+          <input type="number" class="input-min form-control" value="25">
         </div>
-        <span>-</span>
-        <div id="max-range">
-          <label for="max">Max</label>
-          <input type="number" class="input-value" name="max" id="max" value="100">
+        <div class="separator">-</div>
+        <div class="field">
+          <strong>Max</strong>
+          <input type="number" class="input-max form-control" value="75">
         </div>
       </div>
 
-      <div class="range">
+      <div class="slide-container">
         <div class="slider">
           <div class="progress"></div>
         </div>
+  
         <div class="range-input">
           <input type="range" class="range-min" min="0" max="100" value="25">
           <input type="range" class="range-max" min="0" max="100" value="75">
-        </div>
+        </div>  
       </div>
-
+      
     </div>
 
     <div class="control-group">
-      <label for="">Fecha</label>
+      <label for="">
+        <strong>
+          Fecha
+        </strong>
+      </label>
       <div class="control-group">
         <label for="from">Desde: </label>
         <input type="date" name="from" id="from" class="form-control" multiple/>

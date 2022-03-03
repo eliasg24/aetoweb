@@ -27,6 +27,11 @@ urlpatterns = [
         name="apiPro"
     ),
     path(
+        route="api/tireeye/",
+        view=views.TireEyeAPI.as_view(),
+        name="apiTireEye"
+    ),
+    path(
         route="buscar/",
         view=views.buscar,
         name="buscar"

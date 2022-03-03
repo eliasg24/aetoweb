@@ -1,36 +1,37 @@
-<head>
-    {% load static %}
-  <link rel="stylesheet" href="{% static 'css/config2.css' %}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
-  <title>AETO WEB</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    {% include 'nav.html' %}
+{% block head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/config2.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+<title>Configuracion</title>
+{% endblock head %}
 
-    <div class="all-cont">
-        <ul>
-          <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
-        </ul>
-
-        <form class="horizontal">
-            
-            <nav class="config-nav">
-                <H2>CONFIGURACIÓN</H2>
+{% block content %}
+<div class="all-cont">
+    <section class="container">
+        
+        <nav class="config-nav">
+            <h1 class="title">CONFIGURACIÓN</h1>
+            <form>
                 <input type="submit" value="Guardar" class="btn btn_success disabled" id="save">
-            </nav>
+            </form>
+        </nav>
 
-            <section class="horizontal_graficas--1">
-                <div class="con1">
-                    <div class="title_cont1">
-                        <h3 class="energize-title">PARAMETROS DE OPERACIÓN</h3>
-                    </div>
-                    <div class="sub-con1">
+        <article class="grid">
+            <div class="con">
+                <div class="con-title">
+                    <h2 class="con-title__text">
+                        Parametros de operación
+                    </h2>
+                </div>
 
-                        <div class="dias_inflado">
+                <div class="wrapper">
+                    <div class="con-sec">
+                        <div class="form-group">
                             <h3>Días de inflado</h3>
                             <!-- <p>Periodo 1: {{user.perfil.compania.periodo1}} días</p> -->
                             <div class="text-input">
@@ -45,31 +46,31 @@
                                 <span>días</span>
                             </div>
                         </div>
-
-                        <div class="presion">
+    
+                        <div class="form-group">
                             <h3>Parametro de presión</h3>
                             <div class="text-input">
                                 <span>Objetivo</span>
                                 <input type="number" name="" id="" class="number-input">
                             </div>
                         </div>
-
-                        <div class="dias_visto">
+    
+                        <div class="form-group">
                             <h3>Días de vistos</h3>
-
+    
                             <div class="text-input">
                                 <span>Periodo 1: </span>
                                 <input type="number" class="number-input">
                             </div>
-
+    
                             <div class="text-input">
                                 <span>Periodo 2: </span>
                                 <input type="number" class="number-input">
                             </div>
-
+    
                         </div>
-
-                        <div class="retiro">
+    
+                        <div class="form-group">
                             <h3>Puntos de retiro</h3>
                             <div class="text-input">
                                 <span>Dirección: </span>
@@ -92,18 +93,19 @@
                                 <input type="number" class="number-input">
                             </div>
                         </div>
-
                     </div>
                 </div>
+            </div>
+            <div class="con">
 
-                <div class="con2">
-                    <div class="title_cont2">
-                        <div>
-                            <span class="icon-cog5"><span class="icon-wrench1"></span></span>
-                        </div>
-                        <h3 class="energize-title">PARAMETROS DEL USUARIO</h3>
-                    </div>
-                    <div class="sub-con2 params">
+                <div class="con-title">
+                    <h2 class="con-title__text">
+                       <span class="icon-cog5"></span> Parametros de operación
+                    </h2>
+                </div>
+                
+                <div class="wrapper">
+                    <div class="con-sec">
                         <!-- <div class="correo">
                             <h4>Correo:</h4>
                             <p>{{user.email}}</p>
@@ -120,17 +122,17 @@
                             <h4>Unidades:</h4>
                             <p>{{user.perfil.compania.unidades}}</p>
                         </div> -->
-
+    
                         <div class="form-label">
                             <label>Correo: </label>
                             <input type="email" class="form-control" value="">
                         </div>
-
+    
                         <div class="form-label">
                             <label>Nombre: </label>
                             <input type="text" class="form-control" value="">
                         </div>
-
+    
                         <div class="form-label">
                             <label>Idioma: </label>
                             <input type="text" list="language" value="" class="form-control">
@@ -139,7 +141,7 @@
                                 <option value="english">
                             </datalist>
                         </div>
-
+    
                         <div class="form-label">
                             <label>Unidades: </label>
                             <input type="text" list="unidades" value="" class="form-control">
@@ -152,122 +154,122 @@
                                 <option value='mm, bar, mi'></option>
                             </datalist>
                         </div>
-
+    
                     </div>
                 </div>
-
-                <div class="con3">
-                    <div class="title_cont3">
+            </div>
+            <div class="con">
+                <div class="con-title">
+                    <h2 class="con-title__text">
                         <span class="icon-upload-cloud"></span>
-                        <h3 class="energize-title">ALTA VEHÍCULOS</h3>
-                    </div>
-                    <div class="buttons">
-                        <div>
-                            <form style="margin: 0" method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <input type="hidden" name="compania" value="{{user.perfil.compania}}">
-                                <label>
-                                    <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
-                                </label>
-                                <button class="btn btn_success w-100" type="submit">Continuar</button>
-                            </form>
+                        ALTA VEHÍCULOS
+                    </h2>
+                </div>
+                <div class="wrapper">
+                    <div class="con-sec">
+                        <div class="buttons">
+                            <div>
+                                <form style="margin: 0" method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="compania" value="{{user.perfil.compania}}">
+                                    <label>
+                                        <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
+                                    </label>
+                                    <button class="btn btn_success w-100" type="submit">Continuar</button>
+                                </form>
+                            </div>
+                            <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
                         </div>
-                        <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
                     </div>
                 </div>
-                <div class="con4">
-                    <div class="title_cont3">
+            </div>
+            <div class="con">
+                <div class="con-title">
+                    <h2 class="con-title__text">
                         <span class="icon-upload-cloud"></span>
-                        <h3 class="energize-title">ALTA DE LLANTAS</h3>
-                    </div>
-                    <div class="buttons">
-                        <div>
-                            <form style="margin: 0" method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <input type="hidden" name="compania" value="{{user.perfil.compania}}">
-                                <label>
-                                    <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
-                                </label>
-                                <button class="btn btn_success w-100" type="submit">Continuar</button>
-                            </form>
+                        Alta de llantas
+                    </h2>
+                </div>
+                <div class="wrapper">
+                    <div class="con-sec">
+                        <div class="buttons">
+                            <div>
+                                <form style="margin: 0" method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="compania" value="{{user.perfil.compania}}">
+                                    <label>
+                                        <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
+                                    </label>
+                                    <button class="btn btn_success w-100" type="submit">Continuar</button>
+                                </form>
+                            </div>
+                            <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
                         </div>
-                        <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
                     </div>
                 </div>
-                <div class="con5">
-                    <div class="title_cont3">
+            </div>
+            <div class="con">
+                <div class="con-title">
+                    <h2 class="con-title__text">
                         <span class="icon-bookmark14"></span>
-                        <h3 class="energize-title">CATÁLOGOS</h3>
+                        Catálogos
+                    </h2>
+                </div>
+                <div class="wrapper">
+                    <div class="con-sec">
+                        <div class="buttons">
+                            <a href="{% url 'dashboards:catalogoProductos' %}" class="btn btn-redirect">
+                                Catálogos de productos
+                            </a>
+                            <a href="{% url 'dashboards:catalogoRenovadores' %}" class="btn btn-redirect">
+                                Catálogos de renovadores
+                            </a>
+                            <a href="{% url 'dashboards:catalogoDesechos' %}" class="btn btn-redirect">
+                                Catálogos de desechos
+                            </a>
+                            <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
+                                Catálogos de metas
+                            </a>
+                            <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
+                                Catálogos de presupuestos
+                            </a>
+                        </div>
                     </div>
-                    <div class="buttons">
-                        <a href="{% url 'dashboards:catalogoProductos' %}" class="btn btn-redirect">
-                            Catálogos de productos
-                        </a>
-                        <a href="{% url 'dashboards:catalogoRenovadores' %}" class="btn btn-redirect">
-                            Catálogos de renovadores
-                        </a>
-                        <a href="{% url 'dashboards:catalogoDesechos' %}" class="btn btn-redirect">
-                            Catálogos de desechos
-                        </a>
-                        <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
-                            Catálogos de metas
-                        </a>
-                        <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
-                            Catálogos de presupuestos
-                        </a>
-                    </div>
-                </div>                                       
-            </section>
-        </form>
-    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+</div>                                        
 <script>
 
-    document.addEventListener('DOMContentLoaded', (e) => {
-        inputListener();
-        handleSave();
+document.addEventListener('DOMContentLoaded', (e) => {
+    inputListener();
+    handleSave();
+});
+
+const inputListener = () => {
+    const inputs = document.querySelectorAll('input');
+    let activeInput = [];
+
+    inputs.forEach((input) => {
+        input.addEventListener('change', (e) => {
+            if (e.target.value.length > 0) {
+                document.querySelector('.btn.btn_success').classList.remove('disabled');
+            } 
+        });
     });
+}
 
-    const inputListener = () => {
-        const inputs = document.querySelectorAll('input');
-        let activeInput = [];
+const handleSave = () => {
+    const form = document.querySelector('form');
 
-        inputs.forEach((input) => {
-            input.addEventListener('change', (e) => {
-                if (e.target.value.length > 0) {
-                    document.querySelector('.btn.btn_success').classList.remove('disabled');
-                } 
-            });
-        });
-    }
-
-    const handleSave = () => {
-        const form = document.querySelector('form');
-
-        document.addEventListener('submit', (e) => {
-            if ( e.target === form ) {
-                e.preventDefault();
-            }
-        });
-    };
-
-const iconoMenu = document.querySelector('#icono-menu'),
-      menu = document.querySelector('#menu');
-
-    iconoMenu.addEventListener('click', (e) => {
-
-        // Alternamos estilos para el menu y body
-        menu.classList.toggle('active-burger');
-        document.body.classList.toggle('opacity');
-
-        // Alternamos su atributo 'src' para el ícono del menú
-        const rutaActual = e.target.getAttribute('src');
-
-        if(rutaActual == '{% static 'images/open-menu.png' %}'){
-            e.target.setAttribute('src','{% static 'images/open-menu2.png' %}');
-        }else{
-            e.target.setAttribute('src','{% static 'images/open-menu.png' %}');
+    document.addEventListener('submit', (e) => {
+        if ( e.target === form ) {
+            e.preventDefault();
         }
     });
+};
 </script>
-</body>
-</html>
+{% endblock content %}
+
+
