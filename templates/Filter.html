@@ -1,0 +1,65 @@
+<aside class="filter-menu">
+  <button class="btn btn-close">
+    <span class="icon-cross"></span>
+  </button>
+
+  <form class="filter-form">
+    <h2>Filtros</h2>
+
+    <div class="control-group">
+      <label for="">Producto</label>
+      <input type="text" list="product" class="form-control" />
+      <datalist id="product">
+        <option value="option 1"></option>
+        <option value="option 2"></option>
+        <option value="option 3"></option>
+        <option value="option 4"></option>
+        <option value="option 5"></option>
+      </datalist>
+    </div>
+
+    <div class="control-group">
+      <label for="profundidad">Profundidad</label>
+      
+      <div class="input-group">
+        <div id="min-range">
+          <label for="min">Min</label>
+          <input type="number" class="input-value" name="min" id="min" value="25">
+        </div>
+        <span>-</span>
+        <div id="max-range">
+          <label for="max">Max</label>
+          <input type="number" class="input-value" name="max" id="max" value="100">
+        </div>
+      </div>
+
+      <div class="range">
+        <div class="slider">
+          <div class="progress"></div>
+        </div>
+        <div class="range-input">
+          <input type="range" class="range-min" min="0" max="100" value="25">
+          <input type="range" class="range-max" min="0" max="100" value="75">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="control-group">
+      <label for="">Fecha</label>
+      <div class="control-group">
+        <label for="from">Desde: </label>
+        <input type="date" name="from" id="from" class="form-control" multiple/>
+      </div>
+      <div class="control-group">
+        <label for="to">Hasta: </label>
+        <input type="date" name="to" id="to" class="form-control" />
+      </div>
+    </div>
+
+    <nav class="form-nav">
+      <button type="submit" class="btn btn-success">Filtrar</button>
+      <button type="reset" class="btn btn-danger">Eliminar filtros</button>
+    </nav>
+  </form>
+</aside>

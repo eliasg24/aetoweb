@@ -1,0 +1,200 @@
+{% extends 'base.html' %} 
+{% block head %} 
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+<title>Home</title>
+{% endblock head %} 
+
+{% block content %}
+
+<main class="main-content">
+  {% comment %}
+  <ul>
+    <li class="menu_li--left">
+      <img src="{% static 'images/Grupo 66.png' %}" alt="" />
+    </li>
+  </ul>
+  {% endcomment %}
+
+  <section class="horizontal">
+    <h2 class="section-title">CONTEXTO</h2>
+    <section class="container">
+      <div class="con">
+        <div class="title_cont1">
+          <h3 class="head-title">COMPAÑÍA</h3>
+        </div>
+        {% comment %}
+        <div>
+          <div class="multiselect3">
+            <div class="selectBox3" onclick="showCheckboxes3()">
+              <select name="OS">
+                <option value="1">Compañia</option>
+              </select>
+              <div class="overSelect3"></div>
+            </div>
+            <div id="checkboxes3" style="background-color: #171717">
+              <label
+                ><input type="checkbox" />
+                <p>Bisonte</p></label
+              >
+            </div>
+          </div>
+        </div>
+        {% endcomment %}
+
+        <section class="home-checkbox">
+          <div class="option chat">
+            <label class="option-checkbox"
+              ><input class="check" type="checkbox" />
+              <p>{{user.perfil.compania}}</p></label
+            >
+          </div>
+        </section>
+      </div>
+
+      <div class="con">
+        <div class="title_cont2">
+          <h3 class="head-title">FLOTA</h3>
+        </div>
+        {% comment %}
+        <div>
+          <div class="multiselect2">
+            <div class="selectBox2" onclick="showCheckboxes2()">
+              <select name="OS">
+                <option value="1">Flota</option>
+              </select>
+              <div class="overSelect2"></div>
+            </div>
+            <div id="checkboxes2" style="background-color: #171717">
+              <label
+                ><input type="checkbox" />
+                <p>San Luis Potosí</p></label
+              >
+            </div>
+          </div>
+        </div>
+        {% endcomment %}
+
+        <section class="home-checkbox">
+          {% for flota in flotas %}
+          <div class="option chat">
+            <label class="option-checkbox"
+              ><input class="check" type="checkbox" />
+              <p>{{flota}}</p></label
+            >
+          </div>
+          {% endfor %}
+        </section>
+      </div>
+
+      <div class="con">
+        <div class="title_cont3">
+          <h3 class="head-title">APLICACIÓN</h3>
+        </div>
+        {% comment %}
+        <div>
+          <div class="multiselect">
+            <div class="selectBox" onclick="showCheckboxes()">
+              <select name="OS">
+                <option value="1">Aplicación</option>
+              </select>
+              <div class="overSelect"></div>
+            </div>
+            <div id="checkboxes" style="background-color: #171717">
+              <label
+                ><input type="checkbox" />
+                <p>San Luis Potosí</p></label
+              >
+            </div>
+          </div>
+        </div>
+        {% endcomment %}
+
+        <section class="home-checkbox">
+          {% for aplicacion in aplicaciones %}
+          <div class="option chat">
+            <label class="option-checkbox"
+              ><input class="check" type="checkbox" />
+              <p>{{aplicacion}}</p></label
+            >
+          </div>
+          {% endfor %}
+        </section>
+      </div>
+
+      <div class="con">
+        <div class="title_cont3">
+          <h3 class="head-title">Taller</h3>
+        </div>
+        {% comment %}
+        <div>
+          <div class="multiselect">
+            <div class="selectBox" onclick="showCheckboxes()">
+              <select name="OS">
+                <option value="1">Aplicación</option>
+              </select>
+              <div class="overSelect"></div>
+            </div>
+            <div id="checkboxes" style="background-color: #171717">
+              <label
+                ><input type="checkbox" />
+                <p>San Luis Potosí</p></label
+              >
+            </div>
+          </div>
+        </div>
+        {% endcomment %}
+
+        <section class="home-checkbox"></section>
+      </div>
+    </section>
+    <a class="continue" href="{% url 'dashboards:hub' %}">Continuar</a>
+  </section>
+</main>
+
+<script>
+  var expanded = false;
+  function showCheckboxes() {
+    var checkboxes = document.getElementById('checkboxes');
+    if (!expanded) {
+      checkboxes.style.display = 'block';
+      checkboxes.style.position = 'fixed';
+      expanded = true;
+    } else {
+      checkboxes.style.display = 'none';
+      expanded = false;
+    }
+  }
+
+  function showCheckboxes2() {
+    var checkboxes = document.getElementById('checkboxes2');
+    if (!expanded) {
+      checkboxes.style.display = 'block';
+      checkboxes.style.position = 'fixed';
+      expanded = true;
+    } else {
+      checkboxes.style.display = 'none';
+      expanded = false;
+    }
+  }
+
+  function showCheckboxes3() {
+    var checkboxes = document.getElementById('checkboxes3');
+    if (!expanded) {
+      checkboxes.style.display = 'block';
+      checkboxes.style.position = 'fixed';
+      expanded = true;
+    } else {
+      checkboxes.style.display = 'none';
+      expanded = false;
+    }
+  }
+</script>
+{% endblock content %}

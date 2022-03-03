@@ -1,0 +1,1250 @@
+<html>
+<head>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/detail2.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AETO WEB</title>
+</head>
+<body>
+    {% include 'nav.html' %}
+    <div class="all-cont">
+        <ul>
+            <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
+        </ul>
+        <!-- div row -->
+        <div class="row">
+            <h1 class="titleh1">VEHÍCULO {{vehiculo.numero_economico}}</h1>
+            <div class="columns">
+                <div class="leftcolumn">
+                    <div class="card" id="vehiculo">
+                        {% if alerta %}
+                            <span class="icon-warning"></span>
+                        {% endif %}
+
+                        {% if configuracion == "S2.C2.D2" %}
+                            {% include "configurations/s2d4c4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D4.D4" %}
+                            {% include "configurations/s2d4d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D2.D4" %}
+                            {% include "configurations/s2d2d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D4" %}
+                            {% include "configurations/s2d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D4.D2" %}
+                            {% include "configurations/s2d4d2.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D4.D2.D4" %}
+                            {% include "configurations/s2d4d4d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.L2.D4.D4" %}
+                            {% include "configurations/s2l2d4d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.L4.D4.D4" %}
+                            {% include "configurations/s2l4d4d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.C2.D2" %}
+                            {% include "configurations/s2c2d2.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.C4.D4" %}
+                            {% include "configurations/s2c4d4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D2.C2"  %}
+                            {% include "configurations/s2d2c2.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "S2.D2.D2" %}
+                            {% include "configurations/s2d2d2.html" %}                        
+                        {% endif %}
+
+                        {% comment %} 
+                        <!-- configM -->
+                        <!-- S2-D2-D4-->
+                        <div {% if configuracion == "S2.D2.D4" %} style="display:flex !important" {% endif %} class="column configM" id="col1">
+
+                            <!-- S2 -->
+                            <div class="par-llantas">
+                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta1.id %}">
+                                    <span class="icon-tire2 {{color}}"></span>
+                                </a>
+
+                                <span class="icon-da"></span>
+
+                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta2.id %}">
+                                    <span class="icon-tire2 {{color}}"></span>
+                                </a>
+
+                            </div>
+
+                            <!-- D2 -->
+                            <div class="par-llantas">
+                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta3.id %}">
+                                    <span class="icon-tire2 {{color}}"></span>
+                                </a>
+
+                                <span class="icon-da"></span>
+
+                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta4.id %}">
+                                    <span class="icon-tire2 {{color}}"></span>
+                                </a>
+
+                            </div>
+
+                            <!-- D4 -->
+                            <div class="par-doble-llanta">
+
+                                <div class="doble-llanta">
+                                    
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta5.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta6.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+                                </div>
+
+                                <span class="icon-central-axle"></span>
+
+                                <div class="doble-llanta">
+                                    
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta7.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta8.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- configN -->
+                        <!-- S2 - D4-->
+                        <div {% if configuracion == "S2.D4" %} style="display:flex !important" {% endif %} class="column configN" id="col1">
+
+                            <!-- S2 -->
+                            <div class="par-llantas">
+                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta1.id %}">
+                                    <span class="icon-tire2 {{color}}"></span>
+                                </a>
+
+                                <span class="icon-da"></span>
+
+                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta2.id %}">
+                                    <span class="icon-tire2 {{color}}"></span>
+                                </a>
+
+                            </div>
+
+                            <!-- D4 -->
+                            <div class="par-doble-llanta">
+
+                                <div class="doble-llanta">
+                                    
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta3.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta4.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+                                </div>
+
+                                <span class="icon-central-axle"></span>
+
+                                <div class="doble-llanta">
+                                    
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta5.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+
+                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta6.id %}">
+                                        <span class="icon-tire2 {{color}}"></span>
+                                    </a>
+                                </div>
+
+                            </div>
+
+                        </div> 
+                        {% endcomment %}
+
+                        {% if configuracion == "T2" %}
+                            {% include "configurations/t2.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "T2.T2" %}
+                            {% include "configurations/t2t2.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "T4" %}
+                            {% include "configurations/t4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "T4.T4" %}
+                            {% include "configurations/t4t4.html" %}
+                        {% endif %}
+
+                        {% if configuracion == "T4.T4.T4" %}
+                            {% include "configurations/t4t4t4.html" %}
+                        {% endif %}
+
+
+                        <!-- col2 buttons -->
+                        <div class="cont-buttons-table"> 
+                            <div class="columnflex" id="col2">
+                                <!-- <div class="cont-buttons" id="col3"> -->
+                                    <!-- <a class="gnrl1" href="#General" onclick="general();" id="generalB">General</a>
+                                    <a class="gnrl1" href="#Problemas" onclick="problemasAbiertos();" id="problemAbiertos">Problemas Abiertos</a>
+                                    <a class="gnrl1" href="#Info" onclick="infoLlantas();" id="infoDeLlantas">Info de llantas</a> -->
+                                <!-- </div> -->
+
+                                <nav class="btn-group" id="nav-vehiculo">
+                                    <button class="btn btn-aeto active" onclick="general()" id="generalB">
+                                        <span>General</span>
+                                        <span class="blur">General</span>
+                                    </button>
+                                    <button class="btn btn-aeto" onclick="problemasAbiertos();" id="problemAbiertos">
+                                        <span>Problemas abiertos</span>
+                                        <span class="blur">Problemas abiertos</span>
+                                    </button>
+                                    <button class="btn btn-aeto" onclick="infoLlantas();" id="infoDeLlantas">
+                                        <span>Info de llanta</span>
+                                        <span class="blur">Info de llanta</span>
+                                    </button>
+                                </nav>
+                            
+                                <div class="cont-buttons" id="col4">
+                                    
+                                    <a href="{% url 'dashboards:configuracionVehiculo' %}">
+                                        <span class="icon-search-plus" id="searchColor"></span>
+                                    </a>
+
+                                    <a href="{% url 'dashboards:diagrama' %}"><span class="icon-edit-3" id="editColor"></span></a>
+                                </div>
+                            </div>
+                            <!-- col3 table -->
+                             <div id="infoLlantas">
+                                <table class="table1"> 
+                                    <tr>
+                                        <th class="th-table1">Pos</th>
+                                        <th class="th-table1">Serial</th>
+                                        <th class="th-table1">Producto</th>
+                                        <th class="th-table1">Km</th>
+
+                                </table>
+                            </div>
+                            <div id="problemasA">
+                                <table class="table2"> 
+                                    <tr>
+                                        <th class="th-table2">Llanta</th>
+                                        <th class="th-table2">Problemas Abiertos</th>
+                                        <th class="th-table2">Icono</th>
+                                    </tr>
+                                    {% if message %}
+                                    <tr>
+                                        <td class="td-table2">1</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">2</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">3</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">4</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">5</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">6</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">7</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">8</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">9</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table2">10</td>
+                                        <td class="td-table2">{{message}}</td>
+                                        <td class="td-table2"><span class="icon-cross"></span>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                            <div id="table-general">
+                                <table class="table3">
+                                    <tr>
+                                        <th class="th-table3">Modelo</th>
+                                        <th class="th-table3">Marca</th>
+                                        <th class="th-table3">Clase</th>
+                                        
+                                    </tr>
+                                    <tr>
+                                        <td class="td-table3">{{vehiculo.modelo}}</td>
+                                        <td class="td-table3">{{vehiculo.marca}}</td>
+                                        <td class="td-table3">{{vehiculo.clase}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rightcolumn">
+                    <div class="card">
+                        <h2 class="energize-title">BITACORA</h2>
+                        <div class="column" id="col-table">
+                            <table class="table4">
+                                <thead class="thead-dark">
+                                    <tr class="tr-head">
+                                        <th class="header" scope="col">Evento</th>
+                                        <th class="header" scope="col">Fecha</th>
+                                        <th class="header" scope="col">Encontrado</th>
+                                        <th class="header" scope="col">Tiempo</th>
+                                        <th class="header" scope="col">Reporte</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for vehiculo in bitacora %}
+                                    <tr id="paragraph {{vehiculo.id}}">
+                                        <td class="td-table4"><span class="icon-pulpo"></span></td>
+                                        <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
+                                        <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
+                                        <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
+                                        <td class="td-table4"><a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}"><span class="icon-file-pdf" ></span></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- div rowbot -->
+        <div class="rowbot">
+        <div class="title-rowbot">
+            <div class="column" id="columna1">
+                <h2 class="energize-title">DASHBOARD DEL VEHICULO</h2>
+            </div>
+             <div class="column" id="columna2">
+                <!-- <a href="#Pulpo" class="gnrl" id="btn-pulpo" onclick="pulpoDB();">PULPO DB</a>
+                <a href="#TireEye" class="gnrl" id="btn-tireEye" onclick="tireEyeDB();">TIRE EYE DB</a> -->
+                <nav class="btn-group" id="nav-dash">
+                    <button class="btn btn-aeto active" id="btn-pulpo" onclick="pulpoDB();">
+                        <span class="icon-pulpo"></span>
+                        <span class="icon-pulpo blur"></span>
+                    </button>
+                    <button class="btn btn-aeto" id="btn-tireEye" onclick="tireEyeDB();">
+                        <span class="icon-tireeye"></span>
+                        <span class="icon-tireeye blur"></span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+        <div class="title-rowbot2" id="pulpo-tireEye">
+            <div class="column" id="columna3">
+                <h2>DÍAS SIN INFLAR</h2>
+                <h2 id="days" class="num f-size-3">0</h2>
+            </div>
+            <div class="column" id="columna4">
+                <h2>TIEMPO PROMEDIO</h2>
+                <p class="time-text num f-size-3">{% if vehiculo.tiempo_de_inflado %}{{vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</p>
+            </div>
+            <div class="column" id="columna5">
+                <div id="p1" class="sec2_grafica">
+                    <div class="cont-graf_sec2">
+                    <div class="buttons">
+                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
+                        <button class="icono-pantallaC" id="ocultarL1" onclick="closeFullscreenP1();"><span class="icon-fullscreen_exit"></span></button>
+                        <button class="icono-pantallaC" id="mostrarL1" onclick="openFullscreenP1();"><span class="icon-fullscreen"></span></button>
+                    </div>
+                        <div class="cont-right" id="lineChartF">
+                            <div id="lineChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column" id="columna6">
+                <div class="cont-graf_sec2" id="p2">
+                    <div class="buttons">
+                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
+                        <button class="icono-pantallaC" id="ocultarS1" onclick="closeFullscreenP2();"><span class="icon-fullscreen_exit"></span></button>
+                        <button class="icono-pantallaC" id="mostrarS1" onclick="openFullscreenP2();"><span class="icon-fullscreen"></span></button>
+                    </div>
+                    <div id="chart-scatter"></div>
+                </div>
+            </div>
+            <div class="column" id="columna7">
+                <div class="score-left">
+                    <div class="score-card f-evenly">
+                        <h3 class="title-score">Necesidad de llanta por tipo de Eje</h3>
+                        <div class="table-titles">
+                            <h3>EJE</h3>
+                            <h3>CANT</h3>
+                        </div>
+                         <div class="table-numbers">
+                            <h3 class="num llanta">20</h3>
+                            <h3 class="num llanta">10</h3>
+                        </div>
+                    </div>
+                    <div class="score-card d-flex">
+                        <h3 class="title-score">CPK del vehículo</h3>
+                        <h1 class="num cpk">$0.019</h1>
+                    </div>
+                </div>
+                <div class="score-right">
+                <div class="score-card" id="p4">
+                    <div class="buttons">
+                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
+                        <button class="icono-pantallaC" id="ocultarB2" onclick="closeFullscreenP4();"><span class="icon-fullscreen_exit"></span></button>
+                        <button class="icono-pantallaC" id="mostrarB2" onclick="openFullscreenP4();"><span class="icon-fullscreen"></span></button>
+                    </div>
+                    <div class="cont-bar1" id="barChart1">
+                        <div id="bar-chart1"></div>
+                    </div>
+                </div>
+                <div class="score-card" id="p3">
+                    <div class="buttons">
+                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
+                        <button class="icono-pantallaC" id="ocultarB1" onclick="closeFullscreenP3();"><span class="icon-fullscreen_exit"></span></button>
+                        <button class="icono-pantallaC" id="mostrarB1" onclick="openFullscreenP3();"><span class="icon-fullscreen"></span></button>
+                    </div>
+                    <div class="cont-bar" id="barChart">
+                        <div id="bar-chart"></div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.0/dist/chart.min.js"></script>
+<script type="text/javascript">
+
+
+    document.addEventListener("DOMContentLoaded", (e) => { // Cargando los scripts en la carga del documento
+
+        handleButtons('#nav-vehiculo'); // Los ID siempre se ponen con # al inicio
+        handleButtons('#nav-dash');
+        Llanta();
+        hoverLlantas();
+        // statusLlantas();
+
+    });
+
+    // const statusLlantas = () => {
+    //      const llantas = document.querySelectorAll('.tireDecoration');
+
+    //      llantas.forEach( (llanta) => {
+    //          console.log(llanta)
+    //      } );
+    //  };
+
+    const Llanta = () => { //Creando un web component
+            const llantas = document.querySelectorAll('.tireDecoration'); //
+
+            llantas.forEach( (llanta) => {
+                llanta.innerHTML += `
+                <div class="pop-out-llanta"></div>
+                `;
+            } )
+
+        }
+
+     const hoverLlantas = () => {
+
+         const popOut = document.querySelectorAll('.pop-out-llanta');
+
+         popOut.forEach( (llanta, key) => {
+             const presion = Math.floor(Math.random() * 100);
+             const profundidad = Math.floor(Math.random() * 100);
+             llanta.innerHTML = `
+                 <h4>Llanta #1</h4>
+                 <p>Profundidad: NA </p>
+                 <p>Presión: {{ vehiculo.presion_de_salida }}</p>
+             `;
+         } );
+
+     };
+     
+    const handleButtons = (container = '') => {
+        const buttons = document.querySelectorAll(`${container} > .btn-aeto`); // Tenemos que agregar un id a la nav para decir que ese es el grupo que queremos seleccionar
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', (e) => {
+            buttons.forEach((item) => item.classList.remove('active'));
+            button.classList.add('active');
+          });
+        });
+    };
+
+    function searchColor() {
+        document.getElementById('searchColor').style.color = "#026CF5";
+        document.getElementById('editColor').style.color = "gray";
+    }
+
+    function editColor() {
+        document.getElementById('editColor').style.color = "#026CF5";
+        document.getElementById('searchColor').style.color = "gray";
+    }
+
+    function general() {
+        document.getElementById('problemasA').style.display = "none";
+        document.getElementById('table-general').style.display = "block";
+        document.getElementById('infoLlantas').style.display = "none";
+        document.getElementById('searchColor').style.color = "gray";
+        document.getElementById('editColor').style.color = "gray";
+    }
+
+    function problemasAbiertos() {
+        document.getElementById('problemasA').style.display = "block";
+        document.getElementById('table-general').style.display = "none";
+        document.getElementById('infoLlantas').style.display = "none";
+        document.getElementById('searchColor').style.color = "gray";
+        document.getElementById('editColor').style.color = "gray";
+    }
+
+    function infoLlantas() {
+        document.getElementById('problemasA').style.display = "none";
+        document.getElementById('table-general').style.display = "none";
+        document.getElementById('infoLlantas').style.display = "block";
+        document.getElementById('searchColor').style.color = "gray";
+        document.getElementById('editColor').style.color = "gray"; 
+    }
+
+    function tireEyeDB() {
+        document.getElementById('columna3').style.display = "none";
+        document.getElementById('columna4').style.display = "none";
+        document.getElementById('columna5').style.display = "none";
+        document.getElementById('columna6').style.display = "block";
+        document.getElementById('columna7').style.display = "grid";
+        document.getElementById('columna7').style.gridTemplateColumns = "1fr 1fr";
+        document.getElementById('pulpo-tireEye').style.gridTemplateColumns = "1fr 1fr";
+        // document.getElementById('btn-pulpo').style.background = "#363636";
+        // document.getElementById('btn-tireEye').style.background = "#9147ff";
+    }
+
+    function pulpoDB() {
+        document.getElementById('columna3').style.display = "flex";
+        document.getElementById('columna4').style.display = "flex";
+        document.getElementById('columna5').style.display = "block";
+        document.getElementById('columna6').style.display = "none";
+        document.getElementById('columna7').style.display = "none";
+        document.getElementById('pulpo-tireEye').style.gridTemplateColumns = "1fr 1fr 2fr";
+        // document.getElementById('btn-pulpo').style.background = "#9147ff";
+        // document.getElementById('btn-tireEye').style.background = "#363636";
+    }
+
+    // function imprimirElemento(elemento){
+    //     var ventana = window.open('', 'PRINT', 'height=900,width=1440');
+    //     ventana.document.write('<html><head><title>' + document.title + '</title>');
+    //     ventana.document.write('</head><body >');
+    //     ventana.document.write(elemento.innerHTML);
+    //     ventana.document.write('</body></html>');
+    //     ventana.document.close();
+    //     ventana.focus();
+    //     ventana.print();
+    //     ventana.close();
+    //     return true;
+    // }
+
+    // {% for vehiculo in bitacora %}
+    // document.querySelector("#" + CSS.escape("print-report {{vehiculo.id}}")).addEventListener("click", function() {
+    //     var parrafo = document.querySelector("#" + CSS.escape("col1"));
+    //     imprimirElemento(parrafo);
+    // });
+    // {% endfor %}
+
+
+
+    //funciones mostrar y ocultar clases
+    var elem1 = document.getElementById('p1');
+    function openFullscreenP1() {
+        if (elem1.requestFullscreen) {
+            elem1.requestFullscreen();
+            document.getElementById('mostrarL1').style.display = "none";
+            document.getElementById('lineChartF').style.height = "90vh"
+            document.getElementById('ocultarL1').style.display = "block";
+        } else if (elem1.webkitRequestFullscreen) { /* Safari */
+            elem1.webkitRequestFullscreen();
+        } else if (elem1.msRequestFullscreen) { /* IE11 */
+            elem1.msRequestFullscreen();
+        }
+    }
+    function closeFullscreenP1() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            document.getElementById('mostrarL1').style.display = "block";
+            document.getElementById('lineChartF').style.height = "auto"
+            document.getElementById('ocultarL1').style.display = "none";
+            
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+    }
+    
+    //funciones mostrar y ocultar clases
+    var elem2 = document.getElementById('p2');
+    function openFullscreenP2() {
+        if (elem2.requestFullscreen) {
+            elem2.requestFullscreen();
+            document.getElementById('mostrarS1').style.display = "none";
+            document.getElementById('ocultarS1').style.display = "block";
+        } else if (elem2.webkitRequestFullscreen) { /* Safari */
+            elem2.webkitRequestFullscreen();
+        } else if (elem2.msRequestFullscreen) { /* IE11 */
+            elem2.msRequestFullscreen();
+        }
+    }
+    function closeFullscreenP2() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            document.getElementById('mostrarS1').style.display = "block";
+            document.getElementById('ocultarS1').style.display = "none";
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+    }
+
+    //funciones mostrar y ocultar clases
+    var elem3 = document.getElementById('p3');
+    function openFullscreenP3() {
+        if (elem3.requestFullscreen) {
+            elem3.requestFullscreen();
+            document.getElementById('mostrarB1').style.display = "none";
+            document.getElementById('ocultarB1').style.display = "block";
+        } else if (elem3.webkitRequestFullscreen) { /* Safari */
+            elem3.webkitRequestFullscreen();
+        } else if (elem3.msRequestFullscreen) { /* IE11 */
+            elem3.msRequestFullscreen();
+        }
+    }
+    function closeFullscreenP3() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            document.getElementById('mostrarB1').style.display = "block";
+            document.getElementById('ocultarB1').style.display = "none";
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+    }
+
+    //funciones mostrar y ocultar clases
+    var elem4 = document.getElementById('p4');
+    function openFullscreenP4() {
+        if (elem4.requestFullscreen) {
+            elem4.requestFullscreen();
+            document.getElementById('mostrarB2').style.display = "none";
+            document.getElementById('ocultarB2').style.display = "block";
+        } else if (elem4.webkitRequestFullscreen) { /* Safari */
+            elem4.webkitRequestFullscreen();
+        } else if (elem4.msRequestFullscreen) { /* IE11 */
+            elem4.msRequestFullscreen();
+        }
+    }
+    function closeFullscreenP4() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            document.getElementById('mostrarB2').style.display = "block";
+            document.getElementById('ocultarB2').style.display = "none";
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+    }
+
+
+        window.onload = function dias_sin_inflado(){
+            hoy = new Date("{{hoy.month}}/{{hoy.day}}/{{hoy.year}}")
+            vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+            var mes_1 = 0;
+            var mes_2 = 0;
+            var mes_3 = 0;
+            var mes_4 = 0;
+
+            {% for vehiculo_bitacora in bitacora %}
+                vehiculo_fecha{{vehiculo_bitacora.id}} = new Date("{{vehiculo_bitacora.fecha_de_inflado.month}}/{{vehiculo_bitacora.fecha_de_inflado.day}}/{{vehiculo_bitacora.fecha_de_inflado.year}}")
+                fecha{{vehiculo_bitacora.id}} = vehiculo_fecha{{vehiculo_bitacora.id}}.getMonth() + 1;
+                switch (fecha{{vehiculo_bitacora.id}}){
+                    case (hoy.getMonth() + 1):
+                        mes_1++;
+                        break;
+                    case (hoy.getMonth()):
+                        mes_2++;
+                        break;
+                    case (hoy.getMonth() - 1):
+                        mes_3++;
+                        break;
+                    case (hoy.getMonth() - 2):
+                        mes_4++;
+                        break;
+                }
+                
+            {% endfor %}
+
+            var difference= Math.abs(hoy-vehiculo_fecha{{vehiculo.id}});
+            days = Math.round(difference/(1000 * 3600 * 24));
+
+            if (days) {
+                document.getElementById("days").innerText = days;
+            }else{
+                document.getElementById("days").innerText = "0";
+            }
+
+            {% for id, entrada in entradas.items %}
+                {% if entrada %}                    
+                    document.getElementById("icon {{id}}").className = "icon-checkmark";
+                {% else %}
+                    document.getElementById("icon {{id}}").className = "icon-cross";
+                    {% if id in doble_entrada.0 %}
+                        document.getElementById("icon2 {{id}}").className = "icon-cross";
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+        // //gráfica
+        // var ctx = document.getElementById('myChart2').getContext('2d');
+        //                 var myChart = new Chart(ctx, {
+        //                     type: 'line',
+        //                     data: {
+        //                         labels: ["{{mes_4}}", "{{mes_3}}", "{{mes_2}}", "{{mes_1}}"],
+        //                         datasets: [{
+        //                             label: 'Inflados',
+                                    
+        //                             data: [mes_4, mes_3, mes_2, mes_1],
+        //                             backgroundColor: [
+        //                                 'rgba(18, 188, 200, 1)',
+        //                                 'rgba(18, 188, 200, 1)',
+        //                                 'rgba(18, 188, 200, 1)',
+        //                                 'rgba(18, 188, 200, 1)',
+        //                             ],
+        //                             borderColor: [
+        //                                 'rgba(18, 188, 200, 1)',
+        //                                 'rgba(18, 188, 200, 1)',
+        //                                 'rgba(18, 188, 200, 1)',
+        //                                 'rgba(18, 188, 200, 1)',
+        //                             ],
+        //                             borderWidth: 1
+        //                         },
+        //                         {
+        //                             label: 'Entrada',
+        //                             data: [{{cantidad_entrada_mes4}}, {{cantidad_entrada_mes3}}, {{cantidad_entrada_mes2}}, {{cantidad_entrada_mes1}}],
+        //                             backgroundColor: [
+        //                                 'rgba(246, 170, 111, 1)',
+        //                                 'rgba(246, 170, 111, 1)',
+        //                                 'rgba(246, 170, 111, 1)',
+        //                                 'rgba(246, 170, 111, 1)'
+        //                             ],
+        //                             borderColor: [
+        //                                 'rgba(246, 170, 111, 1)',
+        //                                 'rgba(246, 170, 111, 1)',
+        //                                 'rgba(246, 170, 111, 1)',
+        //                                 'rgba(246, 170, 111, 1)'
+        //                             ],
+        //                             borderWidth: 1
+        //                         },
+        //                         {
+        //                             label: 'Doble Entrada',
+        //                             data: [{% for mes, cantidad in cantidad_doble_entrada.items %}{{cantidad}}, {% endfor %}],
+        //                             backgroundColor: [
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                             ],
+        //                             borderColor: [
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                                 'rgba(255, 0, 0, 0.6)',
+        //                             ],
+        //                             borderWidth: 1
+        //                         }]
+        //                     },
+        //                     options: {
+        //                         plugins: {
+        //                             title: {
+        //                                 display: true,
+        //                                 text: '',
+        //                                 font: {
+        //                                     family: "Montserrat",
+        //                                     size: 15,
+        //                                     lineHeight: 0
+        //                                 },
+        //                                 color: 'white'
+        //                             }
+        //                         },
+        //                         scales: {
+        //                             y: {
+        //                                 beginAtZero: true
+        //                             }
+        //                         }
+        //                     }
+        //                 });
+//licencia de anyChart
+anychart.licenseKey("aeto.com.mx-16056097-34281685");
+    }
+
+anychart.onDocumentReady(function () {
+
+    // set the default types of legend icons
+    anychart.theme({
+    chart: {
+    defaultSeriesSettings: {
+    spline: {legendItem: {iconType: "spline"}},
+    column: {legendItem: {iconType: "column"}}
+    }
+  }
+});
+   
+    // create data set on our data
+    var dataSet = anychart.data.set(getData());
+
+    // map data for the first series, take x from the zero column and value from the first column of data set
+    var seriesData_1 = dataSet.mapAs({'x': 0, 'value': 1});
+
+    // map data for the second series, take x from the zero column and value from the second column of data set
+    var seriesData_2 = dataSet.mapAs({'x': 0, 'value': 2});
+
+    // map data for the third series, take x from the zero column and value from the third column of data set
+    var seriesData_3 = dataSet.mapAs({'x': 0, 'value': 3});
+
+    // create line chart
+    var chart = anychart.line();
+  
+    chart.yScale().ticks().interval(1);
+
+    // turn on chart animation
+    chart.animation(true);
+
+    // set chart padding
+    chart.padding([10, 20, 5, 20]);
+
+    // turn on the crosshair
+    chart.crosshair()
+            .enabled(true)
+            .yLabel(false)
+            .yStroke(null);
+
+    // set tooltip mode to point
+    chart.tooltip().positionMode('point');
+
+    // set chart title text settings
+    //chart.title('Statistiques des déclarations sur les 12 derniers mois');
+
+    // set yAxis title
+    //chart.yAxis().title('Nombres');
+    //chart.xAxis().labels().padding(5);
+
+    // create first series with mapped data
+    var series_1 = chart.column(seriesData_1);
+    series_1.name('Inflados');
+    series_1.normal().fill("#0097fc");
+    series_1.hovered().fill("#0097fc", 0.1);
+    series_1.selected().fill("#0097fc", 0.5);
+    series_1.normal().stroke("#0097fc");
+    series_1.hovered().stroke("#0097fc", 2);
+    series_1.selected().stroke("#0097fc", 4);
+    series_1.hovered().markers()
+            .enabled(true)
+            .type('circle')
+            .size(4);
+    series_1.tooltip()
+            .position('right')
+            .anchor('left-center')
+            .offsetX(5)
+            .offsetY(5);
+            
+
+    // create second series with mapped data
+    var series_2 = chart.line(seriesData_2);
+    series_2.name('Mala Entrada');
+    series_2.normal().stroke("#A349A4", 4);
+    series_2.hovered().stroke("#A349A4", 2);
+    series_2.selected().stroke("#A349A4", 6);
+    series_2.hovered().markers()
+            .enabled(true)
+            .type('circle')
+            .size(4);
+    series_2.tooltip()
+            .position('right')
+            .anchor('left-center')
+            .offsetX(5)
+            .offsetY(5);
+
+    // enable and configure markers on the first series
+    series_2.markers(true);
+    series_2.markers().type("circle");
+    series_2.markers().fill("#A349A4");
+    series_2.markers().size(5);
+
+    // create third series with mapped data
+    var series_3 = chart.spline(seriesData_3);
+    series_3.name('Doble Entrada');
+    series_3.normal().stroke("#F0412C", 4);
+    series_3.hovered().stroke("#F0412C", 2);
+    series_3.selected().stroke("#F0412C", 6);
+    series_3.hovered().markers()
+            .enabled(true)
+            .type('circle')
+            .size(4);
+    series_3.tooltip()
+            .position('right')
+            .anchor('left-center')
+            .offsetX(5)
+            .offsetY(5);
+
+    // enable and configure markers on the first series
+    series_3.markers(true);
+    series_3.markers().type("square");
+    series_3.markers().fill("#F0412C");
+    series_3.markers().size(5);   
+
+    // turn the legend on
+    chart.legend()
+            .enabled(true)
+            .fontSize(13)
+            .padding([0, 0, 10, 0]);
+
+    // set container id for the chart
+    chart.container('lineChart');
+
+    //Set Background
+    var background = chart.background();
+    background.stroke('0 #000');
+    background.corners();
+    background.enabled(false);
+
+    //turn on chart animation
+    chart.animation(true);
+
+    // initiate chart drawing
+    chart.draw();
+
+    // chart credits false
+    var credits = chart.credits();
+    credits.enabled(false);
+
+    // horizontal expandable
+    chart.legend().itemsLayout('horizontal');
+  
+});
+ function getData() {
+    return [
+        ["{{mes_4}}", {{vehiculo_mes4}}, {{cantidad_entrada_mes4}}, {{cantidad_doble_entrada_mes4}}],
+        ["{{mes_3}}", {{vehiculo_mes3}}, {{cantidad_entrada_mes3}}, {{cantidad_doble_entrada_mes3}}],
+        ["{{mes_2}}", {{vehiculo_mes2}}, {{cantidad_entrada_mes2}}, {{cantidad_doble_entrada_mes2}}],
+        ["{{mes_1}}", {{vehiculo_mes1}}, {{cantidad_entrada_mes1}}, {{cantidad_doble_entrada_mes1}}]
+    ]
+}
+
+
+// Graph bar chart
+anychart.onDocumentReady(function () {
+
+// create a data set
+var data = anychart.data.set([
+{x: "A", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "B", value: 20,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+},
+{x: "C", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "D", value: 10,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+}
+]);
+
+// create a chart
+var chart = anychart.bar();
+
+// create a bar series and set the data
+var series = chart.bar(data);
+
+// set the chart title
+chart.title("Km por mm por Eje");
+var title = chart.title();
+    title.fontColor('#fff');
+    title.fontSize('1vw');
+    title.fontWeight(600);
+
+// set the titles of the axes
+chart.yScale().ticks().interval(10);
+chart.xAxis().title("");
+chart.yAxis().title("");
+// chart.yAxis().labels().format("$0.0{%value}");
+
+// set the container id
+chart.container("bar-chart");
+//Set Background
+var background = chart.background();
+background.stroke('0 #000');
+background.corners();
+background.enabled(false);
+
+//turn on chart animation
+chart.animation(true);
+
+// initiate drawing the chart
+chart.draw();
+// chart credits false
+var credits = chart.credits();
+credits.enabled(false);
+ 
+});
+
+// Graph bar chart
+anychart.onDocumentReady(function () {
+
+// create a data set
+var data = anychart.data.set([
+{x: "A", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "B", value: 20,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+},
+{x: "C", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "D", value: 20,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+},
+{x: "E", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "F", value: 20,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+},
+{x: "G", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "H", value: 20,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+},
+{x: "I", value: 30,
+normal:   {fill: "#0097fc", stroke: "#0097fc"},
+hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+},
+{x: "J", value: 20,
+normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
+hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
+selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
+}
+]);
+
+// create a chart
+var chart1 = anychart.column();
+
+// create a bar series and set the data
+var series = chart1.column(data);
+
+// set the chart title
+chart1.title("Kilometro proyectado por posición"); /* Pendiente de cambiar */
+var title = chart1.title();
+    title.fontColor('#fff');
+    title.fontSize('1vw');
+    title.fontWeight(600);
+
+// set the titles of the axes
+chart1.yScale().ticks().interval(10);
+chart1.xAxis().title("");
+chart1.yAxis().title("");
+// chart.yAxis().labels().format("$0.0{%value}");
+
+// set the container id
+chart1.container("bar-chart1");
+//Set Background
+var background = chart1.background();
+background.stroke('0 #000');
+background.corners();
+background.enabled(false);
+
+//turn on chart animation
+chart1.animation(true);
+
+// initiate drawing the chart
+chart1.draw();
+// chart credits false
+var credits = chart1.credits();
+credits.enabled(false);
+ 
+});
+
+
+// scatter
+anychart.onDocumentReady(function () {
+
+// create data
+var data = [
+  {x: 1, value: 3, markerSize:12,
+  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
+  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
+  selected: {fill: "#A349A4 0.5",stroke: "6 #A349A4"}
+  },
+  {x: 2, value: 4, markerSize:12,
+  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
+  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
+  selected: {fill: "#A349A4 0.5", stroke: "6 #A349A4"}
+  },
+  {x: 3, value: 6, markerSize:12,
+  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
+  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
+  selected: {fill: "#A349A4 0.5", stroke: "6 #A349A4"}
+  },
+  {x: 4, value: 2, markerSize:12,
+  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
+  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
+  selected: {fill: "#A349A4 0.5", stroke: "6 #A349A4"}
+  }
+];
+
+// create data for the third series
+var data1= [
+  {x: 1, value: 1},
+  {x: 1, value: 1},
+  {x: 1,   value: 1},
+  {x: 1, value: 1}
+];
+
+// create a chart
+var chart = anychart.scatter();
+var chart = anychart.area();
+
+chart.yScale().ticks().interval(1);
+chart.xScale().ticks().interval(1);
+
+// create series, set the data and names
+series1 = chart.marker(data);
+
+series2 = chart.stepArea(data1);
+// // configure the visual settings of the second series
+series2.normal().fill("#A349A4", 0.5);
+series2.hovered().fill("#A349A4", 0.1);
+series2.normal().stroke("#A349A4");
+series2.hovered().stroke("#A349A4", 2);
+series2.selected().stroke("#A349A4", 4);
+
+series1.name("");
+series2.name("");
+
+// create a marker series and set the data
+var series = chart.marker(data);
+
+// enable major grids
+chart.xGrid(true);
+chart.yGrid(true);
+
+//turn on chart animation
+chart.animation(true);
+  
+// set chart title text settings
+chart.title('Posición y Profundidad');
+var title = chart.title();
+title.fontColor('#fff');
+title.fontSize(18);
+title.fontWeight(600);
+
+var tooltip = chart.tooltip();
+tooltip.positionMode("point");
+
+// set the container id
+chart.container("chart-scatter");
+
+//Set Background
+var background = chart.background();
+background.stroke('0 #000');
+background.corners();
+background.enabled(false);
+
+// chart credits false
+var credits = chart.credits();
+credits.enabled(false);
+
+// initiate drawing the chart
+chart.draw();
+});
+
+</script>
+</body>
+</html>

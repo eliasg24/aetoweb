@@ -1,0 +1,96 @@
+<html>
+  <head>
+    {% load static %}
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/tireDiagrama.css' %}"
+    />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AETO WEB</title>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    <div class="all-cont">
+      <header class="d-flex navbar">
+        <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" />
+
+		<nav class="d-flex nav-items">
+          
+			<button class="btn disabled">
+			  <i class="icon-cross"></i>
+			</button>
+  
+			<button class="btn disabled">
+			  <i class="icon-checkmark"></i>
+			</button>
+			
+		  </nav>
+      </header>
+      <div class="main-cont">
+        <h1 class="main-title">Edición manual</h1>
+
+        <div class="container">
+          <div class="tire good" id="tire">
+            {% include 'tireSvg.html' %}
+          </div>
+
+          <div class="col-2">
+            <form class="manual-edit">
+              <h3>Manual edit</h3>
+
+              <h4 id="tire-title">Tire</h4>
+
+              <div class="label-group">
+                <label for="">Número economico</label>
+                <input type="text" id="economic-number" value="" />
+              </div>
+
+              <div class="label-group">
+                <label for="">Producto</label>
+                <input type="text" />
+              </div>
+
+              <div class="label-group">
+                <label for="">kilometraje montado</label>
+                <input type="text" />
+              </div>
+
+              <div class="label-group">
+                <label for="">Kilometraje</label>
+                <input type="text" />
+              </div>
+
+              <div class="label-group">
+                <label for="">Profundidad actual</label>
+                <input type="text" />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const manualEdit = () => {
+        const tire = document.getElementById('tire');
+        const tireTitle = document.getElementById('tire-title'),
+          economicNumber = document.getElementById('economic-number');
+
+        tire.addEventListener('click', (e) => {
+          economicNumber.setAttribute(
+            'value',
+            Math.floor(Math.random() * 1000)
+          );
+        });
+      };
+
+      manualEdit();
+    </script>
+  </body>
+</html>

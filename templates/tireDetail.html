@@ -1,0 +1,689 @@
+<html>
+  <head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/tireDetail.css' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TIRE DETAIL</title>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    <div class="all-cont">
+      <div class="header">
+        <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" alt="" />
+      </div>
+      <div class="title-header">
+        <a class="a-economic-number" href="{% url 'dashboards:detail' llanta.vehiculo.id %}"
+          ><h2 class="economic-number">Vehículo: {{vehiculo}}</h2></a
+        >
+        <h2 class="upper-title">{{llanta}}</h2>
+      </div>
+      <div class="columns-top">
+        <div class="left-column">
+
+          <div class="card" id="vehiculo">
+            <!-- col1 tire-->
+            <div class="column" id="col1">
+              <h3 class="pos-title">Posición: <br>{{llanta.posicion}}</h3>
+                <div class="tire-img"> 
+                  <div class="medida" id="presion">
+                    <span class="tire-title">Presión</span>
+                    <span class="tire-number">{{llanta.presion_de_salida}}</span>
+                  </div>
+                  <span class="icon-tire2"></span>
+                  <div class="medida" id="profundidad">
+                    <span class="tire-title">Profundidad</span>
+                    <span class="tire-number">N/A</span>
+                  </div>
+                </div>
+            </div>
+
+            <!-- col2 buttons-->
+            <div class="cont-buttons-table">
+              <div class="columnflex" id="col2">
+                <!-- <div class="cont-buttons" id="col3">
+                  <a
+                    class="gnrl1"
+                    href="#General"
+                    onclick="general();"
+                    id="generalB"
+                    >General</a
+                  >
+                  <a
+                    class="gnrl1"
+                    href="#Problemas"
+                    onclick="problemasAbiertos();"
+                    id="problemAbiertos"
+                    >Problemas Abiertos</a
+                  >
+                </div> -->
+
+                <nav class="btn-group basis-80" id="nav-tire">
+                  <button class="btn btn-aeto active" onclick="general()" id="generalB">
+                      <span>General</span>
+                      <span class="blur">General</span>
+                  </button>
+                  <button class="btn btn-aeto" onclick="problemasAbiertos();" id="problemAbiertos">
+                      <span>Problemas abiertos</span>
+                      <span class="blur">Problemas abiertos</span>
+                  </button>
+                </nav>
+
+                <div class="cont-buttons" id="col4">
+                  <a href="{% url 'dashboards:configuracionLlanta' %}">
+                    <span class="icon-search-plus" id="searchColor"></span>
+                  </a>
+                  <a href="{% url 'dashboards:tireDiagrama' %}"
+                    ><span
+                      class="icon-edit-3"
+                      id="editColor"
+                      onclick="editColor();"
+                    ></span
+                  ></a>
+                </div>
+              </div>
+
+              <!-- col3 table-->
+              <div id="problemasA">
+                <table class="table2">
+                  <tr>
+                    <th class="th-table2">Posición</th>
+                    <th class="th-table2">Problema Abierto</th>
+                    <th class="th-table2">Icono</th>
+                  </tr>
+                  
+                  <tr>
+
+                  <td class="td-table2">1</td>
+                  
+                  {% if message %}
+                        <td class="td-table2">{{message}}</td>
+                  {% endif %}
+                  <td class="td-table2">
+                      <span class="icon-cross"></span>
+                  </td>
+
+                  </tr>
+                </table>
+              </div>
+          
+              <div id="table-general">
+                <table class="table3">
+                  <tr>
+                    <th class="th-table3">Pos</th>
+                    <th class="th-table3">Serial</th>
+                    <th class="th-table3">Producto</th>
+                    <th class="th-table3">Km</th>
+                  </tr>
+                  <tr>
+                    <td class="td-table3"></td>
+                    <td class="td-table3"></td>
+                    <td class="td-table3"></td>
+                    <td class="td-table3"></td>
+                  </tr>
+                  <tr>
+                    <th class="th-table3">Costo por km</th>
+                    <th class="th-table3">Km proyectado</th>
+                    <th class="th-table3">Precio</th>
+                    <th class="th-table3">Vida</th>
+                  </tr>
+                  <tr>
+                    <td class="td-table3"></td>
+                    <td class="td-table3"></td>
+                    <td class="td-table3"></td>
+                    <td class="td-table3"></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="right-column">
+          <div class="card">
+            <h2 class="title">BITACORA</h2>
+            <div class="column" id="col-table">
+              <table class="table4">
+                <thead class="thead-dark">
+                  <tr class="tr-head">
+                    <th class="header" scope="col">Evento</th>
+                    <th class="header" scope="col">Fecha</th>
+                    <th class="header" scope="col">Encontrado</th>
+                    <th class="header" scope="col">Tiempo</th>
+                    <th class="header" scope="col">Reporte</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for vehiculo in bitacora %}
+                  <tr id="paragraph {{vehiculo.id}}">
+                    <td class="td-table4">
+                      <img src="{% static 'images/Trazado 9.png' %}" />
+                    </td>
+                    <td class="td-table4">
+                      {{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}
+                    </td>
+                    <td class="td-table4">
+                      <span id="icon {{vehiculo.id}}"></span>
+                    </td>
+                    <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
+                    <td class="td-table4">
+                      <span
+                        id="print-report {{vehiculo.id}}"
+                        class="icon-file-pdf"
+                      ></span>
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns-bottom">
+        <div class="nav-row">
+          <h2 class="title">DASHBOARD VEHÍCULO</h2>
+          <!-- <div class="i-btns">
+            <a
+              href="#TireEye"
+              class="gnrl"
+              id="btn-tireEye"
+              onclick="tireEyeDB();"
+              >TIRE EYE DB</a
+            >
+            <a href="#Pulpo" class="gnrl" id="btn-pulpo" onclick="pulpoDB();"
+              >PULPO DB</a
+            >
+          </div> -->
+
+          <nav class="btn-group" id="nav-dash">
+            <button class="btn btn-aeto active" id="btn-pulpo" onclick="pulpoDB();">
+              <span class="icon-pulpo"></span>
+              <span class="icon-pulpo blur"></span>
+            </button>
+            <button class="btn btn-aeto" id="btn-tireEye" onclick="tireEyeDB();">
+              <span class="icon-tireeye"></span>
+              <span class="icon-tireeye blur"></span>
+            </button>
+          </nav>
+
+        </div>
+        <div class="cont-bottom" cont-bottom>
+          <div class="cont-bottom1" cont-bottom1>
+            <h2>DÍAS SIN INFLAR</h2>
+            <h2 id="days" class="num">0</h2>
+          </div>
+          <div class="cont-bottom2" cont-bottom2>
+            <h2>TIEMPO PROMEDIO</h2>
+            <h2 class="time-text num">{% if llanta.vehiculo.tiempo_de_inflado %}{{llanta.vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</h2>
+          </div>
+          <div class="cont-bottom3" cont-bottom3>
+            <div class="cont-graf_sec2" id="p1">
+              <div class="buttons">
+                <button class="icono-pantallaC">
+                  <span class="icon-question-circle-o"></span>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="ocultarL1"
+                  onclick="closeFullscreenP1();"
+                >
+                  <span class="icon-fullscreen_exit"></span>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="mostrarL1"
+                  onclick="openFullscreenP1();"
+                >
+                  <span class="icon-fullscreen"></span>
+                </button>
+              </div>
+              <div class="cont-lineChart" id="lineChartF">
+                <div id="lineChart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="cont-left" cont-left id="p2">
+            <div class="buttons">
+              <button class="icono-pantallaC">
+                <span class="icon-question-circle-o"></span>
+              </button>
+              <button
+                class="icono-pantallaC"
+                id="ocultarS1"
+                onclick="closeFullscreenP2();"
+              >
+                <span class="icon-fullscreen_exit"></span>
+              </button>
+              <button
+                class="icono-pantallaC"
+                id="mostrarS1"
+                onclick="openFullscreenP2();"
+              >
+                <span class="icon-fullscreen"></span>
+              </button>
+            </div>
+            <div id="spline-chart"></div>
+          </div>
+          <div class="cont-right" cont-right>
+            <div class="score-card">
+              <h2 class="title-num">Desgaste Mensual</h2>
+              <h2 class="num indicador">18</h2>
+            </div>
+            <div class="score-card">
+              <h2 class="title-num">Km por mm</h2>
+              <h2 class="num indicador">23</h2>
+            </div>
+            <div class="score-card">
+              <h2 class="title-num">Desgaste</h2>
+              <h2 class="num indicador">26</h2>
+            </div>
+            <div class="score-card">
+              <h2 class="title-num">CPK</h2>
+              <h2 class="num indicador">3</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+
+      document.addEventListener('DOMContentLoaded', (e) => {
+        handleButtons('#nav-tire');
+        handleButtons('#nav-dash');
+      });
+
+    const handleButtons = (container = '') => {
+          const buttons = document.querySelectorAll(`${container} > .btn-aeto`); // Tenemos que agregar un id a la nav para decir que ese es el grupo que queremos seleccionar
+
+          buttons.forEach((button) => {
+            button.addEventListener('click', (e) => {
+              buttons.forEach((item) => item.classList.remove('active'));
+              button.classList.add('active');
+            });
+          });
+      };
+
+      const printReport = (idReport = '') => {
+        const printButton = document.querySelector(idReport);
+
+        document.addEventListener('click', (e) => {
+          if (e.target === printButton) {
+            open(
+              "{% url 'dashboards:reporteLlanta' %}",
+              'Print',
+              'height=900, width=1440'
+            );
+          }
+        });
+      };
+
+      printReport('.icon-file-pdf');
+
+      const statusLlantas = () => {
+        const llantas = document.querySelectorAll('#llanta');
+
+        llantas.forEach((llanta) => {
+          // const presion = Math.floor(Math.random() * 100);
+          // const profundidad = Math.floor(Math.random() * 100);
+          // llanta.querySelector('.pop-out-llanta').innerHTML += `
+          //     <p>Inflado: ${ presion }</p>
+          //     <p>Presión: ${ profundidad }</p>
+          // `;
+
+          if (llanta.classList.contains('good')) {
+            llanta.querySelector('.pop-out-llanta').innerHTML += 'Status: Good';
+          } else if (llanta.classList.contains('bad')) {
+            llanta.querySelector('.pop-out-llanta').innerHTML += 'Status: Bad';
+          } else if (llanta.classList.contains('yellow')) {
+            llanta.querySelector('.pop-out-llanta').innerHTML +=
+              'Status: Yellow';
+          }
+        });
+      };
+
+      statusLlantas();
+
+      function searchColor() {
+        document.getElementById('searchColor').style.color = '#026CF5';
+        document.getElementById('editColor').style.color = 'gray';
+      }
+
+      function editColor() {
+        document.getElementById('editColor').style.color = '#026CF5';
+        document.getElementById('searchColor').style.color = 'gray';
+      }
+
+      function general() {
+        document.getElementById('problemasA').style.display = 'none';
+        document.getElementById('table-general').style.display = 'block';
+        document.getElementById('searchColor').style.color = 'gray';
+        document.getElementById('editColor').style.color = 'gray';
+      }
+
+      function problemasAbiertos() {
+        document.getElementById('problemasA').style.display = 'block';
+        document.getElementById('table-general').style.display = 'none';
+        document.getElementById('searchColor').style.color = 'gray';
+        document.getElementById('editColor').style.color = 'gray';
+      }
+
+      function tireEyeDB() {
+        document.querySelector('[cont-bottom]').style.gridTemplateColumns =
+          '1fr 1fr';
+        document.querySelector('[cont-bottom1]').style.display = 'none';
+        document.querySelector('[cont-bottom2]').style.display = 'none';
+        document.querySelector('[cont-bottom3]').style.display = 'none';
+        document.querySelector('[cont-left]').style.display = 'block';
+        document.querySelector('[cont-right').style.display = 'grid';
+        document.querySelector('[cont-right]').style.gridTemplateColumns =
+          '1fr 1fr';
+      }
+
+      function pulpoDB() {
+        document.querySelector('[cont-bottom]').style.gridTemplateColumns =
+          '1fr 1fr 2fr';
+        document.querySelector('[cont-bottom1]').style.display = 'flex';
+        document.querySelector('[cont-bottom2]').style.display = 'flex';
+        document.querySelector('[cont-bottom3]').style.display = 'block';
+        document.querySelector('[cont-left]').style.display = 'none';
+        document.querySelector('[cont-right').style.display = 'none';
+      }
+
+      //variables
+      hoy = new Date("{{hoy.month}}/{{hoy.day}}/{{hoy.year}}")
+      llanta_fecha{{llanta.id}} = new Date("{{llanta.fecha_de_inflado.month}}/{{llanta.fecha_de_inflado.day}}/{{llanta.fecha_de_inflado.year}}")
+
+      var difference= Math.abs(hoy-llanta_fecha{{llanta.id}});
+      days = Math.round(difference/(1000 * 3600 * 24));
+
+      if (days) {
+          document.getElementById("days").innerText = days;
+      }else{
+          document.getElementById("days").innerText = "0";
+      }
+
+      {% for id, entrada in entradas.items %}
+          {% if entrada %}                    
+              document.getElementById("icon {{id}}").className = "icon-checkmark";
+          {% else %}
+              document.getElementById("icon {{id}}").className = "icon-cross";
+          {% endif %}
+      {% endfor %}
+
+      //licencia de anyChart
+      anychart.licenseKey('aeto.com.mx-16056097-34281685');
+
+      //funciones mostrar y ocultar clases
+      var elem1 = document.getElementById('p1');
+      function openFullscreenP1() {
+        if (elem1.requestFullscreen) {
+          elem1.requestFullscreen();
+          document.getElementById('mostrarL1').style.display = 'none';
+          document.getElementById('ocultarL1').style.display = 'block';
+        } else if (elem1.webkitRequestFullscreen) {
+          /* Safari */
+          elem1.webkitRequestFullscreen();
+        } else if (elem1.msRequestFullscreen) {
+          /* IE11 */
+          elem1.msRequestFullscreen();
+        }
+      }
+      function closeFullscreenP1() {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          document.getElementById('mostrarL1').style.display = 'block';
+          document.getElementById('ocultarL1').style.display = 'none';
+        } else if (document.webkitExitFullscreen) {
+          /* Safari */
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          /* IE11 */
+          document.msExitFullscreen();
+        }
+      }
+
+      //funciones mostrar y ocultar clases
+      var elem2 = document.getElementById('p2');
+      function openFullscreenP2() {
+        if (elem2.requestFullscreen) {
+          elem2.requestFullscreen();
+          document.getElementById('mostrarS1').style.display = 'none';
+          document.getElementById('ocultarS1').style.display = 'block';
+        } else if (elem2.webkitRequestFullscreen) {
+          /* Safari */
+          elem2.webkitRequestFullscreen();
+        } else if (elem2.msRequestFullscreen) {
+          /* IE11 */
+          elem2.msRequestFullscreen();
+        }
+      }
+      function closeFullscreenP2() {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          document.getElementById('mostrarS1').style.display = 'block';
+          document.getElementById('ocultarS1').style.display = 'none';
+        } else if (document.webkitExitFullscreen) {
+          /* Safari */
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          /* IE11 */
+          document.msExitFullscreen();
+        }
+      }
+
+      anychart.onDocumentReady(function () {
+        // set the default types of legend icons
+        anychart.theme({
+          chart: {
+            defaultSeriesSettings: {
+              spline: { legendItem: { iconType: 'spline' } },
+              column: { legendItem: { iconType: 'column' } },
+            },
+          },
+        });
+
+        // create data set on our data
+        var dataSet = anychart.data.set(getData());
+
+        // map data for the first series, take x from the zero column and value from the first column of data set
+        var seriesData_1 = dataSet.mapAs({ x: 0, value: 1 });
+
+        // map data for the second series, take x from the zero column and value from the second column of data set
+        var seriesData_2 = dataSet.mapAs({ x: 0, value: 2 });
+
+        // map data for the third series, take x from the zero column and value from the third column of data set
+        var seriesData_3 = dataSet.mapAs({ x: 0, value: 3 });
+
+        // create line chart
+        var chart = anychart.line();
+
+        chart.yScale().ticks().interval(1);
+
+        // turn on chart animation
+        chart.animation(true);
+
+        // set chart padding
+        chart.padding([10, 20, 5, 20]);
+
+        // turn on the crosshair
+        chart.crosshair().enabled(true).yLabel(false).yStroke(null);
+
+        // set tooltip mode to point
+        chart.tooltip().positionMode('point');
+
+        // set chart title text settings
+        //chart.title('Statistiques des déclarations sur les 12 derniers mois');
+
+        // set yAxis title
+        //chart.yAxis().title('Nombres');
+        //chart.xAxis().labels().padding(5);
+
+        // create first series with mapped data
+        var series_1 = chart.column(seriesData_1);
+        series_1.name('Inflados');
+        series_1.normal().fill('#0097fc');
+        series_1.hovered().fill('#0097fc', 0.1);
+        series_1.selected().fill('#0097fc', 0.5);
+        series_1.normal().stroke('#0097fc');
+        series_1.hovered().stroke('#0097fc', 2);
+        series_1.selected().stroke('#0097fc', 4);
+        series_1.hovered().markers().enabled(true).type('circle').size(4);
+        series_1
+          .tooltip()
+          .position('right')
+          .anchor('left-center')
+          .offsetX(5)
+          .offsetY(5);
+
+        // create second series with mapped data
+        var series_2 = chart.spline(seriesData_2);
+        series_2.name('Entrada');
+        series_2.normal().stroke('#A349A4', 4);
+        series_2.hovered().stroke('#A349A4', 2);
+        series_2.selected().stroke('#A349A4', 6);
+        series_2.hovered().markers().enabled(true).type('circle').size(4);
+        series_2
+          .tooltip()
+          .position('right')
+          .anchor('left-center')
+          .offsetX(5)
+          .offsetY(5);
+
+        // enable and configure markers on the first series
+        series_2.markers(true);
+        series_2.markers().type('circle');
+        series_2.markers().fill('#A349A4');
+        series_2.markers().size(5);
+
+        // create third series with mapped data
+        var series_3 = chart.spline(seriesData_3);
+        series_3.name('Doble Entrada');
+        series_3.normal().stroke('#F0412C', 4);
+        series_3.hovered().stroke('#F0412C', 2);
+        series_3.selected().stroke('#F0412C', 6);
+        series_3.hovered().markers().enabled(true).type('circle').size(4);
+        series_3
+          .tooltip()
+          .position('right')
+          .anchor('left-center')
+          .offsetX(5)
+          .offsetY(5);
+
+        // enable and configure markers on the first series
+        series_3.markers(true);
+        series_3.markers().type('square');
+        series_3.markers().fill('#F0412C');
+        series_3.markers().size(5);
+
+        // turn the legend on
+        chart.legend().enabled(true).fontSize(13).padding([0, 0, 10, 0]);
+
+        // set container id for the chart
+        chart.container('lineChart');
+
+        //Set Background
+        var background = chart.background();
+        background.stroke('0 #000');
+        background.corners();
+        background.enabled(false);
+
+        //turn on chart animation
+        chart.animation(true);
+
+        // initiate chart drawing
+        chart.draw();
+
+        // chart credits false
+        var credits = chart.credits();
+        credits.enabled(false);
+
+        // horizontal expandable
+        chart.legend().itemsLayout('horizontal');
+      });
+      function getData() {
+        return [
+          ['{{mes_4}}', {{vehiculo_mes4}}, {{cantidad_entrada_mes4}}, {{cantidad_doble_entrada_mes4}}],
+          ['{{mes_3}}', {{vehiculo_mes3}}, {{cantidad_entrada_mes3}}, {{cantidad_doble_entrada_mes3}}],
+          ['{{mes_2}}', {{vehiculo_mes2}}, {{cantidad_entrada_mes2}}, {{cantidad_doble_entrada_mes2}}],
+          ['{{mes_1}}', {{vehiculo_mes1}}, {{cantidad_entrada_mes1}}, {{cantidad_doble_entrada_mes1}}],
+        ];
+      }
+
+      // spline-chart
+      anychart.onDocumentReady(function () {
+        // create data
+        var data = [
+          { x: '0', value: 8 },
+          { x: '1', value: 4 },
+          { x: '2', value: 4 },
+          { x: '3', value: 2 },
+          { x: '4', value: 0 },
+        ];
+
+        // create a chart
+        var chart = anychart.line();
+
+        // create a spline series and set the data
+        var series = chart.spline(data);
+        series.stroke({ keys: [{ color: '#A349A4' }], thickness: 4 });
+
+        // adjust scales
+        var xScale = anychart.scales.linear();
+        xScale.ticks().interval(1);
+        chart.xScale(xScale);
+        chart.yScale().ticks().interval(2);
+
+        // enable major grids
+        chart.xGrid().enabled(true);
+        chart.yGrid().enabled(true);
+
+        // set the chart title
+        chart.title('Posición y profundidad');
+        var title = chart.title();
+        title.align('center');
+        title.fontColor('#fff');
+        title.fontSize(18);
+        title.fontWeight(600);
+
+        // set the titles of the axes
+        var xAxis = chart.xAxis();
+        xAxis.title('');
+        var yAxis = chart.yAxis();
+        yAxis.title('');
+
+        // set the container id
+        chart.container('spline-chart');
+
+        //Set Background
+        var background = chart.background();
+        background.stroke('0 #000');
+        background.corners();
+        background.enabled(false);
+
+        //turn on chart animation
+        chart.animation(true);
+
+        // initiate chart drawing
+        chart.draw();
+
+        // chart credits false
+        var credits = chart.credits();
+        credits.enabled(false);
+      });
+    </script>
+  </body>
+</html>

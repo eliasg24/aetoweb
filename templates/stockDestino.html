@@ -1,0 +1,52 @@
+<html>
+  <head>
+    {%load static%}
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/tallerDestino.css' %}"
+    />
+    <meta charset="utf-8" />
+    <title></title>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+
+    <div class="all-cont">
+      <form class="taller-form">
+        <legend>
+          <h2>Stock Destino</h2>
+        </legend>
+        <hr />
+        <label for="" class="form-label"> Fecha: 21 / 02 / 2022 </label>
+        <label for="" class="form-label">
+          Taller de origen:
+          <span>#</span>
+        </label>
+        <label for="" class="form-label">
+          Taller de destino:
+          <span>#</span>
+        </label>
+        <label for="" class="form-label">
+          Usuario:
+          <span>User</span>
+        </label>
+
+        <h3>Lista de # economicos</h3>
+        <ul>
+          <li>#123456789</li>
+          <li>#123456789</li>
+          <li>#123456789</li>
+        </ul>
+        <nav class="nav-form">
+          <button class="btn btn-danger">
+            <span class="icon-cross"></span>
+          </button>
+          <button class="btn btn-success">
+            <span class="icon-checkmark"></span>
+          </button>
+        </nav>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/reporteLlanta.css' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/icomoon/style.css' %}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+  </head>
+  <body>
+    <div class="all-cont">
+      <div class="title">
+        <img class="img-pulpo" src="{% static 'images/pulpo.png' %}" alt="" />
+        <h1 class="main-title">Pulpo Report</h1>
+      </div>
+      <div class="header">
+        <img
+          class="img-logo"
+          src="{% static 'images/pulpo.png' %}"
+          alt="pulpo"
+        />
+        <h4 class="user">Numero economico: 280</h4>
+        <h4>Fecha Reporte: 1/12/2022</h4>
+      </div>
+      <div class="container">
+        <div class="leftcolumn">
+          <h2>ENTRADA</h2>
+          <h3>Presión: 90</h3>
+          <div id="llanta" class="bad"></div>
+          <span class="icon-cross"><span class="icon-cross"></span></span>
+        </div>
+        <span class="icon-arrow-right2"></span>
+        <div class="rightcolumn">
+          <h2>SALIDA</h2>
+          <h3>Presión: 90</h3>
+          <div id="llanta" class="good"></div>
+          <span class="icon-checkmark"></span>
+        </div>
+      </div>
+      <h3>Tiempo de Inflado: 2</h3>
+      <h3 class="text-center">
+        Usuario: user
+      </h3>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', (e) => {
+        print();
+
+        setTimeout(() => {
+          close();
+        }, 1000);
+      });
+
+      const Llanta = () => {
+        //Creando un web component
+        const llantas = document.querySelectorAll('#llanta');
+
+        llantas.forEach((llanta) => {
+          llanta.innerHTML = `
+                {% include 'tireSvg.html' %}
+
+                <div class="pop-out-llanta"></div>
+                `;
+        });
+      };
+
+      Llanta();
+    </script>
+  </body>
+</html>

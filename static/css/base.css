@@ -1,0 +1,17 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #363636;
+  color: #fff;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  margin: 0;
+}

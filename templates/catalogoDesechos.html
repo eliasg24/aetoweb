@@ -1,0 +1,106 @@
+<html>
+<head>
+	{%load static%}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/catalogosDesechos.css' %}">
+	<meta charset="utf-8">
+	<title></title>
+</head>
+<body>
+	{% include 'nav.html' %}
+	<div class="all-cont">
+		<header class="header">
+			<img class="img-logo" src="{% static 'images/Grupo 66.png'%}">
+		</header>
+		<div class="main-cont">
+			<h1 class="main-title">CATÁLOGO DE DESECHOS</h1>
+			<div class="containers">
+				<div class="cont-left">
+
+					<div class="container-fluid">
+
+						<h3>Agregar Dictamen</h3>
+
+						<div class="form-renovating">
+
+							<div class="input-box">
+								<label for="">Zona de llanta</label>
+								<input type="text">
+							</div>
+							
+							<div class="input-box">
+								<label for="">Condición</label>
+								<input type="text">
+							</div>
+
+							<div class="input-box">
+								<label for="">Razón</label>
+								<input type="text">
+							</div>
+
+							<div class="btn-container">
+				                <button class="btn1">Añadir</button>
+				            	<button class="btn">Descargar</button>
+				            </div>
+						</div>
+
+					</div>
+
+				</div>
+				<div class="cont-right">
+					<h3 class="title-cont">Desechos</h3>
+					<div class="table-cont">
+						
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Zona de llanta</th>
+									<th>Condición</th>
+									<th>Razón</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr>
+									<!-- Content -->
+								</tr>
+							</tbody>
+
+						</table>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+      /* DropDown */
+
+      const dropdown = (button = '', container = '') => {
+        /*  */
+        const btn = document.querySelector(button);
+        const dropdown = document.querySelector(container);
+        /* Dropdown event handler */
+        document.addEventListener('click', (e) => {
+          if (e.target === btn) {
+            document.getElementById(
+              'drop'
+            ).outerHTML = `<span id="drop">&blacktriangledown;</span>`; // Coloca la flecha hacía abajo, indicando que el menú esta abierto
+
+            dropdown.classList.toggle('active'); // Activa y desactiva la clase active cada vez que se hace click en el botón del dropdown
+
+            /* Si el dropdown esta activo, y se vuelve hacer click, se volvera a poner el triangulo hacía la derecha */
+            if (!dropdown.classList.contains('active'))
+              document.getElementById(
+                'drop'
+              ).outerHTML = `<span id="drop">&blacktriangleright;</span>`;
+          }
+        });
+      };
+
+      dropdown('.drop-btn', '.dropdown-content');
+
+      /* End Dropdown */
+    </script>
+</body>
+</html>

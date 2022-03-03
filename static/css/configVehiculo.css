@@ -1,0 +1,171 @@
+html {
+	font-family: Arial, Helvetica, sans-serif;
+	box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+	font-family: inherit;
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	background: #363636;
+}
+
+p {
+  margin: 0;
+}
+
+.all-cont {
+	display: grid;
+	grid-template-rows: auto auto 1fr;
+	height: 100vh;
+}
+
+.img-logo {
+	margin-top: 1vh;
+	margin-left: 1vw;
+}
+
+.main-title {
+	color: white;
+	text-align: center;
+}
+
+.main-cont {
+	background: #171717;
+	border-radius: 10px;
+	margin: 0 5vw 2vh 5vw;
+	display: grid;
+	grid-template-rows: 1fr 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+}	
+
+.src3,.src4, .src5 {
+	height: 27vh;
+}
+
+
+ .par-llantas,
+.doble-llanta {
+  display: flex;
+  align-items: center;
+  flex-flow: row nowrap;
+  justify-content: center;
+  position: relative;
+}
+
+/*
+.doble-llanta > #llanta {
+  margin: 0 .25rem;
+}
+
+.c-shaft {
+  height: 1vh;
+}
+
+*/
+
+.tire {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.presion-good, .profundidad-good,
+.presion-yellow, .profundidad-yellow,
+.presion-bad, .profundidad-bad {
+  color: #fff;
+  margin: 0 .25rem;
+  width: -webkit-fill-available !important;
+  width: -moz-available !important;
+  position: absolute;
+}
+
+.presion-good, .profundidad-good{
+  background: #026cf5;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.presion-yellow, .profundidad-yellow {
+  background: #dbc002;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.presion-bad, .profundidad-bad {
+  background: #f0412c;
+  width: 40%;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.profundidad-good,
+.profundidad-yellow,
+.profundidad-bad {
+  bottom: 0;
+}
+
+#llanta {
+  margin: 0 .25rem;
+}
+
+#llanta > svg {
+  width: 4vw;
+  height: auto;
+}
+
+#llanta:hover .pop-out-llanta {
+  display: block;
+}
+
+.shaft svg,
+.c-shaft svg {
+  width: 100%;
+  height: auto;
+}
+
+.shaft {
+  width: 8vw;
+}
+
+.c-shaft {
+  width: 2vw;
+}
+
+.shaft,
+.c-shaft {
+  fill: #fff;
+}
+
+
+.good {
+  fill: #ddd !important;
+}
+
+.yellow {
+  fill: #ddd !important;
+}
+
+.bad {
+  fill: #ddd !important;
+}

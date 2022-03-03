@@ -1,0 +1,224 @@
+<html>
+  <head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/almacen.css' %}" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AETO WEB</title>
+  </head>
+  <body>
+    {% include 'nav.html' %}
+
+    <div class="all-cont">
+      <div class="top-nav">
+        <form method="POST" class="filters">
+          {% csrf_token %}
+
+          <h1 class="title">Almacen</h1>
+          
+          <div class="search-control">
+              <input type="text" name="llanta" class="form-control" placeholder="Search..." />
+              <button type="submit" class="btn btn-icon">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <!-- <input class="taller" type="text" name="" placeholder="taller"> -->
+
+          <div class="dropdown">
+            <div class="taller">
+              <label>Taller</label>
+            </div>
+            <div class="drop_list">
+              <label for="all" class="select-all drop_item">
+                Select All
+                <input type="checkbox" name="all" id="all" />
+              </label>
+              <label for="product" class="drop_item">
+                Producto
+                <input type="checkbox" name="product" id="product" />
+              </label>
+              <label for="prof" class="drop_item">
+                Profundidad
+                <input type="checkbox" name="prof" id="prof" />
+              </label>
+              <label for="date" class="drop_item">
+                Fecha
+                <input type="checkbox" name="date" id="date" />
+              </label>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+
+      <div class="container">
+        <a class="a-card" href="{% url 'dashboards:nueva' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-new_releases"></span>
+                <span class="card_title_icon icon-tire"></span>
+                Nueva
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_nuevas}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:antesRenovar' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-reply2"></span>
+                Antes de renovar
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_antes_de_renovar}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:antesDesechar' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-spin1"></span>
+                ANTES DE DESECHAR
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_antes_de_desechar}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:renovada' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-loop"></span>
+                RENOVADA
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_renovadas}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:conRenovador' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span
+                  class="card_title_icon icon-published_with_changes"
+                ></span>
+                CON RENOVADOR
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_con_renovador}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:desechoFinal' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-flag"></span>
+                DESECHO FINAL
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_desecho_final}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:servicio' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-tools1"></span>
+                SERVICIO
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_servicio}}</h2>
+          </div>
+        </a>
+        <a class="a-card" href="{% url 'dashboards:rodante' %}">
+          <div class="card">
+            <div class="card_title">
+              <h2>
+                <span class="card_title_icon icon-tire"></span>
+                RODANTE
+              </h2>
+            </div>
+            <h2 class="card_number">{{llantas_rodantes}}</h2>
+          </div>
+        </a>
+      </div>
+
+      <div class="operaciones">
+        <h2>Operaciones</h2>
+        <div class="operacion">
+          <figure class="op">
+            <span class="icon-clipboard4"></span>
+            <figcaption class="op_title">Orden de llanta nueva</figcaption>
+          </figure>
+
+          <figure class="op">
+            <span class="icon-history2"></span>
+            <figcaption class="op_title">Historial de transacciones</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', (e) => {
+        dropdown();
+        decimalConverter();
+      });
+
+      const separator = (numb) => {
+        let str = numb.toString().split(".");
+        str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return str.join(".");
+      }
+
+      const decimalConverter = () => {
+        const numbers = document.querySelectorAll('.card_number');
+
+        numbers.forEach( (number) => {
+            number.textContent = separator(number.textContent);
+        } );
+      }
+
+
+      const dropdown = () => {
+        const taller = document.querySelector('.taller');
+        const checkboxs = document.querySelectorAll('.drop_item');
+        const checks = document.querySelectorAll('input[type="checkbox"]');
+
+        taller.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelector('.drop_list').classList.toggle('active');
+          checkboxs.forEach((item) => item.classList.toggle('active'));
+        })
+
+        document.addEventListener('click', (e) => {
+
+          if (e.target.matches('[name="all"]')) {
+            if (e.target.checked === true) {
+              checks.forEach((input) => {
+                input.checked = true;
+              });
+            } else {
+              checks.forEach((input) => {
+                input.checked = false;
+              });
+            }
+          }
+        });
+
+      };
+	  
+    </script>
+  </body>
+</html>

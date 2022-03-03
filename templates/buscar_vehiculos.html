@@ -1,0 +1,243 @@
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/vehiculos2.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'js/daterangepicker.css' %}"/>
+  <title>AETO WEB</title>
+</head>
+<body>
+
+    {% include 'nav.html' %}
+    <div class="all-cont">
+        <ul>
+            <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
+        </ul>
+
+        <section class="horizontal">
+            <section class="browser">
+                <H2>VEHÍCULOS</H2>
+                <div class="botones-estados">
+                    <a class="btn-colors" href="#EstadoVerde" onclick="estadoVerde();" id="estado_Verde">Verde</a>
+                    <a class="btn-colors" href="#EstadoAmarillo" onclick="estadoAmarillo();" id="estado_Amarillo">Amarillo</a>
+                    <a class="btn-colors" href="#EstadoRojo" onclick="estadoRojo();" id="estado_Rojo">Rojo</a>
+                    <a class="btn-colors" href="#EstadoSospechoso" onclick="estadoSospechoso();" id="estado_Sospechoso">Sospechoso</a>
+                </div>
+                {% comment %} <img src="" alt=""> {% endcomment %}
+                <div class="search-cars">
+                    <form id="form" action="{% url 'dashboards:search_id' %}" method="GET">
+                        {% csrf_token %}
+                        <input class="btn-head-item" type="text" name="fecha1" {% if fecha %}value="{{fecha}}"{% else %}value="Seleccionar Fecha"{% endif %} />
+                        <input name="numero_economico" type="search" placeholder="Buscar">
+                        <span class="icon-filter"></span>
+                        <input name="numero_economico" type="search" placeholder="TALLER">
+
+                        <div class="menu_button">
+                            <button id="button-car" class="menu_li--right" type="submit">Buscar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </section>
+                <section class="horizontal_graficas--1">
+                    <div class="status">
+                        <div class="car-status-good" id="status-green">
+                            <p>Cantidad de vehículos</p>
+                            <h2 class="green-status">{{cantidad_verdes}}/{{cantidad_total}}</h2>
+                        </div>
+
+                        <div class="car-status-good" id="status-yellow">
+                            <p>Cantidad de vehículos</p>
+                            <h2 class="yellow-status">{{cantidad_amarillos}}/{{cantidad_total}}</h2>
+                        </div>
+
+                        <div class="car-status-good" id="status-red">
+                            <p>Cantidad de vehículos</p>
+                            <h2 class="red-status">{{cantidad_rojos}}/{{cantidad_total}}</h2>
+                        </div>
+
+                        <div class="car-status-good" id="status-purple">
+                            <p>Cantidad de vehículos</p>
+                            <h2 class="purple-status">{{cantidad_sospechosos}}/{{cantidad_total}}</h2>
+                        </div> 
+                    </div>
+                    <div id="table-green">
+                        <section class="trucks">
+                            {% for vehiculo in vehiculos_verdes %}
+                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
+                                <div class="truck_number">
+                                    <div class="img-numEco">
+                                        <span class="icon-truck"></span>
+                                        <h4>{{vehiculo.numero_economico}}</h4>
+                                    </div>
+                                    <div class="img-pulpoF">
+                                        <span class="icon-pulpo"></span>
+                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
+                                        <span class="icon-checkmark"></span>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </section>
+                    </div>
+                    <div id="table-yellow">
+                        <section class="trucks">
+                            {% for vehiculo in vehiculos_amarillos %}
+                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
+                                <div class="truck_number">
+                                    <div class="img-numEco">
+                                        <span class="icon-truck"></span>
+                                        <h4>{{vehiculo.numero_economico}}</h4>
+                                    </div>
+                                    <div class="img-pulpoF">
+                                        <span class="icon-pulpo"></span>
+                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
+                                        <span class="icon-cross"></span>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </section>
+                    </div>
+                    <div id="table-red">
+                        <section class="trucks">
+                            {% for vehiculo in vehiculos_rojos %}
+                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
+                                <div class="truck_number">
+                                    <div class="img-numEco">
+                                        <span class="icon-truck"></span>
+                                        <h4>{{vehiculo.numero_economico}}</h4>
+                                    </div>
+                                    <div class="img-pulpoF">
+                                        <span class="icon-pulpo"></span>
+                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
+                                        <span class="icon-cross"></span>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </section>
+                    </div>  
+                    <div id="table-purple">
+                        <section class="trucks">
+                            {% for vehiculo in vehiculos_sospechosos %}
+                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
+                                <div class="truck_number">
+                                    <div class="img-numEco">
+                                        <span class="icon-truck"></span>
+                                        <h4>{{vehiculo.numero_economico}}</h4>
+                                    </div>
+                                    <div class="img-pulpoF">
+                                        <span class="icon-pulpo"></span>
+                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
+                                        <span class="icon-checkmark"></span>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </section>
+                    </div>
+                </section>
+        </section>
+    </div>
+<script>
+    function estadoVerde() {
+        document.getElementById('table-green').style.display = "block";
+        document.getElementById('table-yellow').style.display = "none";
+        document.getElementById('table-red').style.display = "none";
+        document.getElementById('table-purple').style.display = "none";
+        document.getElementById('status-green').style.display = "flex";
+        document.getElementById('status-yellow').style.display = "none";
+        document.getElementById('status-red').style.display = "none";
+        document.getElementById('status-purple').style.display = "none";
+        document.getElementById('estado_Verde').style.background = "green";
+        document.getElementById('estado_Amarillo').style.background = "#242424";
+        document.getElementById('estado_Rojo').style.background = "#242424"; 
+        document.getElementById('estado_Sospechoso').style.background = "#242424"; 
+    }
+    function estadoAmarillo() {
+        document.getElementById('table-green').style.display = "none";
+        document.getElementById('table-yellow').style.display = "block";
+        document.getElementById('table-red').style.display = "none";
+        document.getElementById('table-purple').style.display = "none";
+        document.getElementById('status-green').style.display = "none";
+        document.getElementById('status-yellow').style.display = "flex";
+        document.getElementById('status-red').style.display = "none";
+        document.getElementById('status-purple').style.display = "none";
+        document.getElementById('estado_Verde').style.background = "#242424";
+        document.getElementById('estado_Amarillo').style.background = "#dbc002";
+        document.getElementById('estado_Rojo').style.background = "#242424"; 
+        document.getElementById('estado_Sospechoso').style.background = "#242424"; 
+    }
+    function estadoRojo() {
+        document.getElementById('table-green').style.display = "none";
+        document.getElementById('table-yellow').style.display = "none";
+        document.getElementById('table-red').style.display = "block";
+        document.getElementById('table-purple').style.display = "none";
+        document.getElementById('status-green').style.display = "none";
+        document.getElementById('status-yellow').style.display = "none";
+        document.getElementById('status-red').style.display = "flex";
+        document.getElementById('status-purple').style.display = "none";
+        document.getElementById('estado_Verde').style.background = "#242424";
+        document.getElementById('estado_Amarillo').style.background = "#242424";
+        document.getElementById('estado_Rojo').style.background = "#f0412c"; 
+        document.getElementById('estado_Sospechoso').style.background = "#242424"; 
+    }
+    function estadoSospechoso() {
+        document.getElementById('table-green').style.display = "none";
+        document.getElementById('table-yellow').style.display = "none";
+        document.getElementById('table-red').style.display = "none";
+        document.getElementById('table-purple').style.display = "block";
+        document.getElementById('status-green').style.display = "none";
+        document.getElementById('status-yellow').style.display = "none";
+        document.getElementById('status-red').style.display = "none";
+        document.getElementById('status-purple').style.display = "flex";
+        document.getElementById('estado_Verde').style.background = "#242424";
+        document.getElementById('estado_Amarillo').style.background = "#242424";
+        document.getElementById('estado_Rojo').style.background = "#242424"; 
+        document.getElementById('estado_Sospechoso').style.background = "#9147ff"; 
+    }
+
+const iconoMenu = document.querySelector('#icono-menu'),
+      menu = document.querySelector('#menu');
+
+iconoMenu.addEventListener('click', (e) => {
+
+    // Alternamos estilos para el menu y body
+    menu.classList.toggle('active-burger');
+    document.body.classList.toggle('opacity');
+
+    // Alternamos su atributo 'src' para el ícono del menú
+    const rutaActual = e.target.getAttribute('src');
+
+    if(rutaActual == '{% static 'images/open-menu.png' %}'){
+        e.target.setAttribute('src','{% static 'images/open-menu2.png' %}');
+    }else{
+        e.target.setAttribute('src','{% static 'images/open-menu.png' %}');
+    }
+});
+     /*rango de fechas*/
+                $(function() {
+                    $('input[name="fecha1"]').daterangepicker({
+                        opens: 'left',
+                        autoUpdateInput: false,
+                        "autoApply": true
+                    },
+                    function(start, end, label) {
+                        console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                    });
+                    $('input[name="fecha1"]').on('apply.daterangepicker', function(ev, picker) {
+                        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                    });
+                });
+
+
+
+</script>
+</body>
+</html>

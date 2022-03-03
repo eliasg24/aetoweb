@@ -1,0 +1,24 @@
+<html>
+<head>
+	{% load static %}
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/tireDiagrama.css' %}">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>AETO WEB</title>
+</head>
+<body>
+	{% include 'nav.html' %}
+	<div class="all-cont">
+		<header>
+			<img class="img-logo" src="{% static 'images/Grupo 66.png' %}">
+		</header>
+		<div class="main-cont">
+			<h1 class="main-title">Configuración Llanta</h1>
+			<div class="tire good">
+				{% include 'tireSvg.html' %}
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,297 @@
+:root{
+  --inputs-laterales:  linear-gradient(#D76369, #F4AA74);
+  --red: #D76369;
+  --orange: #F6AA6F;
+  --black: #171717;
+  --gray: linear-gradient(#363636, #242424);
+}
+  
+*{
+  box-sizing: border-box;
+}
+  
+body{
+  margin: 0;
+  font-family: Arial;
+  background: #f1f1f1;
+  font-family: 'Montserrat', sans-serif;
+  background: var(--gray);
+}
+  
+html{
+  font-size: 62.5%;
+  color: white;
+}
+  
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--gray);
+}
+
+.all-cont {
+  float: left;
+  height: 100vh;
+  width: calc(100% - 70px);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 20px;
+}
+
+.menu_li--left{
+  margin-top: 1vh;
+  margin-left: 1vw;
+}
+  
+  /* trucks */
+.horizontal{
+  margin: 0 2vw 2vh 2vw;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  background-color: var(--black);
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.browser h2 {
+  font-size: 3.6rem;
+  font-family: energize-thin;
+  margin-left: 1.5vw;
+}
+
+.botones-estados {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  width: 30%;
+}
+
+#table-green {
+}
+
+#table-yellow, #table-red, #table-purple, #status-yellow, #status-red, #status-purple{
+  display: none;
+}
+
+.horizontal .horizontal_graficas--1{
+}
+
+.horizontal_graficas--1{
+  align-items: center;
+  justify-content: center;
+}
+
+.browser{
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-cars{
+  display: flex;
+  padding: 10px;
+}
+
+.browser input{
+  height: 30px;
+  padding: 5px;
+  outline: none;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.589);
+}
+
+.menu_button .menu_li--right{
+  height: 30px;
+  background-color: #9147ff;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+}
+
+.menu_li--right {
+  background-color: seagreen !important;
+}
+
+.trucks{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%; 
+  height: 69vh;
+  margin-top: 1vh;
+  padding: 0 1vw;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.a-truck {
+  text-decoration: none;
+  color: white;
+}
+  
+.trucks::-webkit-scrollbar{
+  width: 10px;
+}
+  
+.trucks::-webkit-scrollbar-thumb{
+  border-radius: 5px;
+  background-color: black
+}
+
+.trucks::-webkit-scrollbar-track{
+  border-radius: 5px;
+  background-color: gray
+}
+
+.truck_number{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: black;
+}
+
+.img-numEco {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.img-pulpoF {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  background-color: #363636;
+  border-radius: 10px;
+}
+
+.img-tireEye {
+  background-color: #363636;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-checkmark {
+  color: green;
+  font-size: 2rem;
+}
+
+.icon-warning {
+  color: #dbc002;
+  font-size: 2rem;
+}
+
+.icon-cross {
+  color: #f0412c;
+  font-size: 2rem;
+}
+
+.icon-user-secret {
+  color: #9147ff;
+  font-size: 2.5rem;
+}
+
+.truck_number img{
+  height: 30px;
+}
+
+.truck_number h4{
+  margin: 0;
+  font-size: 2rem;
+}
+
+.car-status-good p{
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+.car-status-good h2{
+  margin: 1rem;
+  font-size: 4rem;
+}
+
+.car-status-good{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 1vw; 
+  background: black;
+  border-radius: 10px;
+}
+
+.status{
+  display: flex;
+  justify-content: space-around;
+}
+
+.red-status{
+  color: #f0412c;
+}
+.green-status{
+  color: green;
+}
+.yellow-status{
+  color: #dbc002;
+}
+.purple-status{
+  color: #9147ff;
+}
+.btn-colors{
+  display: flex;
+  text-decoration: none;
+  color: white;
+  background: #242424;
+  border-radius: 5px;
+  padding: 4px;
+  font-size: 1.5rem;
+  width: 30%;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+#estado_Verde {
+  background: green;
+}
+
+#estado_Amarillo,
+#estado_Rojo,
+#estado_Sospechoso {
+  background: #242424;
+}
+
+
+.btn-head-item{
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 5px;
+  font-size: 1.2rem;
+  margin-top: 1vh;
+  height: 30px;
+  font-family: 'Montserrat', sans-serif;
+  outline: none;
+}
+
+/*Resolution 1366 max*/
+@media only screen and (max-height: 750px) {
+  .trucks {
+    height: 58vh;
+  }

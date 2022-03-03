@@ -1,0 +1,171 @@
+html {
+  font-family: 'Montserrat', sans-serif;
+  box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+  font-family: inherit;
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #363636;
+}
+
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.all-cont {
+  display: grid;
+  gap: 1vw;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+.img-logo {
+  margin-top: 1vh;
+  margin-left: 1vw;
+}
+
+.main-title {
+  color: white;
+  text-align: center;
+}
+
+.main-cont {
+  background: #171717;
+  border-radius: 10px;
+  margin: 0 5vw 2vh 5vw;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  justify-items: center;
+  align-items: center;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  justify-items: center;
+  width: 100%;
+}
+
+/* Define display: grid */
+
+.d-grid {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.navbar {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-items {
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  margin-right: 1rem;
+}
+
+.btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2vw;
+  outline: none;
+}
+
+.disabled > * {
+  color: gray;
+}
+
+.src3 {
+  height: 23vh;
+}
+
+.tire {
+  width: 10vw;
+}
+
+.good {
+  fill: #026cf5;
+}
+
+.yellow {
+  fill: #d0f533;
+}
+
+.bad {
+  fill: #f0412c;
+}
+
+.col-2 {
+  margin: auto;
+  width: 70%;
+}
+
+.tire {
+  cursor: pointer;
+}
+
+.manual-edit {
+  background-color: #1f1f1f;
+  border-radius: 0.25rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: auto;
+  padding: 1rem;
+  width: 90%;
+  height: auto;
+}
+
+.manual-edit > h3,
+.manual-edit > h4 {
+  margin: 0.25rem 0;
+}
+
+.manual-edit > h3 {
+  text-align: center;
+  font-size: 2vw;
+}
+
+.manual-edit > h4 {
+  font-size: 1.75vw;
+}
+
+.label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+label,
+input {
+  display: block;
+}
+
+.label-group > input {
+  background: none;
+  border: thin solid #fff;
+  border-radius: 0.25rem;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.5rem;
+  outline: none;
+}
