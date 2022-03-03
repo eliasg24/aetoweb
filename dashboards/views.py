@@ -1201,49 +1201,52 @@ class PulpoProAPI(View):
         )
         presiones_de_entrada = eval(jd['presiones_de_entrada'])
         presiones_de_salida = eval(jd['presiones_de_salida'])
-        if len(presiones_de_entrada) >= 1:
-            bi.presion_de_entrada_1 = presiones_de_entrada[0]
-            bi.presion_de_salida_1 = presiones_de_salida[0]
-            if len(presiones_de_entrada) >= 2:
-                bi.presion_de_entrada_2 = presiones_de_entrada[1]
-                bi.presion_de_salida_2 = presiones_de_salida[1]
-                if len(presiones_de_entrada) >= 3:
-                    bi.presion_de_entrada_3 = presiones_de_entrada[2]
-                    bi.presion_de_salida_3 = presiones_de_salida[2]
-                    if len(presiones_de_entrada) >= 4:
-                        bi.presion_de_entrada_4 = presiones_de_entrada[3]
-                        bi.presion_de_salida_4 = presiones_de_salida[3]
-                        if len(presiones_de_entrada) >= 5:
-                            bi.presion_de_entrada_5 = presiones_de_entrada[4]
-                            bi.presion_de_salida_5 = presiones_de_salida[4]
-                            if len(presiones_de_entrada) >= 6:
-                                bi.presion_de_entrada_6 = presiones_de_entrada[5]
-                                bi.presion_de_salida_6 = presiones_de_salida[5]
-                                if len(presiones_de_entrada) >= 7:
-                                    bi.presion_de_entrada_7 = presiones_de_entrada[6]
-                                    bi.presion_de_salida_7 = presiones_de_salida[6]
-                                    if len(presiones_de_entrada) >= 8:
-                                        bi.presion_de_entrada_8 = presiones_de_entrada[7]
-                                        bi.presion_de_salida_8 = presiones_de_salida[7]
-                                        if len(presiones_de_entrada) >= 9:
-                                            bi.presion_de_entrada_9 = presiones_de_entrada[8]
-                                            bi.presion_de_salida_9 = presiones_de_salida[8]
-                                            if len(presiones_de_entrada) >= 10:
-                                                bi.presion_de_entrada_10 = presiones_de_entrada[9]
-                                                bi.presion_de_salida_10 = presiones_de_salida[9]
-                                                if len(presiones_de_entrada) >= 11:
-                                                    bi.presion_de_entrada_11 = presiones_de_entrada[10]
-                                                    bi.presion_de_salida_11 = presiones_de_salida[10]
-                                                    if len(presiones_de_entrada) >= 12:
-                                                        bi.presion_de_entrada_12 = presiones_de_entrada[11]
-                                                        bi.presion_de_salida_12 = presiones_de_salida[11]
-        bi.save()
-  
-        vehiculo.fecha_de_inflado=date.today()
-        vehiculo.tiempo_de_inflado=jd['tiempo_de_inflado']
-        vehiculo.ultima_bitacora= bi
-        vehiculo.save()
-        return JsonResponse(jd)
+        numero_de_llantas = vehiculo.numero_de_llantas
+        if numero_de_llantas == len(presiones_de_entrada):
+
+            if len(presiones_de_entrada) >= 1:
+                bi.presion_de_entrada_1 = presiones_de_entrada[0]
+                bi.presion_de_salida_1 = presiones_de_salida[0]
+                if len(presiones_de_entrada) >= 2:
+                    bi.presion_de_entrada_2 = presiones_de_entrada[1]
+                    bi.presion_de_salida_2 = presiones_de_salida[1]
+                    if len(presiones_de_entrada) >= 3:
+                        bi.presion_de_entrada_3 = presiones_de_entrada[2]
+                        bi.presion_de_salida_3 = presiones_de_salida[2]
+                        if len(presiones_de_entrada) >= 4:
+                            bi.presion_de_entrada_4 = presiones_de_entrada[3]
+                            bi.presion_de_salida_4 = presiones_de_salida[3]
+                            if len(presiones_de_entrada) >= 5:
+                                bi.presion_de_entrada_5 = presiones_de_entrada[4]
+                                bi.presion_de_salida_5 = presiones_de_salida[4]
+                                if len(presiones_de_entrada) >= 6:
+                                    bi.presion_de_entrada_6 = presiones_de_entrada[5]
+                                    bi.presion_de_salida_6 = presiones_de_salida[5]
+                                    if len(presiones_de_entrada) >= 7:
+                                        bi.presion_de_entrada_7 = presiones_de_entrada[6]
+                                        bi.presion_de_salida_7 = presiones_de_salida[6]
+                                        if len(presiones_de_entrada) >= 8:
+                                            bi.presion_de_entrada_8 = presiones_de_entrada[7]
+                                            bi.presion_de_salida_8 = presiones_de_salida[7]
+                                            if len(presiones_de_entrada) >= 9:
+                                                bi.presion_de_entrada_9 = presiones_de_entrada[8]
+                                                bi.presion_de_salida_9 = presiones_de_salida[8]
+                                                if len(presiones_de_entrada) >= 10:
+                                                    bi.presion_de_entrada_10 = presiones_de_entrada[9]
+                                                    bi.presion_de_salida_10 = presiones_de_salida[9]
+                                                    if len(presiones_de_entrada) >= 11:
+                                                        bi.presion_de_entrada_11 = presiones_de_entrada[10]
+                                                        bi.presion_de_salida_11 = presiones_de_salida[10]
+                                                        if len(presiones_de_entrada) >= 12:
+                                                            bi.presion_de_entrada_12 = presiones_de_entrada[11]
+                                                            bi.presion_de_salida_12 = presiones_de_salida[11]
+            bi.save()
+    
+            vehiculo.fecha_de_inflado=date.today()
+            vehiculo.tiempo_de_inflado=jd['tiempo_de_inflado']
+            vehiculo.ultima_bitacora= bi
+            vehiculo.save()
+            return JsonResponse(jd)
 
 class TireEyeAPI(View):
 
