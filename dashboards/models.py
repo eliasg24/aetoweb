@@ -227,6 +227,7 @@ class Llanta(models.Model):
 
     numero_economico = models.CharField(max_length=200, null=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    compania = models.ForeignKey(Compania, on_delete=models.CASCADE, default=6)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, null=True, blank=True)
     opciones_vida = (("Nueva", "Nueva"),
                             ("1R", "1R"),

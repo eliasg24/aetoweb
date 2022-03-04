@@ -1256,7 +1256,7 @@ class TireEyeAPI(View):
 
     def post(self, request):
         jd = json.loads(request.body)
-        llanta = Llanta.objects.get(numero_economico=jd['numero_economico'], vehiculo__compania=Compania.objects.get(compania=jd['compania']))
+        llanta = Llanta.objects.get(numero_economico=jd['numero_economico'], compania=Compania.objects.get(compania=jd['compania']))
         Inspeccion.objects.create(llanta=llanta,
                                 fecha_hora=date.today(),
                                 km=jd['km'],
