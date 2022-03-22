@@ -1,106 +1,104 @@
-<html>
-<head>
-	{%load static%}
-	<link rel="stylesheet" type="text/css" href="{% static 'css/catalogosRenovadores.css' %}">
-	<meta charset="utf-8">
-	<title></title>
-</head>
-<body>
-	{% include 'nav.html' %}
-	<div class="all-cont">
-		<header class="header">
-			<img class="img-logo" src="{% static 'images/Grupo 66.png'%}">
-		</header>
-		<div class="main-cont">
-			<h1 class="main-title">CATÁLOGO DE RENOVADORES</h1>
-			<div class="containers">
-				<div class="cont-left">
+{% extends 'base.html' %}
 
-					<div class="container-fluid">
+{% block head %}
+{%load static%}
+<link rel="stylesheet" type="text/css" href="{% static 'css/catalogos.css' %}">
+<meta charset="utf-8">
+<title>Catalogo de renovadores</title>
+{% endblock %}
 
-						<h3>Agregar Renovador</h3>
+{% block content %}
+<div class="all-cont animate__animated animate__fadeIn">
 
-						<div class="form-renovating">
+	<header class="header">
+		<div class="logo">
+			<img class="img-logo" src="{% static 'images/aeto.svg'%}" alt="logo" />
+		</div>
+		<h1 class="main-title">CATÁLOGO DE RENOVADORES</h1>
+	</header>
 
-							<div class="input-box">
-								<label for="">Nombre</label>
-								<input type="text">
-							</div>
-							
-							<div class="input-box">
-								<label for="">Ciudad</label>
-								<input type="text">
-							</div>
+	<main class="main-cont">
+		<div class="cont-left">
 
-							<div class="input-box">
-								<label for="">Marca</label>
-								<input type="text">
-							</div>
+			<header class="section-head">
+				<h2 class="section-title">Agregar producto</h2>
+			</header>
 
-							<div class="btn-container">
-				          <button class="btn1">Añadir</button>
-				      		<button class="btn">Descargar</button>
-				      </div>
+			{% include 'catalogos-forms/renovadores-form.html' %}
 
-						</div>
+		</div>
 
-					</div>
+		<div class="cont-right">
+			<header class="section-head">
+				<h2 class="section-title">Renovadores</h2>
+			</header>
+			<div class="table-cont">
 
-				</div>
-				<div class="cont-right">
-					<h3 class="title-cont">Renovadores</h3>
-					<div class="table-cont">
+				<table class="main-table">
+					<thead>
+						<tr>
+							<th>Nombre</th>
+							<th>Ciudad</th>
+							<th>Marca</th>
+						</tr>
+					</thead>
 
-						<table class="renovating-table">
-							<thead>
-								<tr>
-									<th>Nombre</th>
-									<th>Ciudad</th>
-									<th>Marca</th>
-								</tr>
-							</thead>
+					<tbody>
+						<tr>
+							<td>data</td>
+							<td>data</td>
+							<td>data</td>
+						</tr>
+						<tr>
+							<td>data</td>
+							<td>data</td>
+							<td>data</td>
+						</tr>
+						<tr>
+							<td>data</td>
+							<td>data</td>
+							<td>data</td>
+						</tr>
+						<tr>
+							<td>data</td>
+							<td>data</td>
+							<td>data</td>
+						</tr>
+					</tbody>
 
-							<tbody>
-								<tr>
-									<!-- Content -->
-								</tr>
-							</tbody>
+				</table>
 
-						</table>
-
-					</div>
-				</div>
 			</div>
 		</div>
-	</div>
-	<script>
-      /* DropDown */
+	</main>
+</div>
+<script>
+		/* DropDown */
 
-      const dropdown = (button = '', container = '') => {
-        /*  */
-        const btn = document.querySelector(button);
-        const dropdown = document.querySelector(container);
-        /* Dropdown event handler */
-        document.addEventListener('click', (e) => {
-          if (e.target === btn) {
-            document.getElementById(
-              'drop'
-            ).outerHTML = `<span id="drop">&blacktriangledown;</span>`; // Coloca la flecha hacía abajo, indicando que el menú esta abierto
+		const dropdown = (button = '', container = '') => {
+			/*  */
+			const btn = document.querySelector(button);
+			const dropdown = document.querySelector(container);
+			/* Dropdown event handler */
+			document.addEventListener('click', (e) => {
+				if (e.target === btn) {
+					document.getElementById(
+						'drop'
+					).outerHTML = `<span id="drop">&blacktriangledown;</span>`; // Coloca la flecha hacía abajo, indicando que el menú esta abierto
 
-            dropdown.classList.toggle('active'); // Activa y desactiva la clase active cada vez que se hace click en el botón del dropdown
+					dropdown.classList.toggle('active'); // Activa y desactiva la clase active cada vez que se hace click en el botón del dropdown
 
-            /* Si el dropdown esta activo, y se vuelve hacer click, se volvera a poner el triangulo hacía la derecha */
-            if (!dropdown.classList.contains('active'))
-              document.getElementById(
-                'drop'
-              ).outerHTML = `<span id="drop">&blacktriangleright;</span>`;
-          }
-        });
-      };
+					/* Si el dropdown esta activo, y se vuelve hacer click, se volvera a poner el triangulo hacía la derecha */
+					if (!dropdown.classList.contains('active'))
+						document.getElementById(
+							'drop'
+						).outerHTML = `<span id="drop">&blacktriangleright;</span>`;
+				}
+			});
+		};
 
-      dropdown('.drop-btn', '.dropdown-content');
+		dropdown('.drop-btn', '.dropdown-content');
 
-      /* End Dropdown */
-    </script>
-</body>
-</html>
+		/* End Dropdown */
+	</script>
+{% endblock %}

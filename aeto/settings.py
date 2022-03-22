@@ -24,8 +24,7 @@ SECRET_KEY = 'gu(u2jc4&k164&b3ol4&6hjh13s(wvqgjb%hla4io983=*@-bp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['192.168.100.23','192.168.100.109', '192.168.100.94','192.168.100.91', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -139,3 +138,5 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
 DATE_INPUT_FORMATS = ['%d-%m-%Y']
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

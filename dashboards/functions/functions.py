@@ -17,10 +17,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 from random import sample, randint, uniform, random
 from sklearn.metrics import r2_score
-from openpyxl import load_workbook
 import pandas as pd
 import os
 import statistics
+
+def abrev(producto):
+
+    try:
+        producto = str(producto)
+        abrev=producto.split()
+
+        return abrev[2]
+    except:
+        return None
 
 class DiffDays(Func):
     function = 'DATE_PART'
@@ -28,514 +37,7 @@ class DiffDays(Func):
 
 class CastDate(Func):
     function = 'date_trunc'
-    template = "%(function)s('day', %(expressions)s)"
-
-
-
-def crear_nombre_de_eje():
-    """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))
-    for llanta in llantas:
-        num_aleatorio = sorted(sample(range(2, 5), 2))
-        i = Inspeccion.objects.create(
-            llanta=llanta,
-            fecha_hora=datetime.today(),
-            tiempo_de_inspeccion=2,
-            min_profundidad=num_aleatorio[0],
-            max_profundidad=num_aleatorio[1],
-        )
-        llanta.ultima_inspeccion = i
-        llanta.save()"""
-
-def crear_1(numero_economico, compania, ubicacion, aplicacion, clase, configuracion, tiempo_de_inflado, presion_de_entrada, presion_de_salida, presion_establecida):
-    """Vehiculo.objects.create(numero_economico=numero_economico,
-                                modelo="Kenworth",
-                                marca="International",
-                                compania=Compania.objects.get(compania=compania),
-                                ubicacion=Ubicacion.objects.get(nombre=ubicacion),
-                                aplicacion=Aplicacion.objects.get(nombre=aplicacion),
-                                clase=clase,
-                                configuracion=configuracion,
-                                fecha_de_inflado=date.today(),
-                                tiempo_de_inflado=tiempo_de_inflado,
-                                presion_de_entrada=presion_de_entrada,
-                                presion_de_salida=presion_de_salida,
-                                presion_establecida=presion_establecida
-                            )
-    Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=numero_economico),
-        compania=Compania.objects.get(compania=Compania.objects.get(compania=compania)),
-        fecha_de_inflado=date.today(),
-        tiempo_de_inflado=tiempo_de_inflado,
-        presion_de_entrada=presion_de_entrada,
-        presion_de_salida=presion_de_salida,
-        presion_establecida=presion_establecida
-        )"""
-        
-def crear_2(vehiculo):
-    """num_llantas = 0
-    for i in vehiculo.configuracion:
-        try:
-            i = int(i)
-            num_llantas += i
-        except:
-            pass
-    iteracion_ejes = {}
-    ejes = vehiculo.configuracion.split(".")
-    iteracion_ejes[1] = [ejes[0], int(ejes[0][1])]
-    iteracion_ejes[2] = [ejes[1], int(ejes[1][1])]
-    try:
-        iteracion_ejes[ejes[2]] = [ejes[2], int(ejes[2][1])]
-    except:
-        pass
-    familia_ejes = 0
-    iteracion_familia_ejes = 0
-    posiciones = ["LI", "RI", "LO", "RO"]
-    for i in range(1, num_llantas + 1):            
-        Llanta.objects.create(numero_economico=f"{vehiculo}-{i}",
-            usuario=Perfil.objects.get(user__username="pruebacal"),
-            vehiculo=vehiculo,
-            producto="NUEVA Michelin XDA5+ LRH 11R22.5",
-            marca="Michelin",
-            tipo_de_eje=iteracion_ejes[familia_ejes + 1][0],
-            eje=familia_ejes + 1,
-            posicion=f"{familia_ejes + 1}{posiciones[iteracion_familia_ejes]}",
-            fecha_de_inflado=date.today()
-        )
-        iteracion_familia_ejes += 1
-        if iteracion_familia_ejes == iteracion_ejes[familia_ejes + 1][1]:
-            familia_ejes += 1
-            iteracion_familia_ejes = 0"""
-
-def crear_3(vehiculo):
-    """llantas = Llanta.objects.filter(vehiculo=vehiculo)
-    for llanta in llantas:
-        num_aleatorio = sorted(sample(range(2, 10), 2))
-
-        i = Inspeccion.objects.create(
-            llanta=llanta,
-            fecha_hora=datetime(2021, 11, 20, 12, 0, 1),
-            tiempo_de_inspeccion=2,
-            min_profundidad=num_aleatorio[0],
-            max_profundidad=num_aleatorio[1],
-        )
-        llanta.ultima_inspeccion = i
-        llanta.save()"""
-
-def crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes, posicion, user):
-    """presion_encontrada = randint(80, 100)
-    tiempo_de_inspeccion = round(uniform(2, 3), 1)
-    profundidad = [randint(2, 8), randint(2, 8)]
-    primera_profundidad = [randint(2, 8), randint(2, 8)]
-    profundidad.sort()
-    primera_profundidad.sort()
-    inicio = datetime(2021, 8, 1)
-    final =  datetime(2021, 11, 3)
-    fecha_hora_de_inspeccion = inicio + (final - inicio) * random()
-
-    vehiculo.fecha_hora_de_inspeccion = fecha_hora_de_inspeccion
-    vehiculo.save()
-
-    Llanta.objects.create(numero_economico=f"AETO-LLANTA-{num_aleatorio[iteracion_llantas_totales]}",
-                            usuario=Perfil.objects.get(user=user),
-                            vehiculo=vehiculo,
-                            producto="Bridgstone A1",
-                            marca="Freightliner",
-                            tipo_de_eje=eje,
-                            eje=iteracion_ejes,
-                            posicion=posicion,
-                            presion_encontrada=presion_encontrada,
-                            presion_actual=vehiculo.presion_de_entrada,
-                            presion_establecida=vehiculo.presion_establecida,
-                            fecha_de_inflado=vehiculo.fecha_de_inflado,
-                            fecha_hora_de_inspeccion=fecha_hora_de_inspeccion,
-                            tiempo_de_inspeccion=tiempo_de_inspeccion,
-                            primera_min_profundidad=primera_profundidad[0],
-                            primera_max_profundidad=primera_profundidad[1],
-                            min_profundidad=profundidad[0],
-                            max_profundidad=profundidad[1],
-                            )"""
-
-def crear_llanta_sin_vehiculo(user):
-
-    for i in range(1, 51):
-        tiempo_de_inspeccion = round(uniform(2, 3), 1)
-        profundidad = [randint(2, 8), randint(2, 8)]
-        primera_profundidad = [randint(2, 8), randint(2, 8)]
-        profundidad.sort()
-        primera_profundidad.sort()
-        inicio = datetime(2021, 8, 1)
-        final =  datetime(2021, 11, 3)
-        fecha_hora_de_inspeccion = inicio + (final - inicio) * random()
-        producto = randint(1, 3)
-        vida = randint(1, 3)
-        inventario = randint(1, 6)
-
-        if vida == 1:
-            vida = "Nueva"
-        elif vida == 2:
-            vida = "1R"
-        elif vida == 3:
-            vida = "2R"
-
-        if vida == "Nueva":
-            inventario = "Nueva"
-        else:
-            if inventario == 1:
-                inventario = "Antes de Renovar"
-            if inventario == 2:
-                inventario = "Antes de Desechar"
-            if inventario == 3:
-                inventario = "Renovada"
-            if inventario == 4:
-                inventario = "Con renovador"
-            if inventario == 5:
-                inventario = "Desecho Final"
-            if inventario == 6:
-                inventario = "Servicio"
-
-
-        Llanta.objects.create(numero_economico=f"PruebaCal-{i}",
-                                usuario=Perfil.objects.get(user=user),
-                                producto=Producto.objects.get(id=producto),
-                                vida=vida,
-                                inventario=inventario
-                                )
-
-def crear_producto():
-    """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="pruebacal"))
-    for llanta in llantas:
-
-        if llanta.numero_economico[0:2] == "P1":
-            llanta.nombre_de_eje = "Arrastre"
-            llanta.save()
-        if llanta.numero_economico[0:2] == "P2":
-            llanta.nombre_de_eje = "Arrastre"
-            llanta.save()
-        if llanta.numero_economico[0:2] == "P3":
-            llanta.nombre_de_eje = "Arrastre"
-            llanta.save()
-        if llanta.numero_economico[0:2] == "P4":
-            llanta.nombre_de_eje = "Arrastre"
-            llanta.save()"""
-
-def crear_mm():
-    """inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania="pruebacal"))
-    for inspeccion in inspecciones:
-        num_aleatorio = sorted(sample(range(4, 10), 2))
-        
-        inspeccion.min_profundidad = num_aleatorio[0]
-        inspeccion.max_profundidad = num_aleatorio[1]
-        inspeccion.save()"""
-
-def crear_fecha():
-    """inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania="pruebacal"))
-    llantas_repetidas = []
-    for inspeccion in inspecciones:
-        llanta = str(inspeccion)[0:4]
-        if not(llanta in llantas_repetidas):
-            llantas_repetidas.append(llanta)
-        else:
-            inspeccion.km = 15000
-            inspeccion.save()"""
-        
-
-def excel(user):
-    
-    """num_aleatorio = sample(range(1, 100000), 36000)
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Compania Prueba"))
-    iteracion_vehiculo = 0
-    iteracion_llantas_totales = 0
-    iteracion_configuraciones = ["S2.D2", "S2.D2.D2", "S2.D4", "S2.D2.D2.T4.T4"]
-    for vehiculo in vehiculos:
-        iteracion_ejes = {}
-        if iteracion_vehiculo < 400:
-            vehiculo.configuracion = iteracion_configuraciones[0]
-            vehiculo.save()
-            ejes = iteracion_configuraciones[0].split(".")
-            iteracion_ejes[ejes[0]] = [int(ejes[0][1]), 1]
-            iteracion_ejes[ejes[1]] = [int(ejes[1][1]), 2]
-        elif iteracion_vehiculo < 1800:
-            vehiculo.configuracion = iteracion_configuraciones[1]
-            vehiculo.save()
-            ejes = iteracion_configuraciones[1].split(".")
-            iteracion_ejes[ejes[0]] = [int(ejes[0][1]), 1]
-            iteracion_ejes[ejes[1]] = [int(ejes[1][1]), 2]
-            iteracion_ejes[ejes[2]] = [int(ejes[2][1]), 3]
-        elif iteracion_vehiculo < 2600:
-            vehiculo.configuracion = iteracion_configuraciones[2]
-            vehiculo.save()
-            ejes = iteracion_configuraciones[2].split(".")
-            iteracion_ejes[ejes[0]] = [int(ejes[0][1]), 1]
-            iteracion_ejes[ejes[1]] = [int(ejes[1][1]), 2]
-        else:
-            vehiculo.configuracion = iteracion_configuraciones[3]
-            vehiculo.save()
-            ejes = iteracion_configuraciones[3].split(".")
-            iteracion_ejes[ejes[0]] = [int(ejes[0][1]), 1]
-            iteracion_ejes[ejes[1]] = [int(ejes[1][1]), 2]
-            iteracion_ejes[ejes[2]] = [int(ejes[2][1]), 3]
-            iteracion_ejes[ejes[3]] = [int(ejes[3][1]), 4]
-
-        for eje in iteracion_ejes:
-
-            if iteracion_ejes[eje][0] == 2:
-                posicion = f"{iteracion_ejes[eje][1]}RI"
-                crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes[eje][1], posicion, user)
-                iteracion_llantas_totales += 1
-                posicion = f"{iteracion_ejes[eje][1]}LI"
-                crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes[eje][1], posicion, user)
-                iteracion_llantas_totales += 1
-            elif iteracion_ejes[eje][0] == 4:
-                posicion = f"{iteracion_ejes[eje][1]}RI"
-                crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes[eje][1], posicion, user)
-                iteracion_llantas_totales += 1
-                posicion = f"{iteracion_ejes[eje][1]}RO"
-                crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes[eje][1], posicion, user)
-                iteracion_llantas_totales += 1
-                posicion = f"{iteracion_ejes[eje][1]}LI"
-                crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes[eje][1], posicion, user)
-                iteracion_llantas_totales += 1
-                posicion = f"{iteracion_ejes[eje][1]}LO"
-                crear_llanta(num_aleatorio, iteracion_llantas_totales, vehiculo, eje, iteracion_ejes[eje][1], posicion, user)
-                iteracion_llantas_totales += 1
-        iteracion_vehiculo += 1"""
-
-    """num_aleatorio = sample(range(1, 100000), 3000)
-    iteracion = 0
-    for num in num_aleatorio:
-        iteracion += 1
-        if iteracion <= 400:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Kenworth",
-                                        marca="International",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="CAMIONETA",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Camionera Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.4,
-                                        presion_de_entrada=100,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.4,
-                presion_de_entrada=100,
-                presion_de_salida=100,
-                )
-        elif iteracion <= 500:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Tesla",
-                                        marca="International",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="AUTOTANQUE ALIMENTICIO",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Camionera Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.3,
-                                        presion_de_entrada=100,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.4,
-                presion_de_entrada=100,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 640:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Tesla",
-                                        marca="International",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="AUTOTANQUE ALIMENTICIO",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Camionera Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.0,
-                                        presion_de_entrada=75,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.0,
-                presion_de_entrada=75,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 700:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="AUTOTANQUE ALIMENTICIO",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Camionera Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.0,
-                                        presion_de_entrada=100,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.0,
-                presion_de_entrada=100,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 720:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="AUTOTANQUE ALIMENTICIO",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Camionera Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.8,
-                                        presion_de_entrada=80,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.8,
-                presion_de_entrada=80,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 720:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="AUTOTANQUE ALIMENTICIO",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Transportes Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.7,
-                                        presion_de_entrada=82,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.7,
-                presion_de_entrada=82,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 790:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="AUTOTANQUE ALIMENTICIO",
-                                        ubicacion=Ubicacion.objects.get(nombre="Torreón Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Transportes Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.5,
-                                        presion_de_entrada=100,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.5,
-                presion_de_entrada=100,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 1200:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="REMOLQUE",
-                                        ubicacion=Ubicacion.objects.get(nombre="Monterrey Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Transportes Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.5,
-                                        presion_de_entrada=100,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.5,
-                presion_de_entrada=100,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 2200:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="TOLVA",
-                                        ubicacion=Ubicacion.objects.get(nombre="Monterrey Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Transportes Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.2,
-                                        presion_de_entrada=100,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.2,
-                presion_de_entrada=100,
-                presion_de_salida=100,
-            )
-        elif iteracion <= 3000:
-            Vehiculo.objects.create(numero_economico=f"AETO-{num}",
-                                        modelo="Cascadia",
-                                        marca="Freightliner",
-                                        compania=Compania.objects.get(compania="Compania Prueba"),
-                                        clase="TOLVA",
-                                        ubicacion=Ubicacion.objects.get(nombre="Monterrey Prueba"),
-                                        aplicacion=Aplicacion.objects.get(nombre="Camionera Prueba"),
-                                        fecha_de_inflado=date.today(),
-                                        tiempo_de_inflado=2.6,
-                                        presion_de_entrada=72,
-                                        presion_de_salida=100,
-                                        presion_establecida=100
-                                    )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
-                compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
-                fecha_de_inflado=date.today(),
-                tiempo_de_inflado=2.6,
-                presion_de_entrada=72,
-                presion_de_salida=100,
-            )"""
-    
-    """FILE_PATH = "D:/Descargas/Tablas AETO Tire.xlsx"
-    SHEET = "Inspeccion"
-    workbook = load_workbook(FILE_PATH, read_only=True)
-    sheet = workbook[SHEET]
-
-    for row in sheet.iter_rows(min_row=2):
-        numero_economico_de_llanta = row[1].value
-        min_profundidad = int(row[4].value)
-
-        Inspeccion.objects.create(llanta=Llanta.objects.get(numero_economico=numero_economico_de_llanta),
-                            fecha_hora=date.today(),
-                            tiempo_de_inspeccion=1,
-                            min_profundidad=min_profundidad,
-                            max_profundidad=min_profundidad,
-                            )"""
-
-    """while vehiculos_chidos.count():
-        ids = Vehiculo.objects.values_list('pk', flat=True)[:100]
-        Vehiculo.objects.filter(pk__in = ids, compania=Compania.objects.get(compania="Idealease")).delete()
-    """
-
-
+    template = "%(function)s('day', %(expressions)s)"    
 
 def clases_mas_frecuentes(vehiculo_fecha, compania):
     try:
@@ -639,13 +141,20 @@ def contar_mala_entrada(vehiculos):
         return None
 
 
-
 def convertir_fecha(fecha):
     try:
         partes_fecha = fecha.split("-")
         return f"{partes_fecha[2]}/{partes_fecha[1]}/{partes_fecha[0][2:4]}"
     except:
         return None
+
+def convertir_fecha2(fecha):
+    partes_fecha = fecha.split("/")
+    year = int(partes_fecha[2][:4])
+    month = int(partes_fecha[0])
+    day = int(partes_fecha[1])
+    fecha = date(year, month, day)
+    return fecha
 
 def convertir_rango(fecha):
     partes_fecha = fecha.split("-")
@@ -656,50 +165,53 @@ def convertir_rango(fecha):
     
 
 def cpk_vehiculo_cantidad(cpk_vehiculos):
-    max_v = max(cpk_vehiculos)
-    min_v = min(cpk_vehiculos)
-    resta = max_v - min_v
-    div = resta / 8
+    try:
+        max_v = max(cpk_vehiculos)
+        min_v = min(cpk_vehiculos)
+        resta = max_v - min_v
+        div = resta / 8
 
-    valores = []
-    for i in range(9):
-        valores.append(round(min_v + (div * i), 4))
+        valores = []
+        for i in range(9):
+            valores.append(round(min_v + (div * i), 4))
 
-    rangos = []
-    rango_1 = 0
-    rango_2 = 0
-    rango_3 = 0
-    rango_4 = 0
-    rango_5 = 0
-    rango_6 = 0
-    rango_7 = 0
-    rango_8 = 0
-    for cpk in cpk_vehiculos:
-        if valores[0] <= cpk < valores[1]:
-            rango_1 += 1
-        elif valores[1] <= cpk < valores[2]:
-            rango_2 += 1
-        elif valores[2] <= cpk < valores[3]:
-            rango_3 += 1
-        elif valores[3] <= cpk < valores[4]:
-            rango_4 += 1
-        elif valores[4] <= cpk < valores[5]:
-            rango_5 += 1
-        elif valores[5] <= cpk < valores[6]:
-            rango_6 += 1
-        elif valores[6] <= cpk < valores[7]:
-            rango_7 += 1
-        elif valores[7] <= cpk <= valores[8]:
-            rango_8 += 1
-    rangos.append(rango_1)
-    rangos.append(rango_2)
-    rangos.append(rango_3)
-    rangos.append(rango_4)
-    rangos.append(rango_5)
-    rangos.append(rango_6)
-    rangos.append(rango_7)
-    rangos.append(rango_8)
-
+        rangos = []
+        rango_1 = 0
+        rango_2 = 0
+        rango_3 = 0
+        rango_4 = 0
+        rango_5 = 0
+        rango_6 = 0
+        rango_7 = 0
+        rango_8 = 0
+        for cpk in cpk_vehiculos:
+            if valores[0] <= cpk < valores[1]:
+                rango_1 += 1
+            elif valores[1] <= cpk < valores[2]:
+                rango_2 += 1
+            elif valores[2] <= cpk < valores[3]:
+                rango_3 += 1
+            elif valores[3] <= cpk < valores[4]:
+                rango_4 += 1
+            elif valores[4] <= cpk < valores[5]:
+                rango_5 += 1
+            elif valores[5] <= cpk < valores[6]:
+                rango_6 += 1
+            elif valores[6] <= cpk < valores[7]:
+                rango_7 += 1
+            elif valores[7] <= cpk <= valores[8]:
+                rango_8 += 1
+        rangos.append(rango_1)
+        rangos.append(rango_2)
+        rangos.append(rango_3)
+        rangos.append(rango_4)
+        rangos.append(rango_5)
+        rangos.append(rango_6)
+        rangos.append(rango_7)
+        rangos.append(rango_8)
+    except:
+        valores = [0, 0, 0, 0, 0, 0, 0, 0]
+        rangos = [0, 0, 0, 0, 0, 0, 0, 0]
     return valores, rangos
 
 
@@ -797,19 +309,23 @@ def desgaste_irregular(llantas, periodo):
 def desgaste_irregular_producto(llantas):
     llantas_desgaste_irregular = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).values("numero_economico").filter(punto_de_retiro__lt=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).count()
     resta = llantas.count() - llantas_desgaste_irregular
-    porcentaje = round((resta / llantas.count()) * 100, 2)
+    try:
+        porcentaje = round((resta / llantas.count()) * 100, 2)
+    except:
+        porcentaje = 0
     return porcentaje
 
 
 def distribucion_cantidad(cpks):
     for cpk in cpks:
-        min = np.quantile(cpks[cpk], 0)
-        q1 = np.quantile(cpks[cpk], 0.25)
-        q2 = np.quantile(cpks[cpk], 0.5)
-        q3 = np.quantile(cpks[cpk], 0.75)
-        max = np.quantile(cpks[cpk], 1)
-        
-        cpks[cpk] = [min, q1, q2, q3, max]
+        if cpks[cpk]:
+            min = np.quantile(cpks[cpk], 0)
+            q1 = np.quantile(cpks[cpk], 0.25)
+            q2 = np.quantile(cpks[cpk], 0.5)
+            q3 = np.quantile(cpks[cpk], 0.75)
+            max = np.quantile(cpks[cpk], 1)
+            
+            cpks[cpk] = [min, q1, q2, q3, max]
 
     return cpks
 
@@ -851,7 +367,7 @@ def embudo_vidas(llantas):
     else:
         return llantas_abajo_del_punto, {'renovado1': 0, 'renovado2': 0, 'renovado3': 0, 'renovado4': 0, 'renovado5': 0, 'renovadonuevo': 0}
 
-def embudo_vidas_con_regresion(inspecciones):
+def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
     vehiculos_sospechosos = []
     """triplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=2)
     regresion = inspecciones.select_related("llanta__vehiculo").annotate(poli=Case(When(llanta__in=triplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
@@ -896,34 +412,89 @@ def embudo_vidas_con_regresion(inspecciones):
         vehiculos_sospechosos_iteracion = True
     else:
         vehiculos_sospechosos_iteracion = False
+    dict_vidas = {'renovado1': 0, 'renovado2': 0, 'renovado3': 0, 'renovado4': 0, 'renovado5': 0, 'renovadonuevo': 2}
+    lista_llantas = []
+    total = 0
     for llanta in llantas:
+        l = Llanta.objects.get(id=llanta["llanta"])
         fechas = sin_regresion.filter(llanta=llanta["llanta"]).aggregate(primera_fecha=Min("fecha_hora"),ultima_fecha=Max("fecha_hora"))
         dias = abs(fechas["ultima_fecha"] - fechas["primera_fecha"]).days
         if dias == 0:
             dias = 1
-        print(dias)
+        #print(dias)
         resta = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first().min_profundidad - sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad
-        print(resta)
+        #print(resta)
         diario = resta/dias
-        print(diario)
+        #print(diario)
         dias_30 = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 30)
         dias_60 = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 60)
         dias_90 = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 90)
 
-        print("dias_30: ", dias_30)
-        print("dias_60: ", dias_60)
-        print("dias_90: ", dias_90)
+        #print("dias_30: ", dias_30)
+        #print("dias_60: ", dias_60)
+        #print("dias_90: ", dias_90)
+        print("llanta", llanta["llanta"])
+        print("resta", resta)
+        print("dias_30", dias_30)
+        print("dias_60", dias_60)
+        print("dias_90", dias_90)
 
-        vehiculo = sin_regresion.filter(llanta=llanta["llanta"]).filter(min_profundidad__lt = resta - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta__vehiculo").distinct()
-        if vehiculo:
-            if not(vehiculo[0]["llanta__vehiculo"] in vehiculos_lista):
-                if vehiculos_sospechosos_iteracion:
-                    vehiculos_sospechosos = vehiculos_sospechosos.union(vehiculo)
-                else:
-                    vehiculos_sospechosos = vehiculo
-                    vehiculos_sospechosos_iteracion = True
-                vehiculos_lista.append(vehiculo[0]["llanta__vehiculo"])
-    return vehiculos_sospechosos
+        if days == 30:
+            if dias_30 <= 3:
+                lista_llantas.append(l)
+                if l.vida == "Nueva":
+                    dict_vidas["renovadonuevo"] += 1
+                elif l.vida == "1R":
+                    dict_vidas["renovado1"] += 1
+                elif l.vida == "2R":
+                    dict_vidas["renovado2"] += 1
+                elif l.vida == "3R":
+                    dict_vidas["renovado3"] += 1
+                elif l.vida == "4R":
+                    dict_vidas["renovado4"] += 1
+                elif l.vida == "5R":
+                    dict_vidas["renovado5"] += 1
+                total += 1
+        elif days == 60:
+            if dias_60 <= 3:
+                lista_llantas.append(l)
+                if l.vida == "Nueva":
+                    dict_vidas["renovadonuevo"] += 1
+                elif l.vida == "1R":
+                    dict_vidas["renovado1"] += 1
+                elif l.vida == "2R":
+                    dict_vidas["renovado2"] += 1
+                elif l.vida == "3R":
+                    dict_vidas["renovado3"] += 1
+                elif l.vida == "4R":
+                    dict_vidas["renovado4"] += 1
+                elif l.vida == "5R":
+                    dict_vidas["renovado5"] += 1
+                total += 1
+        if days == 90:
+            if dias_90 <= 3:
+                lista_llantas.append(l)
+                if l.vida == "Nueva":
+                    dict_vidas["renovadonuevo"] += 1
+                elif l.vida == "1R":
+                    dict_vidas["renovado1"] += 1
+                elif l.vida == "2R":
+                    dict_vidas["renovado2"] += 1
+                elif l.vida == "3R":
+                    dict_vidas["renovado3"] += 1
+                elif l.vida == "4R":
+                    dict_vidas["renovado4"] += 1
+                elif l.vida == "5R":
+                    dict_vidas["renovado5"] += 1
+                total += 1
+
+    dict_vidas["renovado5"] = round(dict_vidas["renovado4"] * (ubicacion.rendimiento_de_cuarta / 100))
+    dict_vidas["renovado4"] = round(dict_vidas["renovado3"] * (ubicacion.rendimiento_de_tercera / 100))
+    dict_vidas["renovado3"] = round(dict_vidas["renovado2"] * (ubicacion.rendimiento_de_segunda / 100))
+    dict_vidas["renovado2"] = round(dict_vidas["renovado1"] * (ubicacion.rendimiento_de_primera / 100))
+    dict_vidas["renovado1"] = round(dict_vidas["renovadonuevo"] * (ubicacion.rendimiento_de_nueva / 100))
+    dict_vidas["renovadonuevo"] = round(total - dict_vidas["renovado1"] - dict_vidas["renovado2"] - dict_vidas["renovado3"] - dict_vidas["renovado4"] - dict_vidas["renovado5"])
+    return lista_llantas, dict_vidas
 
 def entrada_correcta(vehiculos):
     try:
@@ -955,6 +526,7 @@ def entrada_correcta(vehiculos):
 def estatus_profundidad(llantas):
     estatus = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil"))), nombre_eje=Case(When(llanta_eje="S", then=Value("direccion")),When(llanta_eje="D", then=Value("traccion")),When(llanta_eje="T",then=Value("arrastre")),When(llanta_eje="C", then=Value("loco")),When(llanta_eje="L", then=Value("retractil")), output_field=CharField())).annotate(estatus=Case(When(ultima_inspeccion__min_profundidad__gt=F("punto_de_retiro"), then=Value("verde")),When(ultima_inspeccion__min_profundidad__gte=F("punto_de_retiro"),then=Value("amarillo")),When(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"),then=Value("rojo")), output_field=CharField())).values("nombre_eje").annotate(num_verde=Count("estatus",filter=Q(estatus="verde")),num_amarillo=Count("estatus",filter=Q(estatus="amarillo")),num_rojo=Count("estatus",filter=Q(estatus="rojo")))
     return estatus
+
 
 def inflado_promedio(vehiculo):
     tiempo_promedio = 0
@@ -1047,24 +619,29 @@ def km_proyectado(inspecciones, mediana):
         
     """print("km proyectados: ", kms_proyectados)
     print("cpks: ", cpks)"""
-    
-    if mediana:
-        mediana_km_proyectado = km_proyectado_mediana(kms_proyectados)
+    if inspecciones:
+        if mediana:
+            try:
+                mediana_km_proyectado = km_proyectado_mediana(kms_proyectados)
+            except:
+                mediana_km_proyectado = int(statistics.median(kms_proyectados))
+        else:
+            try:
+                mediana_km_proyectado = int(statistics.median(kms_proyectados))
+            except:
+                mediana_km_proyectado = 0
     else:
-        try:
-            mediana_km_proyectado = int(statistics.median(kms_proyectados))
-        except:
-            mediana_km_proyectado = 0
+        mediana_km_proyectado = 0
+
     try:
         mediana_kms_x_mm = int(statistics.median(kms_x_mm))
-        print(mediana_kms_x_mm)
     except:
         mediana_kms_x_mm = 0
     try:
         mediana_cpks = round(statistics.median(cpks), 3)
     except:
         mediana_cpks = 0
-    return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias
+    return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados
 
 def km_proyectado_mediana(kms_proyectados):
     q1 =  np.quantile(kms_proyectados, 0.25)
@@ -1108,12 +685,19 @@ def km_proyectado_mediana(kms_proyectados):
 
     return mediana_final
 
-
 def mala_entrada(vehiculos):
     vehiculos_fallidos = {}
     vehiculos_fallidos = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9)
     return vehiculos_fallidos
 
+def mala_entrada_ejes(llantas, periodo):
+    if periodo:
+        llantas_malas = llantas.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9)
+    llantas_malas_ejes = llantas_malas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")), traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")), arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")), loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")), retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")))
+    print(llantas_malas_ejes)
+    mala_entrada_ejes = {k: v for k, v in llantas_malas_ejes.items() if v != 0}
+    print(mala_entrada_ejes)
+    return mala_entrada_ejes
 
 def mes_anterior(fecha):
     primer_dia = fecha.replace(day=1)
@@ -1196,31 +780,49 @@ def radar_min_resta(min, max):
     except:
         return None
 
+def reduce(func, items):
+    result = items.pop()
+    for item in items:
+        result = func(result, item)
+
+    return result
+
 def reemplazo_actual(llantas):
     reemplazo_actual_llantas = llantas.select_related("ultima_inspeccion").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"))
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
     return reemplazo_actual_llantas, reemplazo_actual_ejes
 
 def reemplazo_dual(llantas, reemplazo_actual):
-    try:
-        llantas_duales = duales(llantas)
-        reemplazo_dual_1 = llantas_duales[0].filter(id__in=reemplazo_actual)
-        reemplazo_dual_2 = llantas_duales[1].filter(id__in=reemplazo_actual)
-        dual_dictionary = llantas_duales[2]
-        reemplazo_dual_1_list = reemplazo_dual_1.values_list("numero_economico", flat=True)
-        reemplazo_dual_2_list = reemplazo_dual_2.values_list("numero_economico", flat=True)
-        array_of_qs = []
-        for k, v in dual_dictionary.items():
-            array_of_qs.append(reemplazo_dual_1.filter(numero_economico=k).annotate(pareja=ExpressionWrapper(Value(v),output_field=CharField())).exclude(pareja__in=reemplazo_dual_2_list).values("id"))
-        for k, v in dual_dictionary.items():
-            array_of_qs.append(reemplazo_dual_2.filter(numero_economico=v).annotate(pareja=ExpressionWrapper(Value(k),output_field=CharField())).exclude(pareja__in=reemplazo_dual_1_list).values("id"))
-        reemplazo_dual = array_of_qs[0].union(*array_of_qs[1:])
-        reemplazo_dual_llantas = llantas.filter(id__in=reemplazo_dual)
-        reemplazo_dual_ejes = reemplazo_dual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
-        reemplazo_dual_ejes = {k: v for k, v in reemplazo_dual_ejes.items() if v != 0}
-        return reemplazo_dual_ejes
-    except:
-        return None
+    llantas = Llanta.objects.filter(id__in=llantas)
+    llantas_duales = duales(llantas)
+    print("hola1")
+    reemplazo_dual_1 = llantas_duales[0].filter(id__in=reemplazo_actual)
+    reemplazo_dual_2 = llantas_duales[1].filter(id__in=reemplazo_actual)
+    print("hola2")
+    dual_dictionary = llantas_duales[2]
+    print("hola3")
+    reemplazo_dual_1_list = reemplazo_dual_1.values_list("numero_economico", flat=True)
+    reemplazo_dual_2_list = reemplazo_dual_2.values_list("numero_economico", flat=True)
+    print("reemplazo_dual_1_list", reemplazo_dual_1_list)
+    print("hola4")
+    array_of_qs = []
+    for k, v in dual_dictionary.items():
+        array_of_qs.append(reemplazo_dual_1.filter(numero_economico=k).annotate(pareja=ExpressionWrapper(Value(v),output_field=CharField())).exclude(pareja__in=reemplazo_dual_2_list).values("id"))
+    for k, v in dual_dictionary.items():
+        array_of_qs.append(reemplazo_dual_2.filter(numero_economico=v).annotate(pareja=ExpressionWrapper(Value(k),output_field=CharField())).exclude(pareja__in=reemplazo_dual_1_list).values("id"))
+    print("array_of_qs", array_of_qs)
+    print("hola5")
+    reemplazo_dual = array_of_qs[0].union(*array_of_qs[1:])
+    print("reemplazo_dual", reemplazo_dual)
+    reemplazo_dual_llantas = llantas.filter(id__in=reemplazo_dual)
+    print("hola6")
+    reemplazo_dual_ejes = reemplazo_dual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
+    print("hola7")
+    print("reemplazo_dual_ejes", reemplazo_dual_ejes)
+    reemplazo_dual_ejes = {k: v for k, v in reemplazo_dual_ejes.items() if v != 0}
+    print("hola8")
+    return reemplazo_dual_ejes
+
 
 def reemplazo_total(reemplazo_actual, reemplazo_dual):
     cantidad_total = {}
@@ -1256,6 +858,12 @@ def salida_correcta(vehiculos):
     except:
         return None
 
+def sacar_eje(posicion, vehiculo):
+    configuracion = vehiculo.configuracion
+    ejes = configuracion.split(".")
+    eje = ejes[posicion - 1]
+    return eje
+
 def sin_informacion(llantas):
     llantas_sin_informacion = llantas.filter(producto__isnull=True).count()
     return llantas_sin_informacion
@@ -1286,18 +894,19 @@ def vehiculos_inspeccionados_por_clase(vehiculos):
     return porcentaje_clase
 
 def vehiculos_por_aplicacion_sin_inspeccionar(vehiculos, hoy1, hoy2, hoy3):
-    vehiculos_vencidos = vehiculos.filter(ultima_inspeccion__fecha_hora__month=hoy1) | vehiculos.filter(ultima_inspeccion__fecha_hora__month=hoy2) | vehiculos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-    vehiculos_aplicacion = vehiculos_vencidos.values("aplicacion__nombre").distinct().annotate(mes1=Count("ultima_inspeccion__fecha_hora__month",filter=Q(ultima_inspeccion__fecha_hora__month=hoy1)),mes2=Count("ultima_inspeccion__fecha_hora__month",filter=Q(ultima_inspeccion__fecha_hora__month=hoy2)),mes3=Count("ultima_inspeccion__fecha_hora__month",filter=Q(ultima_inspeccion__fecha_hora__month=hoy3)))
+    vehiculos_vencidos = vehiculos.filter(~Q(ultima_inspeccion__fecha_hora__month=hoy1)) | vehiculos.filter(~Q(ultima_inspeccion__fecha_hora__month=hoy2)) | vehiculos.filter(~Q(ultima_inspeccion__fecha_hora__month=hoy3)) | vehiculos.filter(ultima_inspeccion__isnull=True)
+    vehiculos_aplicacion = vehiculos_vencidos.values("aplicacion__nombre").distinct().annotate(mes1=Count("numero_economico",filter=(~Q(ultima_inspeccion__fecha_hora__month=hoy1) | Q(ultima_inspeccion__isnull=True))),mes2=Count("numero_economico",filter=(~Q(ultima_inspeccion__fecha_hora__month=hoy2) | Q(ultima_inspeccion__isnull=True))),mes3=Count("numero_economico",filter=(~Q(ultima_inspeccion__fecha_hora__month=hoy3) | Q(ultima_inspeccion__isnull=True))))
     return vehiculos_aplicacion
 
 def vehiculos_por_clase_sin_inspeccionar(vehiculos, hoy1, hoy2, hoy3):
-    vehiculos_vencidos = vehiculos.filter(ultima_inspeccion__fecha_hora__month=hoy1) | vehiculos.filter(ultima_inspeccion__fecha_hora__month=hoy2) | vehiculos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-    vehiculos_clase = vehiculos_vencidos.values("clase").distinct().annotate(mes1=Count("ultima_inspeccion__fecha_hora__month",filter=Q(ultima_inspeccion__fecha_hora__month=hoy1)),mes2=Count("ultima_inspeccion__fecha_hora__month",filter=Q(ultima_inspeccion__fecha_hora__month=hoy2)),mes3=Count("ultima_inspeccion__fecha_hora__month",filter=Q(ultima_inspeccion__fecha_hora__month=hoy3)))
+    vehiculos_vencidos = vehiculos.filter(~Q(ultima_inspeccion__fecha_hora__month=hoy1)) | vehiculos.filter(~Q(ultima_inspeccion__fecha_hora__month=hoy2)) | vehiculos.filter(~Q(ultima_inspeccion__fecha_hora__month=hoy3)) | vehiculos.filter(ultima_inspeccion__isnull=True)
+    vehiculos_clase = vehiculos_vencidos.values("clase").distinct().annotate(mes1=Count("numero_economico",filter=(~Q(ultima_inspeccion__fecha_hora__month=hoy1) | Q(ultima_inspeccion__isnull=True))),mes2=Count("numero_economico",filter=(~Q(ultima_inspeccion__fecha_hora__month=hoy2) | Q(ultima_inspeccion__isnull=True))),mes3=Count("numero_economico",filter=(~Q(ultima_inspeccion__fecha_hora__month=hoy3) | Q(ultima_inspeccion__isnull=True))))
     return vehiculos_clase
 
-def vehiculo_rojo(llantas, doble_entrada):
+def vehiculo_rojo(llantas, doble_entrada, vehiculo):
     llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") - 1).values("vehiculo").distinct()
-    union = doble_entrada.union(llantas)
+    vehiculos = vehiculo.filter(id__in=llantas)
+    union = vehiculos | doble_entrada
     return union
 
 def vehiculo_sospechoso(inspecciones):
@@ -1358,7 +967,7 @@ def vehiculo_sospechoso(inspecciones):
         if vehiculo:
             if not(vehiculo[0]["llanta__vehiculo"] in vehiculos_lista):
                 if vehiculos_sospechosos_iteracion:
-                    vehiculos_sospechosos = vehiculos_sospechosos.union(vehiculo)
+                    vehiculos_sospechosos = vehiculos_sospechosos | vehiculo
                 else:
                     vehiculos_sospechosos = vehiculo
                     vehiculos_sospechosos_iteracion = True

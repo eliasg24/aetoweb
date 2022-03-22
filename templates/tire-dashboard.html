@@ -1,556 +1,828 @@
-<html>
-  <head>
-    {% load static %}
+{% extends 'base.html' %} {% block head %} {% load static %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'css/tire-dashboard.css' %}"
+/>
+<script
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"
+></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'js/daterangepicker.css' %}"
+/>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-bullet.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-radar.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-circular-gauge.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_provence.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_glamour.js"></script>
+<meta charset="utf-8" />
+<meta http-equiv="Expires" content="0" />
+<meta http-equiv="Last-Modified" content="0" />
+<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<title>TIRE EYE</title>
+{% endblock head %} {% block content %}
 
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'css/tire-dashboard.css' %}"
-    />
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"
-    ></script>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'js/daterangepicker.css' %}"
-    />
-    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-bullet.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-radar.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-circular-gauge.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_provence.js"></script>
-    <script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_glamour.js"></script>
-    <meta charset="utf-8" />
-    <meta http-equiv="Expires" content="0" />
-    <meta http-equiv="Last-Modified" content="0" />
-    <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <title>TIRE EYE</title>
-  </head>
-  <body>
-    {% include 'nav.html' %}
-    <div class="all-cont">
-      <ul class="head-menu">
-        <li class="menu_li--left">
-          <img src="{% static 'images/Grupo 66.png' %}" alt="" />
-        </li>
-        <form class="form-head"
-          action="{% url 'dashboards:tireDB1' %}"
-          method="GET">
-          <!-- <li class="head-item menu_li--right">
-            <div class="multiselect4">
-              <div class="selectBox4" onclick="showCheckboxes4()">
-                <select name="OS">
-                  <option value="1">Ubicación</option>
-                </select>
-                <div class="overSelect4"></div>
+<div class="all-cont animate__animated animate__fadeIn">
+  <header class="head-menu">
+    <div class="menu-li__left">
+      <img src="{% static 'images/aeto.svg' %}" alt="" />
+    </div>
+
+    <form
+      class="form-head"
+      action="{% url 'dashboards:tireDB1' %}"
+      method="GET"
+    >
+      <nav class="btn-group" id="nav-dash">
+        <a href="{% url 'dashboards:tireDB1' %}" class="btn btn-trash">
+          <span class="icon-trash2"></span>
+          <span class="icont-trash2 blur"></span>
+        </a>
+
+        <div class="dropdown">
+          <button class="drop-btn" id="ubicacion">
+            Sucursal
+            <span class="indicator">
+              <i class="bx bxs-right-arrow"></i>
+            </span>
+          </button>
+
+          <ul class="drop-menu" id="menu-ubicacion">
+            <li>
+              <div class="drop-search">
+                <input
+                  type="search"
+                  id="search-ubicacion"
+                  class="drop-input"
+                  autocomplete="off"
+                />
+                <i class="bx bx-search"></i>
               </div>
-              <div id="checkboxes4" style="background-color: #171717">
-                {% for flota in flotas %}
-                <label
-                  ><input type="checkbox" name="flota" value="{{flota}}" />
-                  <p>{{flota}}</p></label
-                >
-                {% endfor %}
-              </div>
-            </div>
-          </li>
-          <li class="head-item menu_li--right">
-            <div class="multiselect3">
-              <div class="selectBox3" onclick="showCheckboxes3()">
-                <select name="OS">
-                  <option value="1">Clase</option>
-                </select>
-                <div class="overSelect3"></div>
-              </div>
-              <div id="checkboxes3" style="background-color: #171717">
-                {% for clase in clases_mas_frecuentes_infladas %}
-                <label
-                  ><input type="checkbox" name="clase" value="{{clase}}" />
-                  <p>{{clase}}</p></label
-                >
-                {% endfor %}
-              </div>
-            </div>
-          </li>
-          <li class="head-item">
-            <button class="btn-head-item" type="submit">Buscar</button>
-          </li>
-          <li class="head-item">
-            <a class="" id="btn-limpiar" href="{% url 'dashboards:tireDB1' %}"
-              ><span class="icon-trash2"></span
-            ></a>
-          </li> -->
-          <nav class="btn-group" id="nav-dash">
-
-            <button class="btn btn-aeto">
-                <span class="icon-trash2"></span>
-                <span class="icont-trash2 blur"></span>
-            </button>
-
-            <div class="multiselect4 input-aeto">
-                <div class="selectBox4" onclick="showCheckboxes4()">
-                    <select name="OS" class="btn-aeto">
-                        <option value="1">Ubicación</option> 
-                    </select>
-                    <div class="overSelect4"></div>
-                </div>
-                <div id="checkboxes4" style="background-color: #171717;">
-                    {% for flota in flotas %}
-                        <label><input type="checkbox" name="flota" value="{{flota}}"><p>{{flota}}</p></label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="multiselect3 input-aeto">
-                <div class="selectBox3" onclick="showCheckboxes3()">
-                    <select name="OS" class="btn-aeto">
-                        <option value="1">Clase</option> 
-                    </select>
-                    <div class="overSelect3"></div>
-                </div>
-                <div id="checkboxes3" style="background-color: #171717;">
-                    {% for clase in clases_mas_frecuentes_infladas %}
-                        <label><input type="checkbox" name="clase" value="{{clase}}"><p>{{clase}}</p></label>
-                    {% endfor %}
-
-                </div>
-            </div>
-
-
-            <button class="btn btn-aeto" id="btn-buscar" type="submit">
-                <span>Buscar</span>
-                <span class="blur">Buscar</span>
-                <span class="icon-magnifier"></span>
-            </button>
-                    
-          </nav>
-        </form>
-      </ul>
-      <div class="horizontal">
-        <div class="column">
-          <div class="bullet-cont">
-            <div id="score-gauge1"></div>
-          </div>
-          <div class="title-icon">
-            <div class="title-score">
-              <h1 class="h1-score">{{porcentaje_visto}}%</h1>
-              <h1 class="h1-score">
-                {{vehiculos_vistos}}/{{vehiculos_totales}}
-              </h1>
-            </div>
-
-            <div class="icon-score">
-              <span class="icon-eye"></span>
-
-              <div class="popout-text">
-                <p>Vehiculos vencidos</p>
-              </div>
-            </div>
-          </div>
-          <!-- <p class="p-bullet">Vehículos vencidos</p> -->
+            </li>
+            <li>
+              <label for="all-flota" class="input-check select-all">
+                Seleccionar todas
+                <input type="checkbox" name="flota2" value="all" id="all-flota" {% if flota2|slugify == "all" %}checked{% endif %} />
+                <span class="checkmark"></span>
+              </label>
+            </li>
+            {% for flota in flotas %}
+            <li class="search-item">
+              <label for="{{flota}}" class="input-check">
+                {{flota}} 
+                <input type="checkbox" name="flota" id="{{flota}}" value="{{flota}}" {% for f in flota1 %}{% if f|slugify == flota|slugify %}checked{% endif %}{% endfor %} />
+                <span class="checkmark"></span>
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
         </div>
-        <div class="column">
-          <div class="bullet-cont">
-            <div id="score-gauge2"></div>
-          </div>
-          <div class="title-icon">
-            <div class="title-score">
-              <h1 class="h1-score">{{porcentaje_rojo}}%</h1>
-              <h1 class="h1-score">
-                {{vehiculos_rojos}}/{{vehiculos_totales}}
-              </h1>
-            </div>
-            <div class="icon-score">
-              <span class="icon-warning"></span>
 
-              <div class="popout-text">
-                <p>Vehiculos rojos</p>
+        <div class="dropdown">
+          <button class="drop-btn" id="clase">
+            Clase
+            <span class="indicator">
+              <i class="bx bxs-right-arrow"></i>
+            </span>
+          </button>
+
+          <ul class="drop-menu" id="menu-clase">
+            <li>
+              <div class="drop-search">
+                <input
+                  type="search"
+                  id="search-clase"
+                  class="drop-input"
+                  autocomplete="off"
+                />
+                <i class="bx bx-search"></i>
               </div>
-            </div>
-          </div>
-          <!-- <p class="p-bullet">Vehículos rojos</p> -->
+            </li>
+            <li>
+              <label for="all-clase" class="input-check select-all">
+                Seleccionar todas
+                <input type="checkbox" name="clase2" value="all" id="all-clase" {% if clase2|slugify == "all" %}checked{% endif %} />
+                <span class="checkmark"></span>
+              </label>
+            </li>
+            {% for clase in clases_mas_frecuentes_infladas %}
+            <li class="search-item">
+              <label for="{{clase.clase}}" class="input-check">
+                {{clase.clase|lower|capfirst}} 
+                <input type="checkbox"name="clase" id="{{clase.clase}}" value="{{clase.clase}}" {% for c in clase1 %}{% if c|slugify == clase.clase|slugify %}checked{% endif %}{% endfor %} />
+                <span class="checkmark"></span>
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
         </div>
-        <div class="column">
-          <div class="bullet-cont">
-            <div id="score-gauge3"></div>
-          </div>
-          <div class="title-icon">
-            <div class="title-score">
-              <h1 class="h1-score">{{porcentaje_amarillo}}%</h1>
-              <h1 class="h1-score">
-                {{vehiculos_amarillos}}/{{vehiculos_totales}}
-              </h1>
-            </div>
-            <div class="icon-score">
-              <span class="icon-notification"></span>
 
-              <div class="popout-text">
-                <p>Vehiculos amarillos</p>
-              </div>
-            </div>
-          </div>
+        <!-- <button class="btn btn-aeto" id="btn-buscar" type="submit">
+          <span>Buscar</span>
+          <span class="blur">Buscar</span>
+          <span class="icon-magnifier"></span>
+        </button> -->
+      </nav>
+    </form>
+  </header>
 
-          <!-- <p class="p-bullet">Vehículos amarillos</p> -->
+  <div class="horizontal">
+    <div class="column">
+      <div class="bullet-cont">
+        <div id="score-gauge1" class="score-gauge"></div>
+      </div>
+      <div class="title-icon">
+        <div class="title-score">
+          <h2 class="h2-score">{{porcentaje_visto}}%</h2>
+          <h2 class="h2-score">{{vehiculos_vistos}}/{{vehiculos_totales}}</h2>
         </div>
-        <div class="column">
-          <div class="bullet-cont">
-            <div id="score-gauge4"></div>
-          </div>
-          <div class="title-icon">
-            <div class="title-score">
-              <h1 class="h1-score">{{porcentaje_sospechoso}}%</h1>
-              <h1 class="h1-score">
-                {{vehiculos_sospechosos}}/{{vehiculos_totales}}
-              </h1>
-            </div>
-            <div class="icon-score">
-              <span class="icon-question"></span>
 
-              <div class="popout-text">
-                <p>Vehiculos sospechosos</p>
-              </div>
-            </div>
+        <div class="icon-score">
+          <span class="icon-eye"></span>
+
+          <div class="popout-text">
+            <p>Vehiculos vencidos</p>
           </div>
-          <!-- <p class="p-bullet">Vehículos sospechosos</p> -->
         </div>
       </div>
-      <div class="cont-horizontal">
-        <div class="cont-left">
-          <div id="p1" class="webo">
-            <div class="icons-egg">
-              <!--  <span class="icon-warning"></span>
-                        <span class="icon-notification"></span>
-                        <span class="icon-eye"></span> -->
-              <!-- <button class="icono-pantallaC" onclick="openFullscreen();"><span class="icon-fullscreen"></span></button>
-                        <button class="icono-pantallaC" onclick="closeFullscreen();"><span class="icon-fullscreen_exit"></span></button> -->
-            </div>
-            <div class="radar-webo">
-              <div class="buttons">
-                <!-- Switch button -->
+      <aside class="about-btn">
+        <span class="icon-question-circle-o"></span>
+        <div class="popout-text">
+          <p class="italic">
+            Porcentaje de vehiculos vencidos de inspección sobre el periodo de inspección. 
+          </p>
+          <p>
+            <strong>Objetivo</strong>: Ver el gauge lo mas cercano a 0%
+          </p>
+        </div>
+      </aside>
+    </div>
+    <div class="column">
+      <div class="bullet-cont">
+        <div id="score-gauge2" class="score-gauge"></div>
+      </div>
+      <div class="title-icon">
+        <div class="title-score">
+          <h2 class="h2-score">{{porcentaje_rojo}}%</h2>
+          <h2 class="h2-score">{{vehiculos_rojos}}/{{vehiculos_totales}}</h2>
+        </div>
+        <div class="icon-score">
+          <span class="icon-warning"></span>
 
-                <button class="btn active" id="clase">Clase</button>
-                <button class="btn disable" id="aplicacion">Aplicación</button>
-
-                <!--<button onclick="gauge();">G</button>
-                        <button onclick="radar();">R</button>-->
-                <button class="icono-pantallaC">
-                  <span class="icon-question-circle-o"></span>
-                </button>
-                <button
-                  class="icono-pantallaC"
-                  id="ocultarR1"
-                  onclick="closeFullscreenP1();"
-                >
-                  <span class="icon-fullscreen_exit"></span>
-                </button>
-                <button
-                  class="icono-pantallaC"
-                  id="mostrarR1"
-                  onclick="openFullscreenP1();"
-                >
-                  <span class="icon-fullscreen"></span>
-                </button>
-              </div>
-
-              <div id="radarhuevo"></div>
-              <div id="radarhuevo1"></div>
-            </div>
+          <div class="popout-text">
+            <p>Vehiculos rojos</p>
           </div>
-          <div id="p2" class="bar-egg">
-            <div class="bar-webo">
-              <div class="buttons">
-                <!-- Switch button -->
-                <!-- <button class="btn" id="switch-2">Class</button> -->
-                <!--  -->
+        </div>
+      </div>
+      <aside class="about-btn">
+        <span class="icon-question-circle-o"></span>
+        <div class="popout-text">
+          <p class="italic">
+            Porcentaje de vehiculos actualmente en estatus rojo. 
+          </p>
+          <p>
+            <strong>Objetivo</strong>: Ver el gauge lo mas cerca a 0%
+          </p>
+        </div>
+      </aside>
+    </div>
+    <div class="column">
+      <div class="bullet-cont">
+        <div id="score-gauge3" class="score-gauge"></div>
+      </div>
+      <div class="title-icon">
+        <div class="title-score">
+          <h2 class="h2-score">{{porcentaje_amarillo}}%</h2>
+          <h2 class="h2-score">
+            {{vehiculos_amarillos}}/{{vehiculos_totales}}
+          </h2>
+        </div>
+        <div class="icon-score">
+          <span class="icon-notification"></span>
 
-                <button class="icono-pantallaC">
-                  <span class="icon-question-circle-o"></span>
-                </button>
-                <button
-                  class="icono-pantallaC"
-                  id="ocultarB1"
-                  onclick="closeFullscreenP2();"
-                >
-                  <span class="icon-fullscreen_exit"></span>
-                </button>
-                <button
-                  class="icono-pantallaC"
-                  id="mostrarB1"
-                  onclick="openFullscreenP2();"
-                >
-                  <span class="icon-fullscreen"></span>
-                </button>
+          <div class="popout-text">
+            <p>Vehiculos amarillos</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="about-btn">
+        <span class="icon-question-circle-o"></span>
+        <div class="popout-text">
+          <p class="italic">
+            Porcentaje de vehiculos actualmente en estatus amarillo.
+          </p>
+          <p>
+            <strong>Objetivo</strong>: Ver el gauge lo mas cerca a 0%
+          </p>
+        </div>
+      </aside>
+    </div>
+    <div class="column">
+      <div class="bullet-cont">
+        <div id="score-gauge4" class="score-gauge"></div>
+      </div>
+      <div class="title-icon">
+        <div class="title-score">
+          <h2 class="h2-score">{{porcentaje_sospechoso}}%</h2>
+          <h2 class="h2-score">
+            {{vehiculos_sospechosos}}/{{vehiculos_totales}}
+          </h2>
+        </div>
+        <div class="icon-score">
+          <span class="icon-question"></span>
+
+          <div class="popout-text">
+            <p>Vehiculos sospechosos</p>
+          </div>
+        </div>
+      </div>
+      
+      <aside class="about-btn">
+        <span class="icon-question-circle-o"></span>
+        <div class="popout-text">
+          <p class="italic">
+            Porcentaje de vehiculos actualmente en estatus sospechoso. 
+          </p>
+          <p>
+            <strong>Objetivo</strong>: Ver el gauge lo mas cerca a 0%
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <div class="cont-horizontal">
+    <div class="cont-left">
+      <div class="buttons">
+        <nav class="nav-crunch">
+          <button class="btn btn-aeto-crunch active" id="clase-g">Clase</button>
+          <button class="btn btn-aeto-crunch" id="aplicacion">
+            Aplicación
+          </button>
+        </nav>
+      </div>
+      <div id="p1" class="radar-webo">
+        <div class="title-buttons">
+          <h2>Porcentaje de Vehículos Inspeccionados</h2>
+
+          <div class="chart-buttons">
+            <button class="icono-pantallaC">
+              <span class="icon-question-circle-o"></span>
+              <div class="popout-text">
+                <p class="italic">
+                  Porcentaje de aplicación de vehiculos inspeccionado en el periodo de inspeccion.
+                </p>
+                <p>
+                  <strong>Objetivo</strong>: Ver el Radar lo mas lleno posible. Los puntos del radar bajos son aread de oportunidad.
+                </p>
               </div>
-              <div id="barwebo"></div>
-              <div id="barwebo2"></div>
-            </div>
+            </button>
+            <button
+              class="icono-pantallaC"
+              id="ocultarR1"
+              onclick="closeFullscreenP1();"
+            >
+              <span class="icon-fullscreen_exit"></span>
+            </button>
+            <button
+              class="icono-pantallaC"
+              id="mostrarR1"
+              onclick="openFullscreenP1();"
+            >
+              <span class="icon-fullscreen"></span>
+            </button>
           </div>
         </div>
 
-        <div class="cont-right">
-          <div class="combo-dona">
-            <div class="comboChart">
-              <div class="cont-combo" id="p3">
-                <div class="buttons">
-                  <button class="icono-pantallaC">
-                    <span class="icon-question-circle-o"></span>
-                  </button>
-                  <button
-                    class="icono-pantallaC"
-                    id="ocultarC1"
-                    onclick="closeFullscreenP3();"
-                  >
-                    <span class="icon-fullscreen_exit"></span>
-                  </button>
-                  <button
-                    class="icono-pantallaC"
-                    id="mostrarC1"
-                    onclick="openFullscreenP3();"
-                  >
-                    <span class="icon-fullscreen"></span>
-                  </button>
+        <div class="container-fluid">
+          <div id="radarhuevo"></div>
+          <div id="radarhuevo1"></div>
+        </div>
+      </div>
+      <div id="p2" class="bar-egg">
+        <div class="bar-webo">
+          <div class="buttons">
+            <h2>Vehículos sin inspeccionar</h2>
+            <div class="chart-buttons">
+              <button class="icono-pantallaC">
+                <span class="icon-question-circle-o"></span>
+                <div class="popout-text">
+                  <p class="italic">
+                    Porcentaje de aplicación de vehiculos inspeccionado en el periodo de inspeccion.
+                  </p>
+                  <p>
+                    <strong>Objetivo</strong>: Ver el Radar lo mas lleno posible. Los puntos del radar bajos son aread de oportunidad.
+                  </p>
                 </div>
-                <div id="pronostico-consumo"></div>
-              </div>
-            </div>
-            <div class="donaChart">
-              <div class="buttons">
-                <div class="drop-btn-container">
-                  <button class="drop-btn icon-keyboard_arrow_down"></button>
-                </div>
-
-                <div class="dropdown-content">
-                  <div class="button-table-cont">
-                    <form
-                      class="form-button"
-                      action="{% url 'dashboards:tireDB1' %}"
-                      method="GET"
-                    >
-                      <input
-                        type="hidden"
-                        name="boton_intuitivo"
-                        value="Desgaste Irregular"
-                      />
-                      <button class="button-tabla" type="submit">
-                        Desgaste Irregular
-                      </button>
-                    </form>
-                    <form
-                      class="form-button"
-                      action="{% url 'dashboards:tireDB1' %}"
-                      method="GET"
-                    >
-                      <input
-                        type="hidden"
-                        name="boton_intuitivo"
-                        value="Dualización"
-                      />
-                      <button class="button-tabla" type="submit">
-                        Dualización
-                      </button>
-                    </form>
-                    <form
-                      class="form-button"
-                      action="{% url 'dashboards:tireDB1' %}"
-                      method="GET"
-                    >
-                      <input
-                        type="hidden"
-                        name="boton_intuitivo"
-                        value="Presión"
-                      />
-                      <button class="button-tabla" type="submit">
-                        Presión
-                      </button>
-                    </form>
-                    <form
-                      class="form-button"
-                      action="{% url 'dashboards:tireDB1' %}"
-                      method="GET"
-                    >
-                      <input
-                        type="hidden"
-                        name="boton_intuitivo"
-                        value="Observación"
-                      />
-                      <button class="button-tabla" type="submit">
-                        Observación
-                      </button>
-                    </form>
-                  </div>
-                </div>
-
-                <button class="icono-pantallaC">
-                  <span class="icon-question-circle-o"></span>
-                </button>
-                <button
-                  class="icono-pantallaC"
-                  id="ocultarD1"
-                  onclick="closeFullscreenP4();"
-                >
-                  <span class="icon-fullscreen_exit"></span>
-                </button>
-                <button
-                  class="icono-pantallaC"
-                  id="mostrarD1"
-                  onclick="openFullscreenP4();"
-                >
-                  <span class="icon-fullscreen"></span>
-                </button>
-              </div>
-              <div class="cont-dona" id="p4">
-                <div id="dona"></div>
-                <div id="dona2"></div>
-              </div>
+              </button>
+              <button
+                class="icono-pantallaC"
+                id="ocultarB1"
+                onclick="closeFullscreenP2();"
+              >
+                <span class="icon-fullscreen_exit"></span>
+              </button>
+              <button
+                class="icono-pantallaC"
+                id="mostrarB1"
+                onclick="openFullscreenP2();"
+              >
+                <span class="icon-fullscreen"></span>
+              </button>
             </div>
           </div>
-
-          <div class="porcentaje-iconos">
-            <div class="percent-bar">
-              <div class="cont-percentBar" id="p5">
-                <div class="buttons">
-                  <button class="icono-pantallaC">
-                    <span class="icon-question-circle-o"></span>
-                  </button>
-                  <button
-                    class="icono-pantallaC"
-                    id="ocultarP1"
-                    onclick="closeFullscreenP5();"
-                  >
-                    <span class="icon-fullscreen_exit"></span>
-                  </button>
-                  <button
-                    class="icono-pantallaC"
-                    id="mostrarP1"
-                    onclick="openFullscreenP5();"
-                  >
-                    <span class="icon-fullscreen"></span>
-                  </button>
-                </div>
-                <div id="stacked-percent"></div>
-              </div>
-            </div>
-
-            <div class="register-icons">
-              <div class="eye-block">
-                <div class="lock-eye">
-                  <span class="icon-eye-slash"></span>
-                </div>
-                <div id="text-fail" class="text-eye">
-                  <p>{{nunca_vistos}}</p>
-                  <p>Nunca vistos</p>
-                </div>
-              </div>
-              <div class="renovar-content">
-                <div class="reciclar">
-                  <span class="icon-loop"></span>
-                </div>
-                <div class="text-eye">
-                  <p>{{renovables}}</p>
-                  <p>Renovables</p>
-                </div>
-              </div>
-              <div class="info-content">
-                <div class="information">
-                  <span class="icon-info"></span>
-                </div>
-                <div class="text-eye">
-                  <p>{{sin_informacion}}</p>
-                  <p>Sin información</p>
-                </div>
-              </div>
-            </div>
+          <div class="container-fluid">
+            <div id="barwebo"></div>
+            <div id="barwebo2"></div>
           </div>
         </div>
       </div>
     </div>
-    <script type="text/javascript">
 
-               const switchBtns = () => {
-                  const clase = document.getElementById('clase'),
-                        aplicacion = document.getElementById('aplicacion');
+    <div class="cont-right">
+      <nav class="option-nav">
+        <button class="btn btn-aeto-crunch active" id="view1">
+          Tendencia de estatus tire eye
+        </button>
+        <button class="btn btn-aeto-crunch" id="view2" style="display: none">
+          Encontrado/Actual
+        </button>
+        <button class="btn btn-aeto-crunch" id="view3">
+          Estatus de profundidad por eje
+        </button>
+        <button class="btn btn-aeto-crunch" id="view4">
+          Estatus de presión
+        </button>
+      </nav>
 
-                  document.addEventListener('click', ({ target }) => {
-                      if ( target === clase ) {
-                          clase.classList.add('active');
+      <article class="view">
+        <div class="comboChart on-view">
+          <div class="cont-combo" id="p3">
+            <div class="buttons">
+              <h2>Tendencia de estatus Tire eye</h2>
+              <nav class="flex-nav">
+                <button class="icono-pantallaC">
+                  <span class="icon-question-circle-o"></span>
+                  <div class="popout-text">
+                    <p class="italic">
+                      Tendencia de Vehiculos inspeccionados, vehiculos en cada estatus. 
+                    </p>
+                    <p>
+                      <strong>Objetivo</strong>: La barra azul lo mas alta posible y las lineas lo mas bajas posible.
+                    </p>
+                  </div>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="ocultarC1"
+                  onclick="closeFullscreenP3();"
+                >
+                  <span class="icon-fullscreen_exit"></span>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="mostrarC1"
+                  onclick="openFullscreenP3();"
+                >
+                  <span class="icon-fullscreen"></span>
+                </button>
+              </nav>
+            </div>
+            <div id="pronostico-consumo"></div>
+          </div>
+        </div>
 
-                          document.getElementById('radarhuevo').style.display = 'block';
-                          document.getElementById('radarhuevo1').style.display = 'none';
-                          document.getElementById('barwebo').style.display = 'block';
-                          document.getElementById('barwebo2').style.display = 'none';
+        <div class="donaChart">
+          <div class="buttons">
+            <div class="nav" id="encontrado-actual">
+              <button class="btn btn-aeto-crunch alt ea-desgaste active">
+                Desgaste Irregular
+              </button>
+              <button class="btn btn-aeto-crunch alt ea-dual">
+                Dualización
+              </button>
+              <button class="btn btn-aeto-crunch alt ea-pres">Presión</button>
+              <button class="btn btn-aeto-crunch alt ea-obser">
+                Observación
+              </button>
+            </div>
+            <nav class="flex-nav">
+              <button class="icono-pantallaC">
+                <span class="icon-question-circle-o"></span>
+                <div class="popout-text">
+                  <p class="italic">
+                    Porcentaje de aplicación de vehiculos inspeccionado en el periodo de inspeccion.
+                  </p>
+                  <p>
+                    <strong>Objetivo</strong>: Ver el Radar lo mas lleno posible. Los puntos del radar bajos son aread de oportunidad.
+                  </p>
+                </div>
+              </button>
+              <button
+                class="icono-pantallaC"
+                id="ocultarD1"
+                onclick="closeFullscreenP4();"
+              >
+                <span class="icon-fullscreen_exit"></span>
+              </button>
+              <button
+                class="icono-pantallaC"
+                id="mostrarD1"
+                onclick="openFullscreenP4();"
+              >
+                <span class="icon-fullscreen"></span>
+              </button>
+            </nav>
+          </div>
+          <div class="cont-2dona" id="p4">
+            <div class="container-fluid">
+              <div class="cont-dona ea-graph active" id="ea-desgaste">
+                <div id="dona"></div>
+                <div id="dona2"></div>
+              </div>
+              {% include 'encontrado-actual/dualizacion.html' %} {% include
+              'encontrado-actual/observacion.html' %} {% include
+              'encontrado-actual/presion.html' %}
+            </div>
+          </div>
+        </div>
 
-                          if (clase.classList.contains('disable')) {
-                              clase.classList.remove('disable');
-                              aplicacion.classList.add('disable');
-                              aplicacion.classList.remove('active');
-                          }
+        <div class="percent-bar">
+          <div class="cont-percentBar" id="p5">
+            <div class="title-buttons">
+              <h2>Estatus de profundidad por eje</h2>
+              <div class="buttons justify-content-end">
+                <button class="icono-pantallaC">
+                  <span class="icon-question-circle-o"></span>
+                  <div class="popout-text">
+                    <p class="italic">
+                      Cantidad de llantas por eje con estatus correcto, amarillo y rojo de profundiad.
+                    </p>
+                    <p>
+                      <strong>Objetivo</strong>: La barra debe tener el menor rojo posible.
+                    </p>
+                  </div>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="ocultarP1"
+                  onclick="closeFullscreenP5();"
+                >
+                  <span class="icon-fullscreen_exit"></span>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="mostrarP1"
+                  onclick="openFullscreenP5();"
+                >
+                  <span class="icon-fullscreen"></span>
+                </button>
+              </div>
+            </div>
+            <div id="stacked-percent"></div>
+          </div>
+        </div>
 
-                      }
+        <section class="col">
+          <aside class="row" id="p6">
+            <nav class="buttons">
+              <h2>Estatus de mala presión</h2>
+              <h2 class="h2-ebpD">Estatus de buena presión</h2>
+              <nav class="flex-nav">
+                <button class="icono-pantallaC">
+                  <span class="icon-question-circle-o"></span>
+                  <div class="popout-text">
+                    <p class="italic">
+                      Porcentaje de aplicación de vehiculos inspeccionado en el periodo de inspeccion.
+                    </p>
+                    <p>
+                      <strong>Objetivo</strong>: Ver el Radar lo mas lleno posible. Los puntos del radar bajos son aread de oportunidad.
+                    </p>
+                  </div>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="ocultarP2"
+                  onclick="closeFullscreenP6();"
+                >
+                  <span class="icon-fullscreen_exit"></span>
+                </button>
+                <button
+                  class="icono-pantallaC"
+                  id="mostrarP2"
+                  onclick="openFullscreenP6();"
+                >
+                  <span class="icon-fullscreen"></span>
+                </button>
+              </nav>
+            </nav>
+            <div class="grid-col-2">
+              <article class="container-fluid">
+                <div id="estatus-presion"></div>
+              </article>
+              <article class="container-fluid">
+                <h2 class="h2-ebpM">Estatus de buena presión</h2>
+                <div id="x"></div>
+              </article>
+            </div>
+          </aside>
+        </section>
+      </article>
+    </div>
+  </div>
+</div>
+<script src="{% static './js/filter.js' %}"></script>
+<script type="text/javascript">
 
-                      if ( target === aplicacion ) {
+        document.addEventListener('DOMContentLoaded', (e) => {
+          dropdown('ubicacion', 'menu-ubicacion');
+          dropdown('clase', 'menu-clase');
+          handleButtons('.option-nav');
+          handleButtons('.nav-crunch');
+          handleButtons('#encontrado-actual');
+          handleView('view1', '.comboChart');
+          handleView('view2', '.donaChart');
+          handleView('view3', '.percent-bar');
+          handleView('view4', '.col');
+          handleCheckbox();
+          changeGraph('.ea-graph', 'ea-dual', 'ea-desgaste', 'ea-obser', 'ea-pres');
+          handleSelectAll({ container: 'menu-ubicacion', selectAll: 'all-flota' })
+          handleSelectAll({ container: 'menu-clase', selectAll: 'all-clase' })
+          handleCheckbox();
+        });
 
-                          aplicacion.classList.add('active');
-                          document.getElementById('radarhuevo').style.display = 'none';
-                          document.getElementById('radarhuevo1').style.display = 'block';
-                          document.getElementById('barwebo').style.display = 'none';
-                          document.getElementById('barwebo2').style.display = 'block';
+        const handleSelectAll = ({ container = '', selectAll = 'all' }) => {
+          const selector = document.querySelector(`#${container} #${selectAll}`);
+          const checkboxs = document.querySelectorAll(
+            `#${container} input[type="checkbox"]`
+          );
+
+          selector.addEventListener('change', (e) => {
+            selector.checked
+              ? checkboxs.forEach((check) => (check.checked = true))
+              : checkboxs.forEach((check) => (check.checked = false));
+          });
+
+          checkboxs.forEach((item) => {
+            item.addEventListener('change', (e) => {
+              let notAll = false;
+
+              checkboxs.forEach((item) => {
+                if (!item.checked) notAll = true;
+                if (notAll) selector.checked = false;
+              });
+            });
+          });
+        };
+
+        const changeGraph = (graphs = '', flota = '', app = '', eje = '', pos = '') => {
+          document.addEventListener('click', (e) => {
+            if (app) {
+              if (e.target.matches(`.${app}`)) {
+                document.querySelectorAll(graphs).forEach(item => item.classList.remove('active'));
+
+                document.getElementById(app).classList.add('active');
+              }
+            }
+
+            if (flota) {
+              if (e.target.matches(`.${flota}`)) {
+                document.querySelectorAll(graphs).forEach(item => item.classList.remove('active'));
+
+                document.getElementById(flota).classList.add('active');
+              }
+            }
+
+            if (eje) {
+              if (e.target.matches(`.${eje}`)) {
+                document.querySelectorAll(graphs).forEach(item => item.classList.remove('active'));
+
+                document.getElementById(eje).classList.add('active');
+              }
+            }
+
+            if (pos) {
+              if (e.target.matches(`.${pos}`)) {
+                document.querySelectorAll(graphs).forEach(item => item.classList.remove('active'));
+
+                document.getElementById(pos).classList.add('active');
+              }
+            }
+          });
+
+      };
+
+        const handleCheckbox = () => {
+          const inputs = document.querySelectorAll('.input-check');
+          const form = document.querySelector('.form-head');
+          inputs.forEach(input => {
+            input.addEventListener('change', (e) => form.submit());
+          })
+        };
+
+        const switchBtns = () => {
+          const clase = document.getElementById('clase-g'),
+                aplicacion = document.getElementById('aplicacion');
+
+          document.addEventListener('click', ({ target }) => {
+              if ( target === clase ) {
+                  clase.classList.add('active');
+
+                  document.getElementById('radarhuevo').style.display = 'block';
+                  document.getElementById('radarhuevo1').style.display = 'none';
+                  document.getElementById('barwebo').style.display = 'block';
+                  document.getElementById('barwebo2').style.display = 'none';
+
+                  if (clase.classList.contains('disable')) {
+                      clase.classList.remove('disable');
+                      aplicacion.classList.add('disable');
+                      aplicacion.classList.remove('active');
+                  }
+
+              }
+
+              if ( target === aplicacion ) {
+
+                  aplicacion.classList.add('active');
+                  document.getElementById('radarhuevo').style.display = 'none';
+                  document.getElementById('radarhuevo1').style.display = 'block';
+                  document.getElementById('barwebo').style.display = 'none';
+                  document.getElementById('barwebo2').style.display = 'block';
 
 
-                          if (aplicacion.classList.contains('disable')) {
-                              clase.classList.remove('active');
-                              clase.classList.add('disable');
-                              aplicacion.classList.remove('disable');
-                          }
+                  if (aplicacion.classList.contains('disable')) {
+                      clase.classList.remove('active');
+                      clase.classList.add('disable');
+                      aplicacion.classList.remove('disable');
+                  }
 
-                      }
-                  });
+              }
+          });
 
-               };
+        };
 
-               switchBtns();
+        switchBtns();
 
-              /* DropDown */
-
-      		const dropdown = (button = "", container = "") => {
-      			const btn = document.querySelector(button);
-      			const dropdown = document.querySelector(container);
-      			/* Dropdown event handler */
-      			document.addEventListener("click", (e) => {
-                      if ( e.target === btn ) {
-      					dropdown.classList.toggle('active'); // Activa y desactiva la clase active cada vez que se hace click en el botón del dropdown
-                          btn.classList.toggle('active');
-                          const content = document.querySelector('.dropdown-content');
-
-                          // if (content.classList.contains('active')) {
-                          //     document.querySelector('.donaChart').classList.add('grid-dona');
-                          // } else {
-                          //     document.querySelector('.donaChart').classList.remove('grid-dona');
-                          // }
-      				}
-
-                      if ( e.target !== btn ) { // Si se da click en otra cosa que no sea el botón, se desactivara el dropdown
-                          dropdown.classList.remove('active');
-                          btn.classList.remove('active');
-                      }
-      			});
+        const dropdown = (button = '', menu = '') => {
+          const dropBtn = document.getElementById(button);
+          const dropMenu = document.getElementById(menu);
+          const checks = document.querySelectorAll('input[type="checkbox"]');
 
 
-      		};
+          dropBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            dropMenu.classList.toggle('active');
+            if (dropMenu.classList.contains('active')) {
+              dropBtn.querySelector('.indicator').classList.add('active');
+            } else {
+              dropBtn.querySelector('.indicator').classList.remove('active');
+            }
+          });
 
-              dropdown('.drop-btn-container *', '.dropdown-content');
+          document.addEventListener('click', (e) => {
+            if (!e.target.matches('.dropdown *')) {
+              dropMenu.classList.remove('active');
+              dropBtn.querySelector('.indicator').classList.remove('active');
+            }
+          });
+        };
+
+        const handleButtons = (container = '') => {
+          const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
+          buttons.forEach( button => {
+            button.addEventListener('click', ({ target }) => {
+              buttons.forEach(item => item.classList.remove('active'));
+              target.classList.add('active');
+            });
+          } );
+        };
+
+        const handleView = (button = '', view = '') => {
+          const btn = document.getElementById(button);
+          const image = document.querySelector(view);
+
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.on-view').forEach(view => view.classList.remove('on-view'));
+
+            image.classList.add('on-view');
+          });
+        };
+
+        anychart.onDocumentReady(function () {
+          // create data
+          var data = [
+            {x: "{{mes_4}}", value: {{entrada_correcta_mes_4}} },
+            {x: "{{mes_3}}", value: {{entrada_correcta_mes_3}} },
+            {x: "{{mes_2}}", value: {{entrada_correcta_mes_2}} },
+            {x: "{{mes_1}}", value: {{entrada_correcta_mes_1}} }
+          ];
+
+          // create data
+          var data1 = [
+            {x: "{{mes_4}}", value: {{entrada_correcta_mes_4}} },
+            {x: "{{mes_3}}", value: {{entrada_correcta_mes_3}} },
+            {x: "{{mes_2}}", value: {{entrada_correcta_mes_2}} },
+            {x: "{{mes_1}}", value: {{entrada_correcta_mes_1_cantidad}} }
+          ];
+
+          // create a chart
+          var chart = anychart.line();
+
+          // set chart legend
+          chart.legend(false);
+
+          var yScale = anychart.scales.linear();
+          yScale.minimum(0).maximum(100);
+          chart.yScale(yScale);
+
+          yLabels = chart.yAxis().labels();
+          yLabels.format("{%value}%");
+
+          chart.labels(false);
+
+          // create a spline series and set the data
+          var series = chart.spline(data);
+          series.markers(true);
+          series.name('%');
+
+          // create a spline series and set the data
+          var series = chart.spline(data1);
+          series.markers(true);
+          series.name('Cantidad');
+
+          var background = chart.background();
+          background.enabled(false);
+
+          // set the container id
+          chart.container("x").draw();
+
+          var credits = chart.credits();
+              credits.enabled(false);
+          });
+
+
+      //Doughnut
+    anychart.onDocumentReady(function () {
+
+  // create pie chart with passed data
+  var chart = anychart.pie([
+  {% for eje, cantidad in mala_entrada_ejes.items %}
+    { x: '{{eje|lower|capfirst}}', value: {{cantidad}},  fill: '#026CF5' },
+  {% endfor %}
+  ]);
+  // set the position of the legend
+
+  var legend = chart.legend();
+  legend.position('right');
+  legend.align('top');
+  legend.itemsLayout('vertical');
+
+  // turn on chart animation
+  chart.animation(true);
+
+  //Set Background
+  var background = chart.background();
+  background.stroke('0 #000');
+  background.corners();
+  background.enabled(false);
+  // set chart title text settings
+  chart.title('')
+  //set chart radius
+  .radius('100%')
+  // create empty area in pie chart
+  .innerRadius('60%');
+  var title = chart.title();
+  title.fontColor('#fff');
+  title.fontSize(18);
+  title.fontWeight(600);
+
+  // set container id for the chart
+  chart.container('estatus-presion');
+  // initiate chart drawing
+  chart.draw();
+  // chart credits false
+  var credits = chart.credits();
+  credits.enabled(false);
+
+  // horizontal expandable
+  //chart.legend().itemsLayout('horizontal');
+  });
+
 
           anychart.licenseKey("aeto.com.mx-16056097-34281685");
 
@@ -679,6 +951,30 @@
                   document.exitFullscreen();
                   document.getElementById('mostrarP1').style.display = "block";
                   document.getElementById('ocultarP1').style.display = "none";
+              } else if (document.webkitExitFullscreen) { /* Safari */
+                  document.webkitExitFullscreen();
+              } else if (document.msExitFullscreen) { /* IE11 */
+                  document.msExitFullscreen();
+              }
+          }
+          //funciones mostrar y ocultar clases
+          var elem6 = document.getElementById('p6');
+          function openFullscreenP6() {
+              if (elem6.requestFullscreen) {
+                  elem6.requestFullscreen();
+                  document.getElementById('mostrarP2').style.display = "none";
+                  document.getElementById('ocultarP2').style.display = "block";
+              } else if (elem6.webkitRequestFullscreen) { /* Safari */
+                  elem6.webkitRequestFullscreen();
+              } else if (elem6.msRequestFullscreen) { /* IE11 */
+                  elem6.msRequestFullscreen();
+              }
+          }
+          function closeFullscreenP6() {
+              if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                  document.getElementById('mostrarP2').style.display = "block";
+                  document.getElementById('ocultarP2').style.display = "none";
               } else if (document.webkitExitFullscreen) { /* Safari */
                   document.webkitExitFullscreen();
               } else if (document.msExitFullscreen) { /* IE11 */
@@ -1214,31 +1510,20 @@
         }
       });
 
-      // Gauge-radar2
+      
+    // Gauge-radar1
+      var stage = anychart.graphics.create("radarhuevo");
           anychart.onDocumentReady(function () {
 
           // set data for the Winter Sales
       var names = [{% for clase in porcentaje_vehiculos_inspeccionados_por_clase %}"{{clase.clase}}",{% endfor %}];
       var data = [{% for clase in porcentaje_vehiculos_inspeccionados_por_clase %}{% widthratio clase.inspeccionado clase.total 100 %},{% endfor %}];
       var dataSet = anychart.data.set(data);
-      var palette = anychart.palettes.distinctColors().items(['#00e5f3', '#1976d2', '#00e5f3']);
+      var palette = anychart.palettes.distinctColors().items(['#5a9fd5', '#1a69b7', '#cf6105', '#ddb948']);
 
       var makeBarWithBar = function Gauge (gauge, radius, i, width, without_stroke) {
-          var stroke = '5 #e5e4e4';
-          if (without_stroke) {
-              stroke = null;
-              gauge.label(i)
-                      .text(names[i] + ', <span style="color:#fff">' + data[i] + '%</span>')// color: #7c868e
-                      .useHtml(true);
-              gauge.label(i)
-                      .hAlign('center')
-                      .vAlign('middle')
-                      .anchor('right-center')
-                      .padding(0, 0)
-                      .height(width / 1 + '%')
-                      .offsetY(radius + '%')
-                      .offsetX(0);
-          }
+          var stroke = null;
+              
           gauge.bar(i).dataIndex(i)
                   .radius(radius)
                   .width(width)
@@ -1255,7 +1540,7 @@
           return gauge.bar(i)
       };
           var gauge = anychart.gauges.circular();
-          gauge.title("Porcentaje de Vehículos Inspeccionados");
+          gauge.title(false);
           var title = gauge.title();
           title.fontColor('#fff');
           title.fontSize(18);
@@ -1280,7 +1565,11 @@
                   axis.labels().enabled(false);
                   axis.ticks().enabled(false);
                   axis.minorTicks().enabled(false);
-                  makeBarWithBar(gauge, 100, 0, 17, true);
+                  {% if porcentaje_vehiculos_inspeccionados_por_clase|length > 0 %}makeBarWithBar(gauge, 100, 0, 17, true);{% endif %}
+                  {% if porcentaje_vehiculos_inspeccionados_por_clase|length > 1 %}makeBarWithBar(gauge, 80, 1, 17, true);{% endif %}
+                  {% if porcentaje_vehiculos_inspeccionados_por_clase|length > 2 %}makeBarWithBar(gauge, 60, 2, 17, true);{% endif %}
+                  {% if porcentaje_vehiculos_inspeccionados_por_clase|length > 3 %}makeBarWithBar(gauge, 40, 3, 17, true);{% endif %}
+                  {% if porcentaje_vehiculos_inspeccionados_por_clase|length > 4 %}makeBarWithBar(gauge, 20, 4, 17, true);{% endif %}
 
           var background = gauge.background();
           background.enabled(false);
@@ -1288,37 +1577,38 @@
           // turn on chart animation
           gauge.animation(true);
 
+
+          var legend = anychart.standalones.legend();
+          legend.items([
+              {index: 0, text: "Rabon", iconFill: "#5a9fd5"},
+              {index: 1, text: "Remolque", iconFill: "#1a69b7"},
+              {index: 2, text: "Tolva", iconFill: "#cf6105"},
+              {index: 3, text: "Tractor", iconFill: "#ddb948"}
+              
+          ]);
+          legend.position('bottom');
+  
+
           var credits = gauge.credits();
           credits.enabled(false);
 
-          gauge.container('radarhuevo').draw();
+          gauge.container(stage).draw();
+          legend.container(stage).draw();
       });
 
       // Gauge-radar2
+      var stage1 = anychart.graphics.create("radarhuevo1");
       anychart.onDocumentReady(function () {
 
       // set data for the Winter Sales
       var names = [{% for aplicacion in porcentaje_vehiculos_inspeccionados_por_aplicacion %}"{{aplicacion.aplicacion__nombre}}",{% endfor %}];
       var data = [{% for aplicacion in porcentaje_vehiculos_inspeccionados_por_aplicacion %}{% widthratio aplicacion.inspeccionado aplicacion.total 100 %},{% endfor %}];
       var dataSet = anychart.data.set(data);
-      var palette = anychart.palettes.distinctColors().items(['#00e5f3', '#1976d2']);
+      var palette = anychart.palettes.distinctColors().items(['#5a9fd5', '#1a69b7']);
 
       var makeBarWithBar = function Gauge (gauge, radius, i, width, without_stroke) {
-      var stroke = '5 #e5e4e4';
-      if (without_stroke) {
-          stroke = null;
-          gauge.label(i)
-                  .text(names[i] + ', <span style="color:#fff">' + data[i] + '%</span>')// color: #7c868e
-                  .useHtml(true);
-          gauge.label(i)
-                  .hAlign('center')
-                  .vAlign('middle')
-                  .anchor('right-center')
-                  .padding(0, 0)
-                  .height(width / 1 + '%')
-                  .offsetY(radius + '%')
-                  .offsetX(0);
-      }
+      var stroke = null;
+         
       gauge.bar(i).dataIndex(i)
               .radius(radius)
               .width(width)
@@ -1335,7 +1625,7 @@
       return gauge.bar(i)
       };
       var gauge = anychart.gauges.circular();
-      gauge.title("Porcentaje de Vehículos Inspeccionados");
+      gauge.title(false);
       var title = gauge.title();
       title.fontColor('#fff');
       title.fontSize(18);
@@ -1360,7 +1650,11 @@
               axis.labels().enabled(false);
               axis.ticks().enabled(false);
               axis.minorTicks().enabled(false);
-              makeBarWithBar(gauge, 100, 0, 17, true);
+              {% if porcentaje_vehiculos_inspeccionados_por_aplicacion|length > 0 %}makeBarWithBar(gauge, 100, 0, 17, true);{% endif %}
+              {% if porcentaje_vehiculos_inspeccionados_por_aplicacion|length > 1 %}makeBarWithBar(gauge, 80, 1, 17, true);{% endif %}
+              {% if porcentaje_vehiculos_inspeccionados_por_aplicacion|length > 2 %}makeBarWithBar(gauge, 60, 2, 17, true);{% endif %}
+              {% if porcentaje_vehiculos_inspeccionados_por_aplicacion|length > 3 %}makeBarWithBar(gauge, 40, 3, 17, true);{% endif %}
+              {% if porcentaje_vehiculos_inspeccionados_por_aplicacion|length > 4 %}makeBarWithBar(gauge, 20, 4, 17, true);{% endif %}
 
       var background = gauge.background();
       background.enabled(false);
@@ -1368,10 +1662,19 @@
       // turn on chart animation
       gauge.animation(true);
 
+      var legend = anychart.standalones.legend();
+      legend.items([
+          {index: 0, text: "Foraneo", iconFill: "#5a9fd5"},
+          {index: 1, text: "Local", iconFill: "#1a69b7"}
+      ]);
+      legend.position('bottom');
+  
+
       var credits = gauge.credits();
       credits.enabled(false);
+      gauge.container(stage1).draw();
+      legend.container(stage1).draw();
 
-      gauge.container('radarhuevo1').draw();
       });
 
       // // radar egg
@@ -1422,18 +1725,18 @@
           anychart.onDocumentReady(function () {
           // create data set on our data
           chartData = {
-              title: 'Vehículos sin Inspeccionar',
+              title: '',
               header: ["#",{% for clase in vehiculos_por_clase_sin_inspeccionar %} "{{clase.clase|lower|capfirst}}", {% endfor %}],
               rows: [['{{mes_3}}', {% for clase, cantidad in clase_sin_inspeccionar_mes_3.items %} {{cantidad}},{% endfor %}], ['{{mes_2}}', {% for clase, cantidad in clase_sin_inspeccionar_mes_2.items %} {{cantidad}},{% endfor %}], ['{{mes_1}}', {% for clase, cantidad in clase_sin_inspeccionar_mes_1.items %} {{cantidad}},{% endfor %}]],
             //   header: ["#",{% for clase in vehiculos_por_clase_sin_inspeccionar %} "{{clase.clase|lower|capfirst}}", {% endfor %}],
             // rows: [
             //     ['{{mes_3}}',
-            //     {% for clase, cantidad in clase_sin_inspeccionar_mes_3.items %} 
+            //     {% for clase, cantidad in clase_sin_inspeccionar_mes_3.items %}
             //     {{cantidad}},
             //     {% endfor %}],
             //     ['{{mes_2}}',{% for clase, cantidad in clase_sin_inspeccionar_mes_2.items %} {{cantidad}},{% endfor %}],
             //     ['{{mes_1}}',{% for clase, cantidad in clase_sin_inspeccionar_mes_1.items %} {{cantidad}},{% endfor %}]
-            // ],     
+            // ],
           };
 
               // create column chart
@@ -1483,8 +1786,8 @@
           anychart.onDocumentReady(function () {
           // create data set on our data
           chartData = {
-              title: 'Vehículos sin Inspeccionar',
-              header: ["#",{% for aplicacion, cantidad in aplicacion_sin_inspeccionar_mes_3.items %} "{{aplicacion|lower|capfirst}}", {% endfor %} {% for aplicacion, cantidad in aplicacion_sin_inspeccionar_mes_3.items %} "{{aplicacion|lower|capfirst}}", {% endfor %}],
+
+              header: ["#",{% for aplicacion in vehiculos_por_aplicacion_sin_inspeccionar %} "{{aplicacion.aplicacion__nombre|lower|capfirst}}", {% endfor %}],
               rows: [
                           ['{{mes_3}}',{% for aplicacion, cantidad in aplicacion_sin_inspeccionar_mes_3.items %} {{cantidad}},{% endfor %}],
                           ['{{mes_2}}',{% for aplicacion, cantidad in aplicacion_sin_inspeccionar_mes_2.items %} {{cantidad}},{% endfor %}],
@@ -1548,52 +1851,52 @@
             }
           });
 
-      	// create data set on our data
-      	var dataSet = anychart.data.set([
-          	['{{mes_4}}', {{vehiculos_rojos_mes_4}}, {{vehiculos_amarillos_mes_4}}, {{vehiculos_sospechosos_mes_4}}, {{vehiculos_vistos_mes_4}}],
-          	['{{mes_3}}', {{vehiculos_rojos_mes_3}}, {{vehiculos_amarillos_mes_3}}, {{vehiculos_sospechosos_mes_3}}, {{vehiculos_vistos_mes_3}}],
-          	['{{mes_2}}', {{vehiculos_rojos_mes_2}}, {{vehiculos_amarillos_mes_2}}, {{vehiculos_sospechosos_mes_2}}, {{vehiculos_vistos_mes_2}}],
-          	['{{mes_1}}', {{vehiculos_rojos_mes_1}}, {{vehiculos_amarillos_mes_1}}, {{vehiculos_sospechosos_mes_1}}, {{vehiculos_vistos_mes_1}}],
-        	]);
+        // create data set on our data
+        var dataSet = anychart.data.set([
+            ['{{mes_4}}', {{vehiculos_rojos_mes_4}}, {{vehiculos_amarillos_mes_4}}, {{vehiculos_sospechosos_mes_4}}, {{vehiculos_vistos_mes_4}}],
+            ['{{mes_3}}', {{vehiculos_rojos_mes_3}}, {{vehiculos_amarillos_mes_3}}, {{vehiculos_sospechosos_mes_3}}, {{vehiculos_vistos_mes_3}}],
+            ['{{mes_2}}', {{vehiculos_rojos_mes_2}}, {{vehiculos_amarillos_mes_2}}, {{vehiculos_sospechosos_mes_2}}, {{vehiculos_vistos_mes_2}}],
+            ['{{mes_1}}', {{vehiculos_rojos_mes_1}}, {{vehiculos_amarillos_mes_1}}, {{vehiculos_sospechosos_mes_1}}, {{vehiculos_vistos_mes_1}}],
+          ]);
 
-        	// map data for the first series, take x from the zero column and value from the first column of data set
-        	var firstSeriesData = dataSet.mapAs({ x: 0, value: 1 });
+          // map data for the first series, take x from the zero column and value from the first column of data set
+          var firstSeriesData = dataSet.mapAs({ x: 0, value: 1 });
 
-      	// map data for the second series, take x from the zero column and value from the second column of data set
-        	var secondSeriesData = dataSet.mapAs({ x: 0, value: 2 });
+        // map data for the second series, take x from the zero column and value from the second column of data set
+          var secondSeriesData = dataSet.mapAs({ x: 0, value: 2 });
 
-        	// map data for the third series, take x from the zero column and value from the third column of data set
-        	var thirdSeriesData = dataSet.mapAs({ x: 0, value: 3 });
+          // map data for the third series, take x from the zero column and value from the third column of data set
+          var thirdSeriesData = dataSet.mapAs({ x: 0, value: 3 });
 
-        	// map data for the fourth series, take x from the zero column and value from the fourth column of data set
-        	var fourthSeriesData = dataSet.mapAs({ x: 0, value: 4 });
+          // map data for the fourth series, take x from the zero column and value from the fourth column of data set
+          var fourthSeriesData = dataSet.mapAs({ x: 0, value: 4 });
 
-        	// create column chart
-        	var chart = anychart.column();
+          // create column chart
+          var chart = anychart.column();
 
-        	// turn on chart animation
-        	chart.animation(true);
+          // turn on chart animation
+          chart.animation(true);
 
            // enable the legend
           var legend = chart.legend();
           legend.enabled(true);
 
-        	// set chart title text settings
-        	chart.title('Tendencia de estatus Tire eye');
+          // set chart title text settings
+          // chart.title('Tendencia de estatus Tire eye');
           var title = chart.title();
           title.fontWeight(600);
           title.fontColor('#fff');
           title.fontSize(18);
 
-        	// create scale for line series and extraYAxis
-        	// it force line series to not stuck with over series
-        	var scale = anychart.scales.linear();
-        	scale.minimum(0).maximum(100).ticks({ interval: 20 });
+          // create scale for line series and extraYAxis
+          // it force line series to not stuck with over series
+          var scale = anychart.scales.linear();
+          scale.minimum(0).maximum(100).ticks({ interval: 20 });
 
-        	chart.crosshair(false);
+          chart.crosshair(false);
 
-        	// create line series and set scale for it
-        	var lineSeries1 = chart.spline(firstSeriesData);
+          // create line series and set scale for it
+          var lineSeries1 = chart.spline(firstSeriesData);
           // // configure the visual settings of the second series
           lineSeries1.normal().stroke("#F0412C", 4);
           lineSeries1.hovered().stroke("#F0412C", 2);
@@ -1619,8 +1922,8 @@
           lineSeries2.markers().size(4);
 
 
-        	// create third series with mapped data
-        	var lineSeries3 = chart.spline(thirdSeriesData);
+          // create third series with mapped data
+          var lineSeries3 = chart.spline(thirdSeriesData);
           // // configure the visual settings of the second series
           lineSeries3.normal().stroke("#A349A4", 4);
           lineSeries3.hovered().stroke("#A349A4", 2);
@@ -1632,8 +1935,8 @@
           lineSeries3.markers().fill("#A349A4");
           lineSeries3.markers().size(4);
 
-        	// create fourth series with mapped data
-        	var columnSeries4 = chart.column(fourthSeriesData);
+          // create fourth series with mapped data
+          var columnSeries4 = chart.column(fourthSeriesData);
           // // configure the visual settings of the second series
           columnSeries4.normal().fill("#0097fc");
           columnSeries4.hovered().fill("#0097fc", 0.1);
@@ -1643,17 +1946,19 @@
           columnSeries4.selected().stroke("#0097fc", 4);
           columnSeries4.name('Leído');
 
+          chart.tooltip().displayMode('union');
+
           chart.yScale().ticks().interval(1);
 
           var background = chart.background();
           background.enabled(false);
 
-        	// set container id for the chart
-        	chart.container('pronostico-consumo');
+          // set container id for the chart
+          chart.container('pronostico-consumo');
           var credits = chart.credits();
           credits.enabled(false);
-        	// initiate chart drawing
-        	chart.draw();
+          // initiate chart drawing
+          chart.draw();
           });
 
           // dona
@@ -1665,7 +1970,7 @@
               {% if parametro_encontrado_existente %}
               // create data
               var data = [{% for eje, cantidad in parametro_encontrado.items %}
-                              {x: "{{eje}}", value: {{cantidad}} },
+                              {x: "{{eje|capfirst}}", value: {{cantidad}} },
                           {% endfor %}
               ];
 
@@ -1684,12 +1989,12 @@
               // configure the labels: font, overlap, offset
               labels.fontColor("#fff");
               chart.overlapMode(true);
-              chart.insideLabelsOffset("-75%");
+              chart.insideLabelsOffset("-300%");
 
               {% endif %}
 
               // disable the legend
-              chart.legend(false);
+              chart.legend(true);
 
               // set the chart title
               chart.title("Encontrado");
@@ -1725,7 +2030,7 @@
               {% if parametro_actual_existente %}
               // create data
               var data = [{% for eje, cantidad in parametro_actual.items %}
-                              {x: "{{eje}}", value: {{cantidad}} },
+                              {x: "{{eje|capfirst}}", value: {{cantidad}} },
                           {% endfor %}
               ];
 
@@ -1745,12 +2050,12 @@
               // configure the labels: font, overlap, offset
               labels.fontColor("#fff");
               chart.overlapMode(true);
-              chart.insideLabelsOffset("-75%");
+              chart.insideLabelsOffset("-300%");
 
               {% endif %}
 
               // disable the legend
-              chart.legend(false);
+              chart.legend(true);
 
               //Set Background
               var background = chart.background();
@@ -1816,7 +2121,7 @@
               crosshair.xLabel().enabled(false);
 
               // set chart title text settings
-              chart.title('Estatus de Profundidad por Eje');
+              chart.title(false);
               chart.title().padding([0, 0, 10, 0]);
               var title = chart.title();
               title.fontWeight(600);
@@ -1868,6 +2173,6 @@
               // initiate chart drawing
               chart.draw();
       });
-    </script>
-  </body>
-</html>
+</script>
+
+{% endblock content %}

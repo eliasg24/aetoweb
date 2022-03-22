@@ -73,7 +73,6 @@ class Ubicacion(models.Model):
     class Meta:
         verbose_name_plural = "Ubicaciones"
         
-
 class Aplicacion(models.Model):
     # Modelo de la Aplicación
 
@@ -95,8 +94,11 @@ class Vehiculo(models.Model):
     ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
     aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
     numero_de_llantas = models.PositiveIntegerField(default=8)
-
     opciones_clase = (("ARRASTRE", "Arrastre"),
+                    ("TRUCK - BOX", "Truck - Box"),
+                    ("VAN", "Van"),
+                    ("TRAILER", "Trailer"),
+                    ("VEHICLECLASSNAME", "VehicleClassName"),
                     ("AUTOBUS", "Autobus"),
                     ("AUTOTANQUE ALIMENTICIO", "Autotanque Alimenticio"),
                     ("AUTOTANQUE COMBUSTIBLE", "Autotanque Combustible"),
@@ -136,6 +138,7 @@ class Vehiculo(models.Model):
     opciones_configuracion = (("S2.D2", "S2.D2"),
                             ("S2.D2.D2", "S2.D2.D2"),
                             ("S2.D2.D2.T4.T4", "S2.D2.D2.T4.T4"),
+                            ("S2.C4.D4", "S2.C4.D4"),
                             ("S2.D4", "S2.D4"),
                             ("S2.D4.SP1", "S2.D4.SP1"),
                             ("S2.D4.C4.SP1", "S2.D4.C4.SP1"),
@@ -145,6 +148,7 @@ class Vehiculo(models.Model):
                             ("S2.D4.D4.SP1", "S2.D4.D4.SP1"),
                             ("S2.D4.D4.T4.T4", "S2.D4.D4.T4.T4"),
                             ("S2.D4.L4", "S2.D4.L4"),
+                            ("S2.S2.D4", "S2.S2.D4"),
                             ("S2.L2.D4", "S2.L2.D4"),
                             ("S2.L2.D4.D4", "S2.L2.D4.D4"),
                             ("S2.L2.D4.D4.D2", "S2.L2.D4.D4.D2"),
@@ -156,7 +160,9 @@ class Vehiculo(models.Model):
                             ("S2.L2.L2.L2.L2.D4.D4", "S2.L2.L2.L2.L2.D4.D4"),
                             ("S2.L4.D4", "S2.L4.D4"),
                             ("S2.L4.D4.D4", "S2.L4.D4.D4"),
-                            ("T4.T4", "T4.T4")
+                            ("T4.T4", "T4.T4"),
+                            ("T4.T4.T4", "T4.T4.T4"),
+                            ("T4.T4.SP1", "T4.T4.SP1")
                 )
     configuracion = models.CharField(max_length=200, choices=opciones_configuracion, null=True, blank=True)
     fecha_de_inflado = models.DateField(null=True, blank=True)
@@ -192,7 +198,10 @@ class Producto(models.Model):
     # Modelo de productos
 
     producto = models.CharField(max_length=100, null=True)
-    marca = models.CharField(max_length=100, null=True)
+    marca = models.CharField(max_length=100, null=True, blank=True)
+    dibujo = models.CharField(max_length=100, null=True, blank=True)
+    rango = models.CharField(max_length=100, null=True, blank=True)
+    dimension = models.CharField(max_length=100, null=True, blank=True)
     profundidad_inicial = models.IntegerField(null=True)
 
     opciones_aplicacion = (("Dirección", "Dirección"),
@@ -202,7 +211,7 @@ class Producto(models.Model):
                         ("Regional", "Regional"),
                         ("Urbano", "Urbano")
                       )
-    aplicacion = models.CharField(max_length=100, choices= opciones_aplicacion,null=True)
+    aplicacion = models.CharField(max_length=100, choices= opciones_aplicacion, null=True, blank=True)
 
     opciones_vida = (("Nueva", "Nueva"),
                         ("Renovada", "Renovada"),
@@ -211,12 +220,7 @@ class Producto(models.Model):
                     )
     vida = models.CharField(max_length=100, choices=opciones_vida, null=True)
     precio = models.IntegerField(null=True)
-
-    # Costo por kilometro
-    costo_por_km = models.IntegerField(null=True, blank=True)
-
-    # Kilometraje proyectado
-    km_proyectado = models.IntegerField(null=True, blank=True)
+    km_esperado = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
     # Retorna el producto
@@ -229,6 +233,7 @@ class Llanta(models.Model):
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE, default=6)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, null=True, blank=True)
+    ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
     opciones_vida = (("Nueva", "Nueva"),
                             ("1R", "1R"),
                             ("2R", "2R"),
@@ -240,8 +245,8 @@ class Llanta(models.Model):
     tipo_de_eje = models.CharField(max_length=4, null=True, blank=True)
     eje = models.IntegerField(blank=True, null=True)
     posicion = models.CharField(max_length=4, null=True, blank=True)
-    presion_de_entrada = models.IntegerField(blank=True, null=True, default=100)
-    presion_de_salida = models.IntegerField(blank=True, null=True, default=100)
+    presion_de_entrada = models.IntegerField(blank=True, null=True)
+    presion_de_salida = models.IntegerField(blank=True, null=True)
     presion_establecida = models.IntegerField(blank=True, null=True, default=100)
     fecha_de_inflado = models.DateField(null=True, blank=True)
     ultima_inspeccion = models.ForeignKey(Inspeccion, null=True, blank=True, on_delete=models.CASCADE, related_name="inspecciones")
@@ -352,3 +357,9 @@ class FTP(models.Model):
     flotas = models.ForeignKey(Ubicacion, on_delete=models.CASCADE)
     hoy = models.DateField(null=True, blank=True)"""
 
+class TendenciaCPK(models.Model):
+    # Modelo de la Tendencia CPK
+    compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
+    cantidad = models.CharField(max_length=200)
+    vida = models.CharField(max_length=200)
+    calificacion = models.CharField(max_length=200)

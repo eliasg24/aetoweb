@@ -1,5 +1,7 @@
-<head>
-    {% load static %}
+{% extends 'base.html' %}
+
+{% block head %}
+{% load static %}
     <link rel="stylesheet" href="{% static 'css/vehiculos2.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -9,11 +11,10 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'js/daterangepicker.css' %}"/>
-  <title>AETO WEB</title>
-</head>
-<body>
+    <title>AETO WEB</title>
+{% endblock head %}
 
-    {% include 'nav.html' %}
+{% block content %}
     <div class="all-cont">
         <ul>
             <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
@@ -21,7 +22,7 @@
 
         <section class="horizontal">
             <section class="browser">
-                <H2>VEHÍCULOS</H2>
+                <h2>VEHÍCULOS</h2>
                 <div class="botones-estados">
                     <a class="btn-colors" href="#EstadoVerde" onclick="estadoVerde();" id="estado_Verde">Verde</a>
                     <a class="btn-colors" href="#EstadoAmarillo" onclick="estadoAmarillo();" id="estado_Amarillo">Amarillo</a>
@@ -35,7 +36,7 @@
                         <input class="btn-head-item" type="text" name="fecha1" {% if fecha %}value="{{fecha}}"{% else %}value="Seleccionar Fecha"{% endif %} />
                         <input name="numero_economico" type="search" placeholder="Buscar">
                         <span class="icon-filter"></span>
-                        <input name="numero_economico" type="search" placeholder="TALLER">
+                        <input type="search" placeholder="TALLER">
 
                         <div class="menu_button">
                             <button id="button-car" class="menu_li--right" type="submit">Buscar</button>
@@ -145,7 +146,7 @@
                 </section>
         </section>
     </div>
-<script>
+    <script>
     function estadoVerde() {
         document.getElementById('table-green').style.display = "block";
         document.getElementById('table-yellow').style.display = "none";
@@ -202,26 +203,7 @@
         document.getElementById('estado_Rojo').style.background = "#242424"; 
         document.getElementById('estado_Sospechoso').style.background = "#9147ff"; 
     }
-
-const iconoMenu = document.querySelector('#icono-menu'),
-      menu = document.querySelector('#menu');
-
-iconoMenu.addEventListener('click', (e) => {
-
-    // Alternamos estilos para el menu y body
-    menu.classList.toggle('active-burger');
-    document.body.classList.toggle('opacity');
-
-    // Alternamos su atributo 'src' para el ícono del menú
-    const rutaActual = e.target.getAttribute('src');
-
-    if(rutaActual == '{% static 'images/open-menu.png' %}'){
-        e.target.setAttribute('src','{% static 'images/open-menu2.png' %}');
-    }else{
-        e.target.setAttribute('src','{% static 'images/open-menu.png' %}');
-    }
-});
-     /*rango de fechas*/
+    /*rango de fechas*/
                 $(function() {
                     $('input[name="fecha1"]').daterangepicker({
                         opens: 'left',
@@ -238,6 +220,6 @@ iconoMenu.addEventListener('click', (e) => {
 
 
 
-</script>
-</body>
-</html>
+    </script>
+{% endblock content %}
+

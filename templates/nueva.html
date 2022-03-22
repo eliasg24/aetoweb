@@ -103,7 +103,6 @@
     const container = document.getElementById('tire-card');
 
     {% for llanta in llantas_nuevas %}
-      const randomNumber{{llanta.id}} = Math.floor(Math.random() * 100);
       container.innerHTML += `
       <div class="card cursor-pointer">
 

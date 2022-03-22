@@ -1,0 +1,81 @@
+<form class="container">
+          
+  <div class="container-fluid">
+    <aside class="form-aeto">
+
+      <!-- Start input -->
+      <div class="form__group field">
+        <input
+          class="form__field"
+          type="text"
+          placeholder="nombre"
+          name="nombre"
+          autocomplete="off"
+          required
+        />
+        <label for="nombre" class="form__label">
+          Nombre
+        </label>
+      </div>
+      <!-- End input -->
+
+      <!-- Start input -->
+      <div class="form__group field">
+        <input
+          class="form__field"
+          type="text"
+          placeholder="ciudad"
+          name="ciudad"
+          list="ciudad"
+          autocomplete="off"
+          required
+        />
+        <label for="ciudad" class="form__label">
+          Ciudad
+        </label>
+
+        <datalist id="ciudad">
+          <option value="Option 1">Option 1</option>
+          <option value="Option 2">Option 2</option>
+          <option value="Option 3">Option 3</option>
+          <option value="Option 4">Option 4</option>
+          <option value="Option 5">Option 5</option>
+        </datalist>
+      </div>
+      <!-- End input -->
+
+      <!-- Start input -->
+      <div class="form__group field">
+        <input
+          class="form__field"
+          type="text"
+          placeholder="Marca"
+          name="marca"
+          list="marca"
+          autocomplete="off"
+          required
+        />
+        <label for="marca" class="form__label">Marca</label>
+
+        <datalist id="marca">
+          <option value="Option 1">Option 1</option>
+          <option value="Option 2">Option 2</option>
+          <option value="Option 3">Option 3</option>
+          <option value="Option 4">Option 4</option>
+          <option value="Option 5">Option 5</option>
+        </datalist>
+      </div>
+      <!-- End input -->
+
+    </aside>
+  </div>
+
+  <nav class="btn-group">
+    <button class="btn btn-success">
+      <span class="icon-plus6"></span>
+    </button>
+    <button class="btn btn-download">
+      <span class="icon-download"></span>
+    </button>
+  </nav>
+</form>

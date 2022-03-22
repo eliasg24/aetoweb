@@ -1,10 +1,13 @@
 # Django
+from operator import or_
 from http.client import HTTPResponse
 import re
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
+from django.db.models.functions import Cast, ExtractMonth, ExtractDay, Now, Round, Substr, ExtractYear
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -13,11 +16,11 @@ from django.views.generic import CreateView, ListView, TemplateView, DetailView,
 from django.views.generic.base import View
 
 # Functions
-from dashboards.functions import functions, functions_ftp
+from dashboards.functions import functions, functions_ftp, functions_create, functions_excel
 from aeto import settings
 
 # Forms
-from dashboards.forms import ExcelForm, LlantaForm, VehiculoForm
+from dashboards.forms import ExcelForm, LlantaForm, VehiculoForm, ProductoForm
 
 # Models
 from django.contrib.auth.models import User
@@ -26,6 +29,10 @@ from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Prod
 # Utilities
 from datetime import date, datetime, timedelta
 import json
+import mimetypes
+import os
+import pandas as pd
+import xlwt
 
 class LoginView(auth_views.LoginView):
     # Vista de Login
@@ -55,481 +62,207 @@ class TireDBView(LoginRequiredMixin, TemplateView):
     template_name = "tire-dashboard.html"
     def get_context_data(self, **kwargs):
         
-        clase = self.request.GET.get("clase")
-        flota = self.request.GET.get("flota")
+        clase1 = self.request.GET.getlist("clase")
+        clase2 = self.request.GET.get("clase2")
+        flota1 = self.request.GET.getlist("flota")
+        flota2 = self.request.GET.get("flota2")
         pay_boton = self.request.GET.get("boton_intuitivo")
 
         context = super().get_context_data(**kwargs)
+        vehiculos_totales = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         vehiculo = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        if clase:
-            vehiculo_clase = vehiculo.filter(clase=clase.upper())
-            bitacora_clase = bitacora.filter(numero_economico__in=vehiculo_clase)
-            llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculo_clase)
-            inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), llanta__in=llantas)
-            hoy = date.today()
-            
-            periodo_2 = hoy - timedelta(days=self.request.user.perfil.compania.periodo2_inspeccion)
-            vehiculos_vistos = vehiculo_clase.filter(ultima_inspeccion__fecha_hora__lte=periodo_2) | vehiculo_clase.filter(ultima_inspeccion__fecha_hora__isnull=True)
-            porcentaje_visto = int((vehiculos_vistos.count()/vehiculo_clase.count()) * 100)
+        if clase1:
+            vehiculo = vehiculo.filter(functions.reduce(or_, [Q(clase=c.upper()) for c in clase1]))
+        if flota1:
+            vehiculo = vehiculo.filter(functions.reduce(or_, [Q(ubicacion=Ubicacion.objects.get(nombre=f)) for f in flota1]))
 
-            filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
-            vehiculos_sospechosos = vehiculo_clase.filter(id__in=filtro_sospechoso)
-            porcentaje_sospechoso = int((vehiculos_sospechosos.count()/vehiculo_clase.count()) * 100)
-
-            doble_entrada = functions.doble_entrada(bitacora_clase)
-            filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada[0])
-            vehiculos_rojos = vehiculo_clase.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
-            porcentaje_rojo = int((vehiculos_rojos.count()/vehiculo_clase.count()) * 100)
-
-            filtro_amarillo = functions.vehiculo_amarillo(llantas)
-            vehiculos_amarillos = vehiculo_clase.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
-            porcentaje_amarillo = int((vehiculos_amarillos.count()/vehiculo_clase.count()) * 100)
-
-
-            if pay_boton == "Dualización":
-                desdualizacion_encontrada = functions.desdualizacion(llantas, True)
-                if desdualizacion_encontrada:
-                    desdualizacion_encontrada_existente = True
-                else:
-                    desdualizacion_encontrada_existente = False
-                desdualizacion_actual = functions.desdualizacion(llantas, True)
-                if desdualizacion_actual:
-                    desdualizacion_actual_existente = True
-                else:
-                    desdualizacion_actual_existente = False
-                
-                context["pay_boton"] = "dualizacion"
-                context["parametro_actual_existente"] = desdualizacion_actual_existente
-                context["parametro_encontrado_existente"] = desdualizacion_encontrada_existente
-                context["parametro_actual"] = desdualizacion_actual
-                context["parametro_encontrado"] = desdualizacion_encontrada
-            elif pay_boton == "Presión":
-                presion_encontrada = functions.presion_llantas(llantas, True)
-                presion_actual = functions.presion_llantas(llantas, True)
-                context["pay_boton"] = "presion"
-                context["parametro_actual_existente"] = presion_actual.exists()
-                context["parametro_encontrado_existente"] = presion_encontrada.exists()
-                context["parametro_actual"] = presion_actual
-                context["parametro_encontrado"] = presion_encontrada
-            else:
-                desgaste_irregular_encontrado = functions.desgaste_irregular(llantas, True)
-                desgaste_irregular_actual = functions.desgaste_irregular(llantas, True)
-                context["pay_boton"] = "desgaste"
-                context["parametro_actual_existente"] = bool(desgaste_irregular_actual)
-                context["parametro_encontrado_existente"] = bool(desgaste_irregular_encontrado)
-                context["parametro_actual"] = desgaste_irregular_actual
-                context["parametro_encontrado"] = desgaste_irregular_encontrado
-
-
-            mes_1 = hoy.strftime("%b")
-            mes_2 = functions.mes_anterior(hoy)
-            mes_3 = functions.mes_anterior(mes_2)
-            mes_4 = functions.mes_anterior(mes_3)
-
-            hoy1 = hoy.strftime("%m")
-            hoy2 = mes_2.strftime("%m")
-            hoy3 = mes_3.strftime("%m")
-            hoy4 = mes_4.strftime("%m")
-
-            vehiculos_vistos_mes_1 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_vistos_mes_2 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_vistos_mes_3 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_vistos_mes_4 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            vehiculos_rojos_copia = vehiculo_flota.filter(id__in=filtro_rojo)
-            vehiculos_rojos_mes_1 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_rojos_mes_2 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy2).exclude(pk__in=vehiculos_rojos_mes_1)
-            vehiculos_rojos_mes_3 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy3).exclude(pk__in=vehiculos_rojos_mes_2)
-            vehiculos_rojos_mes_4 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy4).exclude(pk__in=vehiculos_rojos_mes_3)
-
-
-            vehiculos_amarillos_mes_1 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_amarillos_mes_2 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_amarillos_mes_3 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_amarillos_mes_4 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            vehiculos_sospechosos_mes_1 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_sospechosos_mes_2 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_sospechosos_mes_3 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_sospechosos_mes_4 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            estatus_profundidad = functions.estatus_profundidad(llantas)
-
-            nunca_vistos = functions.nunca_vistos(vehiculo_clase)
-            renovables = functions.renovables(llantas, vehiculos_amarillos)
-            sin_informacion = functions.sin_informacion(llantas)
-
-            porcentaje_vehiculos_inspeccionados_por_aplicacion = functions.vehiculos_inspeccionados_por_aplicacion(vehiculo_clase)
-            porcentaje_vehiculos_inspeccionados_por_clase = functions.vehiculos_inspeccionados_por_clase(vehiculo_clase)
-
-
-            vehiculos_por_clase_sin_inspeccionar = functions.vehiculos_por_clase_sin_inspeccionar(vehiculo_clase, hoy, mes_1, mes_2.strftime("%b"), mes_3.strftime("%b"))
-            clase_sin_inspeccionar_mes_1 = {}
-            clase_sin_inspeccionar_mes_2 = {}
-            clase_sin_inspeccionar_mes_3 = {}
-            for cls in vehiculos_por_clase_sin_inspeccionar:
-                clase_sin_inspeccionar_mes_1[cls["clase"]] = cls["mes1"]
-                clase_sin_inspeccionar_mes_2[cls["clase"]] = cls["mes2"]
-                clase_sin_inspeccionar_mes_3[cls["clase"]] = cls["mes3"]
-
-            context["clase_sin_inspeccionar_mes_1"] = clase_sin_inspeccionar_mes_1
-            context["clase_sin_inspeccionar_mes_2"] = clase_sin_inspeccionar_mes_2
-            context["clase_sin_inspeccionar_mes_3"] = clase_sin_inspeccionar_mes_3
-            context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo, self.request.user.perfil.compania)
-            context["estatus_profundidad"] = estatus_profundidad
-            context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["mes_1"] = mes_1
-            context["mes_2"] = mes_2.strftime("%b")
-            context["mes_3"] = mes_3.strftime("%b")
-            context["mes_4"] = mes_4.strftime("%b")
-            context["nunca_vistos"] = nunca_vistos
-            context["porcentaje_amarillo"] = porcentaje_amarillo
-            context["porcentaje_vehiculos_inspeccionados_por_aplicacion"] = porcentaje_vehiculos_inspeccionados_por_aplicacion
-            context["porcentaje_vehiculos_inspeccionados_por_clase"] = porcentaje_vehiculos_inspeccionados_por_clase
-            context["porcentaje_rojo"] = porcentaje_rojo
-            context["porcentaje_sospechoso"] = porcentaje_sospechoso
-            context["porcentaje_visto"] = porcentaje_visto
-            context["renovables"] = renovables
-            context["sin_informacion"] = sin_informacion
-            context["vehiculos_amarillos"] = vehiculos_amarillos.count()
-            context["vehiculos_amarillos_mes_1"] = vehiculos_amarillos_mes_1.count()
-            context["vehiculos_amarillos_mes_2"] = vehiculos_amarillos_mes_2.count()
-            context["vehiculos_amarillos_mes_3"] = vehiculos_amarillos_mes_3.count()
-            context["vehiculos_amarillos_mes_4"] = vehiculos_amarillos_mes_4.count()
-            context["vehiculos_por_clase_sin_inspeccionar"] = vehiculos_por_clase_sin_inspeccionar
-            context["vehiculos_rojos"] = vehiculos_rojos.count()
-            context["vehiculos_rojos_mes_1"] = vehiculos_rojos_mes_1.count()
-            context["vehiculos_rojos_mes_2"] = vehiculos_rojos_mes_2.count()
-            context["vehiculos_rojos_mes_3"] = vehiculos_rojos_mes_3.count()
-            context["vehiculos_rojos_mes_4"] = vehiculos_rojos_mes_4.count()
-            context["vehiculos_sospechosos"] = vehiculos_sospechosos.count()
-            context["vehiculos_sospechosos_mes_1"] = vehiculos_sospechosos_mes_1.count()
-            context["vehiculos_sospechosos_mes_2"] = vehiculos_sospechosos_mes_2.count()
-            context["vehiculos_sospechosos_mes_3"] = vehiculos_sospechosos_mes_3.count()
-            context["vehiculos_sospechosos_mes_4"] = vehiculos_sospechosos_mes_4.count()
-            context["vehiculos_vistos"] = vehiculos_vistos.count()
-            context["vehiculos_vistos_mes_1"] = vehiculos_vistos_mes_1.count()
-            context["vehiculos_vistos_mes_2"] = vehiculos_vistos_mes_2.count()
-            context["vehiculos_vistos_mes_3"] = vehiculos_vistos_mes_3.count()
-            context["vehiculos_vistos_mes_4"] = vehiculos_vistos_mes_4.count()
-            context["vehiculos_totales"] = vehiculo_clase.count()
-            return context
-        elif flota:
-            vehiculo_flota = vehiculo.filter(ubicacion__nombre=flota)
-            bitacora_flota = bitacora.filter(numero_economico__in=vehiculo_flota)
-            llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculo_flota)
-            inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), llanta__in=llantas)
-            hoy = date.today()
-            
-            periodo_2 = hoy - timedelta(days=self.request.user.perfil.compania.periodo2_inspeccion)
-            vehiculos_vistos = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__lte=periodo_2) | vehiculo_flota.filter(ultima_inspeccion__fecha_hora__isnull=True)
-            porcentaje_visto = int((vehiculos_vistos.count()/vehiculo_flota.count()) * 100)
-
-            filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
-            vehiculos_sospechosos = vehiculo_flota.filter(id__in=filtro_sospechoso)
-            porcentaje_sospechoso = int((vehiculos_sospechosos.count()/vehiculo_flota.count()) * 100)
-
-            doble_entrada = functions.doble_entrada(bitacora_flota)
-            filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada[0])
-            vehiculos_rojos = vehiculo_flota.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
-            porcentaje_rojo = int((vehiculos_rojos.count()/vehiculo_flota.count()) * 100)
-
-            filtro_amarillo = functions.vehiculo_amarillo(llantas)
-            vehiculos_amarillos = vehiculo_flota.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
-            porcentaje_amarillo = int((vehiculos_amarillos.count()/vehiculo_flota.count()) * 100)
-
-
-            if pay_boton == "Dualización":
-                desdualizacion_encontrada = functions.desdualizacion(llantas, True)
-                if desdualizacion_encontrada:
-                    desdualizacion_encontrada_existente = True
-                else:
-                    desdualizacion_encontrada_existente = False
-                desdualizacion_actual = functions.desdualizacion(llantas, True)
-                if desdualizacion_actual:
-                    desdualizacion_actual_existente = True
-                else:
-                    desdualizacion_actual_existente = False
-                
-                context["pay_boton"] = "dualizacion"
-                context["parametro_actual_existente"] = desdualizacion_actual_existente
-                context["parametro_encontrado_existente"] = desdualizacion_encontrada_existente
-                context["parametro_actual"] = desdualizacion_actual
-                context["parametro_encontrado"] = desdualizacion_encontrada
-            elif pay_boton == "Presión":
-                presion_encontrada = functions.presion_llantas(llantas, True)
-                presion_actual = functions.presion_llantas(llantas, True)
-                context["pay_boton"] = "presion"
-                context["parametro_actual_existente"] = presion_actual.exists()
-                context["parametro_encontrado_existente"] = presion_encontrada.exists()
-                context["parametro_actual"] = presion_actual
-                context["parametro_encontrado"] = presion_encontrada
-            else:
-                desgaste_irregular_encontrado = functions.desgaste_irregular(llantas, True)
-                desgaste_irregular_actual = functions.desgaste_irregular(llantas, True)
-                context["pay_boton"] = "desgaste"
-                context["parametro_actual_existente"] = bool(desgaste_irregular_actual)
-                context["parametro_encontrado_existente"] = bool(desgaste_irregular_encontrado)
-                context["parametro_actual"] = desgaste_irregular_actual
-                context["parametro_encontrado"] = desgaste_irregular_encontrado
-
-
-            mes_1 = hoy.strftime("%b")
-            mes_2 = functions.mes_anterior(hoy)
-            mes_3 = functions.mes_anterior(mes_2)
-            mes_4 = functions.mes_anterior(mes_3)
-
-            hoy1 = hoy.strftime("%m")
-            hoy2 = mes_2.strftime("%m")
-            hoy3 = mes_3.strftime("%m")
-            hoy4 = mes_4.strftime("%m")
-
-            vehiculos_vistos_mes_1 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_vistos_mes_2 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_vistos_mes_3 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_vistos_mes_4 = vehiculo_flota.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            vehiculos_rojos_copia = vehiculo_flota.filter(id__in=filtro_rojo)
-            vehiculos_rojos_mes_1 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_rojos_mes_2 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy2).exclude(pk__in=vehiculos_rojos_mes_1)
-            vehiculos_rojos_mes_3 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy3).exclude(pk__in=vehiculos_rojos_mes_2)
-            vehiculos_rojos_mes_4 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy4).exclude(pk__in=vehiculos_rojos_mes_3)
-
-
-            vehiculos_amarillos_mes_1 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_amarillos_mes_2 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_amarillos_mes_3 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_amarillos_mes_4 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            vehiculos_sospechosos_mes_1 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_sospechosos_mes_2 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_sospechosos_mes_3 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_sospechosos_mes_4 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            estatus_profundidad = functions.estatus_profundidad(llantas)
-
-            nunca_vistos = functions.nunca_vistos(vehiculo_flota)
-            renovables = functions.renovables(llantas, vehiculos_amarillos)
-            sin_informacion = functions.sin_informacion(llantas)
-
-            porcentaje_vehiculos_inspeccionados_por_aplicacion = functions.vehiculos_inspeccionados_por_aplicacion(vehiculo_flota)
-            porcentaje_vehiculos_inspeccionados_por_clase = functions.vehiculos_inspeccionados_por_clase(vehiculo_flota)
-
-            vehiculos_por_clase_sin_inspeccionar = functions.vehiculos_por_clase_sin_inspeccionar(vehiculo_flota, hoy, mes_1, mes_2.strftime("%b"), mes_3.strftime("%b"))
-            clase_sin_inspeccionar_mes_1 = {}
-            clase_sin_inspeccionar_mes_2 = {}
-            clase_sin_inspeccionar_mes_3 = {}
-            for cls in vehiculos_por_clase_sin_inspeccionar:
-                clase_sin_inspeccionar_mes_1[cls["clase"]] = cls["mes1"]
-                clase_sin_inspeccionar_mes_2[cls["clase"]] = cls["mes2"]
-                clase_sin_inspeccionar_mes_3[cls["clase"]] = cls["mes3"]
-
-            context["clase_sin_inspeccionar_mes_1"] = clase_sin_inspeccionar_mes_1
-            context["clase_sin_inspeccionar_mes_2"] = clase_sin_inspeccionar_mes_2
-            context["clase_sin_inspeccionar_mes_3"] = clase_sin_inspeccionar_mes_3
-            context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo, self.request.user.perfil.compania)
-            context["estatus_profundidad"] = estatus_profundidad
-            context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["mes_1"] = mes_1
-            context["mes_2"] = mes_2.strftime("%b")
-            context["mes_3"] = mes_3.strftime("%b")
-            context["mes_4"] = mes_4.strftime("%b")
-            context["nunca_vistos"] = nunca_vistos
-            context["porcentaje_amarillo"] = porcentaje_amarillo
-            context["porcentaje_vehiculos_inspeccionados_por_aplicacion"] = porcentaje_vehiculos_inspeccionados_por_aplicacion
-            context["porcentaje_vehiculos_inspeccionados_por_clase"] = porcentaje_vehiculos_inspeccionados_por_clase
-            context["porcentaje_rojo"] = porcentaje_rojo
-            context["porcentaje_sospechoso"] = porcentaje_sospechoso
-            context["porcentaje_visto"] = porcentaje_visto
-            context["renovables"] = renovables
-            context["sin_informacion"] = sin_informacion
-            context["vehiculos_amarillos"] = vehiculos_amarillos.count()
-            context["vehiculos_amarillos_mes_1"] = vehiculos_amarillos_mes_1.count()
-            context["vehiculos_amarillos_mes_2"] = vehiculos_amarillos_mes_2.count()
-            context["vehiculos_amarillos_mes_3"] = vehiculos_amarillos_mes_3.count()
-            context["vehiculos_amarillos_mes_4"] = vehiculos_amarillos_mes_4.count()
-            context["vehiculos_por_clase_sin_inspeccionar"] = vehiculos_por_clase_sin_inspeccionar
-            context["vehiculos_rojos"] = vehiculos_rojos.count()
-            context["vehiculos_rojos_mes_1"] = vehiculos_rojos_mes_1.count()
-            context["vehiculos_rojos_mes_2"] = vehiculos_rojos_mes_2.count()
-            context["vehiculos_rojos_mes_3"] = vehiculos_rojos_mes_3.count()
-            context["vehiculos_rojos_mes_4"] = vehiculos_rojos_mes_4.count()
-            context["vehiculos_sospechosos"] = vehiculos_sospechosos.count()
-            context["vehiculos_sospechosos_mes_1"] = vehiculos_sospechosos_mes_1.count()
-            context["vehiculos_sospechosos_mes_2"] = vehiculos_sospechosos_mes_2.count()
-            context["vehiculos_sospechosos_mes_3"] = vehiculos_sospechosos_mes_3.count()
-            context["vehiculos_sospechosos_mes_4"] = vehiculos_sospechosos_mes_4.count()
-            context["vehiculos_vistos"] = vehiculos_vistos.count()
-            context["vehiculos_vistos_mes_1"] = vehiculos_vistos_mes_1.count()
-            context["vehiculos_vistos_mes_2"] = vehiculos_vistos_mes_2.count()
-            context["vehiculos_vistos_mes_3"] = vehiculos_vistos_mes_3.count()
-            context["vehiculos_vistos_mes_4"] = vehiculos_vistos_mes_4.count()
-            context["vehiculos_totales"] = vehiculo_flota.count()
-            return context
+        if flota1:
+            flotas_vehiculo = vehiculos_totales.values("ubicacion").distinct()
         else:
-            llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            hoy = date.today()
-            
-            periodo_2 = hoy - timedelta(days=self.request.user.perfil.compania.periodo2_inspeccion)
-            vehiculos_vistos = vehiculo.filter(ultima_inspeccion__fecha_hora__lte=periodo_2) | vehiculo.filter(ultima_inspeccion__fecha_hora__isnull=True)
-            porcentaje_visto = int((vehiculos_vistos.count()/vehiculo.count()) * 100)
+            flotas_vehiculo = vehiculo.values("ubicacion").distinct()
+        flotas = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), id__in=flotas_vehiculo)
+        
+        if clase1:
+            clases = vehiculos_totales.values("clase").distinct()
+        else:
+            clases = vehiculo.values("clase").distinct()
 
-            filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
-            vehiculos_sospechosos = vehiculo.filter(id__in=filtro_sospechoso)
-            porcentaje_sospechoso = int((vehiculos_sospechosos.count()/vehiculo.count()) * 100)
+        bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), numero_economico__in=vehiculo)
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        hoy = date.today()
+        
+        periodo_2 = hoy - timedelta(days=self.request.user.perfil.compania.periodo2_inspeccion)
+        vehiculos_vistos = vehiculo.filter(ultima_inspeccion__fecha_hora__lte=periodo_2) | vehiculo.filter(ultima_inspeccion__fecha_hora__isnull=True)
+        porcentaje_visto = int((vehiculos_vistos.count()/vehiculo.count()) * 100)
 
-            doble_entrada = functions.doble_entrada(bitacora)
-            filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada[0])
-            vehiculos_rojos = vehiculo.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
-            porcentaje_rojo = int((vehiculos_rojos.count()/vehiculo.count()) * 100)
+        filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
+        vehiculos_sospechosos = vehiculo.filter(id__in=filtro_sospechoso)
+        porcentaje_sospechoso = int((vehiculos_sospechosos.count()/vehiculo.count()) * 100)
 
-            filtro_amarillo = functions.vehiculo_amarillo(llantas)
-            vehiculos_amarillos = vehiculo.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
-            porcentaje_amarillo = int((vehiculos_amarillos.count()/vehiculo.count()) * 100)
+        doble_entrada = functions.doble_mala_entrada(bitacora, vehiculo)
+        filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada, vehiculo)
+        vehiculos_rojos = vehiculo.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
+        porcentaje_rojo = int((vehiculos_rojos.count()/vehiculo.count()) * 100)
+
+        filtro_amarillo = functions.vehiculo_amarillo(llantas)
+        vehiculos_amarillos = vehiculo.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
+        porcentaje_amarillo = int((vehiculos_amarillos.count()/vehiculo.count()) * 100)
 
 
-            if pay_boton == "Dualización":
-                desdualizacion_encontrada = functions.desdualizacion(llantas, True)
-                if desdualizacion_encontrada:
-                    desdualizacion_encontrada_existente = True
-                else:
-                    desdualizacion_encontrada_existente = False
-                desdualizacion_actual = functions.desdualizacion(llantas, True)
-                if desdualizacion_actual:
-                    desdualizacion_actual_existente = True
-                else:
-                    desdualizacion_actual_existente = False
-                
-                context["pay_boton"] = "dualizacion"
-                context["parametro_actual_existente"] = desdualizacion_actual_existente
-                context["parametro_encontrado_existente"] = desdualizacion_encontrada_existente
-                context["parametro_actual"] = desdualizacion_actual
-                context["parametro_encontrado"] = desdualizacion_encontrada
-            elif pay_boton == "Presión":
-                presion_encontrada = functions.presion_llantas(llantas, True)
-                presion_actual = functions.presion_llantas(llantas, True)
-                context["pay_boton"] = "presion"
-                context["parametro_actual_existente"] = presion_actual.exists()
-                context["parametro_encontrado_existente"] = presion_encontrada.exists()
-                context["parametro_actual"] = presion_actual
-                context["parametro_encontrado"] = presion_encontrada
+        if pay_boton == "Dualización":
+            desdualizacion_encontrada = functions.desdualizacion(llantas, True)
+            if desdualizacion_encontrada:
+                desdualizacion_encontrada_existente = True
             else:
-                desgaste_irregular_encontrado = functions.desgaste_irregular(llantas, True)
-                desgaste_irregular_actual = functions.desgaste_irregular(llantas, True)
-                context["pay_boton"] = "desgaste"
-                context["parametro_actual_existente"] = bool(desgaste_irregular_actual)
-                context["parametro_encontrado_existente"] = bool(desgaste_irregular_encontrado)
-                context["parametro_actual"] = desgaste_irregular_actual
-                context["parametro_encontrado"] = desgaste_irregular_encontrado
+                desdualizacion_encontrada_existente = False
+            desdualizacion_actual = functions.desdualizacion(llantas, True)
+            if desdualizacion_actual:
+                desdualizacion_actual_existente = True
+            else:
+                desdualizacion_actual_existente = False
+            
+            context["pay_boton"] = "dualizacion"
+            context["parametro_actual_existente"] = desdualizacion_actual_existente
+            context["parametro_encontrado_existente"] = desdualizacion_encontrada_existente
+            context["parametro_actual"] = desdualizacion_actual
+            context["parametro_encontrado"] = desdualizacion_encontrada
+        elif pay_boton == "Presión":
+            presion_encontrada = functions.presion_llantas(llantas, True)
+            presion_actual = functions.presion_llantas(llantas, True)
+            context["pay_boton"] = "presion"
+            context["parametro_actual_existente"] = presion_actual.exists()
+            context["parametro_encontrado_existente"] = presion_encontrada.exists()
+            context["parametro_actual"] = presion_actual
+            context["parametro_encontrado"] = presion_encontrada
+        else:
+            desgaste_irregular_encontrado = functions.desgaste_irregular(llantas, True)
+            desgaste_irregular_actual = functions.desgaste_irregular(llantas, True)
+            context["pay_boton"] = "desgaste"
+            context["parametro_actual_existente"] = bool(desgaste_irregular_actual)
+            context["parametro_encontrado_existente"] = bool(desgaste_irregular_encontrado)
+            context["parametro_actual"] = desgaste_irregular_actual
+            context["parametro_encontrado"] = desgaste_irregular_encontrado
+
+        mala_entrada_ejes = functions.mala_entrada_ejes(llantas, True)
+
+        mes_1 = hoy.strftime("%b")
+        mes_2 = functions.mes_anterior(hoy)
+        mes_3 = functions.mes_anterior(mes_2)
+        mes_4 = functions.mes_anterior(mes_3)
+
+        hoy1 = hoy.strftime("%m")
+        hoy2 = mes_2.strftime("%m")
+        hoy3 = mes_3.strftime("%m")
+        hoy4 = mes_4.strftime("%m")
+
+        vehiculo_mes1 = bitacora.filter(fecha_de_inflado__month=hoy1)
+        vehiculo_mes2 = bitacora.filter(fecha_de_inflado__month=hoy2)
+        vehiculo_mes3 = bitacora.filter(fecha_de_inflado__month=hoy3)
+        vehiculo_mes4 = bitacora.filter(fecha_de_inflado__month=hoy4)
+        
+        entrada_correcta_mes_1 = round((functions.contar_entrada_correcta(llantas) / llantas.count()) * 100, 2)
 
 
-            mes_1 = hoy.strftime("%b")
-            mes_2 = functions.mes_anterior(hoy)
-            mes_3 = functions.mes_anterior(mes_2)
-            mes_4 = functions.mes_anterior(mes_3)
+        vehiculos_vistos_mes_1 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy1)
+        vehiculos_vistos_mes_2 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy2)
+        vehiculos_vistos_mes_3 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy3)
+        vehiculos_vistos_mes_4 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy4)
 
-            hoy1 = hoy.strftime("%m")
-            hoy2 = mes_2.strftime("%m")
-            hoy3 = mes_3.strftime("%m")
-            hoy4 = mes_4.strftime("%m")
-
-            vehiculos_vistos_mes_1 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_vistos_mes_2 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_vistos_mes_3 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_vistos_mes_4 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy4)
-
-            vehiculos_rojos_copia = vehiculo.filter(id__in=filtro_rojo)
-            vehiculos_rojos_mes_1 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_rojos_mes_2 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy2).exclude(pk__in=vehiculos_rojos_mes_1)
-            vehiculos_rojos_mes_3 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy3).exclude(pk__in=vehiculos_rojos_mes_2)
-            vehiculos_rojos_mes_4 = vehiculos_rojos_copia.filter(ultima_inspeccion__fecha_hora__month=hoy4).exclude(pk__in=vehiculos_rojos_mes_3)
+        vehiculos_rojos_mes_1 = vehiculos_rojos
 
 
-            vehiculos_amarillos_mes_1 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_amarillos_mes_2 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_amarillos_mes_3 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_amarillos_mes_4 = vehiculos_amarillos.filter(ultima_inspeccion__fecha_hora__month=hoy4)
+        print("aver")
+        print(vehiculos_rojos_mes_1)
 
-            vehiculos_sospechosos_mes_1 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy1)
-            vehiculos_sospechosos_mes_2 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy2)
-            vehiculos_sospechosos_mes_3 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy3)
-            vehiculos_sospechosos_mes_4 = vehiculos_sospechosos.filter(ultima_inspeccion__fecha_hora__month=hoy4)
+        vehiculos_amarillos_mes_1 = vehiculos_amarillos
 
-            estatus_profundidad = functions.estatus_profundidad(llantas)
+        vehiculos_sospechosos_mes_1 = vehiculos_sospechosos
 
-            nunca_vistos = functions.nunca_vistos(vehiculo)
-            renovables = functions.renovables(llantas, vehiculos_amarillos)
-            sin_informacion = functions.sin_informacion(llantas)
+        estatus_profundidad = functions.estatus_profundidad(llantas)
 
-            porcentaje_vehiculos_inspeccionados_por_aplicacion = functions.vehiculos_inspeccionados_por_aplicacion(vehiculo)
-            porcentaje_vehiculos_inspeccionados_por_clase = functions.vehiculos_inspeccionados_por_clase(vehiculo)
+        nunca_vistos = functions.nunca_vistos(vehiculo)
+        renovables = functions.renovables(llantas, vehiculos_amarillos)
+        sin_informacion = functions.sin_informacion(llantas)
 
-            vehiculos_por_clase_sin_inspeccionar = functions.vehiculos_por_clase_sin_inspeccionar(vehiculo, hoy1, hoy2, hoy3)
-            clase_sin_inspeccionar_mes_1 = {}
-            clase_sin_inspeccionar_mes_2 = {}
-            clase_sin_inspeccionar_mes_3 = {}
-            for cls in vehiculos_por_clase_sin_inspeccionar:
-                clase_sin_inspeccionar_mes_1[cls["clase"]] = cls["mes1"]
-                clase_sin_inspeccionar_mes_2[cls["clase"]] = cls["mes2"]
-                clase_sin_inspeccionar_mes_3[cls["clase"]] = cls["mes3"]
-            vehiculos_por_aplicacion_sin_inspeccionar = functions.vehiculos_por_aplicacion_sin_inspeccionar(vehiculo, hoy1, hoy2, hoy3)
-            aplicacion_sin_inspeccionar_mes_1 = {}
-            aplicacion_sin_inspeccionar_mes_2 = {}
-            aplicacion_sin_inspeccionar_mes_3 = {}
-            for cls in vehiculos_por_aplicacion_sin_inspeccionar:
-                aplicacion_sin_inspeccionar_mes_1[cls["aplicacion__nombre"]] = cls["mes1"]
-                aplicacion_sin_inspeccionar_mes_2[cls["aplicacion__nombre"]] = cls["mes2"]
-                aplicacion_sin_inspeccionar_mes_3[cls["aplicacion__nombre"]] = cls["mes3"]
+        porcentaje_vehiculos_inspeccionados_por_aplicacion = functions.vehiculos_inspeccionados_por_aplicacion(vehiculo)
+        porcentaje_vehiculos_inspeccionados_por_clase = functions.vehiculos_inspeccionados_por_clase(vehiculo)
 
-            print(vehiculos_por_aplicacion_sin_inspeccionar)
-            print(aplicacion_sin_inspeccionar_mes_1)
-            context["aplicacion_sin_inspeccionar_mes_1"] = aplicacion_sin_inspeccionar_mes_1
-            context["aplicacion_sin_inspeccionar_mes_2"] = aplicacion_sin_inspeccionar_mes_1
-            context["aplicacion_sin_inspeccionar_mes_3"] = aplicacion_sin_inspeccionar_mes_1
-            context["clase_sin_inspeccionar_mes_1"] = clase_sin_inspeccionar_mes_1
-            context["clase_sin_inspeccionar_mes_2"] = clase_sin_inspeccionar_mes_2
-            context["clase_sin_inspeccionar_mes_3"] = clase_sin_inspeccionar_mes_3
-            context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo, self.request.user.perfil.compania)
-            context["estatus_profundidad"] = estatus_profundidad
-            context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["mes_1"] = mes_1
-            context["mes_2"] = mes_2.strftime("%b")
-            context["mes_3"] = mes_3.strftime("%b")
-            context["mes_4"] = mes_4.strftime("%b")
-            context["nunca_vistos"] = nunca_vistos
-            context["porcentaje_amarillo"] = porcentaje_amarillo
-            context["porcentaje_vehiculos_inspeccionados_por_aplicacion"] = porcentaje_vehiculos_inspeccionados_por_aplicacion
-            context["porcentaje_vehiculos_inspeccionados_por_clase"] = porcentaje_vehiculos_inspeccionados_por_clase
-            context["porcentaje_rojo"] = porcentaje_rojo
-            context["porcentaje_sospechoso"] = porcentaje_sospechoso
-            context["porcentaje_visto"] = porcentaje_visto
-            context["renovables"] = renovables
-            context["sin_informacion"] = sin_informacion
-            context["vehiculos_amarillos"] = vehiculos_amarillos.count()
-            context["vehiculos_amarillos_mes_1"] = vehiculos_amarillos_mes_1.count()
-            context["vehiculos_amarillos_mes_2"] = vehiculos_amarillos_mes_2.count()
-            context["vehiculos_amarillos_mes_3"] = vehiculos_amarillos_mes_3.count()
-            context["vehiculos_amarillos_mes_4"] = vehiculos_amarillos_mes_4.count()
-            context["vehiculos_por_clase_sin_inspeccionar"] = vehiculos_por_clase_sin_inspeccionar
-            context["vehiculos_rojos"] = vehiculos_rojos.count()
-            context["vehiculos_rojos_mes_1"] = vehiculos_rojos_mes_1.count()
-            context["vehiculos_rojos_mes_2"] = vehiculos_rojos_mes_2.count()
-            context["vehiculos_rojos_mes_3"] = vehiculos_rojos_mes_3.count()
-            context["vehiculos_rojos_mes_4"] = vehiculos_rojos_mes_4.count()
-            context["vehiculos_sospechosos"] = vehiculos_sospechosos.count()
-            context["vehiculos_sospechosos_mes_1"] = vehiculos_sospechosos_mes_1.count()
-            context["vehiculos_sospechosos_mes_2"] = vehiculos_sospechosos_mes_2.count()
-            context["vehiculos_sospechosos_mes_3"] = vehiculos_sospechosos_mes_3.count()
-            context["vehiculos_sospechosos_mes_4"] = vehiculos_sospechosos_mes_4.count()
-            context["vehiculos_vistos"] = vehiculos_vistos.count()
-            context["vehiculos_vistos_mes_1"] = vehiculos_vistos_mes_1.count()
-            context["vehiculos_vistos_mes_2"] = vehiculos_vistos_mes_2.count()
-            context["vehiculos_vistos_mes_3"] = vehiculos_vistos_mes_3.count()
-            context["vehiculos_vistos_mes_4"] = vehiculos_vistos_mes_4.count()
-            context["vehiculos_totales"] = vehiculo.count()
-            return context
+        vehiculos_por_clase_sin_inspeccionar = functions.vehiculos_por_clase_sin_inspeccionar(vehiculo, hoy1, hoy2, hoy3)
+        clase_sin_inspeccionar_mes_1 = {}
+        clase_sin_inspeccionar_mes_2 = {}
+        clase_sin_inspeccionar_mes_3 = {}
+        for cls in vehiculos_por_clase_sin_inspeccionar:
+            clase_sin_inspeccionar_mes_1[cls["clase"]] = cls["mes1"]
+            clase_sin_inspeccionar_mes_2[cls["clase"]] = cls["mes2"]
+            clase_sin_inspeccionar_mes_3[cls["clase"]] = cls["mes3"]
+
+        vehiculos_por_aplicacion_sin_inspeccionar = functions.vehiculos_por_aplicacion_sin_inspeccionar(vehiculo, hoy1, hoy2, hoy3)
+        aplicacion_sin_inspeccionar_mes_1 = {}
+        aplicacion_sin_inspeccionar_mes_2 = {}
+        aplicacion_sin_inspeccionar_mes_3 = {}
+        for cls in vehiculos_por_aplicacion_sin_inspeccionar:
+            aplicacion_sin_inspeccionar_mes_1[cls["aplicacion__nombre"]] = cls["mes1"]
+            aplicacion_sin_inspeccionar_mes_2[cls["aplicacion__nombre"]] = cls["mes2"]
+            aplicacion_sin_inspeccionar_mes_3[cls["aplicacion__nombre"]] = cls["mes3"]
+
+        context["a"] = False
+        context["aplicacion_sin_inspeccionar_mes_1"] = aplicacion_sin_inspeccionar_mes_1
+        context["aplicacion_sin_inspeccionar_mes_2"] = aplicacion_sin_inspeccionar_mes_2
+        context["aplicacion_sin_inspeccionar_mes_3"] = aplicacion_sin_inspeccionar_mes_3
+        context["clase1"] = clase1
+        context["clase2"] = clase2
+        context["clase_sin_inspeccionar_mes_1"] = clase_sin_inspeccionar_mes_1
+        context["clase_sin_inspeccionar_mes_2"] = clase_sin_inspeccionar_mes_2
+        context["clase_sin_inspeccionar_mes_3"] = clase_sin_inspeccionar_mes_3
+        context["clases_mas_frecuentes_infladas"] = clases
+        context["entrada_correcta_mes_1"] = entrada_correcta_mes_1
+        context["entrada_correcta_mes_1_cantidad"] = functions.contar_entrada_correcta(llantas)
+        context["entrada_correcta_mes_2"] = 0
+        context["entrada_correcta_mes_3"] = 0
+        context["entrada_correcta_mes_4"] = 0
+        context["estatus_profundidad"] = estatus_profundidad
+        context["flota1"] = flota1
+        context["flota2"] = flota2
+        context["flotas"] = flotas
+        context["mala_entrada_ejes"] = mala_entrada_ejes
+        context["mes_1"] = mes_1
+        context["mes_2"] = mes_2.strftime("%b")
+        context["mes_3"] = mes_3.strftime("%b")
+        context["mes_4"] = mes_4.strftime("%b")
+        context["nunca_vistos"] = nunca_vistos
+        context["porcentaje_amarillo"] = porcentaje_amarillo
+        context["porcentaje_vehiculos_inspeccionados_por_aplicacion"] = porcentaje_vehiculos_inspeccionados_por_aplicacion
+        context["porcentaje_vehiculos_inspeccionados_por_clase"] = porcentaje_vehiculos_inspeccionados_por_clase
+        context["porcentaje_rojo"] = porcentaje_rojo
+        context["porcentaje_sospechoso"] = porcentaje_sospechoso
+        context["porcentaje_visto"] = porcentaje_visto
+        context["renovables"] = renovables
+        context["sin_informacion"] = sin_informacion
+        context["vehiculos_amarillos"] = vehiculos_amarillos.count()
+        context["vehiculos_amarillos_mes_1"] = vehiculos_amarillos_mes_1.count()
+        context["vehiculos_amarillos_mes_2"] = 0
+        context["vehiculos_amarillos_mes_3"] = 0
+        context["vehiculos_amarillos_mes_4"] = 0
+        context["vehiculos_por_aplicacion_sin_inspeccionar"] = vehiculos_por_aplicacion_sin_inspeccionar
+        context["vehiculos_por_clase_sin_inspeccionar"] = vehiculos_por_clase_sin_inspeccionar
+        context["vehiculos_rojos"] = vehiculos_rojos.count()
+        context["vehiculos_rojos_mes_1"] = vehiculos_rojos_mes_1.count()
+        context["vehiculos_rojos_mes_2"] = 0
+        context["vehiculos_rojos_mes_3"] = 0
+        context["vehiculos_rojos_mes_4"] = 0
+        context["vehiculos_sospechosos"] = vehiculos_sospechosos.count()
+        context["vehiculos_sospechosos_mes_1"] = vehiculos_sospechosos_mes_1.count()
+        context["vehiculos_sospechosos_mes_2"] = 0
+        context["vehiculos_sospechosos_mes_3"] = 0
+        context["vehiculos_sospechosos_mes_4"] = 0
+        context["vehiculos_vistos"] = vehiculos_vistos.count()
+        context["vehiculos_vistos_mes_1"] = vehiculos_vistos_mes_1.count()
+        context["vehiculos_vistos_mes_2"] = vehiculos_vistos_mes_2.count()
+        context["vehiculos_vistos_mes_3"] = vehiculos_vistos_mes_3.count()
+        context["vehiculos_vistos_mes_4"] = vehiculos_vistos_mes_4.count()
+        context["vehiculos_totales"] = vehiculo.count()
+        return context
 
 
 
@@ -539,145 +272,96 @@ class TireDB2View(LoginRequiredMixin, TemplateView):
     template_name = "tire-dashboard2.html"
     def get_context_data(self, **kwargs):
 
-        clase = self.request.GET.get("clase")
-        flota = self.request.GET.get("flota")
+        clase = self.request.GET.getlist("clase")
+        clase2 = self.request.GET.get("clase2")
+        flota = self.request.GET.getlist("flota")
+        flota2 = self.request.GET.get("flota2")
+        aplicacion = self.request.GET.getlist("aplicacion")
+        aplicacion2 = self.request.GET.get("aplicacion2")
+        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
         
+        context = super().get_context_data(**kwargs)
         if clase:
-            context = super().get_context_data(**kwargs)
-            vehiculo_clase = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), clase=clase.upper())
-            llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculo_clase)
-            inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            ubicacion = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[0]
-
-
-            reemplazo_actual = functions.reemplazo_actual(llantas)
-            # Te elimina los ejes vacíos
-            reemplazo_actual_llantas = reemplazo_actual[0]
-            reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual[1].items() if v != 0}
-
-            reemplazo_dual = functions.reemplazo_dual(llantas, reemplazo_actual_llantas)
-            reemplazo_total = functions.reemplazo_total(reemplazo_actual_ejes, reemplazo_dual)
-
-            # Sin regresión
-            embudo_vida1 = functions.embudo_vidas(llantas)
-            pronostico_de_consumo = {k: v for k, v in embudo_vida1[1].items() if v != 0}
-            presupuesto = functions.presupuesto(pronostico_de_consumo, ubicacion)
-
-            # Con regresión
-            #embudo_vida2 = functions.embudo_vidas_con_regresion(llantas)
-
-            context["aplicaciones"] = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo_clase, self.request.user.perfil.compania)
-            context["embudo"] = embudo_vida1[1]
-            context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["presupuesto"] = presupuesto
-            context["pronostico_de_consumo"] = pronostico_de_consumo
-            context["pronostico_de_consumo_contar"] = len(embudo_vida1[1]) + 1
-            context["reemplazo_actual_ejes"] = reemplazo_actual_ejes
-            context["reemplazo_dual"] = reemplazo_dual
-            context["reemplazo_total"] = reemplazo_total
-
-            return context
-
+            vehiculo = Vehiculo.objects.filter(functions.reduce(or_, [Q(clase=c.upper()) for c in clase]), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         elif flota:
-            context = super().get_context_data(**kwargs)
-            vehiculo_flota = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), ubicacion__nombre=flota)
-            llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculo_flota)
-            inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            ubicacion = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[0]
-
-
-            reemplazo_actual = functions.reemplazo_actual(llantas)
-            # Te elimina los ejes vacíos
-            reemplazo_actual_llantas = reemplazo_actual[0]
-            reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual[1].items() if v != 0}
-
-            reemplazo_dual = functions.reemplazo_dual(llantas, reemplazo_actual_llantas)
-            reemplazo_total = functions.reemplazo_total(reemplazo_actual_ejes, reemplazo_dual)
-
-            # Sin regresión
-            embudo_vida1 = functions.embudo_vidas(llantas)
-            pronostico_de_consumo = {k: v for k, v in embudo_vida1[1].items() if v != 0}
-            presupuesto = functions.presupuesto(pronostico_de_consumo, ubicacion)
-
-            # Con regresión
-            #embudo_vida2 = functions.embudo_vidas_con_regresion(llantas)
-
-            context["p1"] = 50500
-            context["p2"] = 11700
-            context["p3"] = 20000
-            
-            context["p4"] = 24
-            context["p5"] = 31
-            context["p6"] = 40
-
-            context["p7"] = 4
-            context["p8"] = 10
-            context["p9"] = 18
-            context["p10"] = 25
-
-
-            context["aplicaciones"] = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo_flota, self.request.user.perfil.compania)
-            context["embudo"] = embudo_vida1[1]
-            context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["presupuesto"] = presupuesto
-            context["pronostico_de_consumo"] = pronostico_de_consumo
-            context["pronostico_de_consumo_contar"] = len(embudo_vida1[1]) + 1
-            context["reemplazo_actual_ejes"] = reemplazo_actual_ejes
-            context["reemplazo_dual"] = reemplazo_dual
-            context["reemplazo_total"] = reemplazo_total
-
-            return context
-        
+            vehiculo = Vehiculo.objects.filter(functions.reduce(or_, [Q(ubicacion=Ubicacion.objects.get(nombre=f)) for f in flota]), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        elif aplicacion:
+            vehiculo = Vehiculo.objects.filter(functions.reduce(or_, [Q(aplicacion=Aplicacion.objects.get(nombre=a)) for a in aplicacion]), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         else:
-            context = super().get_context_data(**kwargs)
             vehiculo = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            ubicacion = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[0]
 
-            reemplazo_actual = functions.reemplazo_actual(llantas)
-            # Te elimina los ejes vacíos
-            reemplazo_actual_llantas = reemplazo_actual[0]
-            reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual[1].items() if v != 0}
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculo)
+        inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), llanta__vehiculo__in=vehiculo)
+        ubicacion = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[0]
 
-            reemplazo_dual = functions.reemplazo_dual(llantas, reemplazo_actual_llantas)
-            reemplazo_total = functions.reemplazo_total(reemplazo_actual_ejes, reemplazo_dual)
+        reemplazo_actual = functions.reemplazo_actual(llantas)
+        # Te elimina los ejes vacíos
+        reemplazo_actual_llantas = reemplazo_actual[0]
+        reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual[1].items() if v != 0}
 
-            # Sin regresión
-            embudo_vida1 = functions.embudo_vidas(llantas)
-            pronostico_de_consumo = {k: v for k, v in embudo_vida1[1].items() if v != 0}
-            presupuesto = functions.presupuesto(pronostico_de_consumo, ubicacion)
+        reemplazo_dual = functions.reemplazo_dual(llantas, reemplazo_actual_llantas)
+        reemplazo_total = functions.reemplazo_total(reemplazo_actual_ejes, reemplazo_dual)
 
-            # Con regresión
-            embudo_vida2 = functions.embudo_vidas_con_regresion(inspecciones)
+        print("llantas", llantas)
+        print("reemplazo_actual_llantas", reemplazo_actual_llantas)
+        print("reemplazo_actual", reemplazo_actual)
+        print("reemplazo_dual", reemplazo_dual)
 
-            context["p1"] = 50500
-            context["p2"] = 11700
-            context["p3"] = 20000
-            
-            context["p4"] = 24
-            context["p5"] = 31
-            context["p6"] = 40
+        # Sin regresión
+        embudo_vida1 = functions.embudo_vidas(llantas)
+        pronostico_de_consumo = {k: v for k, v in embudo_vida1[1].items() if v != 0}
+        presupuesto = functions.presupuesto(pronostico_de_consumo, ubicacion)
 
-            context["p7"] = 4
-            context["p8"] = 10
-            context["p9"] = 18
-            context["p10"] = 25
+        # Con regresión
+        embudo_vida2 = functions.embudo_vidas_con_regresion(inspecciones, ubicacion, 30)
+        embudo_vida3 = functions.embudo_vidas_con_regresion(inspecciones, ubicacion, 60)
+        embudo_vida4 = functions.embudo_vidas_con_regresion(inspecciones, ubicacion, 90)
+        pronostico_de_consumo2 = {k: v for k, v in embudo_vida2[1].items() if v != 0}
+        pronostico_de_consumo3 = {k: v for k, v in embudo_vida3[1].items() if v != 0}
+        pronostico_de_consumo4 = {k: v for k, v in embudo_vida4[1].items() if v != 0}
+        presupuesto2 = functions.presupuesto(pronostico_de_consumo2, ubicacion)
+        presupuesto3 = functions.presupuesto(pronostico_de_consumo3, ubicacion)
+        presupuesto4 = functions.presupuesto(pronostico_de_consumo4, ubicacion)
 
-            context["aplicaciones"] = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo, self.request.user.perfil.compania)
-            context["embudo"] = embudo_vida1[1]
-            context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-            context["presupuesto"] = presupuesto
-            context["pronostico_de_consumo"] = pronostico_de_consumo
-            context["pronostico_de_consumo_contar"] = len(embudo_vida1[1]) + 1
-            context["reemplazo_actual_ejes"] = reemplazo_actual_ejes
-            context["reemplazo_dual"] = reemplazo_dual
-            context["reemplazo_total"] = reemplazo_total
 
-            return context
+        context["p1"] = 50500
+        context["p2"] = 11700
+        context["p3"] = 20000
+        
+        context["p4"] = 24
+        context["p5"] = 31
+        context["p6"] = 40
+
+        context["p7"] = 4
+        context["p8"] = 10
+        context["p9"] = 18
+        context["p10"] = 25
+
+        context["aplicacion1"] = aplicacion
+        context["aplicacion2"] = aplicacion2
+        context["aplicaciones"] = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["clase1"] = clase
+        context["clase2"] = clase2
+        context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo, self.request.user.perfil.compania)
+        context["compania"] = str(compania)
+        context["embudo"] = embudo_vida1[1]
+        context["flota1"] = flota
+        context["flota2"] = flota2
+        context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["presupuesto"] = presupuesto
+        context["presupuesto2"] = presupuesto2
+        context["presupuesto3"] = presupuesto3
+        context["presupuesto4"] = presupuesto4
+        context["pronostico_de_consumo"] = pronostico_de_consumo
+        context["pronostico_de_consumo2"] = pronostico_de_consumo2
+        context["pronostico_de_consumo3"] = pronostico_de_consumo3
+        context["pronostico_de_consumo4"] = pronostico_de_consumo4
+        context["pronostico_de_consumo_contar"] = len(embudo_vida1[1]) + 1
+        context["reemplazo_actual_ejes"] = reemplazo_actual_ejes
+        context["reemplazo_dual"] = reemplazo_dual
+        context["reemplazo_total"] = reemplazo_total
+
+        return context
 
 class TireDB3View(LoginRequiredMixin, TemplateView):
     # Vista de tire-dashboard3
@@ -685,14 +369,74 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
     template_name = "tire-dashboard3.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        vehiculos_totales = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        llantas_totales = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculos_totales)
+
+        flota1 = self.request.GET.getlist("flota")
+        flota2 = self.request.GET.get("flota2")
+        eje1 = self.request.GET.getlist("eje")
+        eje2 = self.request.GET.get("eje2")
+        vehiculo1 = self.request.GET.getlist("vehiculo")
+        vehiculo2 = self.request.GET.get("vehiculo2")
+        aplicacion1 = self.request.GET.getlist("aplicacion")
+        aplicacion2 = self.request.GET.getlist("aplicacion2")
+        posicion1 = self.request.GET.getlist("posicion")
+        posicion2 = self.request.GET.getlist("posicion2")
+        clase1 = self.request.GET.getlist("clase")
+        clase2 = self.request.GET.getlist("clase2")
+        producto1 = self.request.GET.getlist("producto")
+        producto2 = self.request.GET.getlist("producto2")
+
         vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        
+
+        if flota1:
+            vehiculos = vehiculos.filter(functions.reduce(or_, [Q(ubicacion=Ubicacion.objects.get(nombre=f)) for f in flota1]))
+        if vehiculo1:
+            vehiculos = vehiculos.filter(functions.reduce(or_, [Q(numero_economico=v) for v in vehiculo1]))
+        if aplicacion1:
+            vehiculos = vehiculos.filter(functions.reduce(or_, [Q(aplicacion=Aplicacion.objects.get(nombre=a)) for a in aplicacion1]))
+        if clase1:
+            vehiculos = vehiculos.filter(functions.reduce(or_, [Q(clase=c.upper()) for c in clase1]))
+
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculos)
+
+        if eje1:
+            llantas = llantas.filter(functions.reduce(or_, [Q(nombre_de_eje=e) for e in eje1]))
+        if producto1:
+            llantas = llantas.filter(functions.reduce(or_, [Q(producto=Producto.objects.get(producto=p)) for p in producto1]))
+        if posicion1:
+            llantas = llantas.filter(functions.reduce(or_, [Q(posicion=p) for p in posicion1]))
+
         inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
-        productos = Producto.objects.all()
-        flotas = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        aplicaciones = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        ejes = ["Dirección", "Tracción", "Arrastre", "Loco", "Retractil"]
+        if producto1:
+            productos_llanta = llantas_totales.values("producto").distinct()
+        else:
+            productos_llanta = llantas.values("producto").distinct()
+        productos = Producto.objects.filter(id__in=productos_llanta)
+        if posicion1:
+            posiciones = llantas_totales.values("posicion").distinct()
+        else:
+            posiciones = llantas.values("posicion").distinct()
+        if flota1:
+            flotas_vehiculo = vehiculos_totales.values("ubicacion__nombre").distinct()
+        else:
+            flotas_vehiculo = vehiculos.values("ubicacion__nombre").distinct()
+        flotas = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), nombre__in=flotas_vehiculo)
+        if aplicacion1:
+            aplicaciones_vehiculo = vehiculos_totales.values("aplicacion__nombre").distinct()
+        else:
+            aplicaciones_vehiculo = vehiculos.values("aplicacion__nombre").distinct()
+        aplicaciones = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), nombre__in=aplicaciones_vehiculo)
+        if eje1:
+            ejes = llantas_totales.values("nombre_de_eje").distinct()
+        else:
+            ejes = llantas.values("nombre_de_eje").distinct()
+        
+        if clase1:
+            clases = vehiculos_totales.values("clase").distinct()
+        else:
+            clases = vehiculos.values("clase").distinct()
+
 
         hoy = date.today()
         mes_1 = hoy.strftime("%b")
@@ -704,13 +448,16 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         mes_7 = functions.mes_anterior(mes_6)
         mes_8 = functions.mes_anterior(mes_7)
 
-
-        regresion_flota = functions.km_proyectado(inspecciones, True)
-        km_proyectado = regresion_flota[0]
-        km_x_mm = regresion_flota[1]
-        cpk = regresion_flota[2]
-        llantas_limpias = regresion_flota[4]
-        porcentaje_limpio = (len(llantas_limpias)/llantas.count())*100
+        regresion = functions.km_proyectado(inspecciones, True)
+        km_proyectado = regresion[0]
+        km_x_mm = regresion[1]
+        cpk = regresion[2]
+        llantas_limpias = regresion[4]
+        llantas_analizadas = llantas.filter(numero_economico__in=llantas_limpias)
+        try:
+            porcentaje_limpio = (len(llantas_limpias)/llantas.count())*100
+        except:
+            porcentaje_limpio = 0
 
         llantas_limpias_nueva = []
         llantas_limpias_1r = []
@@ -736,8 +483,10 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         for producto in productos:
             valores_producto = []
             
-            llantas_producto = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), producto=producto, numero_economico__in=llantas_limpias)
+            llantas_producto_total = llantas.filter(producto=producto)
+            llantas_producto = llantas.filter(producto=producto, numero_economico__in=llantas_limpias)
             desgaste = functions.desgaste_irregular_producto(llantas_producto)
+            porcentaje_analizadas = functions.porcentaje(llantas_producto.count(), llantas_producto_total.count())
 
             inspecciones_producto = Inspeccion.objects.filter(llanta__in=llantas_producto)
             regresion_producto = functions.km_proyectado(inspecciones_producto, False)
@@ -749,56 +498,62 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
             valores_producto.append(km_proyectado_producto)
             valores_producto.append(km_x_mm_producto)
             valores_producto.append(cpk_producto)
-            km_productos[producto] = regresion_producto[0]
-            cpk_productos[producto] = regresion_producto[3]
             valores_producto.append(cantidad)
             valores_producto.append(desgaste)
-            
-            comparativa_de_productos[producto] = valores_producto
+            valores_producto.append(porcentaje_analizadas)
 
+            nombre_abrev = functions.abrev(producto)
+            comparativa_de_productos[nombre_abrev] = valores_producto
+
+            km_productos[nombre_abrev] = regresion_producto[0]
+            cpk_productos[nombre_abrev] = regresion_producto[3]
+
+            
         comparativa_de_flotas = {}
         cpk_flotas = {}
         km_flotas = {}
         for flota in flotas:
             valores_flota = []
             
-            llantas_flota = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__ubicacion=flota, numero_economico__in=llantas_limpias)
-            inspecciones_flota = Inspeccion.objects.filter(llanta__in=llantas_flota)
-            regresion_flota = functions.km_proyectado(inspecciones_flota, False)
-            km_proyectado_flota = regresion_flota[0]
-            km_x_mm_flota = regresion_flota[1]
-            cpk_flota = regresion_flota[2]
-            cantidad = llantas_flota.count()
+            llantas_flota = llantas.filter(vehiculo__ubicacion=flota, numero_economico__in=llantas_limpias)
+            if llantas_flota:
+                inspecciones_flota = Inspeccion.objects.filter(llanta__in=llantas_flota)
+                regresion_flota = functions.km_proyectado(inspecciones_flota, False)
+                km_proyectado_flota = regresion_flota[0]
+                km_x_mm_flota = regresion_flota[1]
+                cpk_flota = regresion_flota[2]
+                cantidad = llantas_flota.count()
 
-            valores_flota.append(km_proyectado_flota)
-            valores_flota.append(km_x_mm_flota)
-            valores_flota.append(cpk_flota)
-            km_flotas[flota] = regresion_flota[0]
-            cpk_flotas[flota] = regresion_flota[3]
-            valores_flota.append(cantidad)
-            
-            comparativa_de_flotas[flota] = valores_flota
+                valores_flota.append(km_proyectado_flota)
+                valores_flota.append(km_x_mm_flota)
+                valores_flota.append(cpk_flota)
+                km_flotas[flota] = regresion_flota[0]
+                cpk_flotas[flota] = regresion_flota[3]
+                valores_flota.append(cantidad)
+                
+                comparativa_de_flotas[flota] = valores_flota
 
         comparativa_de_vehiculos = {}
         cpk_vehiculos = []
         for vehiculo in vehiculos:
             valores_vehiculo = []
             
-            llantas_vehiculo = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo=vehiculo, numero_economico__in=llantas_limpias)
-            inspecciones_vehiculo = Inspeccion.objects.filter(llanta__in=llantas_vehiculo)
-            regresion_vehiculo = functions.km_proyectado(inspecciones_vehiculo, False)
-            km_proyectado_vehiculo = regresion_vehiculo[0]
-            km_x_mm_vehiculo = regresion_vehiculo[1]
-            cpk_vehiculo = regresion_vehiculo[2]
-            cantidad = llantas_vehiculo.count()
+            llantas_vehiculo = llantas.filter(vehiculo=vehiculo, numero_economico__in=llantas_limpias)
+            if llantas_vehiculo:
+                inspecciones_vehiculo = Inspeccion.objects.filter(llanta__in=llantas_vehiculo)
+                regresion_vehiculo = functions.km_proyectado(inspecciones_vehiculo, False)
+                km_proyectado_vehiculo = regresion_vehiculo[0]
+                km_x_mm_vehiculo = regresion_vehiculo[1]
+                cpk_vehiculo = regresion_vehiculo[2]
+                cantidad = llantas_vehiculo.count()
 
-            valores_vehiculo.append(km_proyectado_vehiculo)
-            valores_vehiculo.append(km_x_mm_vehiculo)
-            valores_vehiculo.append(cpk_vehiculo)
-            cpk_vehiculos.append(cpk_vehiculo)
-            valores_vehiculo.append(cantidad)
-            
-            comparativa_de_vehiculos[vehiculo.numero_economico] = valores_vehiculo
+                valores_vehiculo.append(km_proyectado_vehiculo)
+                valores_vehiculo.append(km_x_mm_vehiculo)
+                valores_vehiculo.append(cpk_vehiculo)
+                cpk_vehiculos.append(cpk_vehiculo)
+                valores_vehiculo.append(cantidad)
+                
+                comparativa_de_vehiculos[vehiculo.numero_economico] = valores_vehiculo
 
         comparativa_de_aplicaciones = {}
         cpk_aplicaciones = {}
@@ -806,28 +561,30 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         for aplicacion in aplicaciones:
             valores_aplicacion = []
 
-            llantas_aplicacion = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__aplicacion =aplicacion, numero_economico__in=llantas_limpias)
-            inspecciones_aplicacion = Inspeccion.objects.filter(llanta__in=llantas_aplicacion)
-            regresion_aplicacion = functions.km_proyectado(inspecciones_aplicacion, False)
-            km_proyectado_aplicacion = regresion_aplicacion[0]
-            km_x_mm_aplicacion = regresion_aplicacion[1]
-            cpk_aplicacion = regresion_aplicacion[2]
-            cantidad = llantas_aplicacion.count()
+            llantas_aplicacion = llantas.filter(vehiculo__aplicacion =aplicacion, numero_economico__in=llantas_limpias)
+            if llantas_aplicacion:
 
-            valores_aplicacion.append(km_proyectado_aplicacion)
-            valores_aplicacion.append(km_x_mm_aplicacion)
-            valores_aplicacion.append(cpk_aplicacion)
-            km_aplicaciones[aplicacion] = regresion_aplicacion[0]
-            cpk_aplicaciones[aplicacion] = regresion_aplicacion[3]
-            valores_aplicacion.append(cantidad)
-            
-            comparativa_de_aplicaciones[aplicacion] = valores_aplicacion
+                inspecciones_aplicacion = Inspeccion.objects.filter(llanta__in=llantas_aplicacion)
+                regresion_aplicacion = functions.km_proyectado(inspecciones_aplicacion, False)
+                km_proyectado_aplicacion = regresion_aplicacion[0]
+                km_x_mm_aplicacion = regresion_aplicacion[1]
+                cpk_aplicacion = regresion_aplicacion[2]
+                cantidad = llantas_aplicacion.count()
+
+                valores_aplicacion.append(km_proyectado_aplicacion)
+                valores_aplicacion.append(km_x_mm_aplicacion)
+                valores_aplicacion.append(cpk_aplicacion)
+                km_aplicaciones[aplicacion] = regresion_aplicacion[0]
+                cpk_aplicaciones[aplicacion] = regresion_aplicacion[3]
+                valores_aplicacion.append(cantidad)
+                
+                comparativa_de_aplicaciones[aplicacion] = valores_aplicacion
 
         comparativa_de_ejes = {}
         for eje in ejes:
             valores_eje = []
 
-            llantas_eje = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania), nombre_de_eje=eje, numero_economico__in=llantas_limpias)
+            llantas_eje = llantas.filter(nombre_de_eje=eje["nombre_de_eje"], numero_economico__in=llantas_limpias)
             inspecciones_eje = Inspeccion.objects.filter(llanta__in=llantas_eje)
             if inspecciones_eje.exists():
                 regresion_eje = functions.km_proyectado(inspecciones_eje, False)
@@ -841,7 +598,30 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
                 valores_eje.append(cpk_eje)
                 valores_eje.append(cantidad)
                 
-                comparativa_de_ejes[eje] = valores_eje
+                comparativa_de_ejes[eje["nombre_de_eje"]] = valores_eje
+
+        comparativa_de_posiciones = {}
+        for posicion in posiciones:
+            valores_posicion = []
+
+            llantas_posicion = llantas.filter(posicion=posicion["posicion"], numero_economico__in=llantas_limpias)
+            inspecciones_posicion = Inspeccion.objects.filter(llanta__in=llantas_posicion)
+            if inspecciones_posicion.exists():
+                regresion_posicion = functions.km_proyectado(inspecciones_posicion, False)
+                km_proyectado_posicion = regresion_posicion[0]
+                km_x_mm_posicion = regresion_posicion[1]
+                cpk_posicion = regresion_posicion[2]
+                cantidad = llantas_posicion.count()
+
+                valores_posicion.append(km_proyectado_posicion)
+                valores_posicion.append(km_x_mm_posicion)
+                valores_posicion.append(cpk_posicion)
+                valores_posicion.append(cantidad)
+                
+                comparativa_de_posiciones[posicion["posicion"]] = valores_posicion
+
+        print("comparativa_de_flotas", comparativa_de_flotas)
+        print("comparativa_de_posiciones", comparativa_de_posiciones)
 
         cpk_vehiculos =  functions.cpk_vehiculo_cantidad(cpk_vehiculos)
         cpk_flotas =  functions.distribucion_cantidad(cpk_flotas)
@@ -852,9 +632,16 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         km_aplicaciones = functions.distribucion_cantidad(km_aplicaciones)
         km_productos = functions.distribucion_cantidad(km_productos)
 
+        context["aplicacion1"] = aplicacion1
+        context["aplicacion2"] = aplicacion2
+        context["aplicaciones"] = aplicaciones
+        context["clase1"] = clase1
+        context["clase2"] = clase2
+        context["clases"] = clases
         context["comparativa_de_aplicaciones"] = comparativa_de_aplicaciones
         context["comparativa_de_ejes"] = comparativa_de_ejes
         context["comparativa_de_flotas"] = comparativa_de_flotas
+        context["comparativa_de_posiciones"] = comparativa_de_posiciones
         context["comparativa_de_productos"] = comparativa_de_productos
         context["comparativa_de_vehiculos"] = comparativa_de_vehiculos
         context["cpk"] = cpk
@@ -864,6 +651,15 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         context["cpk_vehiculos"] = cpk_vehiculos[0]
         context["cpk_vehiculos_cantidad"] = cpk_vehiculos[1]
         context["cpk_vehiculos_cantidad_maxima"] = max(cpk_vehiculos[1])
+        context["eje1"] = eje1
+        context["eje2"] = eje2
+        context["ejes"] = ejes
+        context["flota1"] = flota1
+        context["flota2"] = flota2
+        context["flotas"] = flotas
+        context["km_aplicaciones"] = km_aplicaciones
+        context["km_flotas"] = km_flotas
+        context["km_productos"] = km_productos
         context["km_proyectado"] = km_proyectado
         context["km_x_mm"] = km_x_mm
         context["llantas_analizadas"] = llantas.count()
@@ -882,6 +678,15 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         context["mes_7"] = mes_7.strftime("%b")
         context["mes_8"] = mes_8.strftime("%b")
         context["porcentaje_limpio"] = porcentaje_limpio
+        context["posicion1"] = posicion1
+        context["posicion2"] = posicion2
+        context["posiciones"] = posiciones
+        context["producto1"] = producto1
+        context["producto2"] = producto2
+        context["productos"] = productos
+        context["vehiculo1"] = vehiculo1
+        context["vehiculo2"] = vehiculo2
+        context["vehiculos"] = vehiculos
         return context
 
 
@@ -916,15 +721,101 @@ class catalogoDesechosView(LoginRequiredMixin, TemplateView):
 
     template_name = "catalogoDesechos.html"
 
-class catalogoProductoView(LoginRequiredMixin, TemplateView):
+class catalogoProductoView(LoginRequiredMixin, CreateView):
     # Vista de catalogoProductosView
 
     template_name = "catalogoProducto.html"
+    form_class = ProductoForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        productos = Producto.objects.all()[::-1]
+        context["productos"] = productos
+
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoProductos")
+
+class catalogoProductoEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoProductosView2
+
+    template_name = "catalogoProducto.html"
+    slug_field = "producto"
+    slug_url_kwarg = "producto"
+    queryset = Producto.objects.all()
+    context_object_name = "producto"
+    model = Producto
+    fields = ["id", "producto", 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'km_esperado']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        productos = Producto.objects.all()[::-1]
+        context["productos"] = productos
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoProductos")
+
+class catalogoProductoUpdateView(LoginRequiredMixin, UpdateView):
+    # Vista de catalogoProductosView2
+
+    template_name = "catalogoProducto.html"
+    model = Producto
+    fields = ["id", "producto", 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'km_esperado']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        productos = Producto.objects.all()[::-1]
+        context["productos"] = productos
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoProductos")
+
 
 class catalogoRenovadoresView(LoginRequiredMixin, TemplateView):
     # Vista de catalogoRenovadoresView
 
     template_name = "catalogoRenovadores.html"
+
+class catalogoObservacionesView(LoginRequiredMixin, TemplateView):
+# Vista de catalogoObservacionesView
+
+    template_name = "catalogoObservaciones.html"
+
+class catalogoRechazoView(LoginRequiredMixin, TemplateView):
+# Vista de catalogoRechazoView
+
+    template_name = "catalogoRechazo.html"
+
+class companyFormularioView(LoginRequiredMixin, TemplateView):
+# Vista de companyFormularioView
+
+    template_name = "formularios/company.html"
+
+class sucursalFormularioView(LoginRequiredMixin, TemplateView):
+# Vista de sucursalFormularioView
+
+    template_name = "formularios/sucursal.html"
+
+class tallerFormularioView(LoginRequiredMixin, TemplateView):
+# Vista de tallerFormularioView
+
+    template_name = "formularios/taller.html"
+
+class usuarioFormularioView(LoginRequiredMixin, TemplateView):
+# Vista de usuarioFormularioView
+
+    template_name = "formularios/usuario.html"
+
+class aplicacionFormularioView(LoginRequiredMixin, TemplateView):
+# Vista de aplicacionFormularioView
+
+    template_name = "formularios/aplicacion.html"
 
 class CuatroUmbralesView(LoginRequiredMixin, TemplateView):
     # Vista de CatalogoDesechosView
@@ -1199,8 +1090,10 @@ class PulpoProAPI(View):
                                 fecha_de_inflado=date.today(),
                                 tiempo_de_inflado=jd['tiempo_de_inflado'],
         )
+        print("jd['presiones_de_entrada']", jd['presiones_de_entrada'])
         presiones_de_entrada = eval(jd['presiones_de_entrada'])
         presiones_de_salida = eval(jd['presiones_de_salida'])
+        print("presiones_de_entrada", presiones_de_entrada)
         numero_de_llantas = vehiculo.numero_de_llantas
         if numero_de_llantas == len(presiones_de_entrada):
 
@@ -1278,10 +1171,15 @@ class PulpoView(LoginRequiredMixin, ListView):
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         hoy = date.today()
 
+        #functions_excel.agregarExcel()
         #functions_ftp.ftp()
         #functions_ftp.ftp_1()
         #functions_ftp.ftp2(self.request.user.perfil)
         ultimo_mes = hoy - timedelta(days=31)
+
+        #functions_excel.excel_vehiculos()
+        #functions_excel.excel_llantas(User.objects.get(username="equipo-logistico"))
+        #functions_excel.excel_inspecciones()
 
         mes_1 = hoy.strftime("%b")
         mes_2 = functions.mes_anterior(hoy)
@@ -1344,10 +1242,6 @@ class PulpoView(LoginRequiredMixin, ListView):
             elif v in mala_entrada:
                 vehiculo_malos_status[v] = "Mala Entrada"
 
-
-
-
-
         my_profile = Perfil.objects.get(user=self.request.user)
 
         radar_min = functions.radar_min(vehiculo_fecha, self.request.user.perfil.compania)
@@ -1409,9 +1303,6 @@ class PulpoView(LoginRequiredMixin, ListView):
         context["rango_4"] = my_profile.compania.periodo2_inflado + 1
         context["tiempo_promedio"] = functions.inflado_promedio(vehiculo_fecha)
         context["vehiculos"] = vehiculo_fecha
-        print(vehiculo_malos_status)
-        print(vehiculo_periodo_status)
-        print(vehiculo)
         context["vehiculos_malos"] = vehiculo_malos_status
         context["vehiculos_periodo"] = vehiculo_periodo_status
         context["vehiculos_todos"] = vehiculo
@@ -1527,6 +1418,7 @@ def buscar(request):
                                             "cantidad_total": vehiculo.count(),
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
+                                            "compania": request.user.perfil.compania,
                                             "fecha":fecha,
                                             "fecha_con_formato":fecha_con_formato,
                                             "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
@@ -1648,6 +1540,7 @@ def buscar(request):
                                             "clase": clase,
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
+                                            "compania": request.user.perfil.compania,
                                             "fecha":fecha,
                                             "fecha_con_formato":fecha_con_formato,
                                             "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
@@ -1768,6 +1661,114 @@ def buscar(request):
                                             "cantidad_total": vehiculo_flota.count(),
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
+                                            "compania": request.user.perfil.compania,
+                                            "fecha":fecha,
+                                            "fecha_con_formato":fecha_con_formato,
+                                            "flota": flota,
+                                            "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
+                                            "hoy": hoy,
+                                            "mes_1": mes_1,
+                                            "mes_2": mes_2.strftime("%b"),
+                                            "mes_3": mes_3.strftime("%b"),
+                                            "mes_4": mes_4.strftime("%b"),
+                                            "mes_5": mes_5.strftime("%b"),
+                                            "porcentaje_inflado":porcentaje_inflado,
+                                            "porcentaje_entrada_correcta":porcentaje_entrada_correcta,
+                                            "radar_min": radar_min_resta,
+                                            "radar_max": radar_max,
+                                            "rango_1": my_profile.compania.periodo1_inflado,
+                                            "rango_2": my_profile.compania.periodo2_inflado,
+                                            "rango_3": my_profile.compania.periodo1_inflado + 1,
+                                            "rango_4": my_profile.compania.periodo2_inflado + 1,
+                                            "tiempo_promedio": tiempo_promedio,
+                                            "vehiculos": vehiculo_flota,
+                                            "vehiculos_periodo": vehiculo_periodo_status,
+                                            "vehiculos_todos": vehiculo_flota
+                                        })
+    elif boton_intuitivo:
+        ultimo_mes = hoy - timedelta(days=31)
+        vehiculo_periodo = vehiculo_flota.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo_flota.filter(fecha_de_inflado=None)
+
+        # Status de los vehículos
+        bitacora_periodo = bitacora.filter(numero_economico__in=vehiculo_periodo)
+        vehiculo_periodo_status = {}
+        mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo)
+        for v in vehiculo_periodo:
+            if v in doble_mala_entrada:
+                vehiculo_periodo_status[v] = "Doble Entrada"
+            elif v in mala_entrada_periodo:
+                vehiculo_periodo_status[v] = "Mala Entrada"
+            else:
+                vehiculo_periodo_status[v] = "Entrada Correctas"
+
+        # Convertir formato de fecha
+        fecha_con_formato = functions.convertir_fecha(fecha)
+
+        # Saber el tiempo de inflado promedio
+        tiempo_promedio = functions.inflado_promedio(vehiculo_flota)
+
+
+        # Sacar el porcentaje de los vehículos inflados que hay dentro de los vehículos
+        porcentaje_inflado = functions.porcentaje(vehiculo_fecha.count(), vehiculo_flota.count())
+
+        # Sacar cuántos vehículos tienen la entrada correcta
+        entrada_correcta_contar = functions.contar_entrada_correcta(vehiculo_fecha)
+        
+        mes_1 = hoy.strftime("%b")
+        mes_2 = functions.mes_anterior(hoy)
+        mes_3 = functions.mes_anterior(mes_2)
+        mes_4 = functions.mes_anterior(mes_3)
+        mes_5 = functions.mes_anterior(mes_4)
+
+        vehiculo_mes1 = bitacora_flota.filter(fecha_de_inflado__month=hoy.month)
+        vehiculo_mes2 = bitacora_flota.filter(fecha_de_inflado__month=hoy.month - 1)
+        vehiculo_mes3 = bitacora_flota.filter(fecha_de_inflado__month=hoy.month - 2)
+        vehiculo_mes4 = bitacora_flota.filter(fecha_de_inflado__month=hoy.month - 3)
+        
+        mala_entrada_contar_mes1 = functions.contar_mala_entrada(vehiculo_mes1)
+        mala_entrada_contar_mes2 = functions.contar_mala_entrada(vehiculo_mes2)
+        mala_entrada_contar_mes3 = functions.contar_mala_entrada(vehiculo_mes3)
+        mala_entrada_contar_mes4 = functions.contar_mala_entrada(vehiculo_mes4)
+
+        entrada_correcta_contar_barras_mes1 = functions.contar_entrada_correcta(vehiculo_fecha_barras)
+        entrada_correcta_contar_barras_mes2 = functions.contar_entrada_correcta(vehiculo_fecha_barras_2)
+        entrada_correcta_contar_barras_mes3 = functions.contar_entrada_correcta(vehiculo_fecha_barras_3)
+        entrada_correcta_contar_barras_mes4 = functions.contar_entrada_correcta(vehiculo_fecha_barras_4)
+        entrada_correcta_contar_barras_mes5 = functions.contar_entrada_correcta(vehiculo_fecha_barras_5)
+
+        # Sacar el porcentaje de los vehículos con entrada correcta que hay dentro de los vehículos seleccionados
+        porcentaje_entrada_correcta = functions.porcentaje(entrada_correcta_contar, vehiculo_fecha.count())
+
+        # Calcular la proporción del radar 
+        radar_min = functions.radar_min(vehiculo_flota, request.user.perfil.compania)
+        radar_max = functions.radar_max(vehiculo_flota, request.user.perfil.compania)
+        radar_min_resta = functions.radar_min_resta(radar_min, radar_max)
+
+        return render(request, "pulpo.html", {
+                                            "aplicaciones_mas_frecuentes_infladas": functions.aplicaciones_mas_frecuentes(vehiculo_fecha, vehiculo_flota, request.user.perfil.compania),
+                                            "bitacoras": bitacora_flota,
+                                            "boton_intuitivo": "Vehículos Vencidos",
+                                            "doble_entrada": doble_entrada,
+                                            "cantidad_entrada": entrada_correcta_contar,
+                                            "cantidad_entrada_barras_mes1": entrada_correcta_contar_barras_mes1,
+                                            "cantidad_entrada_barras_mes2": entrada_correcta_contar_barras_mes2,
+                                            "cantidad_entrada_barras_mes3": entrada_correcta_contar_barras_mes3,
+                                            "cantidad_entrada_barras_mes4": entrada_correcta_contar_barras_mes4,
+                                            "cantidad_entrada_barras_mes5": entrada_correcta_contar_barras_mes5,
+                                            "cantidad_entrada_mes1": mala_entrada_contar_mes1,
+                                            "cantidad_entrada_mes2": mala_entrada_contar_mes2,
+                                            "cantidad_entrada_mes3": mala_entrada_contar_mes3,
+                                            "cantidad_entrada_mes4": mala_entrada_contar_mes4,
+                                            "cantidad_inflado": vehiculo_fecha.count(),
+                                            "cantidad_inflado_1": vehiculo_fecha_barras.count(),
+                                            "cantidad_inflado_2": vehiculo_fecha_barras_2.count(),
+                                            "cantidad_inflado_3": vehiculo_fecha_barras_3.count(),
+                                            "cantidad_inflado_4": vehiculo_fecha_barras_4.count(),
+                                            "cantidad_inflado_5": vehiculo_fecha_barras_5.count(),
+                                            "cantidad_total": vehiculo_flota.count(),
+                                            "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
+                                            "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
+                                            "compania": request.user.perfil.compania,
                                             "fecha":fecha,
                                             "fecha_con_formato":fecha_con_formato,
                                             "flota": flota,
@@ -1927,8 +1928,8 @@ class SearchView(LoginRequiredMixin, ListView):
         filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
         vehiculos_sospechosos = vehiculos.filter(id__in=filtro_sospechoso)
 
-        doble_entrada = functions.doble_entrada(bitacora)
-        filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada[0])
+        doble_entrada = functions.doble_mala_entrada(bitacora, vehiculos)
+        filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada, vehiculos)
         vehiculos_rojos = vehiculos.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
 
         filtro_amarillo = functions.vehiculo_amarillo(llantas)
@@ -1948,8 +1949,6 @@ class SearchView(LoginRequiredMixin, ListView):
 
         return context
 
-
-
 def search(request):
     num = request.GET.get("numero_economico")
     fecha = request.GET.get("fecha1")
@@ -1968,43 +1967,69 @@ def search(request):
                                                 "cantidad_total": vehiculos.count(),
                                                 "cantidad_verdes": vehiculos_verdes.count()
         })
-    elif fecha:
+    elif fecha and num == "Seleccionar Fecha":
         dividir_fecha = functions.convertir_rango(fecha)
         primera_fecha = datetime.strptime(dividir_fecha[0], "%m/%d/%Y").date()
         segunda_fecha = datetime.strptime(dividir_fecha[1], "%m/%d/%Y").date()
 
         vehiculos = Vehiculo.objects.filter(fecha_de_inflado__range=[primera_fecha, segunda_fecha], compania=Compania.objects.get(compania=request.user.perfil.compania))
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
+        inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
         
-        doble_entrada = functions.doble_entrada(bitacora)
-        vehiculos_rojos = vehiculos.filter(numero_economico__in=doble_entrada)
+        filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
+        vehiculos_sospechosos = vehiculos.filter(id__in=filtro_sospechoso)
 
-        vehiculos_verdes = vehiculos.exclude(numero_economico__in=doble_entrada)
+        doble_entrada = functions.doble_mala_entrada(bitacora, vehiculos)
+        filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada, vehiculos)
+        vehiculos_rojos = vehiculos.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
+
+        filtro_amarillo = functions.vehiculo_amarillo(llantas)
+        vehiculos_amarillos = vehiculos.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
+
+        vehiculos_verdes = vehiculos.exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos).exclude(id__in=vehiculos_amarillos)
+
         return render(request, "buscar_vehiculos.html", {
-                                                "fecha": fecha,
+                                                "vehiculos_amarillos": vehiculos_amarillos,
                                                 "vehiculos_rojos": vehiculos_rojos,
+                                                "vehiculos_sospechosos": vehiculos_sospechosos,
                                                 "vehiculos_verdes": vehiculos_verdes,
+                                                "cantidad_amarillos": vehiculos_amarillos.count(),
                                                 "cantidad_rojos": vehiculos_rojos.count(),
+                                                "cantidad_sospechosos": vehiculos_sospechosos.count(),
                                                 "cantidad_total": vehiculos.count(),
-                                                "cantidad_verdes": vehiculos_verdes.count()
+                                                "cantidad_verdes": vehiculos_verdes.count(),
         })
     else:
 
         vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
+        inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
         
-        doble_entrada = functions.doble_entrada(bitacora)
-        vehiculos_rojos = vehiculos.filter(numero_economico__in=doble_entrada)
+        filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
+        vehiculos_sospechosos = vehiculos.filter(id__in=filtro_sospechoso)
 
-        vehiculos_verdes = vehiculos.exclude(numero_economico__in=doble_entrada)
+        doble_entrada = functions.doble_mala_entrada(bitacora, vehiculos)
+        filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada, vehiculos)
+        vehiculos_rojos = vehiculos.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
+
+        filtro_amarillo = functions.vehiculo_amarillo(llantas)
+        vehiculos_amarillos = vehiculos.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
+
+        vehiculos_verdes = vehiculos.exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos).exclude(id__in=vehiculos_amarillos)
+
         return render(request, "buscar_vehiculos.html", {
+                                                "vehiculos_amarillos": vehiculos_amarillos,
                                                 "vehiculos_rojos": vehiculos_rojos,
+                                                "vehiculos_sospechosos": vehiculos_sospechosos,
                                                 "vehiculos_verdes": vehiculos_verdes,
+                                                "cantidad_amarillos": vehiculos_amarillos.count(),
                                                 "cantidad_rojos": vehiculos_rojos.count(),
+                                                "cantidad_sospechosos": vehiculos_sospechosos.count(),
                                                 "cantidad_total": vehiculos.count(),
-                                                "cantidad_verdes": vehiculos_verdes.count()
+                                                "cantidad_verdes": vehiculos_verdes.count(),
         })
-
 
 class tireDetailView(LoginRequiredMixin, DetailView):
     # Vista de tireDetailView
@@ -2208,3 +2233,130 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["vehiculo_mes4"] = vehiculo_mes4.count()
             context["vehiculo_status"] = vehiculo_status
         return context
+
+def download_rendimiento_de_llanta(request):
+    # Define Django project base directory
+    # content-type of response
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
+    llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania), vehiculo__in=vehiculos)
+    inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
+
+    regresion = functions.km_proyectado(inspecciones, True)
+    llantas_limpias = regresion[4]
+    llantas_analizadas = llantas.filter(numero_economico__in=llantas_limpias)
+
+    response = HttpResponse(content_type='application/ms-excel')
+
+	#decide file name
+    response['Content-Disposition'] = 'attachment; filename="LlantasAnalizadas.xls"'
+
+	#creating workbook
+    wb = xlwt.Workbook(encoding='utf-8')
+
+	#adding sheet
+    ws = wb.add_sheet("sheet1")
+
+	# Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+	# headers are bold
+    font_style.font.bold = True
+
+	#column header names, you can use your own headers here
+    columns = ['Llanta', 'Vehiculo', 'Posición', 'Km actual', 'Km proyectado', 'CPK', 'Sucursal', 'Aplicación', 'Clase', 'Nombre de eje', 'Producto', 'Min profundidad']
+
+    #write column headers in sheet
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    #get your data, from database or from a text file...
+    for my_row in range(len(llantas_analizadas)):
+        ws.write(my_row + 1, 0, str(llantas_analizadas[my_row]), font_style)
+        ws.write(my_row + 1, 1, str(llantas_analizadas.values("vehiculo__numero_economico")[my_row]["vehiculo__numero_economico"]), font_style)
+        ws.write(my_row + 1, 2, str(llantas_analizadas.values("posicion")[my_row]["posicion"]), font_style)
+        ws.write(my_row + 1, 3, str(llantas_analizadas.values("ultima_inspeccion__km")[my_row]["ultima_inspeccion__km"]), font_style)
+        ws.write(my_row + 1, 4, str(regresion[5][my_row]), font_style)
+        ws.write(my_row + 1, 5, str(regresion[3][my_row]), font_style)
+        ws.write(my_row + 1, 6, str(llantas_analizadas.values("vehiculo__ubicacion__nombre")[my_row]["vehiculo__ubicacion__nombre"]), font_style)
+        ws.write(my_row + 1, 7, str(llantas_analizadas.values("vehiculo__aplicacion__nombre")[my_row]["vehiculo__aplicacion__nombre"]), font_style)
+        ws.write(my_row + 1, 8, str(llantas_analizadas.values("vehiculo__clase")[my_row]["vehiculo__clase"]), font_style)
+        ws.write(my_row + 1, 9, str(llantas_analizadas.values("nombre_de_eje")[my_row]["nombre_de_eje"]), font_style)
+        ws.write(my_row + 1, 10, str(llantas_analizadas.values("producto__producto")[my_row]["producto__producto"]), font_style)
+        ws.write(my_row + 1, 11, str(llantas_analizadas.values("ultima_inspeccion__min_profundidad")[my_row]["ultima_inspeccion__min_profundidad"]), font_style)
+
+
+    wb.save(response)
+    return response
+
+def download_reemplazo_estimado(request):
+    # Define Django project base directory
+    # content-type of response
+    llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
+    inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
+    ubicacion = Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))[0]
+
+    embudo_vida1 = functions.embudo_vidas(llantas)
+    embudo_vida2 = functions.embudo_vidas_con_regresion(inspecciones, ubicacion, 30)
+    embudo_vida3 = functions.embudo_vidas_con_regresion(inspecciones, ubicacion, 60)
+    embudo_vida4 = functions.embudo_vidas_con_regresion(inspecciones, ubicacion, 90)
+
+    periodo = []
+    for llanta in llantas:
+        if llanta in embudo_vida1[0]:
+            periodo.append("Hoy")
+        elif llanta in embudo_vida2[0]:
+            periodo.append("30 días")
+        elif llanta in embudo_vida3[0]:
+            periodo.append("60 días")
+        elif llanta in embudo_vida4[0]:
+            periodo.append("90 días")
+        else:
+            periodo.append("-")
+
+    response = HttpResponse(content_type='application/ms-excel')
+
+	#decide file name
+    response['Content-Disposition'] = 'attachment; filename="LlantasReemplazoEstimado.xls"'
+
+	#creating workbook
+    wb = xlwt.Workbook(encoding='utf-8')
+
+	#adding sheet
+    ws = wb.add_sheet("sheet1")
+
+	# Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+	# headers are bold
+    font_style.font.bold = True
+
+	#column header names, you can use your own headers here
+    columns = ['Llanta', 'Vehiculo', 'Posición', 'Sucursal', 'Aplicación', 'Clase', 'Nombre de eje', 'Producto', 'Min profundidad', 'Periodo']
+
+    #write column headers in sheet
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    #get your data, from database or from a text file...
+    for my_row in range(len(llantas)):
+        ws.write(my_row + 1, 0, str(llantas[my_row]), font_style)
+        ws.write(my_row + 1, 1, str(llantas.values("vehiculo__numero_economico")[my_row]["vehiculo__numero_economico"]), font_style)
+        ws.write(my_row + 1, 2, str(llantas.values("posicion")[my_row]["posicion"]), font_style)
+        ws.write(my_row + 1, 3, str(llantas.values("vehiculo__ubicacion__nombre")[my_row]["vehiculo__ubicacion__nombre"]), font_style)
+        ws.write(my_row + 1, 4, str(llantas.values("vehiculo__aplicacion__nombre")[my_row]["vehiculo__aplicacion__nombre"]), font_style)
+        ws.write(my_row + 1, 5, str(llantas.values("vehiculo__clase")[my_row]["vehiculo__clase"]), font_style)
+        ws.write(my_row + 1, 6, str(llantas.values("nombre_de_eje")[my_row]["nombre_de_eje"]), font_style)
+        ws.write(my_row + 1, 7, str(llantas.values("producto__producto")[my_row]["producto__producto"]), font_style)
+        ws.write(my_row + 1, 8, str(llantas.values("ultima_inspeccion__min_profundidad")[my_row]["ultima_inspeccion__min_profundidad"]), font_style)
+        ws.write(my_row + 1, 9, str(periodo[my_row]), font_style)
+
+    wb.save(response)
+    return response

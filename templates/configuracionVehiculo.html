@@ -1,156 +1,155 @@
-<html>
-  <head>
-    {% load static %}
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'css/configVehiculo.css' %}"
-    />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AETO WEB</title>
-  </head>
-  <body>
-    {% include 'nav.html' %}
-    <div class="all-cont">
-      <header>
-        <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" />
-      </header>
-      <h1 class="main-title">Configuración del Vehículo</h1>
-      <div class="main-cont">
-        <div class="par-llantas">
+{% extends 'base.html' %}
 
-          <div class="tire">
-            <p class="presion-good">90</p>
-            <div class="good" id="llanta"></div>
-            <p class="profundidad-good">4</p>  
-          </div>
+{% block head %}
+{% load static %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'css/configVehiculo.css' %}"
+/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AETO WEB</title>
+{% endblock %}
 
-          <div class="shaft">
-            <svg
-              width="792pt"
-              height="61pt"
-              viewBox="0 0 792 61"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="#7f7f7f7f"></g>
-              <g id="#ffffffff">
-                <path
-                  opacity="1.00"
-                  d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
-                />
-              </g>
-            </svg>
-          </div>
+{% block content %}
+<div class="all-cont">
+  <header>
+    <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" />
+  </header>
+  <h1 class="main-title">Configuración del Vehículo</h1>
+  <div class="main-cont">
+    <div class="par-llantas">
+      <div class="tire">
+        <p class="presion-good">90</p>
+        <div class="good" id="llanta"></div>
+        <p class="profundidad-good">4</p>
+      </div>
 
-          <div class="tire">
-            <p class="presion-good">90</p>
-            <div class="good" id="llanta"></div>
-            <p class="profundidad-good">4</p>  
-          </div>
-        </div>
+      <div class="shaft">
+        <svg
+          width="792pt"
+          height="61pt"
+          viewBox="0 0 792 61"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g id="#7f7f7f7f"></g>
+          <g id="#ffffffff">
+            <path
+              opacity="1.00"
+              d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
+            />
+          </g>
+        </svg>
+      </div>
 
-        <div class="doble-llanta">
-          <div class="tire">
-            <p class="presion-yellow">90</p>
-            <div class="yellow" id="llanta"></div>
-            <p class="profundidad-yellow">4</p>  
-          </div>
-          <div class="tire">
-            <p class="presion-yellow">90</p>
-            <div class="yellow" id="llanta"></div>
-            <p class="profundidad-yellow">4</p>  
-          </div>
-
-          <div class="c-shaft">
-            <svg
-              width="84pt"
-              height="59pt"
-              viewBox="0 0 84 59"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="#7f7f7f7f"></g>
-              <g id="#ffffffff">
-                <path
-                  opacity="1.00"
-                  d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-                />
-              </g>
-            </svg>
-          </div>
-
-          <div class="tire">
-            <p class="presion-yellow">90</p>
-            <div class="yellow" id="llanta"></div>
-            <p class="profundidad-yellow">4</p>  
-          </div>
-          <div class="tire">
-            <p class="presion-yellow">90</p>
-            <div class="yellow" id="llanta"></div>
-            <p class="profundidad-yellow">4</p>  
-          </div>
-        </div>
-
-        <div class="doble-llanta">
-          <div class="tire">
-            <p class="presion-bad">90</p>
-            <div class="bad" id="llanta"></div>
-            <p class="profundidad-bad">4</p>  
-          </div>
-          <div class="tire">
-            <p class="presion-bad">90</p>
-            <div class="bad" id="llanta"></div>
-            <p class="profundidad-bad">4</p>  
-          </div>
-
-          <div class="c-shaft">
-            <svg
-              width="84pt"
-              height="59pt"
-              viewBox="0 0 84 59"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="#7f7f7f7f"></g>
-              <g id="#ffffffff">
-                <path
-                  opacity="1.00"
-                  d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-                />
-              </g>
-            </svg>
-          </div>
-
-          <div class="tire">
-            <p class="presion-bad">90</p>
-            <div class="bad" id="llanta"></div>
-            <p class="profundidad-bad">4</p>  
-          </div>
-          <div class="tire">
-            <p class="presion-bad">90</p>
-            <div class="bad" id="llanta"></div>
-            <p class="profundidad-bad">4</p>  
-          </div>
-        </div>
+      <div class="tire">
+        <p class="presion-good">90</p>
+        <div class="good" id="llanta"></div>
+        <p class="profundidad-good">4</p>
       </div>
     </div>
 
-    <script>
-      const Llanta = () => {
-        //Creando un web component
-        const llantas = document.querySelectorAll('#llanta');
+    <div class="doble-llanta">
+      <div class="tire">
+        <p class="presion-yellow">90</p>
+        <div class="yellow" id="llanta"></div>
+        <p class="profundidad-yellow">4</p>
+      </div>
+      <div class="tire">
+        <p class="presion-yellow">90</p>
+        <div class="yellow" id="llanta"></div>
+        <p class="profundidad-yellow">4</p>
+      </div>
 
-        llantas.forEach((llanta) => {
-          llanta.innerHTML = `
-                {% include 'tireSvg.html' %}
+      <div class="c-shaft">
+        <svg
+          width="84pt"
+          height="59pt"
+          viewBox="0 0 84 59"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g id="#7f7f7f7f"></g>
+          <g id="#ffffffff">
+            <path
+              opacity="1.00"
+              d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
+            />
+          </g>
+        </svg>
+      </div>
 
-                <div class="pop-out-llanta"></div>
-                `;
-        });
-      };
-      Llanta();
-    </script>
-  </body>
-</html>
+      <div class="tire">
+        <p class="presion-yellow">90</p>
+        <div class="yellow" id="llanta"></div>
+        <p class="profundidad-yellow">4</p>
+      </div>
+      <div class="tire">
+        <p class="presion-yellow">90</p>
+        <div class="yellow" id="llanta"></div>
+        <p class="profundidad-yellow">4</p>
+      </div>
+    </div>
+
+    <div class="doble-llanta">
+      <div class="tire">
+        <p class="presion-bad">90</p>
+        <div class="bad" id="llanta"></div>
+        <p class="profundidad-bad">4</p>
+      </div>
+      <div class="tire">
+        <p class="presion-bad">90</p>
+        <div class="bad" id="llanta"></div>
+        <p class="profundidad-bad">4</p>
+      </div>
+
+      <div class="c-shaft">
+        <svg
+          width="84pt"
+          height="59pt"
+          viewBox="0 0 84 59"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g id="#7f7f7f7f"></g>
+          <g id="#ffffffff">
+            <path
+              opacity="1.00"
+              d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
+            />
+          </g>
+        </svg>
+      </div>
+
+      <div class="tire">
+        <p class="presion-bad">90</p>
+        <div class="bad" id="llanta"></div>
+        <p class="profundidad-bad">4</p>
+      </div>
+      <div class="tire">
+        <p class="presion-bad">90</p>
+        <div class="bad" id="llanta"></div>
+        <p class="profundidad-bad">4</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const Llanta = () => {
+    //Creando un web component
+    const llantas = document.querySelectorAll('#llanta');
+
+    llantas.forEach((llanta) => {
+      llanta.innerHTML = `
+            {% include 'tireSvg.html' %}
+
+            <div class="pop-out-llanta"></div>
+            `;
+    });
+  };
+  Llanta();
+</script>
+{% endblock %}

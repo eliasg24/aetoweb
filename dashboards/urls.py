@@ -107,9 +107,54 @@ urlpatterns = [
         name="catalogoProductos"
     ),
     path(
+        route="productos/<int:pk>/",
+        view=views.catalogoProductoEditView.as_view(),
+        name="catalogoProductosEdit"
+    ),
+    path(
+        route="productos/<int:pk>/",
+        view=views.catalogoProductoUpdateView.as_view(),
+        name="catalogoProductoUpdate"
+    ),
+    path(
         route="renovadores",
         view=views.catalogoRenovadoresView.as_view(),
         name="catalogoRenovadores"
+    ),
+    path(
+        route="observaciones",
+        view=views.catalogoObservacionesView.as_view(),
+        name="catalogoObservaciones"
+    ),
+     path(
+        route="rechazo",
+        view=views.catalogoRechazoView.as_view(),
+        name="catalogoRechazo"
+    ),
+     path(
+        route="companyFormulario",
+        view=views.companyFormularioView.as_view(),
+        name="companyFormulario"
+    ),
+     path(
+        route="sucursalFormulario",
+        view=views.sucursalFormularioView.as_view(),
+        name="sucursalFormulario"
+    ),
+    path(
+        route="tallerFormulario",
+        view=views.tallerFormularioView.as_view(),
+        name="tallerFormulario"
+    ),
+    path(
+        route="usuarioFormulario",
+        view=views.usuarioFormularioView.as_view(),
+        name="usuarioFormulario"
+    ),
+    path(
+        route="aplicacionFormulario",
+        view=views.aplicacionFormularioView.as_view(),
+        name="aplicacionFormulario"
     ),
     path(
         route="4umbrales",
@@ -250,5 +295,15 @@ urlpatterns = [
         route="calendario",
         view=views.calendarView.as_view(),
         name="calendario"
+    ),
+    path(
+        route="download1",
+        view=views.download_rendimiento_de_llanta,
+        name="download1"
+    ),
+    path(
+        route="download2",
+        view=views.download_reemplazo_estimado,
+        name="download2"
     ),
 ]

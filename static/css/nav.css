@@ -1,340 +1,184 @@
-:root {
-  --icon-font: 30px;
-}
-
-@font-face {
-  font-family: energize;
-  src: url('../fonts/Energize-Regular.otf');
-  font-family: energize-thin;
-  src: url('../fonts/Energize-Thin.otf');
-}
-/* MENU LATERAL */
-.menu {
-  height: 100%;
-  width: 70px;
-  float: left;
-}
-
-.lateral {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  width: 1%;
-  min-width: 70px;
-  max-width: 120px;
-  background: #101010;
-  height: 100%;
-  overflow: hidden;
-  z-index: 2;
-  position: fixed;
-}
-
-.lateral_item .pulpo {
-  padding: 8px 11px;
-}
-
-.extracto {
-  text-decoration: none;
-  display: none;
-  justify-content: center;
-}
-
-.icon-file-excel,
-.icon-settings {
-  color: gray;
-  font-size: 30;
-}
-
-.iconos-centrales {
-  height: 80%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.top-menu {
-  height: 10%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bottom-menu {
-  height: 10%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.lateral_item .center-icon {
-  margin-top: 8%;
-  display: block;
-  color: white;
-  padding: 14%;
-  text-decoration: none;
-  text-align-last: center;
-}
-
-.lateral_item .center-icon:hover {
-  border-left: 5px solid white;
-  background: #1f1f1f;
-}
-
-.lateral_item .logout {
-  display: block;
-  color: white;
-  text-decoration: none;
-  font-size: 24;
-}
-
-.icon-dashboard,
-.icon-pulpo,
-.icon-home-out,
-.icon-warehouse,
-.icon-log-out,
-.icon-truck {
-  color: gray;
-  font-size: var(--icon-font);
-}
-
-.icon-dashboard {
-  font-size: 30;
-}
-
-.icon-truck {
-  font-size: 35px;
-}
-
-/* hamburguer */
-.icono-menu {
-  display: none;
-}
-
-.cont-menu {
-  display: none;
-}
-
-/* Estilos para el ícono del Menú */
-.icono-menu {
-  margin: 40px 50px;
-  position: relative;
-  z-index: 10;
-}
-
-.icono-menu img {
-  vertical-align: top;
-  width: 40px;
-  cursor: pointer;
-}
-
-/* Estilos para el contenedor del Menú */
-.cont-menu {
-  background-color: rgb(42, 42, 42);
-  box-shadow: 2px 0px 5px 2px rgb(66, 66, 66);
-  width: 400px;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transition: all 0.5s ease;
-}
-
-/* Estilos por agregar en JavaScript */
-.active-burger {
-  transform: translate(-600px);
-}
-
-/* Estilos para el listado del Menú */
-.cont-menu ul {
-  padding: 100px 0px 20px 0px;
-  list-style: none;
-}
-
-.cont-menu ul .burger-icon {
-  color: white;
-  display: block;
-  font-size: 25px;
-  text-decoration: none;
-  padding: 10px 50px;
-  cursor: pointer;
-}
-
-.cont-menu ul .burger-icon:hover {
-  background-color: rgb(228, 228, 228);
-  color: rgb(42, 42, 42);
-}
-
-.head-menu {
-  margin: 0;
-  list-style-type: none;
-  padding: 0;
-  background: #202020;
-}
-
-.head-item {
-  float: right;
-  margin-right: 1%;
-  align-self: center;
-  display: block;
-}
-
-.head-item a {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-.btn-group {
-  display: flex;
-  flex-flow: row nowrap;
-  gap: 20px;
-  justify-content: flex-end;
-  height: 100%;
-}
-.input-aeto {
+a {
   color: #fff;
+  text-decoration: none;
 }
 
-#input-fecha {
-  width: 11vw;
-}
-#btn-buscar {
-  background: #026cf5;
+ul {
+  list-style: none;
+  padding: 0;
 }
 
-.input-aeto {
+.btn {
   background: none;
   border: none;
-  cursor: pointer;
   outline: none;
-  transition: all 0.4s ease;
+  cursor: pointer;
 }
 
-.btn-aeto,
-.input-aeto {
-  align-items: center;
-  display: flex;
-  background: none;
-  color: white;
-  border: none;
-  /*border-bottom: white solid;*/
-}
-
-.btn-aeto > span,
-.input-aeto {
-  font-size: 1.2vw;
-  color: white;
-  display: block;
-}
-
-.btn-aeto > .blur {
-  position: absolute;
-}
-
-.menu_li--left {
-  position: absolute;
-  top: 1.5vh;
-  margin-left: 1vw;
-}
-
-.multiselect,
-.multiselect2,
-.multiselect3,
-.multiselect4 {
-  align-self: center;
-}
-
-.selectBox,
-.selectBox2,
-.selectBox3,
-.selectBox4 {
-  position: relative;
-}
-
-.selectBox select,
-.selectBox2 select,
-.selectBox3 select,
-.selectBox4 select{
-  width: 100%;
-  height: 30px;
-  border: none;
-  font-size: 1.2vw;
-}
-
-.overSelect,
-.overSelect2,
-.overSelect3,
-.overSelect4 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-}
-#checkboxes,
-#checkboxes2,
-#checkboxes3,
-#checkboxes4 {
-  display: none;
-  width: 105px;
-  border: 2px blueviolet solid;
-  border-radius: 5px;
-  margin-top: 4;
-  z-index: 3;
-}
-
-#checkboxes p,
-#checkboxes2 p,
-#checkboxes3 p,
-#checkboxes4 p {
-  margin-left: 25px;
-  margin-top: -15px;
-}
-
-#checkboxes label,
-#checkboxes2 label,
-#checkboxes3 label,
-#checkboxes4 label {
-  display: block;
-  margin-left: 0px;
-  margin-top: 5px;
-}
-
-#checkboxes label:hover,
-#checkboxes2 label:hover,
-#checkboxes3 label:hover,
-#checkboxes4 label:hover {
-  background-color: #c495f0;
-}
-
-.form-head {
-  margin: 0;
-  width: 100%;
+img {
+  max-width: 100%;
   height: auto;
 }
 
-.icon-magnifier {
-  margin-left: 0.5vw;
+.logo-aeto {
+  align-items: center;
+  display: flex;
+  height: auto;
+  justify-content: center;
+  width: 30px;
 }
 
-.center-icon span {
-  font-size: 30px;
-  color: gray;
+.btn-menu {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  color: #fff;
+  font-size: 2rem;
 }
 
-/* celular */
-@media screen and (max-width: 900px) {
-  .lateral {
+.text {
+  font-size: 1rem;
+}
+
+.menu-li__left {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 0.5rem 0;
+  width: 175px;
+}
+
+.nav-cont {
+  font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
+  background-color: #111;
+  font-size: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.navbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+}
+
+.menu {
+  align-items: flex-start;
+  background-color: inherit;
+  display: flex;
+  flex-flow: column nowrap;
+  font-size: 1.25rem;
+  gap: 1rem;
+  height: 100vh;
+  justify-content: center;
+  padding: 0 3rem;
+  position: fixed;
+  text-align: left;
+  transform: translateX(-100%);
+  transition: all 0.4s ease-in-out;
+  width: 100%;
+}
+
+.menu.active {
+  transform: translateX(0);
+}
+
+.menu > .btn-menu {
+  justify-content: flex-start;
+}
+
+.menu-items {
+  align-items: flex-start;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+.menu-item {
+  display: block;
+  padding: 0.5rem;
+  transition: all 0.2s ease-in;
+  width: 100%;
+}
+
+.menu-item:hover,
+.menu-item.active {
+  background-color: #2f5161;
+  border-left: 6px solid #eee;
+}
+
+.menu-item > a {
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.menu-item a > span:first-child {
+  font-size: 2rem;
+}
+
+@media screen and (min-width: 1024px) {
+  .menu-li__left {
+    margin: 0.5rem 0 0.5rem 0.5rem;
+  }
+
+  .nav-cont {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  .navbar {
+    align-items: flex-start;
+    display: flex;
+    flex-flow: column nowrap;
+    padding: 0 0.5rem;
+    padding-top: 1rem;
+  }
+
+  .logo-aeto {
     display: none;
   }
-  .icono-menu {
-    display: flex;
+
+  .menu {
+    align-items: flex-start;
+    position: relative;
+    transform: translateX(0);
+    justify-content: space-between;
+    padding: 0;
+    flex-flow: column nowrap;
+    padding-top: 5vh;
+    padding-bottom: 1rem;
+    height: 100%;
   }
 
-  .cont-menu {
-    display: flex;
+  .text {
+    display: none;
+  }
+
+  .menu.active .text {
+    display: inline;
+  }
+
+  .menu.active .menu-item > a {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .menu-items {
+    justify-content: center;
+    text-align: center;
+    margin: 0;
+  }
+
+  .menu-item > a {
+    justify-content: center;
+  }
+
+  .menu-item span {
+    font-size: 1rem;
   }
 }

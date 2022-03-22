@@ -1,5 +1,6 @@
-<html>
-  <head>
+{% extends 'base.html' %}
+
+{% block head %}
     {% load static %}
     <link
       rel="stylesheet"
@@ -9,9 +10,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AETO WEB</title>
-  </head>
-  <body>
-    {% include 'nav.html' %}
+{% endblock %}
+{% block content %}
     <div class="all-cont">
       <header class="d-flex navbar">
         <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" />
@@ -159,5 +159,4 @@
 
       manualEdit();
     </script>
-  </body>
-</html>
+{% endblock %}

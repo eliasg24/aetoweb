@@ -7,8 +7,8 @@
       // create a data set
       var data = anychart.data.set([
 
-          {% for flota, valores in comparativa_de_flotas.items %}
-        ['{{flota}}', {{valores.0}}, {{valores.2}}],
+          {% for posicion, valores in comparativa_de_posiciones.items %}
+        ['{{posicion}}', {{valores.0}}, {{valores.2}}],
         {% endfor %}
         ]);
 
@@ -18,7 +18,7 @@
   yLabels.format("{%value}{scale: (1000)(1000)(1000)|(K)(M)(B)}");
 
   // set the chart title
-  chart.title("Comparativa contra");
+  // chart.title("Comparativa contra");
   var title = chart.title();
   title.align('left');
   title.fontColor('#fff');
@@ -35,12 +35,11 @@
 
   // adding extra Y scale
   var extraYScale = anychart.scales.linear();
-  extraYScale.ticks().interval(0);
-  extraYScale.minorTicks().interval(0);
+  extraYScale.ticks().interval(1000);
 
   // set function to format y axis labels
   var yLabels = chart.yAxis(0).labels();
-  yLabels.format("${%value}{groupsSeparator: }");
+  yLabels.format("${%value}{groupsSeparator:\\,, decimalsCount:3}");
 
   // adding and adjust extra Y axis
   chart.xAxis().orientation("left");
@@ -56,15 +55,15 @@
 
   // setting first series of data
   var firstSeries = [
-          {% for flota, valores in comparativa_de_flotas.items %}
-              ['{{flota}}', {{valores.2}}],
+          {% for posicion, valores in comparativa_de_posiciones.items %}
+              ['{{posicion}}', {{valores.2}}],
           {% endfor %}
   ];
 
   // setting second series of data
   var secondSeries = [
-          {% for flota, valores in comparativa_de_flotas.items %}
-              ['{{flota}}', {{valores.0}}],
+          {% for posicion, valores in comparativa_de_posiciones.items %}
+              ['{{posicion}}', {{valores.0}}],
           {% endfor %}
   ];
 
@@ -92,6 +91,9 @@
   UnoSeries.normal().stroke("#0097fc");
   UnoSeries.hovered().stroke("#0097fc", 2);
   UnoSeries.selected().stroke("#0097fc", 4);
+
+  // set scale minimum
+  chart.yScale().minimum(0);
 
   chart.container("cc-pos");
 

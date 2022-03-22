@@ -45,14 +45,14 @@ class AplicacionesAdmin(admin.ModelAdmin):
 @admin.register(Vehiculo)
 class VehiculosAdmin(admin.ModelAdmin):
     # Admin de los Vehículos
-    list_display = ('numero_economico', 'clase', 'ubicacion', 'aplicacion', 'ultima_inspeccion', 'fecha_de_creacion')
+    list_display = ('numero_economico', 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'ultima_inspeccion', 'fecha_de_creacion')
     search_fields= ('numero_economico',)
     list_filter = ('compania', 'fecha_de_creacion', 'clase')
 
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('id', 'numero_economico', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje', 'posicion', 'producto',)
+    list_display = ('id', 'numero_economico', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje', 'posicion', 'producto',)
     search_fields= ('numero_economico',)
     list_filter = ('vehiculo__compania', 'tipo_de_eje')
     def min_profundidad(self, obj):
@@ -65,7 +65,7 @@ class LlantasAdmin(admin.ModelAdmin):
 @admin.register(Inspeccion)
 class InspeccionesAdmin(admin.ModelAdmin):
     # Admin de las Inspecciones
-    list_display = ('llanta', 'fecha_hora', "km", 'min_profundidad', 'max_profundidad')
+    list_display = ('id', 'llanta', 'fecha_hora', "km", 'min_profundidad', 'max_profundidad')
     search_fields= ('llanta',)
     list_filter = ('llanta',)
     def get_view_count(self, obj):
@@ -96,7 +96,7 @@ class PerfilAdmin(admin.ModelAdmin):
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     #Admin de productos
-    list_display = ('producto', 'marca', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'costo_por_km', 'km_proyectado',)
+    list_display = ('producto', 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'vida', 'precio')
     search_fields = ('producto',)
     list_filter = ('marca','aplicacion', 'vida',)
 

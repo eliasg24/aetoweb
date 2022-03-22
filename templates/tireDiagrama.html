@@ -1,5 +1,6 @@
-<html>
-  <head>
+{% extends 'base.html' %}
+
+{% block head %}
     {% load static %}
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
@@ -13,9 +14,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AETO WEB</title>
-  </head>
-  <body>
-    {% include 'nav.html' %}
+{% endblock %}
+{% block content %}
     <div class="all-cont">
       <header class="d-flex navbar">
         <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" />
@@ -92,5 +92,4 @@
 
       manualEdit();
     </script>
-  </body>
-</html>
+{% endblock %}

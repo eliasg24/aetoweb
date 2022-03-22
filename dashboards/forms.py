@@ -2,7 +2,7 @@
 from django import forms
 
 # Models
-from dashboards.models import Vehiculo, Excel, Llanta
+from dashboards.models import Vehiculo, Excel, Llanta, Producto
 
 class LlantaForm(forms.ModelForm):
     # Model form del Llanta
@@ -24,3 +24,10 @@ class ExcelForm(forms.ModelForm):
         # Configuración del Form
         model = Excel
         fields = ("file",)
+
+class ProductoForm(forms.ModelForm):
+    # Model form del Producto
+    class Meta:
+        # Configuración del Form
+        model = Producto
+        fields = ["producto", 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'km_esperado']

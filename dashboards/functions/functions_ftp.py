@@ -67,8 +67,6 @@ def ftp1():
                 if company == "MPV360":
                     writer.writerow(row)
 
-
-
             file.close()
             file_write.close()
 

@@ -1,28 +1,11 @@
-:root{
-  --inputs-laterales:  linear-gradient(#D76369, #F4AA74);
-  --red: #D76369;
-  --orange: #F6AA6F;
+:root {
+  --inputs-laterales: linear-gradient(#d76369, #f4aa74);
+  --red: #d76369;
+  --orange: #f6aa6f;
   --black: #171717;
   --gray: linear-gradient(#363636, #242424);
 }
-  
-*{
-  box-sizing: border-box;
-}
-  
-body{
-  margin: 0;
-  font-family: Arial;
-  background: #f1f1f1;
-  font-family: 'Montserrat', sans-serif;
-  background: var(--gray);
-}
-  
-html{
-  font-size: 62.5%;
-  color: white;
-}
-  
+
 ul {
   list-style-type: none;
   margin: 0;
@@ -34,19 +17,19 @@ ul {
 .all-cont {
   float: left;
   height: 100vh;
-  width: calc(100% - 70px);
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 20px;
+  width: 100%;
 }
 
-.menu_li--left{
+.menu_li--left {
   margin-top: 1vh;
   margin-left: 1vw;
 }
-  
-  /* trucks */
-.horizontal{
+
+/* trucks */
+.horizontal {
   margin: 0 2vw 2vh 2vw;
   border-radius: 10px;
   font-size: 1.3rem;
@@ -56,45 +39,50 @@ ul {
 }
 
 .browser h2 {
-  font-size: 3.6rem;
-  font-family: energize-thin;
+  font-size: 2rem;
   margin-left: 1.5vw;
 }
 
 .botones-estados {
-  display: flex;
-  gap: 30px;
   align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+  gap: 30px;
   justify-content: center;
-  width: 30%;
 }
 
 #table-green {
 }
 
-#table-yellow, #table-red, #table-purple, #status-yellow, #status-red, #status-purple{
+#table-yellow,
+#table-red,
+#table-purple,
+#status-yellow,
+#status-red,
+#status-purple {
   display: none;
 }
 
-.horizontal .horizontal_graficas--1{
+.horizontal .horizontal_graficas--1 {
 }
 
-.horizontal_graficas--1{
+.horizontal_graficas--1 {
   align-items: center;
   justify-content: center;
 }
 
-.browser{
+.browser {
   display: flex;
+  gap: 1rem;
   justify-content: space-between;
 }
 
-.search-cars{
+.search-cars {
   display: flex;
   padding: 10px;
 }
 
-.browser input{
+.browser input {
   height: 30px;
   padding: 5px;
   outline: none;
@@ -104,7 +92,7 @@ ul {
   background-color: rgba(0, 0, 0, 0.589);
 }
 
-.menu_button .menu_li--right{
+.menu_button .menu_li--right {
   height: 30px;
   background-color: #9147ff;
   color: white;
@@ -119,12 +107,12 @@ ul {
   background-color: seagreen !important;
 }
 
-.trucks{
+.trucks {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   gap: 20px;
-  width: 100%; 
+  width: 100%;
   height: 69vh;
   margin-top: 1vh;
   padding: 0 1vw;
@@ -136,22 +124,22 @@ ul {
   text-decoration: none;
   color: white;
 }
-  
-.trucks::-webkit-scrollbar{
+
+.trucks::-webkit-scrollbar {
   width: 10px;
 }
-  
-.trucks::-webkit-scrollbar-thumb{
+
+.trucks::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: black
+  background-color: black;
 }
 
-.trucks::-webkit-scrollbar-track{
+.trucks::-webkit-scrollbar-track {
   border-radius: 5px;
-  background-color: gray
+  background-color: gray;
 }
 
-.truck_number{
+.truck_number {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
@@ -187,7 +175,7 @@ ul {
 }
 
 .icon-checkmark {
-  color: green;
+  color: seagreen;
   font-size: 2rem;
 }
 
@@ -203,71 +191,77 @@ ul {
 
 .icon-user-secret {
   color: #9147ff;
-  font-size: 2.5rem;
+  font-size: 2rem;
 }
 
-.truck_number img{
+.truck_number img {
   height: 30px;
 }
 
-.truck_number h4{
+.truck_number h4 {
+  margin: 0;
+}
+
+.car-status-good p {
   margin: 0;
   font-size: 2rem;
 }
 
-.car-status-good p{
-  margin: 0;
-  font-size: 2.5rem;
-}
-
-.car-status-good h2{
+.car-status-good h2 {
   margin: 1rem;
-  font-size: 4rem;
+  font-size: 2rem;
 }
 
-.car-status-good{
+.car-status-good {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin: 0 1vw; 
+  margin: 0 1vw;
   background: black;
   border-radius: 10px;
 }
 
-.status{
+.status {
   display: flex;
   justify-content: space-around;
 }
 
-.red-status{
+.red-status {
   color: #f0412c;
 }
-.green-status{
-  color: green;
+.green-status {
+  color: seagreen;
 }
-.yellow-status{
+.yellow-status {
   color: #dbc002;
 }
-.purple-status{
+.purple-status {
   color: #9147ff;
 }
-.btn-colors{
+.btn-colors {
   display: flex;
   text-decoration: none;
   color: white;
   background: #242424;
   border-radius: 5px;
   padding: 4px;
-  font-size: 1.5rem;
-  width: 30%;
+  font-size: 1.25rem;
   cursor: pointer;
   align-items: center;
   justify-content: center;
 }
 
+form {
+  align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
 #estado_Verde {
-  background: green;
+  background: seagreen;
 }
 
 #estado_Amarillo,
@@ -276,8 +270,7 @@ ul {
   background: #242424;
 }
 
-
-.btn-head-item{
+.btn-head-item {
   border: none;
   text-decoration: none;
   cursor: pointer;
@@ -289,9 +282,3 @@ ul {
   font-family: 'Montserrat', sans-serif;
   outline: none;
 }
-
-/*Resolution 1366 max*/
-@media only screen and (max-height: 750px) {
-  .trucks {
-    height: 58vh;
-  }

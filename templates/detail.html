@@ -1,19 +1,21 @@
-<html>
-<head>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'css/detail2.css' %}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
-  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
-  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
-  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AETO WEB</title>
-</head>
-<body>
-    {% include 'nav.html' %}
+{% extends 'base.html' %}
+
+{% block head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/detail2.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AETO WEB</title>
+{% endblock head %}
+
+{% block content %}
+
     <div class="all-cont">
         <ul>
             <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
@@ -74,121 +76,7 @@
 
                         {% if configuracion == "S2.D2.D2" %}
                             {% include "configurations/s2d2d2.html" %}                        
-                        {% endif %}
-
-                        {% comment %} 
-                        <!-- configM -->
-                        <!-- S2-D2-D4-->
-                        <div {% if configuracion == "S2.D2.D4" %} style="display:flex !important" {% endif %} class="column configM" id="col1">
-
-                            <!-- S2 -->
-                            <div class="par-llantas">
-                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta1.id %}">
-                                    <span class="icon-tire2 {{color}}"></span>
-                                </a>
-
-                                <span class="icon-da"></span>
-
-                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta2.id %}">
-                                    <span class="icon-tire2 {{color}}"></span>
-                                </a>
-
-                            </div>
-
-                            <!-- D2 -->
-                            <div class="par-llantas">
-                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta3.id %}">
-                                    <span class="icon-tire2 {{color}}"></span>
-                                </a>
-
-                                <span class="icon-da"></span>
-
-                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta4.id %}">
-                                    <span class="icon-tire2 {{color}}"></span>
-                                </a>
-
-                            </div>
-
-                            <!-- D4 -->
-                            <div class="par-doble-llanta">
-
-                                <div class="doble-llanta">
-                                    
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta5.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta6.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-                                </div>
-
-                                <span class="icon-central-axle"></span>
-
-                                <div class="doble-llanta">
-                                    
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta7.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta8.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <!-- configN -->
-                        <!-- S2 - D4-->
-                        <div {% if configuracion == "S2.D4" %} style="display:flex !important" {% endif %} class="column configN" id="col1">
-
-                            <!-- S2 -->
-                            <div class="par-llantas">
-                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta1.id %}">
-                                    <span class="icon-tire2 {{color}}"></span>
-                                </a>
-
-                                <span class="icon-da"></span>
-
-                                <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta2.id %}">
-                                    <span class="icon-tire2 {{color}}"></span>
-                                </a>
-
-                            </div>
-
-                            <!-- D4 -->
-                            <div class="par-doble-llanta">
-
-                                <div class="doble-llanta">
-                                    
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta3.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta4.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-                                </div>
-
-                                <span class="icon-central-axle"></span>
-
-                                <div class="doble-llanta">
-                                    
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta5.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-
-                                    <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta6.id %}">
-                                        <span class="icon-tire2 {{color}}"></span>
-                                    </a>
-                                </div>
-
-                            </div>
-
-                        </div> 
-                        {% endcomment %}
+                        {% endif %}                        
 
                         {% if configuracion == "T2" %}
                             {% include "configurations/t2.html" %}
@@ -221,17 +109,14 @@
                                 <!-- </div> -->
 
                                 <nav class="btn-group" id="nav-vehiculo">
-                                    <button class="btn btn-aeto active" onclick="general()" id="generalB">
-                                        <span>General</span>
-                                        <span class="blur">General</span>
+                                    <button class="btn btn-aeto-crunch active" onclick="general()" id="generalB">
+                                        General
                                     </button>
-                                    <button class="btn btn-aeto" onclick="problemasAbiertos();" id="problemAbiertos">
-                                        <span>Problemas abiertos</span>
-                                        <span class="blur">Problemas abiertos</span>
+                                    <button class="btn btn-aeto-crunch" onclick="problemasAbiertos();" id="problemAbiertos">
+                                        Problemas abiertos
                                     </button>
-                                    <button class="btn btn-aeto" onclick="infoLlantas();" id="infoDeLlantas">
-                                        <span>Info de llanta</span>
-                                        <span class="blur">Info de llanta</span>
+                                    <button class="btn btn-aeto-crunch" onclick="infoLlantas();" id="infoDeLlantas">
+                                        Info. llanta
                                     </button>
                                 </nav>
                             
@@ -355,7 +240,11 @@
                                         <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
                                         <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
                                         <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
-                                        <td class="td-table4"><a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}"><span class="icon-file-pdf" ></span></a></td>
+                                        <td class="td-table4">
+                                            <a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}">
+                                                <span class="icon-file-pdf" ></span>
+                                            </a>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -375,13 +264,11 @@
                 <!-- <a href="#Pulpo" class="gnrl" id="btn-pulpo" onclick="pulpoDB();">PULPO DB</a>
                 <a href="#TireEye" class="gnrl" id="btn-tireEye" onclick="tireEyeDB();">TIRE EYE DB</a> -->
                 <nav class="btn-group" id="nav-dash">
-                    <button class="btn btn-aeto active" id="btn-pulpo" onclick="pulpoDB();">
+                    <button class="btn btn-aeto-crunch active" id="btn-pulpo" onclick="pulpoDB();">
                         <span class="icon-pulpo"></span>
-                        <span class="icon-pulpo blur"></span>
                     </button>
-                    <button class="btn btn-aeto" id="btn-tireEye" onclick="tireEyeDB();">
+                    <button class="btn btn-aeto-crunch" id="btn-tireEye" onclick="tireEyeDB();">
                         <span class="icon-tireeye"></span>
-                        <span class="icon-tireeye blur"></span>
                     </button>
                 </nav>
             </div>
@@ -511,16 +398,17 @@
          } );
 
      };
-     
-    const handleButtons = (container = '') => {
-        const buttons = document.querySelectorAll(`${container} > .btn-aeto`); // Tenemos que agregar un id a la nav para decir que ese es el grupo que queremos seleccionar
 
-        buttons.forEach((button) => {
-          button.addEventListener('click', (e) => {
-            buttons.forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
-          });
-        });
+     const handleButtons = (container = '') => {
+        const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
+
+        buttons.forEach( button => {
+            button.addEventListener('click', ({ target }) => {
+            buttons.forEach(item => item.classList.remove('active'));
+
+            target.classList.add('active');
+            });
+        } );    
     };
 
     function searchColor() {
@@ -1246,5 +1134,5 @@ chart.draw();
 });
 
 </script>
-</body>
-</html>
+
+{% endblock content %}

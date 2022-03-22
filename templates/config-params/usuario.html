@@ -1,0 +1,69 @@
+<div class="form__group field">
+  <input
+      class="form__field"
+      type="email"
+      placeholder="correo"
+      name="correo"
+      autocomplete="off"
+      required
+  />
+  <label for="correo" class="form__label">
+      Correo
+  </label>
+</div>
+
+<div class="form__group field">
+  <input
+      class="form__field"
+      type="text"
+      placeholder="nombre"
+      name="nombre"
+      autocomplete="off"
+      required
+  />
+  <label for="name" class="form__label">
+      Nombre
+  </label>
+</div>
+
+<div class="form__group field">
+  <input
+      class="form__field"
+      type="text"
+      placeholder="idioma"
+      name="idioma"
+      list="language"
+      autocomplete="off"
+      required
+  />
+  <label for="idioma" class="form__label">
+      Idioma
+  </label>
+  <datalist id="language">
+      <option value="español">
+      <option value="english">
+  </datalist>
+</div>
+
+<div class="form__group field">
+  <input
+      class="form__field"
+      type="text"
+      placeholder="unidades"
+      name="unity"
+      list="unidades"
+      autocomplete="off"
+      required
+  />
+  <label for="unity" class="form__label">
+      unidades
+  </label>
+  <datalist id="unidades">
+      <option value="mm, psi, km"></option>
+      <option value="mm, psi, mi"></option>
+      <option value='32",psi,km'></option>
+      <option value='32",psi,mi'></option>
+      <option value='mm, bar, km'></option>
+      <option value='mm, bar, mi'></option>
+  </datalist>
+</div>
