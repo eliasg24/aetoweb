@@ -105,11 +105,14 @@ def aplicaciones_mas_frecuentes(vehiculo_fecha, vehiculos, compania):
         return None
 
 def cantidad_llantas(configuracion):
-    llantas = 0
-    for caracter in configuracion:
-        if caracter.isdigit():
-            llantas += int(caracter)
-    return llantas
+    try:
+        llantas = 0
+        for caracter in configuracion:
+            if caracter.isdigit():
+                llantas += int(caracter)
+        return llantas
+    except:
+        return 0
 
 
 def contar_dias(fecha):
@@ -143,8 +146,8 @@ def contar_mala_entrada(vehiculos):
 
 def convertir_fecha(fecha):
     try:
-        partes_fecha = fecha.split("-")
-        return f"{partes_fecha[2]}/{partes_fecha[1]}/{partes_fecha[0][2:4]}"
+        partes_fecha = fecha.split("/")
+        return f"{partes_fecha[2]}/{partes_fecha[1]}/{partes_fecha[0]}"
     except:
         return None
 
@@ -158,10 +161,8 @@ def convertir_fecha2(fecha):
 
 def convertir_rango(fecha):
     partes_fecha = fecha.split("-")
-    fecha_1 = f"{partes_fecha[0][0:2]}/{partes_fecha[0][3:5]}/{partes_fecha[0][6:10]}"
-    fecha_2 = f"{partes_fecha[1][1:3]}/{partes_fecha[1][4:6]}/{partes_fecha[1][7:11]}"
-    lista_fechas = [fecha_1, fecha_2]
-    return lista_fechas
+    fecha = f"{partes_fecha[0]}/{partes_fecha[1]}/{partes_fecha[2]}"
+    return fecha
     
 
 def cpk_vehiculo_cantidad(cpk_vehiculos):
@@ -412,7 +413,7 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
         vehiculos_sospechosos_iteracion = True
     else:
         vehiculos_sospechosos_iteracion = False
-    dict_vidas = {'renovado1': 0, 'renovado2': 0, 'renovado3': 0, 'renovado4': 0, 'renovado5': 0, 'renovadonuevo': 2}
+    dict_vidas = {'renovado1': 0, 'renovado2': 0, 'renovado3': 0, 'renovado4': 0, 'renovado5': 0, 'renovadonuevo': 0}
     lista_llantas = []
     total = 0
     for llanta in llantas:
@@ -433,11 +434,11 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
         #print("dias_30: ", dias_30)
         #print("dias_60: ", dias_60)
         #print("dias_90: ", dias_90)
-        print("llanta", llanta["llanta"])
+        """print("llanta", llanta["llanta"])
         print("resta", resta)
         print("dias_30", dias_30)
         print("dias_60", dias_60)
-        print("dias_90", dias_90)
+        print("dias_90", dias_90)"""
 
         if days == 30:
             if dias_30 <= 3:
@@ -793,35 +794,39 @@ def reemplazo_actual(llantas):
     return reemplazo_actual_llantas, reemplazo_actual_ejes
 
 def reemplazo_dual(llantas, reemplazo_actual):
-    llantas = Llanta.objects.filter(id__in=llantas)
-    llantas_duales = duales(llantas)
-    print("hola1")
-    reemplazo_dual_1 = llantas_duales[0].filter(id__in=reemplazo_actual)
-    reemplazo_dual_2 = llantas_duales[1].filter(id__in=reemplazo_actual)
-    print("hola2")
-    dual_dictionary = llantas_duales[2]
-    print("hola3")
-    reemplazo_dual_1_list = reemplazo_dual_1.values_list("numero_economico", flat=True)
-    reemplazo_dual_2_list = reemplazo_dual_2.values_list("numero_economico", flat=True)
-    print("reemplazo_dual_1_list", reemplazo_dual_1_list)
-    print("hola4")
-    array_of_qs = []
-    for k, v in dual_dictionary.items():
-        array_of_qs.append(reemplazo_dual_1.filter(numero_economico=k).annotate(pareja=ExpressionWrapper(Value(v),output_field=CharField())).exclude(pareja__in=reemplazo_dual_2_list).values("id"))
-    for k, v in dual_dictionary.items():
-        array_of_qs.append(reemplazo_dual_2.filter(numero_economico=v).annotate(pareja=ExpressionWrapper(Value(k),output_field=CharField())).exclude(pareja__in=reemplazo_dual_1_list).values("id"))
-    print("array_of_qs", array_of_qs)
-    print("hola5")
-    reemplazo_dual = array_of_qs[0].union(*array_of_qs[1:])
-    print("reemplazo_dual", reemplazo_dual)
-    reemplazo_dual_llantas = llantas.filter(id__in=reemplazo_dual)
-    print("hola6")
-    reemplazo_dual_ejes = reemplazo_dual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
-    print("hola7")
-    print("reemplazo_dual_ejes", reemplazo_dual_ejes)
-    reemplazo_dual_ejes = {k: v for k, v in reemplazo_dual_ejes.items() if v != 0}
-    print("hola8")
-    return reemplazo_dual_ejes
+    try:
+        llantas = Llanta.objects.filter(id__in=llantas)
+        llantas_duales = duales(llantas)
+        print("hola1")
+        reemplazo_dual_1 = llantas_duales[0].filter(id__in=reemplazo_actual)
+        reemplazo_dual_2 = llantas_duales[1].filter(id__in=reemplazo_actual)
+        print("hola2")
+        dual_dictionary = llantas_duales[2]
+        print("hola3")
+        reemplazo_dual_1_list = reemplazo_dual_1.values_list("numero_economico", flat=True)
+        reemplazo_dual_2_list = reemplazo_dual_2.values_list("numero_economico", flat=True)
+        print("reemplazo_dual_1_list", reemplazo_dual_1_list)
+        print("hola4")
+        array_of_qs = []
+        for k, v in dual_dictionary.items():
+            array_of_qs.append(reemplazo_dual_1.filter(numero_economico=k).annotate(pareja=ExpressionWrapper(Value(v),output_field=CharField())).exclude(pareja__in=reemplazo_dual_2_list).values("id"))
+        for k, v in dual_dictionary.items():
+            array_of_qs.append(reemplazo_dual_2.filter(numero_economico=v).annotate(pareja=ExpressionWrapper(Value(k),output_field=CharField())).exclude(pareja__in=reemplazo_dual_1_list).values("id"))
+        print("array_of_qs", array_of_qs)
+        print("hola5")
+        reemplazo_dual = array_of_qs[0].union(*array_of_qs[1:])
+        print("reemplazo_dual", reemplazo_dual)
+        reemplazo_dual_llantas = llantas.filter(id__in=reemplazo_dual)
+        print("hola6")
+        reemplazo_dual_ejes = reemplazo_dual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
+        print("hola7")
+        print("reemplazo_dual_ejes", reemplazo_dual_ejes)
+        reemplazo_dual_ejes = {k: v for k, v in reemplazo_dual_ejes.items() if v != 0}
+        print("hola8")
+        print("reemplazo_dual_ejes", reemplazo_dual_ejes)
+        return reemplazo_dual_ejes
+    except:
+        return {}
 
 
 def reemplazo_total(reemplazo_actual, reemplazo_dual):

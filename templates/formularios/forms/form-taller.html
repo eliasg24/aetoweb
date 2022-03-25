@@ -19,13 +19,19 @@
   <input
     class="form__field"
     type="text"
-    placeholder="company"
-    name="company"
+    placeholder="compania"
+    name="compania"
+    list="compania"
     autocomplete="off"
     required
   />
-  <label for="company" class="form__label">
+  <label for="compania" class="form__label">
     Compañia
   </label>
+  <datalist id="compania">
+    {% for compania in companias %}
+      <option value="{{compania}}">{{compania}}</option>
+    {% endfor %}
+  </datalist>
 </div>
 <!-- End input -->

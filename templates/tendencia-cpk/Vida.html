@@ -12,7 +12,7 @@
     ["{{mes_5}}", 0, 0],
     ["{{mes_4}}", 0, 0],
     ["{{mes_3}}", 0, 0],
-    ["{{mes_2}}", {{cpk}}, 0],
+    ["{{mes_2}}", 0.0625, 0],
     ["{{mes_1}}", {{cpk}}, 0]
     ]);
 
@@ -31,7 +31,10 @@
     chart.yAxis(1).scale(scale);
     chart.yAxis(1).orientation("right");
     chart.yAxis(1).labels().format("${%value}");
-    chart.yAxis().labels().format("{%value}R");
+    chart.yAxis().labels().format("{%value}");
+
+    // configure y scale
+    chart.yScale().minimum(0).maximum(5);
     chart.yScale().ticks().interval(1);
 
     // create the first series, set the data and name

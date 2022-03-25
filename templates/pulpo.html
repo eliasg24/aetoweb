@@ -23,18 +23,51 @@
 
 {% block content %}
 <div class="all-cont animate__animated animate__fadeIn">
-    <header class="head-menu">
-        <div class="menu-li__left">
-          <img src="{% static 'images/Grupo 66.png' %}" alt="" />
+    <header class="head-cont">
+        <div class="logo">
+          <img src="{% static 'images/aeto.svg' %}" alt="logo">
         </div>
     
-        <form action="{% url 'dashboards:buscar' %}" class="form-head" method="GET">
+        <form 
+          class="form-head"
+          action="{% url 'dashboards:buscar' %}"
+          method="GET"
+        >
           <nav class="btn-group">
             <a href="{% url 'dashboards:pulpo' %}" class="btn btn-trash">
               <span class="icon-trash2"></span>
             </a>
-
-            <input class="input-aeto" id="input-fecha" type="text" name="fecha1" {% if fecha %}value="{{fecha}}"{% else %}value="Seleccionar Fecha"{% endif %} />
+            
+            <div class="form__group field">
+              <input
+                class="form__field"
+                type="text"
+                placeholder="fechaInicio"
+                name="fechaInicio"
+                id="fecha-inicio"
+                onfocus="(this.type='date')"
+                data-fecha
+              />
+              <label for="fecha-inicio" class="form__label">
+                Desde {% if fecha_con_formato1 %}{{fecha_con_formato1}}{% endif %}
+              </label>
+            </div>
+    
+            <div class="form__group field">
+              <input
+                class="form__field"
+                type="text"
+                placeholder="Hasta"
+                name="fechaFin"
+                id="fecha-fin"
+                onfocus="(this.type='date')"
+                data-fecha
+              />
+              <label for="fecha-fin" class="form__label">
+                Hasta {% if fecha_con_formato2 %}{{fecha_con_formato2}}{% endif %}
+              </label>
+            </div>
+              
     
             <div class="dropdown">
               <button class="drop-btn" id="d-clase">
@@ -149,11 +182,11 @@
                 <div class="score-gauge" id="score-gauge"></div>
               </div>
               <div class="col flex-center">
-                {% if fecha_con_formato %}
-                    <p class="divis">{{fecha_con_formato}}</p>
+                {% if fecha_con_formato1 %}
+                    <p class="divis">{{fecha_con_formato1}}-{{fecha_con_formato2}}</p>
                 {% else %}
-                    {% if fecha %}
-                        <p class="divis">{{fecha}}</p>
+                    {% if fecha1 %}
+                        <p class="divis">{{fecha1}}-{{fecha2}}</p>
                     {% else %}
                         {% if clase %}
                             <p class="divis">{{clase}}</p>
@@ -208,11 +241,11 @@
                     <div id="preview-textfield2" style="display:none;"></div> {% endcomment %}
               </div>
               <div class="col flex-center">
-                {% if fecha_con_formato %}
-                    <p class="divis">{{fecha_con_formato}}</p>
+                {% if fecha_con_formato1 %}
+                    <p class="divis">{{fecha_con_formato1}}-{{fecha_con_formato2}}</p>
                 {% else %}
-                    {% if fecha %}
-                        <p class="divis">{{fecha}}</p>
+                    {% if fecha1 %}
+                        <p class="divis">{{fecha1}}-{{fecha2}}</p>
                     {% else %}
                         {% if clase %}
                             <p class="divis">{{clase}}</p>
@@ -453,9 +486,26 @@ document.addEventListener('DOMContentLoaded', (e) => {
 const handleCheckbox = () => {
   const inputs = document.querySelectorAll('.input-check');
   const form = document.querySelector('.form-head');
-  const date = document.getElementById('input-fecha');
+  const dates = document.querySelectorAll('input[data-fecha]');
 
-  date.addEventListener('change', (e) => form.submit());
+  dates.forEach(input => {
+    input.addEventListener('input', (e) => {
+      if (!dates[0].value) {
+        alert('Selecciona una fecha inicial');
+        dates[0].focus();
+        return;
+      } 
+      if (dates[0].value && dates[1].value) {
+        if (dates[0].value > dates[1].value) {
+          alert('La fecha inicial no puede ser mayor a la fecha final');
+          dates[0].focus();
+          return;
+        }
+        
+        form.submit();
+      }
+    });
+  })
 
   inputs.forEach(input => {
     input.addEventListener('change', (e) => form.submit());

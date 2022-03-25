@@ -22,10 +22,12 @@ h3 {
   padding: 0.25rem;
 }
 
-.btn-success {
-  background-color: seagreen;
+.absolute {
+  position: absolute;
+}
+
+.btn-download {
   border-radius: 0.25rem;
-  color: #fff;
   padding: 0.5rem;
 }
 
@@ -35,7 +37,7 @@ h3 {
 
 .config-nav {
   align-items: center;
-  background-color: #171717;
+  background-color: var(--head-bg);
   display: flex;
   flex-flow: row nowrap;
   gap: 1rem;
@@ -167,6 +169,7 @@ h3 {
   flex-flow: column nowrap;
   gap: 1rem;
   text-align: center;
+  position: relative;
 }
 
 .wrapper {
@@ -336,7 +339,7 @@ h3 {
   }
 
   .title {
-    font-size: 2rem;
+    font-size: 3rem;
     margin: 0;
     text-align: center;
   }
@@ -365,7 +368,7 @@ h3 {
     top: 0;
   }
 
-  form {
+  .form__container {
     display: grid;
     gap: 1rem;
     grid-template-rows: auto 1fr;

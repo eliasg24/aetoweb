@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-  {%load static%}
+  {% load static %}
   <link
     rel="stylesheet"
     type="text/css"
@@ -34,18 +34,33 @@
             <table class="main-table">
               <thead>
                 <tr>
+                  <th>Acciones</th>
+                  <th>Llanta</th>
                   <th>Observación</th>
                   <th>Color</th>
-                  <th>Icono</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr>
-                  <td>data</td>
-                  <td>data</td>
-                  <td>data</td>
+                {% for observacion in observaciones %}
+                <tr id="{{observacion.id}}">
+                  <td class="flex-row">
+                  <a href="{% url 'dashboards:catalogoObservacionesEdit' observacion.id %}" class="btn btn-download">
+                    <span class="icon-pencil"></span>
+                  </a>
+                  <form action="{% url "dashboards:catalogoObservacionesDelete" %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{observacion.id}}">
+                    <button class="btn btn-danger">
+                      <span class="icon-trash"></span>
+                    </button>
+                  </form>
+                  </td>
+                  <td>{{observacion.llanta}}</td>
+                  <td>{{observacion.observacion}}</td>
+                  <td>{{observacion.color}}</td>
                 </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>

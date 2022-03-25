@@ -7,10 +7,35 @@
   --gray: linear-gradient(#363636, #242424);
 }
 
-.btn-group {
-  display: flex;
-  flex-flow: row nowrap;
-  gap: 0.5rem;
+html {
+  font-size: 62.5%;
+  color: white;
+  word-wrap: break-word;
+}
+
+body {
+  margin: 0;
+  background-color: #363636;
+}
+
+a {
+  text-decoration: none;
+}
+
+h4 {
+  margin: 0.25rem 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 .d-flex {
@@ -372,7 +397,7 @@ height: 5vh;
   background-color: #363636;
   border-bottom: solid 5px #ddd;
   color: white;
-  font-size: 1rem;
+  font-size: 2rem;
   text-align: center;
   height: 10%;
 }
@@ -384,32 +409,32 @@ height: 5vh;
   background-color: #363636;
   border-bottom: solid 5px #ddd;
   color: white;
-  font-size: 1rem;
+  font-size: 1.5vw;
   text-align: center;
   height: 10%;
 }
 
 .th-table3 {
   border-bottom: solid 5px #ddd;
-  font-size: 1.25rem;
+  font-size: 3rem;
   text-align: center;
 }
 
 .td-table1 {
-  font-size: 1rem;
+  font-size: 1.5rem;
   text-align: center;
   height: 8vh;
 }
 
 .td-table2 {
-  font-size: 1rem;
+  font-size: 1.5vw;
   height: 90%;
   text-align: center;
   border-bottom-style: dashed;
 }
 
 .td-table3 {
-  font-size: 1rem;
+  font-size: 2rem;
   height: 90%;
   text-align: center;
 }
@@ -447,7 +472,7 @@ height: 5vh;
 
 h2 {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin: auto;
 }
 
@@ -458,7 +483,7 @@ h2 {
   color: white;
   border-radius: 5px;
   padding: 4px;
-  font-size: 1rem;
+  font-size: calc(1vh + 0.5rem);
   height: 75%;
   width: 30%;
   cursor: pointer;
@@ -494,7 +519,7 @@ h2 {
 
 .titleh1 {
   margin: 1vh 1vw;
-  font-size: 1.5rem;
+  font-size: 3rem;
 }
 
 .columns {
@@ -505,7 +530,7 @@ h2 {
 }
 
 .energize-title {
-  font-size: 1.5rem;
+  font-size: 3.5rem;
   margin: 0;
 }
 
@@ -539,7 +564,7 @@ thead tr th {
   top: -2;
   z-index: 10;
   background: var(--black);
-  font-size: 1rem;
+  font-size: 2.5rem;
 }
 tbody tr {
   text-align: center;
@@ -611,7 +636,7 @@ tbody tr {
 }
 
 .title-score {
-  font-size: 1.25rem;
+  font-size: 1vw;
   margin: 0;
 }
 .num {
@@ -634,21 +659,20 @@ tbody tr {
 }
 
 .num.llanta {
-  font-size: 2rem;
+  font-size: 2vw;
   margin: auto;
   padding: 10%;
 }
 
 .num.cpk {
-  font-size: 1rem;
+  font-size: 1.5vw;
   margin-top: 0.5rem;
   /* margin: auto; */
   padding: 10%;
 }
 
 .f-size-3 {
-  font-size: 2.25rem;
-  font-weight: bold;
+  font-size: 3vw;
 }
 
 @keyframes numColor {
@@ -721,7 +745,7 @@ tbody tr {
   display: flex;
   justify-content: space-around;
   color: blueviolet;
-  font-size: 1rem;
+  font-size: 1.5rem;
 }
 
 .table-titles > h3 {
@@ -732,7 +756,7 @@ tbody tr {
   display: flex;
   justify-content: space-around;
   color: white;
-  font-size: 1rem;
+  font-size: 1.5rem;
 }
 
 .icono-pantallaC {
@@ -877,7 +901,7 @@ tbody tr {
 }
 
 .icon-tire2 {
-  font-size: 4rem;
+  font-size: calc(2rem + 3vw);
 }
 
 .doble-llanta {
@@ -890,14 +914,14 @@ tbody tr {
 }
 
 .icon-central-axle {
-  font-size: 1rem;
+  font-size: 13px;
 }
 
 .pop-out-llanta {
   background-color: #000;
   border-radius: 0.4rem;
   display: none;
-  font-size: 1rem;
+  font-size: 1vw;
   margin-left: 3rem;
   padding: 0.75rem;
   position: absolute;

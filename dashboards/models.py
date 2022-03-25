@@ -12,11 +12,15 @@ class Compania(models.Model):
 
     periodo1_inflado = models.IntegerField(default=30)
     periodo2_inflado = models.IntegerField(default=60)
+    objetivo = models.IntegerField(default=10)
     periodo1_inspeccion = models.IntegerField(default=30)
     periodo2_inspeccion = models.IntegerField(default=60)
     opciones_unidades_presion = (("psi", "psi"),
                     ("bar", "bar"),
                     ("mPa", "mPa"),
+                )
+    opciones_unidades_distancia = (("km", "km"),
+                    ("mi", "mi"),
                 )
     opciones_unidades_profundidad = (("mm", "mm"),
                     ("32''", "32''"),
@@ -26,32 +30,21 @@ class Compania(models.Model):
     punto_retiro_eje_arrastre = models.IntegerField(default=3)
     punto_retiro_eje_loco = models.IntegerField(default=3)
     punto_retiro_eje_retractil = models.IntegerField(default=3)
+    mm_de_desgaste_irregular = models.IntegerField(default=3)
     mm_de_diferencia_entre_duales = models.IntegerField(default=3)
     mm_parametro_sospechoso = models.FloatField(default=5)
     unidades_presion = models.CharField(max_length=200, choices=opciones_unidades_presion, default="psi")
+    unidades_distancia = models.CharField(max_length=200, choices=opciones_unidades_distancia, default="km")
     unidades_profundidad = models.CharField(max_length=200, choices=opciones_unidades_profundidad, default="mm")
-    objetivo = models.IntegerField(default=10)
+    valor_casco_nuevo = models.IntegerField(blank=True, null=True)
+    valor_casco_1r = models.IntegerField(blank=True, null=True)
+    valor_casco_2r = models.IntegerField(blank=True, null=True)
+    valor_casco_3r = models.IntegerField(blank=True, null=True)
+    valor_casco_4r = models.IntegerField(blank=True, null=True)
+    valor_casco_5r = models.IntegerField(blank=True, null=True)
     def __str__(self):
         # Retorna el nombre de la compañía
         return f"{self.compania}"
-
-
-class Perfil(models.Model):
-    # Modelo del Perfil de Usuario
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
-    opciones_idioma = (("Español", "Español"), ("Inglés", "Inglés"))
-    idioma = models.CharField(max_length=200, choices=opciones_idioma, default="Español")
-
-    fecha_de_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_de_modificacion = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        # Retorna el username
-        return self.user.username
-    class Meta:
-        verbose_name_plural = "Perfiles"
 
 class Ubicacion(models.Model):
     # Modelo de la Ubicación
@@ -73,16 +66,49 @@ class Ubicacion(models.Model):
     class Meta:
         verbose_name_plural = "Ubicaciones"
         
+class Taller(models.Model):
+    # Modelo del Taller
+
+    nombre = models.CharField(max_length=200, null=True)
+    compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
+
+    def __str__(self):
+        # Retorna el nombre del taller
+        return f"{self.nombre}"
+    class Meta:
+        verbose_name_plural = "Talleres"
+
 class Aplicacion(models.Model):
     # Modelo de la Aplicación
 
     nombre = models.CharField(max_length=200, null=True)
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
+    ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
     def __str__(self):
         # Retorna el nombre de la aplicación
         return f"{self.nombre}"
     class Meta:
         verbose_name_plural = "Aplicaciones"
+
+
+class Perfil(models.Model):
+    # Modelo del Perfil de Usuario
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
+    ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
+    aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
+    opciones_idioma = (("Español", "Español"), ("Inglés", "Inglés"))
+    idioma = models.CharField(max_length=200, choices=opciones_idioma, default="Español")
+
+    fecha_de_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_de_modificacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        # Retorna el username
+        return self.user.username
+    class Meta:
+        verbose_name_plural = "Perfiles"
 
 class Vehiculo(models.Model):
     # Modelo del Vehiculo
@@ -363,3 +389,38 @@ class TendenciaCPK(models.Model):
     cantidad = models.CharField(max_length=200)
     vida = models.CharField(max_length=200)
     calificacion = models.CharField(max_length=200)
+
+class Renovador(models.Model):
+    # Modelo del Renovador
+    nombre = models.CharField(max_length=200)
+    ciudad = models.CharField(max_length=200)
+    marca = models.CharField(max_length=200)
+
+    class Meta:
+        verbose_name_plural = "Renovadores"
+
+class Desecho(models.Model):
+    # Modelo del Desecho
+    llanta = models.ForeignKey(Llanta, on_delete=models.CASCADE)
+    zona_de_llanta = models.CharField(max_length=200)
+    condicion = models.CharField(max_length=200)
+    razon = models.CharField(max_length=200)
+
+class Observacion(models.Model):
+    # Modelo de la Observación
+    llanta = models.ForeignKey(Llanta, on_delete=models.CASCADE)
+    observacion = models.CharField(max_length=200)
+    opciones_de_color = (("Verde", "Verde"),
+                ("Amarillo", "Amarillo"),
+                ("Rojo", "Rojo"),
+                ("Morado", "Morado"),
+        )
+    color = models.CharField(max_length=200, choices=opciones_de_color)
+    
+    class Meta:
+        verbose_name_plural = "Observaciones"
+
+class Rechazo(models.Model):
+    # Modelo del Rechazo
+    llanta = models.ForeignKey(Llanta, on_delete=models.CASCADE)
+    razon = models.CharField(max_length=200)

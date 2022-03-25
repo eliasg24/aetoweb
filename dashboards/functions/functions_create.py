@@ -1,5 +1,4 @@
 # Utilities
-from math import prod
 from dashboards.models import Aplicacion, Bitacora, Compania, Inspeccion, Llanta, Perfil, Producto, Ubicacion, Vehiculo
 from datetime import date, datetime
 from openpyxl import load_workbook

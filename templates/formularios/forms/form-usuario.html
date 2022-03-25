@@ -4,7 +4,7 @@
     class="form__field"
     type="text"
     placeholder="nombre"
-    name="nombre"
+    name="username"
     autocomplete="off"
     required
   />
@@ -18,14 +18,30 @@
 <div class="form__group field">
   <input
     class="form__field"
-    type="text"
-    placeholder="company"
-    name="company"
+    type="password"
+    placeholder="password"
+    name="password"
     autocomplete="off"
     required
   />
-  <label for="company" class="form__label">
-    Compañia
+  <label for="password" class="form__label">
+    Contraseña
+  </label>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="password"
+    placeholder="password2"
+    name="repeat_password"
+    autocomplete="off"
+    required
+  />
+  <label for="password2" class="form__label">
+    Confirmar contraseña
   </label>
 </div>
 <!-- End input -->
@@ -35,14 +51,42 @@
   <input
     class="form__field"
     type="text"
+    placeholder="company"
+    name="compania"
+    list="compania"
+    autocomplete="off"
+    required
+  />
+  <label for="company" class="form__label">
+    Compañia
+  </label>
+  <datalist id="compania">
+    {% for compania in companias %}
+      <option value="{{compania}}">{{compania}}</option>
+    {% endfor %}
+  </datalist>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
     placeholder="sucursal"
-    name="sucursal"
+    name="ubicacion"
+    list="ubicacion"
     autocomplete="off"
     required
   />
   <label for="sucursal" class="form__label">
     Sucursal
   </label>
+  <datalist id="ubicacion">
+    {% for sucursal in sucursales %}
+      <option value="{{sucursal}}">{{sucursal}}</option>
+    {% endfor %}
+  </datalist>
 </div>
 <!-- End input -->
 
@@ -53,12 +97,18 @@
     type="text"
     placeholder="aplicacion"
     name="aplicacion"
+    list="aplicacion"
     autocomplete="off"
     required
   />
   <label for="aplicacion" class="form__label">
     Aplicación
   </label>
+  <datalist id="aplicacion">
+    {% for aplicacion in aplicaciones %}
+      <option value="{{aplicacion}}">{{aplicacion}}</option>
+    {% endfor %}
+  </datalist>
 </div>
 <!-- End input -->
 
@@ -68,12 +118,19 @@
     class="form__field"
     type="text"
     placeholder="rol"
-    name="rol"
+    name="groups"
     autocomplete="off"
+    list="rol"
     required
   />
   <label for="rol" class="form__label">
     Rol
   </label>
+  <datalist id="rol">
+    <option value="Aeto Manager"></option>
+    <option value="Galgo Manager"></option>
+    <option value="Company Manager"></option>
+    <option value="Fleet Manager"></option>
+  </datalist>
 </div>
 <!-- End input -->

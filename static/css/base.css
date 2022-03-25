@@ -359,6 +359,16 @@ h6 {
 .form__group {
   position: relative;
   padding: 15px 0 0;
+  transition: all 0.4s ease;
+}
+
+.form__field.invalid,
+.form__field.invalid ~ .form__label {
+  border-color: red;
+}
+
+.form__field.invalid ~ .form__label {
+  color: red;
 }
 
 .form__field {

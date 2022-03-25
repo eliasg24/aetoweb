@@ -102,6 +102,16 @@ urlpatterns = [
         name="catalogoDesechos"
     ),
     path(
+        route="desechos/<int:pk>/",
+        view=views.catalogoDesechosEditView.as_view(),
+        name="catalogoDesechosEdit"
+    ),
+    path(
+        route="desechos/delete",
+        view=views.catalogoDesechosDeleteView,
+        name="catalogoDesechosDelete"
+    ),
+    path(
         route="productos",
         view=views.catalogoProductoView.as_view(),
         name="catalogoProductos"
@@ -112,9 +122,9 @@ urlpatterns = [
         name="catalogoProductosEdit"
     ),
     path(
-        route="productos/<int:pk>/",
-        view=views.catalogoProductoUpdateView.as_view(),
-        name="catalogoProductoUpdate"
+        route="productos/delete",
+        view=views.catalogoProductoDeleteView,
+        name="catalogoProductoDelete"
     ),
     path(
         route="renovadores",
@@ -122,16 +132,46 @@ urlpatterns = [
         name="catalogoRenovadores"
     ),
     path(
+        route="renovadores/<int:pk>/",
+        view=views.catalogoRenovadoresEditView.as_view(),
+        name="catalogoRenovadoresEdit"
+    ),
+    path(
+        route="renovadores/delete",
+        view=views.catalogoRenovadoresDeleteView,
+        name="catalogoRenovadoresDelete"
+    ),
+    path(
         route="observaciones",
         view=views.catalogoObservacionesView.as_view(),
         name="catalogoObservaciones"
     ),
-     path(
-        route="rechazo",
-        view=views.catalogoRechazoView.as_view(),
-        name="catalogoRechazo"
+    path(
+        route="observaciones/<int:pk>/",
+        view=views.catalogoObservacionesEditView.as_view(),
+        name="catalogoObservacionesEdit"
     ),
-     path(
+    path(
+        route="observaciones/delete",
+        view=views.catalogoObservacionesDeleteView,
+        name="catalogoObservacionesDelete"
+    ),
+    path(
+        route="rechazos",
+        view=views.catalogoRechazosView.as_view(),
+        name="catalogoRechazos"
+    ),
+    path(
+        route="rechazos/<int:pk>/",
+        view=views.catalogoRechazosEditView.as_view(),
+        name="catalogoRechazosEdit"
+    ),
+    path(
+        route="rechazos/delete",
+        view=views.catalogoRechazosDeleteView,
+        name="catalogoRechazosDelete"
+    ),
+    path(
         route="companyFormulario",
         view=views.companyFormularioView.as_view(),
         name="companyFormulario"
@@ -155,6 +195,11 @@ urlpatterns = [
         route="aplicacionFormulario",
         view=views.aplicacionFormularioView.as_view(),
         name="aplicacionFormulario"
+    ),
+    path(
+        route="informe_de_perdida_y_rendimiento",
+        view=views.informe_de_perdida_y_rendimiento,
+        name="informe_de_perdida_y_rendimiento"
     ),
     path(
         route="4umbrales",
@@ -192,7 +237,7 @@ urlpatterns = [
         name="reporteVehiculo"
     ),
     path(
-        route="reporteLlanta",
+        route="reporteLlanta/<int:pk>/",
         view=views.reporteLlantaView.as_view(),
         name="reporteLlanta"
     ),
@@ -305,5 +350,10 @@ urlpatterns = [
         route="download2",
         view=views.download_reemplazo_estimado,
         name="download2"
+    ),
+    path(
+        route="perdida-rendimiento",
+        view=views.perdidaRendimientoView.as_view(),
+        name="perdidaRendimiento"
     ),
 ]

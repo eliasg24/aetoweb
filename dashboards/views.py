@@ -2,6 +2,8 @@
 from operator import or_
 from http.client import HTTPResponse
 import re
+from django import forms
+from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -20,14 +22,16 @@ from dashboards.functions import functions, functions_ftp, functions_create, fun
 from aeto import settings
 
 # Forms
-from dashboards.forms import ExcelForm, LlantaForm, VehiculoForm, ProductoForm
+from dashboards.forms import ExcelForm, LlantaForm, VehiculoForm, ProductoForm, RenovadorForm, DesechoForm, DesechoEditForm, ObservacionForm, ObservacionEditForm, RechazoForm, RechazoEditForm, SucursalForm, TallerForm, UsuarioForm, AplicacionForm, CompaniaForm, UsuarioEditForm
 
 # Models
-from django.contrib.auth.models import User
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania
+from django.contrib.auth.models import User, Group
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User
 
 # Utilities
+from multi_form_view import MultiModelFormView
 from datetime import date, datetime, timedelta
+from ftplib import FTP as fileTP
 import json
 import mimetypes
 import os
@@ -161,8 +165,10 @@ class TireDBView(LoginRequiredMixin, TemplateView):
         vehiculo_mes3 = bitacora.filter(fecha_de_inflado__month=hoy3)
         vehiculo_mes4 = bitacora.filter(fecha_de_inflado__month=hoy4)
         
-        entrada_correcta_mes_1 = round((functions.contar_entrada_correcta(llantas) / llantas.count()) * 100, 2)
-
+        try:
+            entrada_correcta_mes_1 = round((functions.contar_entrada_correcta(llantas) / llantas.count()) * 100, 2)
+        except:
+            entrada_correcta_mes_1 = 0
 
         vehiculos_vistos_mes_1 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy1)
         vehiculos_vistos_mes_2 = vehiculo.filter(ultima_inspeccion__fecha_hora__month=hoy2)
@@ -172,7 +178,6 @@ class TireDBView(LoginRequiredMixin, TemplateView):
         vehiculos_rojos_mes_1 = vehiculos_rojos
 
 
-        print("aver")
         print(vehiculos_rojos_mes_1)
 
         vehiculos_amarillos_mes_1 = vehiculos_amarillos
@@ -716,10 +721,6 @@ class SiteMenuView(LoginRequiredMixin, TemplateView):
 
     template_name = "siteMenu.html"
 
-class catalogoDesechosView(LoginRequiredMixin, TemplateView):
-    # Vista de catalogoDesechosView
-
-    template_name = "catalogoDesechos.html"
 
 class catalogoProductoView(LoginRequiredMixin, CreateView):
     # Vista de catalogoProductosView
@@ -739,7 +740,7 @@ class catalogoProductoView(LoginRequiredMixin, CreateView):
         return reverse_lazy("dashboards:catalogoProductos")
 
 class catalogoProductoEditView(LoginRequiredMixin, DetailView, UpdateView):
-    # Vista de catalogoProductosView2
+    # Vista de catalogoProductoEditView
 
     template_name = "catalogoProducto.html"
     slug_field = "producto"
@@ -759,63 +760,316 @@ class catalogoProductoEditView(LoginRequiredMixin, DetailView, UpdateView):
     def get_success_url(self):
         return reverse_lazy("dashboards:catalogoProductos")
 
-class catalogoProductoUpdateView(LoginRequiredMixin, UpdateView):
-    # Vista de catalogoProductosView2
+def catalogoProductoDeleteView(request):
+    if request.method =="POST":
+        producto = Producto.objects.get(id=request.POST.get("id"))
+        producto.delete()
+        return redirect("dashboards:catalogoProductos")
+    return redirect("dashboards:catalogoProductos")
 
-    template_name = "catalogoProducto.html"
-    model = Producto
-    fields = ["id", "producto", 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'km_esperado']
+
+class catalogoRenovadoresView(LoginRequiredMixin, CreateView):
+    # Vista de catalogoRenovadoresView
+
+    template_name = "catalogoRenovadores.html"
+    form_class = RenovadorForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        productos = Producto.objects.all()[::-1]
-        context["productos"] = productos
+
+        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
+        renovadores = Renovador.objects.all()[::-1]
+        context["renovadores"] = renovadores
+        context["compania"] = compania
+
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoRenovadores")
+
+class catalogoRenovadoresEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoRenovadoresEditView
+
+    template_name = "catalogoRenovadores.html"
+    slug_field = "renovador"
+    slug_url_kwarg = "renovador"
+    queryset = Renovador.objects.all()
+    context_object_name = "renovador"
+    model = Renovador
+    fields = ["id", "nombre", 'ciudad', 'marca']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
+        renovadores = Renovador.objects.all()[::-1]
+        context["renovadores"] = renovadores
+        context["compania"] = compania
 
         return context
 
     def get_success_url(self):
-        return reverse_lazy("dashboards:catalogoProductos")
+        return reverse_lazy("dashboards:catalogoRenovadores")
+
+def catalogoRenovadoresDeleteView(request):
+    if request.method =="POST":
+        renovador = Renovador.objects.get(id=request.POST.get("id"))
+        renovador.delete()
+        return redirect("dashboards:catalogoRenovadores")
+    return redirect("dashboards:catalogoRenovadores")
+
+class catalogoDesechosView(LoginRequiredMixin, CreateView):
+    # Vista de catalogoDesechosView
+
+    template_name = "catalogoDesechos.html"
+    form_class = DesechoForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        desechos = Desecho.objects.all()[::-1]
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["desechos"] = desechos
+        context["llantas"] = llantas
+
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoDesechos")
+
+class catalogoDesechosEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoDesechosEditView
+
+    template_name = "catalogoDesechos.html"
+    slug_field = "desecho"
+    slug_url_kwarg = "desecho"
+    queryset = Desecho.objects.all()
+    context_object_name = "desecho"
+    form_class = DesechoEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        desechos = Desecho.objects.all()[::-1]
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["desechos"] = desechos
+        context["llantas"] = llantas
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoDesechos")
+
+def catalogoDesechosDeleteView(request):
+    if request.method =="POST":
+        desecho = Desecho.objects.get(id=request.POST.get("id"))
+        desecho.delete()
+        return redirect("dashboards:catalogoDesechos")
+    return redirect("dashboards:catalogoDesechos")
 
 
-class catalogoRenovadoresView(LoginRequiredMixin, TemplateView):
-    # Vista de catalogoRenovadoresView
-
-    template_name = "catalogoRenovadores.html"
-
-class catalogoObservacionesView(LoginRequiredMixin, TemplateView):
-# Vista de catalogoObservacionesView
+class catalogoObservacionesView(LoginRequiredMixin, CreateView):
+    # Vista de catalogoObservacionesView
 
     template_name = "catalogoObservaciones.html"
+    form_class = ObservacionForm
 
-class catalogoRechazoView(LoginRequiredMixin, TemplateView):
-# Vista de catalogoRechazoView
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        observaciones = Observacion.objects.all()[::-1]
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["observaciones"] = observaciones
+        context["llantas"] = llantas
+
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoObservaciones")
+
+class catalogoObservacionesEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoObservacionesEditView
+
+    template_name = "catalogoObservaciones.html"
+    slug_field = "observacion"
+    slug_url_kwarg = "observacion"
+    queryset = Observacion.objects.all()
+    context_object_name = "observacion"
+    form_class = ObservacionEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        observaciones = Observacion.objects.all()[::-1]
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["observaciones"] = observaciones
+        context["llantas"] = llantas
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoObservaciones")
+
+def catalogoObservacionesDeleteView(request):
+    if request.method =="POST":
+        observacion = Observacion.objects.get(id=request.POST.get("id"))
+        observacion.delete()
+        return redirect("dashboards:catalogoObservaciones")
+    return redirect("dashboards:catalogoObservaciones")
+
+class catalogoRechazosView(LoginRequiredMixin, CreateView):
+    # Vista de catalogoRechazosView
 
     template_name = "catalogoRechazo.html"
+    form_class = RechazoForm
 
-class companyFormularioView(LoginRequiredMixin, TemplateView):
-# Vista de companyFormularioView
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        rechazos = Rechazo.objects.all()[::-1]
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["rechazos"] = rechazos
+        context["llantas"] = llantas
+
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoRechazos")
+
+class catalogoRechazosEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoRechazosEditView
+
+    template_name = "catalogoRechazo.html"
+    slug_field = "rechazo"
+    slug_url_kwarg = "rechazo"
+    queryset = Rechazo.objects.all()
+    context_object_name = "rechazo"
+    form_class = RechazoEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        rechazos = Rechazo.objects.all()[::-1]
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        context["rechazos"] = rechazos
+        context["llantas"] = llantas
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:catalogoRechazos")
+
+def catalogoRechazosDeleteView(request):
+    if request.method =="POST":
+        rechazo = Rechazo.objects.get(id=request.POST.get("id"))
+        rechazo.delete()
+        return redirect("dashboards:catalogoRechazos")
+    return redirect("dashboards:catalogoRechazos")
+
+class companyFormularioView(LoginRequiredMixin, CreateView):
+    # Vista de companyFormularioView
 
     template_name = "formularios/company.html"
+    model = Compania
+    fields = ["compania", "periodo1_inflado", "periodo2_inflado", "objetivo", "periodo1_inspeccion", "periodo2_inspeccion", "punto_retiro_eje_direccion", "punto_retiro_eje_traccion", "punto_retiro_eje_arrastre", "punto_retiro_eje_loco", "punto_retiro_eje_retractil", "mm_de_desgaste_irregular", "mm_de_diferencia_entre_duales", "mm_parametro_sospechoso", "unidades_presion", "unidades_distancia", "unidades_profundidad", "valor_casco_nuevo", "valor_casco_1r", "valor_casco_2r", "valor_casco_3r", "valor_casco_4r", "valor_casco_5r"]
 
-class sucursalFormularioView(LoginRequiredMixin, TemplateView):
-# Vista de sucursalFormularioView
+    def get_success_url(self):
+        return reverse_lazy("dashboards:config")
+
+class sucursalFormularioView(LoginRequiredMixin, CreateView):
+    # Vista de sucursalFormularioView
 
     template_name = "formularios/sucursal.html"
+    form_class = SucursalForm
 
-class tallerFormularioView(LoginRequiredMixin, TemplateView):
-# Vista de tallerFormularioView
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = Compania.objects.all()
+
+        context["companias"] = companias
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:config")
+
+class tallerFormularioView(LoginRequiredMixin, CreateView):
+    # Vista de tallerFormularioView
 
     template_name = "formularios/taller.html"
+    form_class = TallerForm
 
-class usuarioFormularioView(LoginRequiredMixin, TemplateView):
-# Vista de usuarioFormularioView
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = Compania.objects.all()
+
+        context["companias"] = companias
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:config")
+
+class usuarioFormularioView(LoginRequiredMixin, CreateView):
+    # Vista de usuarioFormularioView
 
     template_name = "formularios/usuario.html"
+    form_class = UsuarioForm
 
-class aplicacionFormularioView(LoginRequiredMixin, TemplateView):
-# Vista de aplicacionFormularioView
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = Compania.objects.all()
+        ubicaciones = Ubicacion.objects.all()
+        aplicaciones = Aplicacion.objects.all()
+        context["aplicaciones"] = aplicaciones
+        context["companias"] = companias
+        context["sucursales"] = ubicaciones
+        return context
+
+    def form_valid(self, form):
+        # Save form data
+        c = {'form': form, }
+        user = form.save(commit=False)
+        groups = form.cleaned_data['groups']
+        groups = Group.objects.get(name=groups)
+        compania = form.cleaned_data['compania']
+        compania = Compania.objects.get(compania=compania)
+        ubicacion = form.cleaned_data['ubicacion']
+        ubicacion = Ubicacion.objects.get(nombre=ubicacion)
+        aplicacion = form.cleaned_data['aplicacion']
+        aplicacion = Aplicacion.objects.get(nombre=aplicacion)
+        password = form.cleaned_data['password']
+        repeat_password = form.cleaned_data['repeat_password']
+        if password != repeat_password:
+            messages.error(self.request, "Passwords do not Match", extra_tags='alert alert-danger')
+            return render(self.request, self.template_name, c)
+        user.set_password(password)
+        user.save()
+        
+        Perfil.objects.create(user=user, compania=compania, ubicacion=ubicacion, aplicacion=aplicacion)
+        user.groups.add(groups)
+        
+        return super(usuarioFormularioView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:config")
+
+class aplicacionFormularioView(LoginRequiredMixin, CreateView):
+    # Vista de aplicacionFormularioView
 
     template_name = "formularios/aplicacion.html"
+    form_class = AplicacionForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = Compania.objects.all()
+        ubicaciones = Ubicacion.objects.all()
+
+        context["companias"] = companias
+        context["sucursales"] = ubicaciones
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:config")
+
+class perdidaRendimientoView(LoginRequiredMixin, TemplateView):
+# Vista de perdidaRendimientoView
+
+    template_name = "informes/perdida-rendimiento.html"
 
 class CuatroUmbralesView(LoginRequiredMixin, TemplateView):
     # Vista de CatalogoDesechosView
@@ -868,10 +1122,41 @@ class reporteVehiculoView(LoginRequiredMixin, DetailView):
         context["signo2"] = signo2
         return context
 
-class reporteLlantaView(LoginRequiredMixin, TemplateView):
+class reporteLlantaView(LoginRequiredMixin, DetailView):
     # Vista de reporteLlantaView
 
-    template_name = "reporteLlanta.html" 
+    template_name = "reporteLlanta.html"
+    slug_field = "bitacora"
+    slug_url_kwarg = "bitacora"
+    queryset = Bitacora.objects.all()
+    context_object_name = "bitacora"
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+        bitacora = self.get_object()
+        hoy = date.today()
+        user = User.objects.get(username=self.request.user)
+
+        color1 = functions.entrada_correcta(bitacora)
+        color2 = functions.salida_correcta(bitacora)
+        
+        if color1 == "good":
+            signo1 = "icon-checkmark"
+        else:
+            signo1 = "icon-cross"
+        if color2 == "good":
+            signo2 = "icon-checkmark"
+        else:
+            signo2 = "icon-cross"
+
+        context["color1"] = color1
+        context["color2"] = color2
+        context["hoy"] = hoy
+        context["user"] = user
+        context["signo1"] = signo1
+        context["signo2"] = signo2
+        return context
 
 class configuracionVehiculoView(LoginRequiredMixin, TemplateView):
     # Vista de configuracionVehiculoView
@@ -1319,22 +1604,22 @@ def buscar(request):
     hoy = date.today()
     ultimo_mes = hoy - timedelta(days=31)
     clase = request.GET.get("clase")
-    fecha = request.GET.get("fecha1")
+    fecha1 = request.GET.get("fechaInicio")
+    fecha2 = request.GET.get("fechaFin")
     flota = request.GET.get("flota")
     boton_intuitivo = request.GET.get("boton_intuitivo")
-    if fecha == "Seleccionar Fecha":
-        fecha = False
-    
+
 
     # Buscar por fecha
-    if fecha:
+    if fecha1 and fecha2:
         
         # Definir si se toma en cuenta el mes, la semana o el día
         
         
-        dividir_fecha = functions.convertir_rango(fecha)
-        primera_fecha = datetime.strptime(dividir_fecha[0], "%m/%d/%Y").date()
-        segunda_fecha = datetime.strptime(dividir_fecha[1], "%m/%d/%Y").date()
+        fecha1 = functions.convertir_rango(fecha1)
+        fecha2 = functions.convertir_rango(fecha2)
+        primera_fecha = datetime.strptime(fecha1, "%Y/%m/%d").date()
+        segunda_fecha = datetime.strptime(fecha2, "%Y/%m/%d").date()
         vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[primera_fecha, segunda_fecha])
     
         vehiculo_fecha_barras = vehiculo.filter(fecha_de_inflado__month=hoy.month)
@@ -1361,7 +1646,8 @@ def buscar(request):
                 vehiculo_periodo_status[v] = True
 
         # Convertir formato de fecha
-        fecha_con_formato = functions.convertir_fecha(fecha)
+        fecha_con_formato1 = functions.convertir_fecha(fecha1)
+        fecha_con_formato2 = functions.convertir_fecha(fecha2)
 
         # Saber el tiempo de inflado promedio
         tiempo_promedio = functions.inflado_promedio(vehiculo_fecha)
@@ -1419,8 +1705,10 @@ def buscar(request):
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
                                             "compania": request.user.perfil.compania,
-                                            "fecha":fecha,
-                                            "fecha_con_formato":fecha_con_formato,
+                                            "fecha1":fecha1,
+                                            "fecha2":fecha2,
+                                            "fecha_con_formato1":fecha_con_formato1,
+                                            "fecha_con_formato2":fecha_con_formato2,
                                             "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
                                             "hoy": hoy,
                                             "mes_1": mes_1,
@@ -1891,21 +2179,37 @@ def buscar(request):
                                             "vehiculos_periodo": vehiculo_periodo_status,
                                             "vehiculos_todos": vehiculo,
                                         })
-
-
-
     else:
         return redirect("dashboards:pulpo")
 
-class ConfigView(LoginRequiredMixin, CreateView):
+class ConfigView(LoginRequiredMixin, MultiModelFormView):
     # Vista del dashboard configuración
     template_name = "config.html"
-    form_class = ExcelForm
-    success_url = reverse_lazy('dashboards:pulpo')
+    form_classes = {"companiaform": CompaniaForm,
+                    "usuarioform": UsuarioEditForm}
+    success_url = reverse_lazy('dashboards:config')
+
+    def forms_valid(self, form):
+        # Save form data
+        user = form.save(commit=False)
+        compania_form = forms['companiaform'].save(commit=False)
+        groups = form.cleaned_data['groups']
+        groups = Group.objects.get(name=groups)
+        idioma = form.cleaned_data['idioma']
+        user.save()
+        
+        perfil = Perfil.objects.get(user=user)
+        perfil.idioma = idioma
+        perfil.save()
+        user.groups.add(groups)
+        
+        return super(ConfigView, self).forms_valid(form)
 
     def get_context_data(self, **kwargs):
 
-        context = super().get_context_data(**kwargs)
+        context = super(ConfigView, self).get_context_data(**kwargs)
+        context.update({"some_context_value": 'blah blah blah',
+                "some_other_context_value": 'blah'})
         user = User.objects.get(username=self.request.user)
         context["user"] = user
         return context
@@ -1925,6 +2229,11 @@ class SearchView(LoginRequiredMixin, ListView):
         llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         
+        print(vehiculos)
+        print(bitacora)
+        print(llantas)
+        print(inspecciones)
+
         filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
         vehiculos_sospechosos = vehiculos.filter(id__in=filtro_sospechoso)
 
@@ -1955,19 +2264,32 @@ def search(request):
     if num:
         vehiculos = Vehiculo.objects.filter(numero_economico__icontains=num, compania=Compania.objects.get(compania=request.user.perfil.compania))
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
+        inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania))
         
-        doble_entrada = functions.doble_entrada(bitacora)
-        vehiculos_rojos = vehiculos.filter(numero_economico__in=doble_entrada)
+        filtro_sospechoso = functions.vehiculo_sospechoso(inspecciones)
+        vehiculos_sospechosos = vehiculos.filter(id__in=filtro_sospechoso)
 
-        vehiculos_verdes = vehiculos.exclude(numero_economico__in=doble_entrada)
+        doble_entrada = functions.doble_mala_entrada(bitacora, vehiculos)
+        filtro_rojo = functions.vehiculo_rojo(llantas, doble_entrada, vehiculos)
+        vehiculos_rojos = vehiculos.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos)
+
+        filtro_amarillo = functions.vehiculo_amarillo(llantas)
+        vehiculos_amarillos = vehiculos.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
+
+        vehiculos_verdes = vehiculos.exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos).exclude(id__in=vehiculos_amarillos)
         return render(request, "buscar_vehiculos.html", {
+                                                "vehiculos_amarillos": vehiculos_amarillos,
                                                 "vehiculos_rojos": vehiculos_rojos,
+                                                "vehiculos_sospechosos": vehiculos_sospechosos,
                                                 "vehiculos_verdes": vehiculos_verdes,
+                                                "cantidad_amarillos": vehiculos_amarillos.count(),
                                                 "cantidad_rojos": vehiculos_rojos.count(),
+                                                "cantidad_sospechosos": vehiculos_sospechosos.count(),
                                                 "cantidad_total": vehiculos.count(),
                                                 "cantidad_verdes": vehiculos_verdes.count()
         })
-    elif fecha and num == "Seleccionar Fecha":
+    elif fecha and fecha != "Seleccionar Fecha":
         dividir_fecha = functions.convertir_rango(fecha)
         primera_fecha = datetime.strptime(dividir_fecha[0], "%m/%d/%Y").date()
         segunda_fecha = datetime.strptime(dividir_fecha[1], "%m/%d/%Y").date()
@@ -2196,32 +2518,33 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["entradas"] = entradas_correctas
             context["fecha"] = fecha
             context["hoy"] = hoy
-            context["llanta1"] = llantas[0]
-            context["llanta2"] = llantas[1]
-            if cantidad_llantas >= 4:
-                context["llanta3"] = llantas[2]
-                context["llanta4"] = llantas[3]
-                if cantidad_llantas >= 6:
-                    context["llanta5"] = llantas[4]
-                    context["llanta6"] = llantas[5]
-                    if cantidad_llantas >= 8:
-                        context["llanta7"] = llantas[6]
-                        context["llanta8"] = llantas[7]
-                        context["llanta9"] = llantas[7]
-                        context["llanta10"] = llantas[7]
-                        context["llanta11"] = llantas[7]
-                        context["llanta12"] = llantas[7]
-                        context["llanta13"] = llantas[7]
-                        context["llanta14"] = llantas[7]
-                        if cantidad_llantas >= 10:
-                            context["llanta9"] = llantas[8]
-                            context["llanta10"] = llantas[9]
-                            if cantidad_llantas >= 12:
-                                context["llanta11"] = llantas[10]
-                                context["llanta12"] = llantas[11]
-                                if cantidad_llantas >= 14:
-                                    context["llanta13"] = llantas[12]
-                                    context["llanta14"] = llantas[13]
+            if cantidad_llantas >= 2:
+                context["llanta1"] = llantas[0]
+                context["llanta2"] = llantas[1]
+                if cantidad_llantas >= 4:
+                    context["llanta3"] = llantas[2]
+                    context["llanta4"] = llantas[3]
+                    if cantidad_llantas >= 6:
+                        context["llanta5"] = llantas[4]
+                        context["llanta6"] = llantas[5]
+                        if cantidad_llantas >= 8:
+                            context["llanta7"] = llantas[6]
+                            context["llanta8"] = llantas[7]
+                            context["llanta9"] = llantas[7]
+                            context["llanta10"] = llantas[7]
+                            context["llanta11"] = llantas[7]
+                            context["llanta12"] = llantas[7]
+                            context["llanta13"] = llantas[7]
+                            context["llanta14"] = llantas[7]
+                            if cantidad_llantas >= 10:
+                                context["llanta9"] = llantas[8]
+                                context["llanta10"] = llantas[9]
+                                if cantidad_llantas >= 12:
+                                    context["llanta11"] = llantas[10]
+                                    context["llanta12"] = llantas[11]
+                                    if cantidad_llantas >= 14:
+                                        context["llanta13"] = llantas[12]
+                                        context["llanta14"] = llantas[13]
             context["mes_1"] = mes_1
             context["mes_2"] = mes_2.strftime("%b")
             context["mes_3"] = mes_3.strftime("%b")
@@ -2360,3 +2683,26 @@ def download_reemplazo_estimado(request):
 
     wb.save(response)
     return response
+
+def informe_de_perdida_y_rendimiento(request):
+    ftp1 = fileTP("208.109.20.121")
+    ftp1.login(user="tyrecheck@aeto.com", passwd="TyreDB!25")
+    
+    inicio = datetime(2022, 3, 9)
+    fin    = datetime(2022, 3, 20)
+    lista_fechas = [inicio + timedelta(days=d) for d in range((fin - inicio).days + 1)]
+
+    print(lista_fechas)
+    for file_name in ftp1.nlst():
+        for fecha in lista_fechas:
+            ano = fecha.year
+            mes = fecha.month
+            dia = fecha.day
+            if 1 <= mes <= 9:
+                mes = f"0{mes}"
+            if f"Inspections{ano}_{mes}_{dia}" in file_name:
+                local_file = open(file_name, "wb")
+                ftp1.retrbinary("RETR " + file_name, local_file.write)
+                local_file.close()
+    ftp1.quit()
+    response = HttpResponse(content_type='application/ms-excel')

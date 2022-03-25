@@ -21,7 +21,7 @@
 		<div class="cont-left">
 
 			<header class="section-head">
-				<h2 class="section-title">Agregar producto</h2>
+				<h2 class="section-title">Agregar renovador</h2>
 			</header>
 
 			{% include 'catalogos-forms/renovadores-form.html' %}
@@ -37,6 +37,7 @@
 				<table class="main-table">
 					<thead>
 						<tr>
+		            	    <th>Acciones</th>
 							<th>Nombre</th>
 							<th>Ciudad</th>
 							<th>Marca</th>
@@ -44,26 +45,25 @@
 					</thead>
 
 					<tbody>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
+						{% for renovador in renovadores %}
+						<tr id="{{renovador.id}}">
+							<td class="flex-row">
+							<a href="{% url 'dashboards:catalogoRenovadoresEdit' renovador.id %}" class="btn btn-download">
+								<span class="icon-pencil"></span>
+							</a>
+							<form action="{% url "dashboards:catalogoRenovadoresDelete" %}" method="POST">
+								{% csrf_token %}
+								<input type="hidden" name="id" value="{{renovador.id}}">
+								<button class="btn btn-danger">
+								  <span class="icon-trash"></span>
+								</button>
+							</form>
+							</td>
+							<td>{{renovador.nombre}}</td>
+							<td>{{renovador.ciudad}}</td>
+							<td>{{renovador.marca}}</td>
 						</tr>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
-						</tr>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
-						</tr>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
-						</tr>
+						{% endfor %}
 					</tbody>
 
 				</table>

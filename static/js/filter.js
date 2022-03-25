@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', (e) => {
   searchFilters('#search-ubicacion', '#menu-ubicacion', '.search-item');
   searchFilters('#search-clase', '#menu-clase', '.search-item');
   searchFilters('#search-flota', '#menu-flota', '.search-item');
+  searchFilters('#search-sucursal', '#menu-sucursal', '.search-item');
+  searchFilters('#search-company', '#menu-company', '.search-item');
   searchFilters('#search-app', '#menu-app', '.search-item');
   searchFilters('#search-eje', '#menu-eje', '.search-item');
   searchFilters('#search-vehiculo', '#menu-vehiculo', '.search-item');

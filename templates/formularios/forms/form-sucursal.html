@@ -19,14 +19,20 @@
   <input
     class="form__field"
     type="text"
-    placeholder="company"
-    name="company"
+    placeholder="compania"
+    name="compania"
+    list="compania"
     autocomplete="off"
     required
   />
-  <label for="company" class="form__label">
+  <label for="compania" class="form__label">
     Compañia
   </label>
+    <datalist id="compania">
+      {% for compania in companias %}
+        <option value="{{compania}}">{{compania}}</option>
+      {% endfor %}
+    </datalist>
 </div>
 <!-- End input -->
 
@@ -36,7 +42,7 @@
     class="form__field"
     type="text"
     placeholder="rendimiento-nueva-1r"
-    name="rendimiento-nueva-1r"
+    name="rendimiento_de_nueva"
     autocomplete="off"
     required
   />
@@ -52,7 +58,7 @@
     class="form__field"
     type="text"
     placeholder="rendimiento-1r-2r"
-    name="rendimiento-1r-2r"
+    name="rendimiento_de_primera"
     autocomplete="off"
     required
   />
@@ -68,7 +74,7 @@
     class="form__field"
     type="text"
     placeholder="rendimiento-1r-2r"
-    name="rendimiento-1r-2r"
+    name="rendimiento_de_segunda"
     autocomplete="off"
     required
   />
@@ -84,7 +90,7 @@
     class="form__field"
     type="text"
     placeholder="rendimiento-1r-2r"
-    name="rendimiento-1r-2r"
+    name="rendimiento_de_tercera"
     autocomplete="off"
     required
   />
@@ -100,7 +106,7 @@
     class="form__field"
     type="text"
     placeholder="rendimiento-1r-2r"
-    name="rendimiento-1r-2r"
+    name="rendimiento_de_cuarta"
     autocomplete="off"
     required
   />
@@ -116,7 +122,7 @@
     class="form__field"
     type="text"
     placeholder="precio-promedio-llanta-direccion"
-    name="precio-promedio-llanta-direccion"
+    name="precio_nueva_direccion"
     autocomplete="off"
     required
   />
@@ -132,7 +138,7 @@
     class="form__field"
     type="text"
     placeholder="precio-promedio-llanta-nueva"
-    name="precio-promedio-llanta-nueva"
+    name="precio_nueva"
     autocomplete="off"
     required
   />
@@ -148,7 +154,7 @@
     class="form__field"
     type="text"
     placeholder="precio-promedio-llanta-renovada"
-    name="precio-promedio-llanta-renovada"
+    name="precio_renovada"
     autocomplete="off"
     required
   />

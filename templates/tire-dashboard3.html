@@ -875,7 +875,8 @@
         const formatter = new Intl.NumberFormat('en-Us', {
             style: 'currency',
             currency: 'USD',
-        });
+            minimumFractionDigits: 3
+        })
 
         const text = document.getElementById(id)
 
@@ -946,7 +947,6 @@
           target.classList.add('active');
         });
       } );
-
     };
 
         //licencia de anyChart

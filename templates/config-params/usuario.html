@@ -3,8 +3,9 @@
       class="form__field"
       type="email"
       placeholder="correo"
-      name="correo"
+      name="email"
       autocomplete="off"
+      value="{{user.email}}"
       required
   />
   <label for="correo" class="form__label">
@@ -17,8 +18,9 @@
       class="form__field"
       type="text"
       placeholder="nombre"
-      name="nombre"
+      name="username"
       autocomplete="off"
+      value="{{user.username}}"
       required
   />
   <label for="name" class="form__label">
@@ -34,14 +36,15 @@
       name="idioma"
       list="language"
       autocomplete="off"
+      value="{{user.perfil.idioma}}"
       required
   />
   <label for="idioma" class="form__label">
       Idioma
   </label>
   <datalist id="language">
-      <option value="español">
-      <option value="english">
+      <option value="Español">
+      <option value="Inglés">
   </datalist>
 </div>
 
@@ -53,17 +56,34 @@
       name="unity"
       list="unidades"
       autocomplete="off"
+      value="{{user.perfil.compania.unidades_presion}}"
       required
   />
   <label for="unity" class="form__label">
-      unidades
+      Unidades
   </label>
   <datalist id="unidades">
-      <option value="mm, psi, km"></option>
-      <option value="mm, psi, mi"></option>
-      <option value='32",psi,km'></option>
-      <option value='32",psi,mi'></option>
-      <option value='mm, bar, km'></option>
-      <option value='mm, bar, mi'></option>
+      <option value="psi"></option>
+      <option value="bar"></option>
+      <option value="mPa"></option>
   </datalist>
+</div>
+
+<div class="form__group field">
+    <input
+        class="form__field"
+        type="text"
+        placeholder="rol"
+        name="groups"
+        list="rol"
+        autocomplete="off"
+        value="{{user.groups.all.0}}"
+        required
+    />
+    <label for="rol" class="form__label">
+        Rol de usuario
+    </label>
+    <datalist id="rol">
+        <option value="Rol 1"></option>
+    </datalist>
 </div>

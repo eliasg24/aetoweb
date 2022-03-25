@@ -2,224 +2,194 @@
 
 {% block head %}
 {% load static %}
-    <link rel="stylesheet" href="{% static 'css/vehiculos2.css' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'js/daterangepicker.css' %}"/>
-    <title>AETO WEB</title>
-{% endblock head %}
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'js/daterangepicker.css' %}"/>
+<link rel="stylesheet" href="{% static 'css/vehiculos2.css' %}">
+<title>Buscar vehiculo</title>
+{% endblock %}
 {% block content %}
-    <div class="all-cont">
-        <ul>
-            <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
-        </ul>
 
-        <section class="horizontal">
-            <section class="browser">
-                <h2>VEHÍCULOS</h2>
-                <div class="botones-estados">
-                    <a class="btn-colors" href="#EstadoVerde" onclick="estadoVerde();" id="estado_Verde">Verde</a>
-                    <a class="btn-colors" href="#EstadoAmarillo" onclick="estadoAmarillo();" id="estado_Amarillo">Amarillo</a>
-                    <a class="btn-colors" href="#EstadoRojo" onclick="estadoRojo();" id="estado_Rojo">Rojo</a>
-                    <a class="btn-colors" href="#EstadoSospechoso" onclick="estadoSospechoso();" id="estado_Sospechoso">Sospechoso</a>
+<main class="all-cont animate__animated animate__fadeIn">
+    <header class="head-cont">
+        <div class="logo">
+            <img src="{% static 'images/aeto.svg' %}" alt="logo">
+        </div>
+        <h1>Vehiculos</h1>
+    </header>
+    <section class="container">
+        <form action="{% url 'dashboards:search_id' %}" method="GET" class="form-container">
+            {% csrf_token %}
+            <nav class="nav-header">
+                <div class="flex-row wrap" id="status">
+                    <button type="button" class="btn btn-aeto-crunch ok active" id="btn-ok">
+                        Verde
+                    </button>
+                    <button type="button" class="btn btn-aeto-crunch yellow" id="btn-yellow">
+                        Amarillo
+                    </button>
+                    <button type="button" class="btn btn-aeto-crunch bad" id="btn-bad">
+                        Rojo
+                    </button>
+                    <button type="button" class="btn btn-aeto-crunch suspicious" id="btn-suspicious">
+                        Sospechoso
+                    </button>
                 </div>
-                {% comment %} <img src="" alt=""> {% endcomment %}
-                <div class="search-cars">
-                    <form id="form" action="{% url 'dashboards:search_id' %}" method="GET">
-                        {% csrf_token %}
-                        <input class="btn-head-item" type="text" name="fecha1" {% if fecha %}value="{{fecha}}"{% else %}value="Seleccionar Fecha"{% endif %} />
-                        <input name="numero_economico" type="search" placeholder="Buscar">
-                        <span class="icon-filter"></span>
-                        <input type="search" placeholder="TALLER">
-
-                        <div class="menu_button">
-                            <button id="button-car" class="menu_li--right" type="submit">Buscar</button>
-                        </div>
-
-                    </form>
+                <div class="flex-row wrap">
+                    <input type="text" id="date-input" name="fecha1" class="drop-input date-input" placeholder="Seleccionar fecha" {% if fecha %}value="{{fecha}}"{% else %}value="Seleccionar Fecha"{% endif %}>
+                    <div class="drop-search">
+                        <input
+                          type="search"
+                          placeholder="Buscar vehiculo..."
+                          name="numero_economico"
+                          id="vehiculo"
+                          class="drop-input"
+                          autocomplete="off"
+                        />
+                        <i class="bx bx-search"></i>
+                      </div>
+                      <a href="{% url 'dashboards:search' %}" class="btn btn-danger">
+                          <span class="icon-trash"></span>
+                      </a>
+                      <button type="submit" class="btn btn-success">
+                          <span class="bx bx-search"></span>
+                      </button>
                 </div>
-            </section>
-                <section class="horizontal_graficas--1">
-                    <div class="status">
-                        <div class="car-status-good" id="status-green">
-                            <p>Cantidad de vehículos</p>
-                            <h2 class="green-status">{{cantidad_verdes}}/{{cantidad_total}}</h2>
-                        </div>
-
-                        <div class="car-status-good" id="status-yellow">
-                            <p>Cantidad de vehículos</p>
-                            <h2 class="yellow-status">{{cantidad_amarillos}}/{{cantidad_total}}</h2>
-                        </div>
-
-                        <div class="car-status-good" id="status-red">
-                            <p>Cantidad de vehículos</p>
-                            <h2 class="red-status">{{cantidad_rojos}}/{{cantidad_total}}</h2>
-                        </div>
-
-                        <div class="car-status-good" id="status-purple">
-                            <p>Cantidad de vehículos</p>
-                            <h2 class="purple-status">{{cantidad_sospechosos}}/{{cantidad_total}}</h2>
-                        </div> 
+            </nav>
+            <article class="wrapper on-view" id="ok">
+                <header class="vehicles-head__container">
+                    <h2>
+                        Cantidad de vehiculo 
+                        <span class="ok-text">{{cantidad_verdes}}/{{cantidad_total}}</span>
+                    </h2>
+                </header>
+                <div class="container-fluid">
+                    <div class="card-container">
+                        {% for vehiculo in vehiculos_verdes %}
+                            {% include 'search/vehiculos-lista.html' %}
+                        {% endfor %}
                     </div>
-                    <div id="table-green">
-                        <section class="trucks">
-                            {% for vehiculo in vehiculos_verdes %}
-                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
-                                <div class="truck_number">
-                                    <div class="img-numEco">
-                                        <span class="icon-truck"></span>
-                                        <h4>{{vehiculo.numero_economico}}</h4>
-                                    </div>
-                                    <div class="img-pulpoF">
-                                        <span class="icon-pulpo"></span>
-                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
-                                        <span class="icon-checkmark"></span>
-                                    </div>
+                </div>
+            </article>
+            <article class="wrapper" id="yellow">
+                <header class="vehicles-head__container">
+                    <h2>
+                        Cantidad de vehiculo 
+                        <span class="yellow-text">{{cantidad_amarillos}}/{{cantidad_total}}</span>
+                    </h2>
+                </header>
+                <div class="container-fluid">
+                    <div class="card-container">
+                        {% for vehiculo in vehiculos_amarillos %}
+                            {% include 'search/vehiculos-lista.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+            <article class="wrapper" id="bad">
+                <header class="vehicles-head__container">
+                    <h2>
+                        Cantidad de vehiculo 
+                        <span class="bad-text">{{cantidad_rojos}}/{{cantidad_total}}</span>
+                    </h2>
+                </header>
+                <div class="container-fluid">
+                    <div class="card-container">
+                        {% for vehiculo in vehiculos_rojos %}
+                        <a href="{% url 'dashboards:detail' vehiculo.id %}">
+                            <figure class="vehicle-card animate__animated animate__fadeInUp">
+                        
+                                <div class="vehicle-card__img">
+                                    <span class="icon-truck vehicle-card__icon"></span>
+                                    <h3>{{vehiculo.numero_economico}}</h3>
                                 </div>
-                            </a>
-                            {% endfor %}
-                        </section>
-                    </div>
-                    <div id="table-yellow">
-                        <section class="trucks">
-                            {% for vehiculo in vehiculos_amarillos %}
-                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
-                                <div class="truck_number">
-                                    <div class="img-numEco">
-                                        <span class="icon-truck"></span>
-                                        <h4>{{vehiculo.numero_economico}}</h4>
-                                    </div>
-                                    <div class="img-pulpoF">
+                        
+                                <figcaption class="vehicle-card__info">
+                                    <p>
                                         <span class="icon-pulpo"></span>
-                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
+                                    </p>
+                                    <p>
+                                        {{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}
+                                    </p>
+                                    <p>
                                         <span class="icon-cross"></span>
-                                    </div>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </section>
+                                    </p>
+                                </figcaption>
+                            </figure>
+                        </a>
+                        {% endfor %}
                     </div>
-                    <div id="table-red">
-                        <section class="trucks">
-                            {% for vehiculo in vehiculos_rojos %}
-                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
-                                <div class="truck_number">
-                                    <div class="img-numEco">
-                                        <span class="icon-truck"></span>
-                                        <h4>{{vehiculo.numero_economico}}</h4>
-                                    </div>
-                                    <div class="img-pulpoF">
-                                        <span class="icon-pulpo"></span>
-                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
-                                        <span class="icon-cross"></span>
-                                    </div>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </section>
-                    </div>  
-                    <div id="table-purple">
-                        <section class="trucks">
-                            {% for vehiculo in vehiculos_sospechosos %}
-                            <a class="a-truck" href="{% url 'dashboards:detail' vehiculo.id %}">
-                                <div class="truck_number">
-                                    <div class="img-numEco">
-                                        <span class="icon-truck"></span>
-                                        <h4>{{vehiculo.numero_economico}}</h4>
-                                    </div>
-                                    <div class="img-pulpoF">
-                                        <span class="icon-pulpo"></span>
-                                        <h4>{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</h4>
-                                        <span class="icon-checkmark"></span>
-                                    </div>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </section>
+                </div>
+            </article>
+            <article class="wrapper" id="suspicious">
+                <header class="vehicles-head__container">
+                    <h2>
+                        Cantidad de vehiculo 
+                        <span class="suspicious-text">{{cantidad_sospechosos}}/{{cantidad_total}}</span>
+                    </h2>
+                </header>
+                <div class="container-fluid">
+                    <div class="card-container">
+                        {% for vehiculo in vehiculos_sospechosos %}
+                            {% include 'search/vehiculos-lista.html' %}
+                        {% endfor %}
                     </div>
-                </section>
-        </section>
-    </div>
-    <script>
-    function estadoVerde() {
-        document.getElementById('table-green').style.display = "block";
-        document.getElementById('table-yellow').style.display = "none";
-        document.getElementById('table-red').style.display = "none";
-        document.getElementById('table-purple').style.display = "none";
-        document.getElementById('status-green').style.display = "flex";
-        document.getElementById('status-yellow').style.display = "none";
-        document.getElementById('status-red').style.display = "none";
-        document.getElementById('status-purple').style.display = "none";
-        document.getElementById('estado_Verde').style.background = "green";
-        document.getElementById('estado_Amarillo').style.background = "#242424";
-        document.getElementById('estado_Rojo').style.background = "#242424"; 
-        document.getElementById('estado_Sospechoso').style.background = "#242424"; 
-    }
-    function estadoAmarillo() {
-        document.getElementById('table-green').style.display = "none";
-        document.getElementById('table-yellow').style.display = "block";
-        document.getElementById('table-red').style.display = "none";
-        document.getElementById('table-purple').style.display = "none";
-        document.getElementById('status-green').style.display = "none";
-        document.getElementById('status-yellow').style.display = "flex";
-        document.getElementById('status-red').style.display = "none";
-        document.getElementById('status-purple').style.display = "none";
-        document.getElementById('estado_Verde').style.background = "#242424";
-        document.getElementById('estado_Amarillo').style.background = "#dbc002";
-        document.getElementById('estado_Rojo').style.background = "#242424"; 
-        document.getElementById('estado_Sospechoso').style.background = "#242424"; 
-    }
-    function estadoRojo() {
-        document.getElementById('table-green').style.display = "none";
-        document.getElementById('table-yellow').style.display = "none";
-        document.getElementById('table-red').style.display = "block";
-        document.getElementById('table-purple').style.display = "none";
-        document.getElementById('status-green').style.display = "none";
-        document.getElementById('status-yellow').style.display = "none";
-        document.getElementById('status-red').style.display = "flex";
-        document.getElementById('status-purple').style.display = "none";
-        document.getElementById('estado_Verde').style.background = "#242424";
-        document.getElementById('estado_Amarillo').style.background = "#242424";
-        document.getElementById('estado_Rojo').style.background = "#f0412c"; 
-        document.getElementById('estado_Sospechoso').style.background = "#242424"; 
-    }
-    function estadoSospechoso() {
-        document.getElementById('table-green').style.display = "none";
-        document.getElementById('table-yellow').style.display = "none";
-        document.getElementById('table-red').style.display = "none";
-        document.getElementById('table-purple').style.display = "block";
-        document.getElementById('status-green').style.display = "none";
-        document.getElementById('status-yellow').style.display = "none";
-        document.getElementById('status-red').style.display = "none";
-        document.getElementById('status-purple').style.display = "flex";
-        document.getElementById('estado_Verde').style.background = "#242424";
-        document.getElementById('estado_Amarillo').style.background = "#242424";
-        document.getElementById('estado_Rojo').style.background = "#242424"; 
-        document.getElementById('estado_Sospechoso').style.background = "#9147ff"; 
-    }
-    /*rango de fechas*/
-                $(function() {
-                    $('input[name="fecha1"]').daterangepicker({
-                        opens: 'left',
-                        autoUpdateInput: false,
-                        "autoApply": true
-                    },
-                    function(start, end, label) {
-                        console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                    });
-                    $('input[name="fecha1"]').on('apply.daterangepicker', function(ev, picker) {
-                        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-                    });
-                });
+                </div>
+            </article>
+        </form>
+    </section>
+</main>
+    
+<script type="text/javascript">
+    document.addEventListener('click', () => {
+        handleView('btn-ok', 'ok');
+        handleView('btn-yellow', 'yellow');
+        handleView('btn-bad', 'bad');
+        handleView('btn-suspicious', 'suspicious');
+        handleButtons('#status');
+    });
 
+    const handleButtons = (container = '') => {
+      const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
 
+      buttons.forEach( button => {
+        button.addEventListener('click', ({ target }) => {
+          buttons.forEach(item => item.classList.remove('active'));
 
-    </script>
+          target.classList.add('active');
+        });
+      } );
+    };
+
+    const handleView = (button = '', view = '') => { // clase on-view 
+      const btn = document.getElementById(button); // Boton por ID
+      const image = document.getElementById(view); // Vista por ID
+
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.on-view').forEach(view => view.classList.remove('on-view')); // Limpia
+
+        image.classList.add('on-view'); // agrega on view
+      });
+
+    };
+
+    // Rango de fechas
+    $(function() {
+        $('#date-input').daterangepicker({
+            opens: 'left',
+            autoUpdateInput: false,
+            "autoApply": true
+        },
+        function(start, end, label) {
+            console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+        });
+        $('#date-input').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        });
+    });
+</script>
 {% endblock content %}
-

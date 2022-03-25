@@ -12,7 +12,7 @@
     ["{{mes_5}}", 0, 0],
     ["{{mes_4}}", 0, 0],
     ["{{mes_3}}", 0, 0],
-    ["{{mes_2}}", {{cpk}}, 0],
+    ["{{mes_2}}", 0.0625, 0],
     ["{{mes_1}}", {{cpk}}, 80]
     ]);
 
@@ -32,7 +32,7 @@
     chart.yAxis(1).orientation("right");
     chart.yAxis(1).labels().format("${%value}");
 
-      // configure y scale
+    // configure y scale
     chart.yScale().minimum(0).maximum(100);
     chart.yScale().ticks().interval(10);
 

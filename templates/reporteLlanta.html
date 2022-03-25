@@ -31,27 +31,27 @@
           src="{% static 'images/pulpo.png' %}"
           alt="pulpo"
         />
-        <h4 class="user">Numero economico: 280</h4>
-        <h4>Fecha Reporte: 1/12/2022</h4>
+        <h4 class="user">Numero economico: {{bitacora}}</h4>
+        <h4>Fecha Reporte: {{hoy}}</h4>
       </div>
       <div class="container">
         <div class="leftcolumn">
           <h2>ENTRADA</h2>
-          <h3>Presión: 90</h3>
-          <div id="llanta" class="bad"></div>
-          <span class="icon-cross"><span class="icon-cross"></span></span>
+          <h3>Presión: {{bitacora.presion_de_entrada}}</h3>
+          <div id="llanta" class="{{color1}}"></div>
+          <span class="{{signo1}}"></span>
         </div>
         <span class="icon-arrow-right2"></span>
         <div class="rightcolumn">
           <h2>SALIDA</h2>
-          <h3>Presión: 90</h3>
-          <div id="llanta" class="good"></div>
-          <span class="icon-checkmark"></span>
+          <h3>Presión: {{bitacora.presion_de_salida}}</h3>
+          <div id="llanta" class="{{color2}}"></div>
+          <span class="{{signo2}}"></span>
         </div>
       </div>
-      <h3>Tiempo de Inflado: 2</h3>
+      <h3>Tiempo de Inflado: {{bitacora.tiempo_de_inflado}}</h3>
       <h3 class="text-center">
-        Usuario: user
+        Usuario: {{user}}
       </h3>
     </div>
     <script>

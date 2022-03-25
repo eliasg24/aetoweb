@@ -71,3 +71,16 @@ fieldset {
 .form-content__flex > * {
   flex: 1 1 300px;
 }
+
+input[type='date']::-webkit-inner-spin-button,
+::-webkit-calendar-picker-indicator {
+  filter: invert(100%);
+}
+
+.dropdown {
+  border-bottom: thin solid #ccc;
+}
+
+.drop-menu {
+  width: 100%;
+}

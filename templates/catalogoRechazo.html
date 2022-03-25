@@ -34,16 +34,31 @@
             <table class="main-table">
               <thead>
                 <tr>
+                  <th>Acciones</th>
+                  <th>Llanta</th>
                   <th>Razón</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr>
-                  <td>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit maxime culpa optio commodi fuga, iure magni in saepe tempore! Voluptates cum et quam provident rerum doloribus vel esse id reprehenderit.
-                  </td>
-                </tr>
+                {% for rechazo in rechazos %}
+                  <tr id="{{rechazo.id}}">
+                    <td class="flex-row">
+                      <a href="{% url 'dashboards:catalogoRechazosEdit' rechazo.id %}" class="btn btn-download">
+                        <span class="icon-pencil"></span>
+                      </a>
+                      <form action="{% url "dashboards:catalogoRechazosDelete" %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{rechazo.id}}">
+                        <button class="btn btn-danger">
+                          <span class="icon-trash"></span>
+                        </button>
+                      </form>
+                    </td>
+                    <td>{{rechazo.llanta}}</td>
+                    <td>{{rechazo.razon}}</td>
+                  </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>

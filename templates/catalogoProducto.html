@@ -21,9 +21,15 @@
   </header>
   <main class="main-cont">
       <div class="cont-left">
-        <header class="section-head">
-          <h2 class="section-title">Agregar producto</h2>
-        </header>
+        {% if producto.id %}
+          <header class="section-head">
+            <h2 class="section-title">Editar producto</h2>
+          </header>
+          {% else %}
+          <header class="section-head">
+            <h2 class="section-title">Agregar producto</h2>
+          </header>
+        {% endif %}
         {% include 'catalogos-forms/productos-form.html' %}
       </div>
       <div class="cont-right">
@@ -55,9 +61,13 @@
                       <a href="{% url 'dashboards:catalogoProductosEdit' producto.id %}" class="btn btn-download">
                         <span class="icon-pencil"></span>
                       </a>
-                      <a href="" class="btn btn-danger">
-                        <span class="icon-trash"></span>
-                      </a>
+                      <form action="{% url "dashboards:catalogoProductoDelete" %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{producto.id}}">
+                        <button class="btn btn-danger">
+                          <span class="icon-trash"></span>
+                        </button>
+                      </form>
                     </td>
                     <td>{{producto.marca}}</td>
                     <td>{{producto.dibujo}}</td>

@@ -19,17 +19,18 @@
   </header>
 
   <section class="form-container">
-    <form action="" class="form-content">
-      <fieldset class="flex-row space-between">
+    <form action="{% url 'dashboards:companyFormulario' %}" class="form-content" method="POST">
+        {% csrf_token %}
+        <fieldset class="flex-row space-between">
         <h2 class="form-title">Nueva compañia</h2>
 
         <nav class="flex-row">
           <button class="btn btn-success disabled" type="submit">
             <span class="icon-checkmark"></span>
           </button>
-          <button class="btn btn-danger" type="reset">
+          <a href="{% url 'dashboards:config' %}" class="btn btn-danger" type="reset">
             <span class="icon-cross"></span>
-          </button>
+          </a>
         </nav>
       </fieldset>
       <article class="form-content__grid">

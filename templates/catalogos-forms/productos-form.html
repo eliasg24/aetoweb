@@ -159,11 +159,23 @@
   </div>
 
   <nav class="btn-group">
+    {% if producto.id %}
+    
+    <button class="btn btn-success">
+      <span class="icon-checkmark"></span>
+    </button>
+
+    <a href="{% url 'dashboards:catalogoProductos' %}" class="btn btn-danger">
+      <span class="icon-cross"></span>
+    </a>
+
+    {% else %}
     <button class="btn btn-success">
       <span class="icon-plus6"></span>
     </button>
-    <button class="btn btn-download">
+    <a href="" class="btn btn-download">
       <span class="icon-download"></span>
-    </button>
+    </a>
+    {% endif %}
   </nav>
 </form>

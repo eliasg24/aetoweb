@@ -327,7 +327,7 @@ const handleButtons = (container = '') => {
     document.addEventListener('click', (e) => {
       if (e.target === printButton) {
         open(
-          "{% url 'dashboards:reporteLlanta' %}",
+          "{% url 'dashboards:reporteLlanta' vehiculo.id %}",
           'Print',
           'height=900, width=1440'
         );

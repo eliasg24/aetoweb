@@ -4,7 +4,7 @@
     class="form__field"
     type="text"
     placeholder="nombre"
-    name="nombre"
+    name="compania"
     autocomplete="off"
     required
   />
@@ -20,7 +20,7 @@
     class="form__field"
     type="text"
     placeholder="periodo-inflado-1"
-    name="periodo-inflado-1"
+    name="periodo1_inflado"
     autocomplete="off"
     required
   />
@@ -36,7 +36,7 @@
     class="form__field"
     type="text"
     placeholder="periodo-inflado-2"
-    name="periodo-inflado-2"
+    name="periodo2_inflado"
     autocomplete="off"
     required
   />
@@ -52,7 +52,7 @@
     class="form__field"
     type="text"
     placeholder="presion-fuera-rango"
-    name="presion-fuera-rango"
+    name="objetivo"
     autocomplete="off"
     required
   />
@@ -68,7 +68,7 @@
     class="form__field"
     type="text"
     placeholder="periodo-sin-vista-1"
-    name="periodo-sin-vista-1"
+    name="periodo1_inspeccion"
     autocomplete="off"
     required
   />
@@ -84,7 +84,7 @@
     class="form__field"
     type="text"
     placeholder="periodo-sin-vista-2"
-    name="periodo-sin-vista-2"
+    name="periodo2_inspeccion"
     autocomplete="off"
     required
   />
@@ -100,12 +100,12 @@
     class="form__field"
     type="text"
     placeholder="retiro-direccion"
-    name="retiro-direccion"
+    name="punto_retiro_eje_direccion"
     autocomplete="off"
     required
   />
   <label for="retiro-direccion" class="form__label">
-    Retiro direccion
+    Punto de retiro direccion
   </label>
 </div>
 <!-- End input -->
@@ -116,12 +116,12 @@
     class="form__field"
     type="text"
     placeholder="retiro-traccion"
-    name="retiro-traccion"
+    name="punto_retiro_eje_traccion"
     autocomplete="off"
     required
   />
   <label for="retiro-traccion" class="form__label">
-    Retiro tracción
+    Punto de retiro tracción
   </label>
 </div>
 <!-- End input -->
@@ -132,12 +132,12 @@
     class="form__field"
     type="text"
     placeholder="retiro-arrastre"
-    name="retiro-arrastre"
+    name="punto_retiro_eje_arrastre"
     autocomplete="off"
     required
   />
   <label for="retiro-arrastre" class="form__label">
-    Retiro arrastre
+    Punto de retiro arrastre
   </label>
 </div>
 <!-- End input -->
@@ -148,12 +148,12 @@
     class="form__field"
     type="text"
     placeholder="retiro-loco"
-    name="retiro-loco"
+    name="punto_retiro_eje_loco"
     autocomplete="off"
     required
   />
   <label for="retiro-loco" class="form__label">
-    Retiro loco
+    Punto de retiro loco
   </label>
 </div>
 <!-- End input -->
@@ -164,12 +164,12 @@
     class="form__field"
     type="text"
     placeholder="retiro-retractil"
-    name="retiro-retractil"
+    name="punto_retiro_eje_retractil"
     autocomplete="off"
     required
   />
   <label for="retiro-retractil" class="form__label">
-    Retiro retractil
+    Punto de retiro retractil
   </label>
 </div>
 <!-- End input -->
@@ -180,7 +180,7 @@
     class="form__field"
     type="text"
     placeholder="profundidad-descuate"
-    name="profundidad-descuate"
+    name="mm_de_diferencia_entre_duales"
     autocomplete="off"
     required
   />
@@ -196,12 +196,12 @@
     class="form__field"
     type="text"
     placeholder="profundidad-descuate-irregular"
-    name="profundidad-descuate-irregular"
+    name="mm_de_desgaste_irregular"
     autocomplete="off"
     required
   />
   <label for="profundidad-descuate-irregular" class="form__label">
-    Profundidad de descuate irregular
+    Profundidad de desgaste irregular
   </label>
 </div>
 <!-- End input -->
@@ -212,7 +212,7 @@
     class="form__field"
     type="text"
     placeholder="valor-casco-nuevo"
-    name="valor-casco-nuevo"
+    name="valor_casco_nuevo"
     autocomplete="off"
     required
   />
@@ -228,7 +228,7 @@
     class="form__field"
     type="text"
     placeholder="valor-casco-1r"
-    name="valor-casco-1r"
+    name="valor_casco_1r"
     autocomplete="off"
     required
   />
@@ -244,7 +244,7 @@
     class="form__field"
     type="text"
     placeholder="valor-casco-2r"
-    name="valor-casco-2r"
+    name="valor_casco_2r"
     autocomplete="off"
     required
   />
@@ -260,7 +260,7 @@
     class="form__field"
     type="text"
     placeholder="valor-casco-3r"
-    name="valor-casco-3r"
+    name="valor_casco_3r"
     autocomplete="off"
     required
   />
@@ -276,7 +276,7 @@
     class="form__field"
     type="text"
     placeholder="valor-casco-4r"
-    name="valor-casco-4r"
+    name="valor_casco_4r"
     autocomplete="off"
     required
   />
@@ -292,7 +292,7 @@
     class="form__field"
     type="text"
     placeholder="valor-casco-5r"
-    name="valor-casco-5r"
+    name="valor_casco_5r"
     autocomplete="off"
     required
   />
@@ -308,13 +308,19 @@
     class="form__field"
     type="text"
     placeholder="unidades-presion"
-    name="unidades-presion"
+    name="unidades_presion"
+    list="unidades_presion"
     autocomplete="off"
     required
   />
   <label for="unidades-presion" class="form__label">
     Unidades de presión
   </label>
+  <datalist id="unidades_presion">
+    <option value="psi">psi</option>
+    <option value="bar">bar</option>
+    <option value="mPa">mPa</option>
+  </datalist>
 </div>
 <!-- End input -->
 
@@ -324,13 +330,18 @@
     class="form__field"
     type="text"
     placeholder="unidades-distancia"
-    name="unidades-distancia"
+    name="unidades_distancia"
+    list="unidades_distancia"
     autocomplete="off"
     required
   />
   <label for="unidades-distancia" class="form__label">
     Unidades de distancia
   </label>
+  <datalist id="unidades_distancia">
+    <option value="km">km</option>
+    <option value="mi">mi</option>
+  </datalist>
 </div>
 <!-- End input -->
 
@@ -340,13 +351,18 @@
     class="form__field"
     type="text"
     placeholder="unidades-profundidad"
-    name="unidades-profundidad"
+    name="unidades_profundidad"
+    list="unidades_profundidad"
     autocomplete="off"
     required
   />
   <label for="unidades-profundidad" class="form__label">
     Unidades de profundidad
   </label>
+  <datalist id="unidades_profundidad">
+    <option value="mm">mm</option>
+    <option value="32''">32''</option>
+  </datalist>
 </div>
 <!-- End input -->
 
@@ -356,7 +372,7 @@
     class="form__field"
     type="text"
     placeholder="parametro-desgaste-sospechoso"
-    name="parametro-desgaste-sospechoso"
+    name="mm_parametro_sospechoso"
     autocomplete="off"
     required
   />

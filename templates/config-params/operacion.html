@@ -1,6 +1,5 @@
 <div class="form-group">
-  <!-- <p>Periodo 1: {{user.perfil.compania.periodo1}} días</p> -->
-
+  
   <h3>Días de inflado</h3>
 
   <div class="form__group field">
@@ -8,13 +7,13 @@
           class="form__field"
           type="number"
           placeholder="periodo 1 (en días)..."
-          name="periodo-1"
+          name="periodo1_inflado"
           autocomplete="off"
-          value="{{user.perfil.compania.periodo1}}"
+          value="{{user.perfil.compania.periodo1_inflado}}"
           required
       />
       <label for="name" class="form__label">
-          periodo 1 (en días)
+          Periodo 1 (en días)
       </label>
   </div>
   
@@ -25,13 +24,13 @@
         class="form__field"
         type="number"
         placeholder="periodo 2 (en días)..."
-        name="periodo-2"
+        name="periodo2_inflado"
         autocomplete="off"
-        value="{{user.perfil.compania.periodo2}}"
+        value="{{user.perfil.compania.periodo2_inflado}}"
         required
     />
     <label for="name" class="form__label">
-        periodo 2 (en días)
+        Periodo 2 (en días)
     </label>
   </div>
 
@@ -47,6 +46,7 @@
         placeholder="objetivo"
         name="objetivo"
         autocomplete="off"
+        value="{{user.perfil.compania.objetivo}}"
         required
     />
     <label for="name" class="form__label">
@@ -63,8 +63,9 @@
         class="form__field"
         type="number"
         placeholder="periodo-1-visto"
-        name="periodo-1-visto"
+        name="periodo1_inspeccion"
         autocomplete="off"
+        value="{{user.perfil.compania.periodo1_inspeccion}}"
         required
     />
     <label for="name" class="form__label">
@@ -77,8 +78,9 @@
         class="form__field"
         type="number"
         placeholder="periodo-2-visto"
-        name="periodo-2-visto"
+        name="periodo2_inspeccion"
         autocomplete="off"
+        value="{{user.perfil.compania.periodo2_inspeccion}}"
         required
     />
     <label for="name" class="form__label">
@@ -96,8 +98,9 @@
         class="form__field"
         type="number"
         placeholder="direccion"
-        name="direccion"
+        name="punto_retiro_eje_direccion"
         autocomplete="off"
+        value="{{user.perfil.compania.punto_retiro_eje_direccion}}"
         required
     />
     <label for="name" class="form__label">
@@ -110,8 +113,9 @@
         class="form__field"
         type="number"
         placeholder="traccion"
-        name="traccion"
+        name="punto_retiro_eje_traccion"
         autocomplete="off"
+        value="{{user.perfil.compania.punto_retiro_eje_traccion}}"
         required
     />
     <label for="name" class="form__label">
@@ -124,8 +128,9 @@
         class="form__field"
         type="number"
         placeholder="arrastre"
-        name="arrastre"
+        name="punto_retiro_eje_arrastre"
         autocomplete="off"
+        value="{{user.perfil.compania.punto_retiro_eje_arrastre}}"
         required
     />
     <label for="name" class="form__label">
@@ -138,8 +143,9 @@
         class="form__field"
         type="number"
         placeholder="desgaste"
-        name="desgaste"
+        name="mm_de_desgaste_irregular"
         autocomplete="off"
+        value="{{user.perfil.compania.mm_de_desgaste_irregular}}"
         required
     />
     <label for="name" class="form__label">
@@ -152,8 +158,9 @@
         class="form__field"
         type="number"
         placeholder="dualizado"
-        name="dualizado"
+        name="mm_de_diferencia_entre_duales"
         autocomplete="off"
+        value="{{user.perfil.compania.mm_de_diferencia_entre_duales}}"
         required
     />
     <label for="name" class="form__label">

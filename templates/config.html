@@ -14,12 +14,13 @@
 <div class="all-cont">
     <section class="container">
 
-        <form action="">
+        <form class="form__container">
 
             <nav class="config-nav">
                 <h1 class="title">CONFIGURACIÓN</h1>
-                <button type="submit" class="btn btn-success disabled">
-                    Guardar
+
+                <button class="btn btn-success" type="submit">
+                    <span class="icon-floppy1"></span>
                 </button>
             </nav>
 
@@ -54,9 +55,9 @@
                         </div>
         
                         <div class="wrapper">
-                            <article class="con-sec">
+                            <div class="con-sec">
                                 {% include 'config-params/operacion.html' %}
-                            </article>
+                            </div>
                         </div>
                     </div>
     
@@ -69,9 +70,9 @@
                         </div>
                         
                         <div class="wrapper">
-                            <article class="con-sec">
+                            <div class="con-sec">
                                 {% include 'config-params/usuario.html' %}
-                            </article>
+                            </div>
                         </div>
                     </div>
     
@@ -92,7 +93,7 @@
                                             <label>
                                                 <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
                                             </label>
-                                            <button class="btn btn-success w-100" type="submit">Continuar</button>
+                                            <button class="btn btn-download w-100" type="submit">Continuar</button>
                                         </form>
                                     </div>
                                     <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
@@ -120,7 +121,7 @@
                                             <label>
                                                 <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
                                             </label>
-                                            <button class="btn btn-success w-100" type="submit">Continuar</button>
+                                            <button class="btn btn-download w-100" type="submit">Continuar</button>
                                         </form>
                                     </div>
                                     <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
@@ -151,7 +152,7 @@
                                     <a href="{% url 'dashboards:catalogoObservaciones' %}" class="btn btn-redirect">
                                         Catálogos de observaciones
                                     </a>
-                                    <a href="{% url 'dashboards:catalogoRechazo' %}" class="btn btn-redirect">
+                                    <a href="{% url 'dashboards:catalogoRechazos' %}" class="btn btn-redirect">
                                         Catálogos de rechazos
                                     </a>
                                     <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
@@ -165,32 +166,34 @@
                         </div>
                     </div>
     
-                    <div class="con" id="contexto">
-                        <div class="con-title">
-                            <h2 class="con-title__text">
-                                Contexto
-                            </h2>
-                        </div> 
-                        <div class="wrapper">
-                            <div class="con-sec">
-                                <a href="{% url 'dashboards:companyFormulario' %}" class="btn btn-redirect">
-                                    Compañia
-                                </a>
-                                <a href="{% url 'dashboards:sucursalFormulario' %}" class="btn btn-redirect">
-                                    Sucursal
-                                </a>
-                                <a href="{% url 'dashboards:tallerFormulario' %}" class="btn btn-redirect">
-                                    Taller
-                                </a>
-                                <a href="{% url 'dashboards:usuarioFormulario' %}" class="btn btn-redirect">
-                                    Usuario
-                                </a>
-                                <a href="{% url 'dashboards:aplicacionFormulario' %}" class="btn btn-redirect">
-                                    Aplicación
-                                </a>
+                    {% if perms.compania.add_compania %}
+                        <div class="con" id="contexto">
+                            <div class="con-title">
+                                <h2 class="con-title__text">
+                                    Contexto
+                                </h2>
+                            </div> 
+                            <div class="wrapper">
+                                <div class="con-sec">
+                                    <a href="{% url 'dashboards:companyFormulario' %}" class="btn btn-redirect">
+                                        Compañia
+                                    </a>
+                                    <a href="{% url 'dashboards:sucursalFormulario' %}" class="btn btn-redirect">
+                                        Sucursal
+                                    </a>
+                                    <a href="{% url 'dashboards:tallerFormulario' %}" class="btn btn-redirect">
+                                        Taller
+                                    </a>
+                                    <a href="{% url 'dashboards:usuarioFormulario' %}" class="btn btn-redirect">
+                                        Usuario
+                                    </a>
+                                    <a href="{% url 'dashboards:aplicacionFormulario' %}" class="btn btn-redirect">
+                                        Aplicación
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
 
                 <nav class="nav justify-end indicators">

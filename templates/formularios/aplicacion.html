@@ -19,7 +19,8 @@
   </header>
 
   <section class="form-container">
-    <form action="" class="form-content">
+    <form action="{% url 'dashboards:aplicacionFormulario' %}" class="form-content" method="POST">
+      {% csrf_token %}
       <fieldset class="flex-row space-between">
         <h2 class="form-title">Nueva aplicación</h2>
 

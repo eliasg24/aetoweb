@@ -35,6 +35,8 @@
 				<table class="main-table">
 					<thead>
 						<tr>
+							<th>Acciones</th>
+							<th>Llanta</th>
 							<th>Zona de llanta</th>
 							<th>Condición</th>
 							<th>Razón</th>
@@ -42,26 +44,26 @@
 					</thead>
 
 					<tbody>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
+						{% for desecho in desechos %}
+						<tr id="{{desecho.id}}">
+							<td class="flex-row">
+							<a href="{% url 'dashboards:catalogoDesechosEdit' desecho.id %}" class="btn btn-download">
+								<span class="icon-pencil"></span>
+							</a>
+							<form action="{% url "dashboards:catalogoDesechosDelete" %}" method="POST">
+								{% csrf_token %}
+								<input type="hidden" name="id" value="{{desecho.id}}">
+								<button class="btn btn-danger">
+								  <span class="icon-trash"></span>
+								</button>
+							</form>
+							</td>
+							<td>{{desecho.llanta}}</td>
+							<td>{{desecho.zona_de_llanta}}</td>
+							<td>{{desecho.condicion}}</td>
+							<td>{{desecho.razon}}</td>
 						</tr>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
-						</tr>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
-						</tr>
-						<tr>
-							<td>data</td>
-							<td>data</td>
-							<td>data</td>
-						</tr>
+						{% endfor %}
 					</tbody>
 
 				</table>

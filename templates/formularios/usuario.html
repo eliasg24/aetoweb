@@ -19,7 +19,8 @@
   </header>
 
   <section class="form-container">
-    <form action="" class="form-content">
+    <form action="{% url 'dashboards:usuarioFormulario' %}" class="form-content" method="POST">
+      {% csrf_token %}
       <fieldset class="flex-row space-between">
         <h2 class="form-title">Nuevo usuario</h2>
 
@@ -41,5 +42,22 @@
 </main>
 
 <script src="{% static 'js/inputChange.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => validPassword());
+
+  const validPassword = () => {
+    const password = document.querySelector('input[name="password"]');
+    const password2 = document.querySelector('input[name="password2"]');
+    
+    password2.addEventListener('keyup', (e) => {
+      if (password.value !== password2.value) {
+        password2.classList.add('invalid');
+      } 
+      if (password.value === password2.value) {
+        password2.classList.remove('invalid');
+      } 
+    });
+  };
+</script>
 
 {% endblock %}
