@@ -1761,7 +1761,8 @@ def buscar(request):
                 vehiculo_periodo_status[v] = "Entrada Correctas"
 
         # Convertir formato de fecha
-        fecha_con_formato = functions.convertir_fecha(fecha)
+        fecha_con_formato1 = functions.convertir_fecha(fecha1)
+        fecha_con_formato2 = functions.convertir_fecha(fecha2)
 
         # Saber el tiempo de inflado promedio
         tiempo_promedio = functions.inflado_promedio(vehiculo_clase)
@@ -1829,8 +1830,10 @@ def buscar(request):
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
                                             "compania": request.user.perfil.compania,
-                                            "fecha":fecha,
-                                            "fecha_con_formato":fecha_con_formato,
+                                            "fecha1":fecha1,
+                                            "fecha2":fecha2,
+                                            "fecha_con_formato1":fecha_con_formato1,
+                                            "fecha_con_formato2":fecha_con_formato2,
                                             "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
                                             "hoy": hoy,
                                             "mes_1": mes_1,
@@ -1883,7 +1886,7 @@ def buscar(request):
                 vehiculo_periodo_status[v] = "Entrada Correctas"
 
         # Convertir formato de fecha
-        fecha_con_formato = functions.convertir_fecha(fecha)
+        fecha_con_formato = functions.convertir_fecha(fecha1)
 
         # Saber el tiempo de inflado promedio
         tiempo_promedio = functions.inflado_promedio(vehiculo_flota)
@@ -1950,7 +1953,6 @@ def buscar(request):
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
                                             "compania": request.user.perfil.compania,
-                                            "fecha":fecha,
                                             "fecha_con_formato":fecha_con_formato,
                                             "flota": flota,
                                             "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),

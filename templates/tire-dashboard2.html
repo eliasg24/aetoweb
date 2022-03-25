@@ -251,14 +251,14 @@
                 {% if eje|capfirst == "Total" %}
                 <tr class="tr2 bt2">
                   <td class="td1">{{eje|capfirst}}</td>
-                  <td class="td1 td-center">{{cantidad}}</td>
+                  <td class="td1 td-center" data-id>{{cantidad}}</td>
                 </tr>
 
                 {% else %}
 
                 <tr class="tr2">
                   <td class="td1">{{eje|capfirst}}</td>
-                  <td class="td1 td-center">{{cantidad}}</td>
+                  <td class="td1 td-center" data-id>{{cantidad}}</td>
                 </tr>
 
                 {% endif %}
