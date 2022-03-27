@@ -151,6 +151,14 @@ def convertir_fecha2(fecha):
     fecha = date(year, month, day)
     return fecha
 
+def convertir_fecha3(fecha):
+    partes_fecha = fecha.split("/")
+    year = int(partes_fecha[1])
+    month = int(partes_fecha[0])
+    day = int(partes_fecha[2][:2])
+    fecha = date(year, month, day)
+    return fecha
+
 def convertir_rango(fecha):
     partes_fecha = fecha.split("-")
     fecha = f"{partes_fecha[0]}/{partes_fecha[1]}/{partes_fecha[2]}"

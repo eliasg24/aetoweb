@@ -43,127 +43,55 @@ def excel_productos():
             producto_hecho.precio=precio
             producto_hecho.save()
 
-def excel_inspecciones():
-    FILE_PATH = "D:/Aetoweb/aeto/files/files/Inspections_Bulk.csv"
-    file = open(FILE_PATH, "r", encoding="latin-1", newline='')
-    next(file, None)
-    reader = csv.reader(file, delimiter=",")
 
-    for row in reader:
-        llanta = row[12]
-
-        try:
-            llanta_hecha = Llanta.objects.get(numero_economico=llanta)
-        except:
-            llanta_hecha = None
-        print(llanta_hecha)
-        if llanta_hecha:
-            fecha_hora = row[4]
-            fecha_hora = functions.convertir_fecha2(fecha_hora)
-            km = row[6]
-            if km == "":
-                km = 2000
-            else:
-                km = int(float(row[6]))
-
-            profundidades = [float(row[18]), float(row[19]), float(row[20])]
-            min_profundidad = min(profundidades)
-            max_profundidad = max(profundidades)
-
-            inspeccion_creada = Inspeccion.objects.create(llanta=llanta_hecha,
-                                    fecha_hora=fecha_hora,
-                                    km=km,
-                                    min_profundidad=min_profundidad,
-                                    max_profundidad=max_profundidad,
-            )
-            llanta_hecha.ultima_inspeccion = inspeccion_creada
-            llanta_hecha.save()
-            try:
-                vehiculo = Vehiculo.objects.get(numero_economico=llanta_hecha.vehiculo.numero_economico)
-                vehiculo.ultima_inspeccion = inspeccion_creada
-                vehiculo.save()
-            except:
-                pass
-
-def excel_llantas(user):
-    FILE_PATH = "D:/Aetoweb/aeto/files/files/Stock2022_03_25_041155.csv"
+def excel_vehiculos():
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Vehicles2022_03_25_043019.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
 
 
-    i = []
     for row in reader:
-        compania = row[1].capitalize()
+        compania = row[3].capitalize()
         if compania == "Corcelip":
-            numero_economico = row[7]
+            numero_economico = row[9]
+            flota = row[5]
+            aplicacion = row[7]
+            clase = row[12]
+            configuracion = row[14]
+            marca = row[16]
+            modelo = row[18]
+            fecha_de_creacion = row[21]
+
+            functions_create.crear_clase(clase)
+            fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
+
             try:
-                llanta = Llanta.objects.filter(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
-                i.append(llanta)
-
+                ubicacion = Ubicacion.objects.get(nombre=flota, compania=Compania.objects.get(compania=compania))
             except:
-                print("no", numero_economico)
-                usuario = Perfil.objects.get(user=user)
-                vida = row[14]
-                if vida == "New":
-                    vida = "Nueva"
-                elif vida == "1st Retread":
-                    vida = "1R"
-                elif vida == "2st Retread":
-                    vida = "2R"
-                elif vida == "3st Retread":
-                    vida = "3R"
-                elif vida == "4st Retread":
-                    vida = "4R"
-                elif vida == "Retread":
-                    vida = "1R"
+                ubicacion = Ubicacion.objects.create(nombre=flota, compania=Compania.objects.get(compania=compania))
 
-                presion_de_entrada = row[9]
-                if presion_de_entrada == "":
-                    presion_de_entrada = None
-                    presion_de_salida = None
-                    fecha_de_inflado = None
-                else:
-                    presion_de_entrada = int(float(row[9]))
-                    presion_de_salida = int(float(row[9]))
-                    fecha_de_inflado = date.today()
-                
-                producto = row[8]
-                try:
-                    producto = Producto.objects.get(producto=producto)
-                except:
-                    producto = Producto.objects.create(producto=producto)
+            try:
+                aplicacion = Aplicacion.objects.get(nombre=aplicacion, compania=Compania.objects.get(compania=compania))
+            except:
+                aplicacion = Aplicacion.objects.create(nombre=aplicacion, compania=Compania.objects.get(compania=compania))
 
-                inventario = row[5]
-                if inventario == "RollingStock":
-                    inventario = "Rodante"
-                elif inventario == "ForScrapStock":
-                    inventario = "Antes de Desechar"
-                elif inventario == "ForServiceStock":
-                    inventario = "Servicio"
-                else:
-                    inventario = None
-                try:
-                    km_montado = int(row[12])
-                except:
-                    km_montado = None
-                Llanta.objects.create(numero_economico=numero_economico,
-                                    usuario=usuario,
-                                    compania=Compania.objects.get(compania=compania),
-                                    vida=vida,
-                                    presion_de_entrada=presion_de_entrada,
-                                    presion_de_salida=presion_de_salida,
-                                    fecha_de_inflado=fecha_de_inflado,
-                                    producto=producto,
-                                    inventario=inventario,
-                                    km_montado=km_montado,
-                                    )
-    print("i", len(i))
-    my_list = list(set(i))
-    print("my_list", len(my_list))
+            numero_de_llantas = functions.cantidad_llantas(configuracion)
+
+            Vehiculo.objects.create(numero_economico=numero_economico,
+                                modelo=modelo,
+                                marca=marca,
+                                compania=Compania.objects.get(compania=compania),
+                                ubicacion=ubicacion,
+                                aplicacion=aplicacion,
+                                numero_de_llantas=numero_de_llantas,
+                                clase=clase,
+                                configuracion=configuracion,
+                                fecha_de_creacion=fecha_de_creacion
+                                )
 
 def excel_llantas_rodantes(user):
-    FILE_PATH = "D:/Aetoweb/aeto/files/files/Stock2022_03_25_041155.csv"
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/RollingStock2022_03_25_040126.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
@@ -243,52 +171,127 @@ def excel_llantas_rodantes(user):
                                 km_montado=km_montado,
                                 )
 
-
-def excel_vehiculos():
-    FILE_PATH = "D:/Aetoweb/aeto/files/files/Vehicles2022_03_25_043019.csv"
+def excel_llantas(user):
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Stock2022_03_25_041155.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
 
 
+    i = []
     for row in reader:
-        compania = row[3].capitalize()
+        compania = row[1].capitalize()
         if compania == "Corcelip":
-            numero_economico = row[9]
-            flota = row[5]
-            aplicacion = row[7]
-            clase = row[12]
-            configuracion = row[14]
-            marca = row[16]
-            modelo = row[18]
-            fecha_de_creacion = row[21]
-
-            functions_create.crear_clase(clase)
-            fecha_de_creacion = functions.convertir_fecha2(fecha_de_creacion)
-
+            numero_economico = row[7]
             try:
-                ubicacion = Ubicacion.objects.get(nombre=flota, compania=Compania.objects.get(compania=compania))
-            except:
-                ubicacion = Ubicacion.objects.create(nombre=flota, compania=Compania.objects.get(compania=compania))
+                llanta = Llanta.objects.get(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
+                i.append(llanta)
 
+            except:
+                print("no", numero_economico)
+                usuario = Perfil.objects.get(user=user)
+                vida = row[14]
+                if vida == "New":
+                    vida = "Nueva"
+                elif vida == "1st Retread":
+                    vida = "1R"
+                elif vida == "2st Retread":
+                    vida = "2R"
+                elif vida == "3st Retread":
+                    vida = "3R"
+                elif vida == "4st Retread":
+                    vida = "4R"
+                elif vida == "Retread":
+                    vida = "1R"
+
+                presion_de_entrada = row[9]
+                if presion_de_entrada == "":
+                    presion_de_entrada = None
+                    presion_de_salida = None
+                    fecha_de_inflado = None
+                else:
+                    presion_de_entrada = int(float(row[9]))
+                    presion_de_salida = int(float(row[9]))
+                    fecha_de_inflado = date.today()
+                
+                producto = row[8]
+                try:
+                    producto = Producto.objects.get(producto=producto)
+                except:
+                    producto = Producto.objects.create(producto=producto)
+
+                inventario = row[5]
+                if inventario == "RollingStock":
+                    inventario = "Rodante"
+                elif inventario == "ForScrapStock":
+                    inventario = "Antes de Desechar"
+                elif inventario == "ForServiceStock":
+                    inventario = "Servicio"
+                else:
+                    inventario = None
+                try:
+                    km_montado = int(row[12])
+                except:
+                    km_montado = None
+                Llanta.objects.create(numero_economico=numero_economico,
+                                    usuario=usuario,
+                                    compania=Compania.objects.get(compania=compania),
+                                    vida=vida,
+                                    presion_de_entrada=presion_de_entrada,
+                                    presion_de_salida=presion_de_salida,
+                                    fecha_de_inflado=fecha_de_inflado,
+                                    producto=producto,
+                                    inventario=inventario,
+                                    km_montado=km_montado,
+                                    )
+    print("i", len(i))
+    my_list = list(set(i))
+    print("my_list", len(my_list))
+
+
+
+def excel_inspecciones():
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Inspections_Bulk.csv"
+    file = open(FILE_PATH, "r", encoding="latin-1", newline='')
+    next(file, None)
+    reader = csv.reader(file, delimiter=",")
+
+    for row in reader:
+        llanta = row[12]
+
+        try:
+            llanta_hecha = Llanta.objects.get(numero_economico=llanta)
+        except:
+            llanta_hecha = None
+        print(llanta_hecha)
+        if llanta_hecha:
+            fecha_hora = row[4]
+            fecha_hora = functions.convertir_fecha2(fecha_hora)
+            km = row[6]
+            if km == "":
+                km = 2000
+            else:
+                km = int(float(row[6]))
+
+            profundidades = [float(row[18]), float(row[19]), float(row[20])]
+            min_profundidad = min(profundidades)
+            max_profundidad = max(profundidades)
+
+            inspeccion_creada = Inspeccion.objects.create(llanta=llanta_hecha,
+                                    fecha_hora=fecha_hora,
+                                    km=km,
+                                    min_profundidad=min_profundidad,
+                                    max_profundidad=max_profundidad,
+            )
+            llanta_hecha.ultima_inspeccion = inspeccion_creada
+            llanta_hecha.save()
             try:
-                aplicacion = Aplicacion.objects.get(nombre=aplicacion, compania=Compania.objects.get(compania=compania))
+                vehiculo = Vehiculo.objects.get(numero_economico=llanta_hecha.vehiculo.numero_economico)
+                vehiculo.ultima_inspeccion = inspeccion_creada
+                vehiculo.save()
             except:
-                aplicacion = Aplicacion.objects.create(nombre=aplicacion, compania=Compania.objects.get(compania=compania))
+                pass
 
-            numero_de_llantas = functions.cantidad_llantas(configuracion)
-
-            Vehiculo.objects.create(numero_economico=numero_economico,
-                                modelo=modelo,
-                                marca=marca,
-                                compania=Compania.objects.get(compania=compania),
-                                ubicacion=ubicacion,
-                                aplicacion=aplicacion,
-                                numero_de_llantas=numero_de_llantas,
-                                clase=clase,
-                                configuracion=configuracion,
-                                fecha_de_creacion=fecha_de_creacion
-                                )
 
 def ExcelAeto(llanta, vehiculo, posicion, km_actual, km_proyectado, cpk, sucursal, aplicacion, clase, nomeje, producto, min_profundidad):
     wb = openpyxl.Workbook()

@@ -1478,7 +1478,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         hoy = date.today()
 
-        functions_create.crear_clase_en_vehiculo()
+        #functions_excel.excel_inspecciones()
         #functions_excel.excel_inspecciones()
         #functions_excel.agregarExcel()
         #functions_ftp.ftp()
