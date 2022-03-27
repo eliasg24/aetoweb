@@ -7,21 +7,21 @@
     // create data
     var data1 = [
     {% for pro, valores in comparativa_de_productos.items %}
-        {x: "{{pro}}", value: "{{valores.0}}", size: "{{valores.5}}", name: "{{pro}}"},
+        {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.5}}", name: "{{valores.6}}"},
     {% endfor %}
     ];
 
       // create data
     var data2 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{pro}}", value: "{{valores.0}}", size: "{{valores.5}}", name: "{{pro}}"},
+          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.5}}", name: "{{valores.6}}"},
       {% endfor %}
     ];
 
     // create data
     var data3 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{pro}}", value: "{{valores.0}}", size: "{{valores.5}}", name: "{{pro}}"},
+          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.5}}", name: "{{valores.6}}"},
       {% endfor %}
     ];
 

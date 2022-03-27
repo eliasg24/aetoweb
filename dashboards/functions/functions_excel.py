@@ -11,7 +11,7 @@ from random import randint
 from dashboards.functions import functions, functions_create
 
 def excel_productos():
-    FILE_PATH = "D:/Descargas/Products2022_03_14_043521.csv"
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Products2022_03_25_043513.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
@@ -21,7 +21,7 @@ def excel_productos():
         try:
             producto_hecho = Producto.objects.get(producto=producto)
         except:
-            producto_hecho = None
+            producto_hecho = Producto.objects.create(producto=producto)
         if producto_hecho:
             marca = row[6]
             profundidad_inicial = int(float(row[10]))
@@ -44,8 +44,8 @@ def excel_productos():
             producto_hecho.save()
 
 def excel_inspecciones():
-    FILE_PATH = "D:/Descargas/Inspections2022_03_12_044032.csv"
-    file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Inspections_Bulk.csv"
+    file = open(FILE_PATH, "r", encoding="latin-1", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
 
@@ -66,28 +66,112 @@ def excel_inspecciones():
             else:
                 km = int(float(row[6]))
 
-            profundidades = [row[18], row[19], row[20]]
+            profundidades = [float(row[18]), float(row[19]), float(row[20])]
             min_profundidad = min(profundidades)
             max_profundidad = max(profundidades)
 
-            Inspeccion.objects.create(llanta=llanta_hecha,
+            inspeccion_creada = Inspeccion.objects.create(llanta=llanta_hecha,
                                     fecha_hora=fecha_hora,
                                     km=km,
                                     min_profundidad=min_profundidad,
                                     max_profundidad=max_profundidad,
             )
-
+            llanta_hecha.ultima_inspeccion = inspeccion_creada
+            llanta_hecha.save()
+            try:
+                vehiculo = Vehiculo.objects.get(numero_economico=llanta_hecha.vehiculo.numero_economico)
+                vehiculo.ultima_inspeccion = inspeccion_creada
+                vehiculo.save()
+            except:
+                pass
 
 def excel_llantas(user):
-    FILE_PATH = "D:/Descargas/RollingStock2022_03_14_040232.csv"
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Stock2022_03_25_041155.csv"
+    file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
+    next(file, None)
+    reader = csv.reader(file, delimiter=",")
+
+
+    i = []
+    for row in reader:
+        compania = row[1].capitalize()
+        if compania == "Corcelip":
+            numero_economico = row[7]
+            try:
+                llanta = Llanta.objects.filter(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
+                i.append(llanta)
+
+            except:
+                print("no", numero_economico)
+                usuario = Perfil.objects.get(user=user)
+                vida = row[14]
+                if vida == "New":
+                    vida = "Nueva"
+                elif vida == "1st Retread":
+                    vida = "1R"
+                elif vida == "2st Retread":
+                    vida = "2R"
+                elif vida == "3st Retread":
+                    vida = "3R"
+                elif vida == "4st Retread":
+                    vida = "4R"
+                elif vida == "Retread":
+                    vida = "1R"
+
+                presion_de_entrada = row[9]
+                if presion_de_entrada == "":
+                    presion_de_entrada = None
+                    presion_de_salida = None
+                    fecha_de_inflado = None
+                else:
+                    presion_de_entrada = int(float(row[9]))
+                    presion_de_salida = int(float(row[9]))
+                    fecha_de_inflado = date.today()
+                
+                producto = row[8]
+                try:
+                    producto = Producto.objects.get(producto=producto)
+                except:
+                    producto = Producto.objects.create(producto=producto)
+
+                inventario = row[5]
+                if inventario == "RollingStock":
+                    inventario = "Rodante"
+                elif inventario == "ForScrapStock":
+                    inventario = "Antes de Desechar"
+                elif inventario == "ForServiceStock":
+                    inventario = "Servicio"
+                else:
+                    inventario = None
+                try:
+                    km_montado = int(row[12])
+                except:
+                    km_montado = None
+                Llanta.objects.create(numero_economico=numero_economico,
+                                    usuario=usuario,
+                                    compania=Compania.objects.get(compania=compania),
+                                    vida=vida,
+                                    presion_de_entrada=presion_de_entrada,
+                                    presion_de_salida=presion_de_salida,
+                                    fecha_de_inflado=fecha_de_inflado,
+                                    producto=producto,
+                                    inventario=inventario,
+                                    km_montado=km_montado,
+                                    )
+    print("i", len(i))
+    my_list = list(set(i))
+    print("my_list", len(my_list))
+
+def excel_llantas_rodantes(user):
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Stock2022_03_25_041155.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
 
 
     for row in reader:
-        compania = row[1]
-        if compania == "Equipo Logistico":
+        compania = row[1].capitalize()
+        if compania == "Corcelip":
             numero_economico = row[9]
             usuario = Perfil.objects.get(user=user)
             vehiculo = Vehiculo.objects.get(numero_economico=row[6])
@@ -115,8 +199,7 @@ def excel_llantas(user):
             else:
                 presion_de_entrada = int(float(row[11]))
                 presion_de_salida = int(float(row[11]))
-
-            fecha_de_inflado = date.today()
+                fecha_de_inflado = date.today()
             
             if tipo_de_eje[0] == "S":
                 nombre_de_eje = "Dirección"
@@ -162,15 +245,15 @@ def excel_llantas(user):
 
 
 def excel_vehiculos():
-    FILE_PATH = "D:/Descargas/Vehicles2022_03_14_043018.csv"
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Vehicles2022_03_25_043019.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
 
 
     for row in reader:
-        compania = row[3]
-        if compania == "Equipo Logistico":
+        compania = row[3].capitalize()
+        if compania == "Corcelip":
             numero_economico = row[9]
             flota = row[5]
             aplicacion = row[7]

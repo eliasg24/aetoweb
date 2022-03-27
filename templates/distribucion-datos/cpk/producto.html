@@ -7,8 +7,8 @@
 
   //create data set on our data
   var data = [
-  {% for flota, valores in cpk_productos.items %}
-  {x: '{{flota}}', low: {{valores.0}}, q1: {{valores.1}}, median: {{valores.2}}, q3: {{valores.3}}, high: {{valores.4}}, outliers: [],
+  {% for producto, valores in cpk_productos.items %}
+  {x: '{{valores.6}}', low: {{valores.0}}, q1: {{valores.1}}, median: {{valores.2}}, q3: {{valores.3}}, high: {{valores.4}}, outliers: [],
   normal:   {fill: "#12bcc8", stroke: "#12bcc8", medianStroke: "4 #000", whiskerWidth: 30},
   hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8",medianStroke: "2 #12bcc8", whiskerWidth: 10},
   selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8", medianStroke: "4 #12bcc8", whiskerWidth: 20}

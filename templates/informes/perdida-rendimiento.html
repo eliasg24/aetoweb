@@ -19,13 +19,14 @@
 
   <section class="form-container">
 
-    <form action="" class="form-content">
+    <form action="{% url 'dashboards:informe_de_perdida_y_rendimiento' %}" class="form-content" method="POST">
+    {% csrf_token %}
       <div class="flex-row space-between">
         <h2>Agregar informe</h2>
         <nav>
-          <a href="https://drive.google.com/uc?id=1WmV6k27Ja56DjqsiUC_9tIIvPLnB-RMW&export=download" class="btn btn-success">
+          <button class="btn btn-success">
             <span class="icon-checkmark"></span>
-          </a>
+          </button>
         </nav>
       </div>
 
@@ -54,9 +55,9 @@
               </label>
             </li>
             <li class="search-item">
-              <label for="company-1" class="input-check">
-                Compañia 1
-                <input type="checkbox" name="company-1" value="company-1" id="company-1" />
+              <label for="{{compania}}" class="input-check">
+                {{compania}}
+                <input type="checkbox" name="compania" value="{{compania}}" id="{{compania}}" />
                 <span class="checkmark"></span>
               </label>
             </li>
@@ -85,13 +86,15 @@
                 <span class="checkmark"></span>
               </label>
             </li>
+            {% for sucursal in sucursales %}
             <li class="search-item">
-              <label for="sucursal-1" class="input-check">
-                Sucursal 1
-                <input type="checkbox" name="sucursal-1" value="sucursal-1" id="sucursal-1" />
-                <span class="checkmark"></span>
-              </label>
+                <label for="{{sucursal}}" class="input-check">
+                  {{sucursal}}
+                  <input type="checkbox" name="sucursal" value="{{sucursal}}" id="{{sucursal}}" />
+                  <span class="checkmark"></span>
+                </label>
             </li>
+            {% endfor %}
           </ul>
         </div>
 
@@ -117,14 +120,16 @@
                 <span class="checkmark"></span>
               </label>
             </li>
+            {% for aplicacion in aplicaciones %}
             <li class="search-item">
-              <label for="app-1" class="input-check">
-                App 1
-                <input type="checkbox" name="app-1" value="app-1" id="app-1" />
-                <span class="checkmark"></span>
-              </label>
+                <label for="{{aplicacion}}" class="input-check">
+                  {{aplicacion}}
+                  <input type="checkbox" name="aplicacion" value="{{aplicacion}}" id="{{aplicacion}}" />
+                  <span class="checkmark"></span>
+                </label>
             </li>
-          </ul>
+            {% endfor %}
+            </ul>
         </div>
 
         <div class="form__group field">

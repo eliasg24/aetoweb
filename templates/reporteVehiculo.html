@@ -271,6 +271,16 @@
   </div>
   
   <script>
+
+  document.addEventListener('DOMContentLoaded', (e) => {
+    print()
+
+    setTimeout(() => {
+      close()
+    }, 1000)
+
+  });
+
     const Llanta = () => {
       //Creando un web component
       const llantas = document.querySelectorAll('#llanta');

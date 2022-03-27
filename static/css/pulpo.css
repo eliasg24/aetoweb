@@ -7,7 +7,7 @@
   width: auto;
 }
 
-.form__label{
+.form__label {
   color: #fff;
 }
 
@@ -289,6 +289,10 @@ th {
   .container {
     display: grid;
     grid-template-columns: 2fr 1fr;
+  }
+
+  .container h2 {
+    font-size: 2.25vmin;
   }
 
   .row-3 {

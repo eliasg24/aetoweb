@@ -37,7 +37,7 @@
 <title>TIRE EYE</title>
 {% endblock head %} {% block content %}
 
-<div class="all-cont animate__animated animate__fadeIn">
+<main class="all-cont animate__animated animate__fadeIn">
   <header class="head-menu">
     <div class="menu-li__left">
       <img src="{% static 'images/aeto.svg' %}" alt="" />
@@ -51,7 +51,6 @@
       <nav class="btn-group" id="nav-dash">
         <a href="{% url 'dashboards:tireDB1' %}" class="btn btn-trash">
           <span class="icon-trash2"></span>
-          <span class="icont-trash2 blur"></span>
         </a>
 
         <div class="dropdown">
@@ -545,7 +544,7 @@
       </article>
     </div>
   </div>
-</div>
+</>
 <script src="{% static './js/filter.js' %}"></script>
 <script type="text/javascript">
 

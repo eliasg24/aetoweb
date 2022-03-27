@@ -32,6 +32,7 @@
 }
 
 .btn-group {
+  align-items: center;
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
@@ -204,6 +205,7 @@
 .title-buttons {
   display: flex;
   justify-content: space-between;
+  padding: 0.25rem;
 }
 
 .buttons {
@@ -739,10 +741,6 @@ h2 {
     overflow-y: hidden;
   }
 
-  h2 {
-    font-size: 1.5rem;
-  }
-
   .h2-ebpD {
     display: block;
   }
@@ -777,6 +775,10 @@ h2 {
     display: grid;
     grid-template-rows: 2fr 4fr 24fr;
     height: 100vh;
+  }
+
+  .all-cont h2 {
+    font-size: 2.5vmin;
   }
 
   .icon-pulpo {

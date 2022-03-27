@@ -33,6 +33,10 @@ pip install openpyxl
 pip install xlwt
 ```
 
+```bash
+pip install django-multi-form-view
+```
+
 ## Para abrir el servidor en la carpeta del proyecto
 
 ```bash

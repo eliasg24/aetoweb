@@ -1108,21 +1108,21 @@
   // create data
   var data1 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{pro}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{pro}}"},
+          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
       {% endfor %}
   ];
 
   // create data
   var data2 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{pro}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{pro}}"},
+          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
       {% endfor %}
   ];
 
   // create data
   var data3 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{pro}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{pro}}"},
+          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
       {% endfor %}
   ];
 
@@ -1644,6 +1644,17 @@
 
     // create a data set
     var data = anychart.data.set([
+    {% if compania == "Corcelip" %}
+    ["{{mes_8}}", 0, 0],
+    ["{{mes_7}}", 0, 0],
+    ["{{mes_6}}", 0, 0],
+    ["{{mes_5}}", 0, 0],
+    ["{{mes_4}}", 0, 0],
+    ["{{mes_3}}", 0, 0],
+    ["{{mes_2}}", 0, 0],
+    ["{{mes_1}}", {{cpk}}, {{llantas_limpias}}]
+    ]);
+    {% else %}
     ["{{mes_8}}", 0, 0],
     ["{{mes_7}}", 0, 0],
     ["{{mes_6}}", 0, 0],
@@ -1653,6 +1664,7 @@
     ["{{mes_2}}", 0.0625, 26],
     ["{{mes_1}}", {{cpk}}, {{llantas_limpias}}]
     ]);
+    {% endif %}
 
     // map the data
     var seriesData_1 = data.mapAs({x: 0, value: 1});

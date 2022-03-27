@@ -123,6 +123,7 @@ class Vehiculo(models.Model):
     opciones_clase = (("ARRASTRE", "Arrastre"),
                     ("TRUCK - BOX", "Truck - Box"),
                     ("VAN", "Van"),
+                    ("TRUCK - DUMP", "Truck - Dump"),
                     ("TRAILER", "Trailer"),
                     ("VEHICLECLASSNAME", "VehicleClassName"),
                     ("AUTOBUS", "Autobus"),

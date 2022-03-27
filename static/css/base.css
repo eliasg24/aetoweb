@@ -439,6 +439,29 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
+.circle {
+  align-items: center;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 151, 240, 1) 0%,
+    rgba(18, 188, 200, 1) 100%
+  );
+  border-radius: 50%;
+  box-shadow: 0 0.25rem 1rem rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-weight: bold;
+  height: 100px;
+  width: 100px;
+}
+
+.circle span {
+  font-size: 1.5rem;
+}
+
 @media screen and (min-width: 1024px) {
   body {
     grid-template-rows: auto;
@@ -447,5 +470,16 @@ input[type='number'] {
 
   .drop-menu {
     width: max-content;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  .circle {
+    height: 200px;
+    width: 200px;
+  }
+
+  .circle span {
+    font-size: 2rem;
   }
 }

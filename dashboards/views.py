@@ -1,7 +1,11 @@
 # Django
+from ctypes import alignment
 from operator import or_
 from http.client import HTTPResponse
 import re
+from tkinter import CENTER
+import matplotlib.pyplot as plt
+import numpy as np
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import views as auth_views
@@ -30,12 +34,16 @@ from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Prod
 
 # Utilities
 from multi_form_view import MultiModelFormView
+import csv
 from datetime import date, datetime, timedelta
 from ftplib import FTP as fileTP
 import json
 import mimetypes
+import openpyxl
+from openpyxl.chart import BarChart, Reference
 import os
 import pandas as pd
+import statistics
 import xlwt
 
 class LoginView(auth_views.LoginView):
@@ -506,12 +514,12 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
             valores_producto.append(cantidad)
             valores_producto.append(desgaste)
             valores_producto.append(porcentaje_analizadas)
+            valores_producto.append(producto.dibujo)
 
-            nombre_abrev = functions.abrev(producto)
-            comparativa_de_productos[nombre_abrev] = valores_producto
+            comparativa_de_productos[producto] = valores_producto
 
-            km_productos[nombre_abrev] = regresion_producto[0]
-            cpk_productos[nombre_abrev] = regresion_producto[3]
+            km_productos[producto] = regresion_producto[0]
+            cpk_productos[producto] = regresion_producto[3]
 
             
         comparativa_de_flotas = {}
@@ -643,6 +651,8 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         context["clase1"] = clase1
         context["clase2"] = clase2
         context["clases"] = clases
+        print(self.request.user.perfil.compania)
+        context["compania"] = str(self.request.user.perfil.compania)
         context["comparativa_de_aplicaciones"] = comparativa_de_aplicaciones
         context["comparativa_de_ejes"] = comparativa_de_ejes
         context["comparativa_de_flotas"] = comparativa_de_flotas
@@ -1071,6 +1081,18 @@ class perdidaRendimientoView(LoginRequiredMixin, TemplateView):
 
     template_name = "informes/perdida-rendimiento.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
+        ubicaciones = Ubicacion.objects.filter(compania=compania)
+        aplicaciones = Aplicacion.objects.filter(compania=compania)
+        
+        context["aplicaciones"] = aplicaciones
+        context["compania"] = compania
+        context["sucursales"] = ubicaciones
+        return context
+
 class CuatroUmbralesView(LoginRequiredMixin, TemplateView):
     # Vista de CatalogoDesechosView
 
@@ -1456,6 +1478,8 @@ class PulpoView(LoginRequiredMixin, ListView):
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         hoy = date.today()
 
+        functions_create.crear_clase_en_vehiculo()
+        #functions_excel.excel_inspecciones()
         #functions_excel.agregarExcel()
         #functions_ftp.ftp()
         #functions_ftp.ftp_1()
@@ -1992,7 +2016,7 @@ def buscar(request):
                 vehiculo_periodo_status[v] = "Entrada Correctas"
 
         # Convertir formato de fecha
-        fecha_con_formato = functions.convertir_fecha(fecha)
+        fecha_con_formato = functions.convertir_fecha(fecha1)
 
         # Saber el tiempo de inflado promedio
         tiempo_promedio = functions.inflado_promedio(vehiculo_flota)
@@ -2059,7 +2083,7 @@ def buscar(request):
                                             "clases_compania": functions.clases_mas_frecuentes(vehiculo, request.user.perfil.compania),
                                             "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
                                             "compania": request.user.perfil.compania,
-                                            "fecha":fecha,
+                                            "fecha1":fecha1,
                                             "fecha_con_formato":fecha_con_formato,
                                             "flota": flota,
                                             "flotas": Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
@@ -2263,6 +2287,7 @@ class SearchView(LoginRequiredMixin, ListView):
 def search(request):
     num = request.GET.get("numero_economico")
     fecha = request.GET.get("fecha1")
+    print(fecha)
     if num:
         vehiculos = Vehiculo.objects.filter(numero_economico__icontains=num, compania=Compania.objects.get(compania=request.user.perfil.compania))
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
@@ -2292,7 +2317,7 @@ def search(request):
                                                 "cantidad_verdes": vehiculos_verdes.count()
         })
     elif fecha and fecha != "Seleccionar Fecha":
-        dividir_fecha = functions.convertir_rango(fecha)
+        dividir_fecha = functions.convertir_rango2(fecha)
         primera_fecha = datetime.strptime(dividir_fecha[0], "%m/%d/%Y").date()
         segunda_fecha = datetime.strptime(dividir_fecha[1], "%m/%d/%Y").date()
 
@@ -2686,25 +2711,550 @@ def download_reemplazo_estimado(request):
     wb.save(response)
     return response
 
-def informe_de_perdida_y_rendimiento(request):
-    ftp1 = fileTP("208.109.20.121")
-    ftp1.login(user="tyrecheck@aeto.com", passwd="TyreDB!25")
-    
-    inicio = datetime(2022, 3, 9)
-    fin    = datetime(2022, 3, 20)
-    lista_fechas = [inicio + timedelta(days=d) for d in range((fin - inicio).days + 1)]
+def informe_de_perdida_y_rendimiento(request):    
 
-    print(lista_fechas)
-    for file_name in ftp1.nlst():
-        for fecha in lista_fechas:
-            ano = fecha.year
-            mes = fecha.month
-            dia = fecha.day
-            if 1 <= mes <= 9:
-                mes = f"0{mes}"
-            if f"Inspections{ano}_{mes}_{dia}" in file_name:
-                local_file = open(file_name, "wb")
-                ftp1.retrbinary("RETR " + file_name, local_file.write)
-                local_file.close()
-    ftp1.quit()
-    response = HttpResponse(content_type='application/ms-excel')
+    if request.method =="POST":
+        flota1 = request.POST.getlist("sucursal")
+        aplicacion1 = request.POST.getlist("aplicacion")
+        fecha1 = request.POST.get("fechaInicio")
+        fecha2 = request.POST.get("fechaFin")
+        fecha1 = functions.convertir_rango(fecha1)
+        fecha2 = functions.convertir_rango(fecha2)
+        primera_fecha = datetime.strptime(fecha1, "%Y/%m/%d").date()
+        segunda_fecha = datetime.strptime(fecha2, "%Y/%m/%d").date()
+
+        compania = Compania.objects.get(compania=request.user.perfil.compania)
+        inicio = datetime(primera_fecha.year, primera_fecha.month, primera_fecha.day)
+        fin    = datetime(segunda_fecha.year, segunda_fecha.month, segunda_fecha.day)
+        lista_fechas = [(inicio + timedelta(days=d)).strftime("%Y-%m-%d") for d in range((fin - inicio).days + 1)]
+
+        vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania=compania))
+
+        if flota1:
+            vehiculos = vehiculos.filter(functions.reduce(or_, [Q(ubicacion=Ubicacion.objects.get(nombre=f)) for f in flota1]))
+        if aplicacion1:
+            vehiculos = vehiculos.filter(functions.reduce(or_, [Q(aplicacion=Aplicacion.objects.get(nombre=a)) for a in aplicacion1]))
+
+        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=compania), vehiculo__in=vehiculos)
+        inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
+        productos_llanta = llantas.values("producto").distinct()
+        productos = Producto.objects.filter(id__in=productos_llanta)
+        flotas_vehiculo = vehiculos.values("ubicacion__nombre").distinct()
+        flotas = Ubicacion.objects.filter(compania=compania, nombre__in=flotas_vehiculo)
+        aplicaciones_vehiculo = vehiculos.values("aplicacion__nombre").distinct()
+        aplicaciones = Aplicacion.objects.filter(compania=Compania.objects.get(compania=compania), nombre__in=aplicaciones_vehiculo)
+        ejes = llantas.values("nombre_de_eje").distinct()
+        clases = vehiculos.values("clase").distinct()
+
+        regresion = functions.km_proyectado(inspecciones, True)
+        llantas_limpias = regresion[4]
+
+        comparativa_de_productos = {}
+        for producto in productos:
+            valores_producto = []
+            
+            llantas_producto_total = llantas.filter(producto=producto)
+            llantas_producto = llantas.filter(producto=producto, numero_economico__in=llantas_limpias)
+
+            print("llantas_producto", llantas_producto)
+
+            inspecciones_producto = Inspeccion.objects.filter(llanta__in=llantas_producto)
+            regresion_producto = functions.km_proyectado(inspecciones_producto, False)
+            km_proyectado_producto = regresion_producto[0]
+            cpk_producto = regresion_producto[2]
+
+            valores_producto.append(km_proyectado_producto)
+            valores_producto.append(cpk_producto)
+            print("valores_producto", valores_producto)
+
+            dibujo = producto.dibujo
+            valores_producto.append(dibujo)
+            if dibujo and km_proyectado_producto != 0:
+                comparativa_de_productos[producto] = valores_producto
+
+        comparativa_de_flotas = {}    
+        for flota in flotas:
+            valores_flota = []
+            
+            llantas_flota = llantas.filter(vehiculo__ubicacion=flota, numero_economico__in=llantas_limpias)
+            if llantas_flota:
+                inspecciones_flota = Inspeccion.objects.filter(llanta__in=llantas_flota)
+                regresion_flota = functions.km_proyectado(inspecciones_flota, False)
+                km_proyectado_flota = regresion_flota[0]
+                cpk_flota = regresion_flota[2]
+
+                valores_flota.append(km_proyectado_flota)
+                valores_flota.append(cpk_flota)
+                
+                comparativa_de_flotas[flota] = valores_flota
+
+        comparativa_de_aplicaciones = {}
+        for aplicacion in aplicaciones:
+            valores_aplicacion = []
+
+            llantas_aplicacion = llantas.filter(vehiculo__aplicacion =aplicacion, numero_economico__in=llantas_limpias)
+            if llantas_aplicacion:
+
+                inspecciones_aplicacion = Inspeccion.objects.filter(llanta__in=llantas_aplicacion)
+                regresion_aplicacion = functions.km_proyectado(inspecciones_aplicacion, False)
+                km_proyectado_aplicacion = regresion_aplicacion[0]
+                cpk_aplicacion = regresion_aplicacion[2]
+
+                valores_aplicacion.append(km_proyectado_aplicacion)
+                valores_aplicacion.append(cpk_aplicacion)
+                
+                comparativa_de_aplicaciones[aplicacion] = valores_aplicacion
+
+        comparativa_de_ejes = {}
+        for eje in ejes:
+            valores_eje = []
+
+            llantas_eje = llantas.filter(nombre_de_eje=eje["nombre_de_eje"], numero_economico__in=llantas_limpias)
+            inspecciones_eje = Inspeccion.objects.filter(llanta__in=llantas_eje)
+            if inspecciones_eje.exists():
+                regresion_eje = functions.km_proyectado(inspecciones_eje, False)
+                km_proyectado_eje = regresion_eje[0]
+                cpk_eje = regresion_eje[2]
+
+                valores_eje.append(km_proyectado_eje)
+                valores_eje.append(cpk_eje)
+                
+                comparativa_de_ejes[eje["nombre_de_eje"]] = valores_eje
+        
+        comparativa_de_clases = {}
+        for clase in clases:
+            valores_clase = []
+
+            llantas_clase = llantas.filter(vehiculo__clase=clase["clase"].upper(), numero_economico__in=llantas_limpias)
+            inspecciones_clase = Inspeccion.objects.filter(llanta__in=llantas_clase)
+            if inspecciones_clase.exists():
+                regresion_clase = functions.km_proyectado(inspecciones_clase, False)
+                km_proyectado_clase = regresion_clase[0]
+                cpk_clase = regresion_clase[2]
+
+                valores_clase.append(km_proyectado_clase)
+                valores_clase.append(cpk_clase)
+                
+                comparativa_de_clases[clase["clase"]] = valores_clase
+
+        print(comparativa_de_flotas)
+        print(comparativa_de_aplicaciones)
+        print(comparativa_de_ejes)
+        print(comparativa_de_productos)
+        print(comparativa_de_clases)
+
+
+        eje_titulos_flota = []
+        for i in range(len(comparativa_de_flotas)):
+            com_flota_titulo = list(comparativa_de_flotas.keys())[i]
+            eje_titulos_flota.append(com_flota_titulo)
+
+        eje_y1_flota = []
+        for i in range(len(comparativa_de_flotas)):
+            com_flota_uno_valor = list(comparativa_de_flotas.values())[i][0]
+            eje_y1_flota.append(com_flota_uno_valor)
+
+        eje_y2_flota = []
+        for i in range(len(comparativa_de_flotas)):
+            com_flota_uno_valor = list(comparativa_de_flotas.values())[i][1]
+            eje_y2_flota.append(com_flota_uno_valor)
+
+        x_pos = np.arange(len(eje_titulos_flota))
+
+        fig, ax = plt.subplots()
+        fontsize = 14
+
+        ax2 = ax.twinx()
+
+        ax.bar(x_pos, eje_y1_flota, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='r', label='data1')
+
+        ax2.bar(x_pos+0.2, eje_y2_flota, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='b', label='data2')
+
+        for p in ax.patches:
+            ax.annotate(np.round(p.get_height(),decimals=2), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+        for p in ax2.patches:
+            ax2.annotate(np.round(p.get_height(),decimals=3), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+
+        ax.set_ylabel('Km proyectado')
+        ax2.set_ylabel('CPK')
+
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(eje_titulos_flota, fontsize=fontsize)
+        ax.set_title('Comparativa flotas')
+
+        
+        plt.grid()
+        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionFlotas.png", dpi = 70, bbox_inches="tight")
+
+        img_flotas = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionFlotas.png")
+
+        eje_titulos_aplicaciones = []
+        for i in range(len(comparativa_de_aplicaciones)):
+            com_titulo = list(comparativa_de_aplicaciones.keys())[i]
+            eje_titulos_aplicaciones.append(com_titulo)
+
+        eje_y1_aplicaciones = []
+        for i in range(len(comparativa_de_aplicaciones)):
+            com_uno_valor = list(comparativa_de_aplicaciones.values())[i][0]
+            eje_y1_aplicaciones.append(com_uno_valor)
+
+        eje_y2_aplicaciones = []
+        for i in range(len(comparativa_de_aplicaciones)):
+            com_uno_valor = list(comparativa_de_aplicaciones.values())[i][1]
+            eje_y2_aplicaciones.append(com_uno_valor)
+        x_pos = np.arange(len(eje_titulos_aplicaciones))
+        fig, ax = plt.subplots()
+        fontsize = 14
+        ax2 = ax.twinx()
+        ax.bar(x_pos, eje_y1_aplicaciones, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='r', label='data1')
+        ax2.bar(x_pos+0.2, eje_y2_aplicaciones, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='b', label='data2')
+
+        for p in ax.patches:
+            ax.annotate(np.round(p.get_height(),decimals=2), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+        for p in ax2.patches:
+            ax2.annotate(np.round(p.get_height(),decimals=3), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+
+        ax.set_ylabel('Km proyectado')
+        ax2.set_ylabel('CPK')
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(eje_titulos_aplicaciones, fontsize=fontsize)
+        ax.set_title('Comparación aplicaciones')
+        plt.grid()
+        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionAplicaciones.png", dpi = 70, bbox_inches="tight")
+
+        img_aplicaciones = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionAplicaciones.png")
+
+        eje_titulos_ejes = []
+        for i in range(len(comparativa_de_ejes)):
+            com_ejes_titulo = list(comparativa_de_ejes.keys())[i]
+            eje_titulos_ejes.append(com_ejes_titulo)
+
+        eje_y1_ejes = []
+        for i in range(len(comparativa_de_ejes)):
+            com_ejes_valor1 = list(comparativa_de_ejes.values())[i][0]
+            eje_y1_ejes.append(com_ejes_valor1)
+
+        eje_y2_ejes = []
+        for i in range(len(comparativa_de_ejes)):
+            com_ejes_valor2 = list(comparativa_de_ejes.values())[i][1]
+            eje_y2_ejes.append(com_ejes_valor2)
+
+        x_pos = np.arange(len(eje_titulos_ejes))
+
+        fig, ax = plt.subplots()
+        fontsize = 14
+
+        ax2 = ax.twinx()
+
+        ax.bar(x_pos, eje_y1_ejes, alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='r', label='data1')
+
+        ax2.bar(x_pos+0.2, eje_y2_ejes, alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='b', label='data2')
+
+        for p in ax.patches:
+            ax.annotate(np.round(p.get_height(),decimals=2), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+        for p in ax2.patches:
+            ax2.annotate(np.round(p.get_height(),decimals=3), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+
+        ax.set_ylabel('Km proyectado')
+        ax2.set_ylabel('CPK')
+
+
+        ax.set_xlabel(eje_titulos_ejes[int(x_pos)])
+        ax.set_xticklabels(eje_titulos_ejes, fontsize=fontsize)
+        ax.set_title('Comparativa ejes')
+
+        plt.grid()
+        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionEjes.png", dpi = 70, bbox_inches="tight")
+
+        img_ejes = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionEjes.png")
+
+        eje_titulos_producto = []
+        for i in range(len(comparativa_de_productos)):
+            com_titulo = list(comparativa_de_productos.values())[i][2]
+            eje_titulos_producto.append(com_titulo)
+
+        eje_y1_producto = []
+        for i in range(len(comparativa_de_productos)):
+            com_uno_valor = list(comparativa_de_productos.values())[i][0]
+            eje_y1_producto.append(com_uno_valor)
+
+        eje_y2_producto = []
+        for i in range(len(comparativa_de_productos)):
+            com_uno_valor = list(comparativa_de_productos.values())[i][1]
+            eje_y2_producto.append(com_uno_valor)
+
+        x_pos = np.arange(len(eje_titulos_producto))
+
+        fig, ax = plt.subplots()
+        fontsize = 14
+
+        ax2 = ax.twinx()
+
+        ax.bar(x_pos, eje_y1_producto, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='r', label='data1')
+
+        ax2.bar(x_pos+0.2, eje_y2_producto, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='b', label='data2')
+
+        for p in ax.patches:
+            ax.annotate(np.round(p.get_height(),decimals=2), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+        for p in ax2.patches:
+            ax2.annotate(np.round(p.get_height(),decimals=3), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+
+        ax.set_ylabel('Km proyectado')
+        ax2.set_ylabel('CPK')
+
+
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(eje_titulos_producto, fontsize=fontsize)
+        ax.set_title('Comparativa productos')
+        plt.grid()
+        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionProductos.png", dpi = 70, bbox_inches="tight")
+
+        img_producto = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionProductos.png")
+
+        eje_titulos_clase = []
+        for i in range(len(comparativa_de_clases)):
+            com_clase_titulo = list(comparativa_de_clases.keys())[i]
+            eje_titulos_clase.append(com_clase_titulo)
+
+        eje_y1_clase = []
+        for i in range(len(comparativa_de_clases)):
+            com_clase_uno_valor = list(comparativa_de_clases.values())[i][0]
+            eje_y1_clase.append(com_clase_uno_valor)
+
+        eje_y2_clase = []
+        for i in range(len(comparativa_de_clases)):
+            com_clase_uno_valor = list(comparativa_de_clases.values())[i][1]
+            eje_y2_clase.append(com_clase_uno_valor)
+
+        x_pos = np.arange(len(eje_titulos_clase))
+
+        fig, ax = plt.subplots()
+        fontsize = 14
+
+        ax2 = ax.twinx()
+
+        ax.bar(x_pos, eje_y1_clase, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='r', label='data1')
+
+        ax2.bar(x_pos+0.2, eje_y2_clase, align='center', alpha=0.5, ecolor='black',
+        capsize=3, width=0.2, color='b', label='data2')
+
+        for p in ax.patches:
+            ax.annotate(np.round(p.get_height(),decimals=2), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+        for p in ax2.patches:
+            ax2.annotate(np.round(p.get_height(),decimals=3), (p.get_x()+p.get_width()/2., p.get_height()), ha='center', va='top', xytext=(0, 10), textcoords='offset points')
+
+        ax.set_ylabel('Km proyectado')
+        ax2.set_ylabel('CPK')
+
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(eje_titulos_clase, fontsize=fontsize)
+        ax.set_title('Comparativa clases')
+        plt.grid()
+        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionClases.png", dpi = 70, bbox_inches="tight")
+
+        img_clases = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionClases.png")
+
+        #creating workbook
+        wb = openpyxl.Workbook()
+        wb.create_sheet("Perdida")
+        reporte = wb.get_sheet_by_name('Perdida')
+        wb.remove(wb['Sheet'])
+
+        wb.create_sheet("Rendimiento")
+        reporte2 = wb.get_sheet_by_name('Rendimiento')
+
+        reporte2.add_image(img_flotas, 'A1')
+        reporte2.add_image(img_aplicaciones, 'L1')
+        reporte2.add_image(img_ejes, 'A20')
+        reporte2.add_image(img_producto, 'L20')
+        reporte2.add_image(img_clases, 'A40')
+
+        e1 = reporte.cell(row=1, column=1, value='VehicleRegistrationNumber')
+        e2 = reporte.cell(row=1, column=2, value='CompanyName')
+        e3 = reporte.cell(row=1, column=3, value='FleetName')
+        e4 = reporte.cell(row=1, column=4, value='LocationName')
+        e5 = reporte.cell(row=1, column=5, value='InspectionBeginTime')
+        e6 = reporte.cell(row=1, column=6, value='InspectionFullNumber')
+        e7 = reporte.cell(row=1, column=7, value='Inspection_Mileage')
+        e8 = reporte.cell(row=1, column=8, value='VehicleClassName')
+        e9 = reporte.cell(row=1, column=9, value='AxleConfigurationName')
+        e10 = reporte.cell(row=1, column=10, value='VehicleMakeName')
+        e11 = reporte.cell(row=1, column=11, value='VehicleModelName')
+        e12 = reporte.cell(row=1, column=12, value='VehicleStatusId')
+        e12 = reporte.cell(row=1, column=13, value='TyreSerialNumber')
+        e12 = reporte.cell(row=1, column=14, value='Wheel_Position')
+        e12 = reporte.cell(row=1, column=15, value='TyreMakeName')
+        e12 = reporte.cell(row=1, column=16, value='TyrePatternName')
+        e12 = reporte.cell(row=1, column=17, value='TyreSizeName')
+        e12 = reporte.cell(row=1, column=18, value='TyreLifeName')
+        e12 = reporte.cell(row=1, column=19, value='TD1')
+        e12 = reporte.cell(row=1, column=20, value='TD2')
+        e12 = reporte.cell(row=1, column=21, value='TD3')
+        e12 = reporte.cell(row=1, column=22, value='Profundidad inicial')
+        e12 = reporte.cell(row=1, column=23, value='Precio')
+        e12 = reporte.cell(row=1, column=24, value='Min profundidad')
+        e12 = reporte.cell(row=1, column=25, value='Prom')
+        e12 = reporte.cell(row=1, column=26, value='%')
+        e12 = reporte.cell(row=1, column=27, value='Dinero perdido 1')
+        e12 = reporte.cell(row=1, column=28, value='Punto de retiro')
+        e12 = reporte.cell(row=1, column=29, value='Pérdida total')
+
+        FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\Inspections_Bulk.csv"
+        file = open(FILE_PATH, "r", encoding="latin-1", newline='')
+        next(file, None)
+        reader = csv.reader(file, delimiter=",")
+        iteracion = 0
+
+        for row in reader:
+            if row[4][:10] in lista_fechas:
+                iteracion += 1
+                llanta = row[12]
+                FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\RollingStock2022_03_25_040126.csv"
+                file2 = open(FILE_PATH, "r", encoding="latin-1", newline='')
+                next(file2, None)
+                reader2 = csv.reader(file2, delimiter=",")
+                for row2 in reader2:
+                    try:
+                        llanta2 = row2[9]
+                        if llanta == llanta2:
+
+                            producto = row2[10]
+                            FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\Products2022_03_25_043513.csv"
+                            file3 = open(FILE_PATH, "r", encoding="latin-1", newline='')
+                            next(file3, None)
+                            reader3 = csv.reader(file3, delimiter=",")
+                            for row3 in reader3:
+                                producto2 = row3[4]
+                                if producto == producto2:
+                                    profundidad_inicial = float(row3[10])
+                                    precio = float(row3[12])
+                            
+
+                            numero_de_eje = int(row2[17]) - 1
+                            vehiculo = row2[6]
+                            FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\Vehicles2022_03_25_043019.csv"
+                            file4 = open(FILE_PATH, "r", encoding="latin-1", newline='')
+                            next(file4, None)
+                            reader4 = csv.reader(file4, delimiter=",")
+                            for row4 in reader4:
+                                vehiculo2 = row4[9]
+                                if vehiculo == vehiculo2:
+                                    configuracion = row4[14].split(".")
+                                    if configuracion[numero_de_eje][0] == "S":
+                                        punto_de_retiro = compania.punto_retiro_eje_direccion
+                                    elif configuracion[numero_de_eje][0] == "D":
+                                        punto_de_retiro = compania.punto_retiro_eje_traccion
+                                    elif configuracion[numero_de_eje][0] == "T":
+                                        punto_de_retiro = compania.punto_retiro_eje_arrastre
+                                    elif configuracion[numero_de_eje][0] == "C":
+                                        punto_de_retiro = compania.punto_retiro_eje_loco
+                                    elif configuracion[numero_de_eje][0] == "L":
+                                        punto_de_retiro = compania.punto_retiro_eje_retractil
+
+                    except:
+                        pass
+                
+                tds = [float(row[18]), float(row[19]), float(row[20])]
+                min_profundidad = min(tds)
+                prom = round(statistics.mean(tds), 2)
+                try:
+                    if profundidad_inicial == 0:
+                        porcentaje = 0
+                    else:
+                        porcentaje = round((prom - min_profundidad) * profundidad_inicial, 2)
+                except:
+                    porcentaje = None
+                    profundidad_inicial = None
+                
+                try:
+                    if min_profundidad >= 1000:
+                        dinero_perdido = 0
+                    else:
+                        dinero_perdido = round((precio * porcentaje) / 100, 2)
+                except:
+                    dinero_perdido = None
+                    precio = None
+
+                try:
+                    perdida_total = round((min_profundidad - punto_de_retiro) * dinero_perdido)
+                except:
+                    perdida_total = None
+                    punto_de_retiro = None
+
+                column1 = reporte.cell(row=iteracion + 1, column=1)
+                column1.value = row[0]
+                column2 = reporte.cell(row=iteracion + 1, column=2)
+                column2.value = row[1]
+                column3 = reporte.cell(row=iteracion + 1, column=3)
+                column3.value = row[2]
+                column4 = reporte.cell(row=iteracion + 1, column=4)
+                column4.value = row[3]
+                column5 = reporte.cell(row=iteracion + 1, column=5)
+                column5.value = row[4]
+                column6 = reporte.cell(row=iteracion + 1, column=6)
+                column6.value = row[5]
+                column7 = reporte.cell(row=iteracion + 1, column=7)
+                column7.value = row[6]
+                column8 = reporte.cell(row=iteracion + 1, column=8)
+                column8.value = row[7]
+                column9 = reporte.cell(row=iteracion + 1, column=9)
+                column9.value = row[8]
+                column10 = reporte.cell(row=iteracion + 1, column=10)
+                column10.value = row[9]
+                column11 = reporte.cell(row=iteracion + 1, column=11)
+                column11.value = row[10]
+                column12 = reporte.cell(row=iteracion + 1, column=12)
+                column12.value = row[11]
+                column13 = reporte.cell(row=iteracion + 1, column=13)
+                column13.value = row[12]
+                column14 = reporte.cell(row=iteracion + 1, column=14)
+                column14.value = row[13]
+                column15 = reporte.cell(row=iteracion + 1, column=15)
+                column15.value = row[14]
+                column16 = reporte.cell(row=iteracion + 1, column=16)
+                column16.value = row[15]
+                column17 = reporte.cell(row=iteracion + 1, column=17)
+                column17.value = row[16]
+                column18 = reporte.cell(row=iteracion + 1, column=18)
+                column18.value = row[17]
+                column19 = reporte.cell(row=iteracion + 1, column=19)
+                column19.value = row[18]
+                column20 = reporte.cell(row=iteracion + 1, column=20)
+                column20.value = row[19]
+                column21 = reporte.cell(row=iteracion + 1, column=21)
+                column21.value = row[20]
+                column22 = reporte.cell(row=iteracion + 1, column=22)
+                column22.value = profundidad_inicial
+                column23 = reporte.cell(row=iteracion + 1, column=23)
+                column23.value = precio
+                column24 = reporte.cell(row=iteracion + 1, column=24)
+                column24.value = min_profundidad
+                column25 = reporte.cell(row=iteracion + 1, column=25)
+                column25.value = prom
+                column26 = reporte.cell(row=iteracion + 1, column=26)
+                column26.value = porcentaje
+                column27 = reporte.cell(row=iteracion + 1, column=27)
+                column27.value = dinero_perdido
+                column28 = reporte.cell(row=iteracion + 1, column=28)
+                column28.value = punto_de_retiro
+                column29 = reporte.cell(row=iteracion + 1, column=29)
+                column29.value = perdida_total
+            
+        file.close()
+
+        response = HttpResponse(content_type='application/ms-excel')
+
+        #decide file name
+        response['Content-Disposition'] = 'attachment; filename="InformePerdidaYRendimiento.xlsx"'
+
+        wb.save(response)
+        return response

@@ -1,18 +1,19 @@
 # Utilities
+import csv
 from dashboards.models import Aplicacion, Bitacora, Compania, Inspeccion, Llanta, Perfil, Producto, Ubicacion, Vehiculo
 from datetime import date, datetime
 from openpyxl import load_workbook
 from itertools import count
+import json
 from random import sample, randint, uniform, random
 import os
 import openpyxl
-
+import pandas as pd
 
 def configurar_producto():
     productos = Producto.objects.all()
     for producto in productos:
         palabras = str(producto).split()
-        print(palabras)
         marca = ""
         dibujo = ""
         rango = ""
@@ -75,12 +76,18 @@ def crear_clase(clase):
     path = os.path.abspath(os.getcwd()) + "\dashboards\models.py"
     with open(path) as file:
         lines = file.readlines()
-        lines.insert(97, f'                    ("{clase_mayuscula}", "{clase}"),\n')
+        lines.insert(125, f'                    ("{clase_mayuscula}", "{clase}"),\n')
         file.close()
 
     archivo_nuevo = open(path, "w")
     archivo_nuevo.writelines(lines)
     archivo_nuevo.close()
+
+def crear_clase_en_vehiculo():
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Corcelip"))
+    for vehiculo in vehiculos:
+        vehiculo.clase = "TRUCK - DUMP"
+        vehiculo.save()
 
 def crear_nombre_de_eje():
     """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))

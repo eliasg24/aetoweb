@@ -16,138 +16,147 @@
 
 {% block content %}
 
-    <div class="all-cont">
-        <ul>
-            <li class="menu_li--left"><img src="{% static 'images/Grupo 66.png' %}" alt=""></li>
-        </ul>
-        <!-- div row -->
-        <div class="row">
-            <h1 class="titleh1">VEHÍCULO {{vehiculo.numero_economico}}</h1>
-            <div class="columns">
-                <div class="leftcolumn">
-                    <div class="card" id="vehiculo">
-                        {% if alerta %}
-                            <span class="icon-warning"></span>
-                        {% endif %}
+<main class="main-cont">
+    <header class="head-cont animate__animated animate__fadeIn">
+        <div class="logo">
+            <img src="{% static 'images/aeto.svg' %}" alt="logo">
+        </div>
+        <h1 class="titleh1">VEHÍCULO {{vehiculo.numero_economico}}</h1>
+    </header>
 
-                        {% if configuracion == "S2.C2.D2" %}
-                            {% include "configurations/s2d4c4.html" %}
-                        {% endif %}
+    <section class="container">
+        <nav class="flex-row" id="nav-dash">
+            <button class="btn btn-aeto-crunch active" id="btn-table">
+                Vehículo
+            </button>
+            <button class="btn btn-aeto-crunch" id="btn-chart">
+                Gráficas
+            </button>
+        </nav>
+        <div class="animate__animated animate__fadeIn main__content col-2 on-view" id="table">
+            <div class="config__container">
+                <div class="config__config">
+                    {% if configuracion == "S2.C2.D2" %}
+                        {% include "configurations/s2d4c4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D4.D4" %}
-                            {% include "configurations/s2d4d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.D4.D4" %}
+                        {% include "configurations/s2d4d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D2.D4" %}
-                            {% include "configurations/s2d2d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.D2.D4" %}
+                        {% include "configurations/s2d2d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D4" %}
-                            {% include "configurations/s2d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.D4" %}
+                        {% include "configurations/s2d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D4.D2" %}
-                            {% include "configurations/s2d4d2.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.D4.D2" %}
+                        {% include "configurations/s2d4d2.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D4.D2.D4" %}
-                            {% include "configurations/s2d4d4d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.D4.D2.D4" %}
+                        {% include "configurations/s2d4d4d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.L2.D4.D4" %}
-                            {% include "configurations/s2l2d4d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.L2.D4.D4" %}
+                        {% include "configurations/s2l2d4d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.L4.D4.D4" %}
-                            {% include "configurations/s2l4d4d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.L4.D4.D4" %}
+                        {% include "configurations/s2l4d4d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.C2.D2" %}
-                            {% include "configurations/s2c2d2.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.C2.D2" %}
+                        {% include "configurations/s2c2d2.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.C4.D4" %}
-                            {% include "configurations/s2c4d4.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.C4.D4" %}
+                        {% include "configurations/s2c4d4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D2.C2"  %}
-                            {% include "configurations/s2d2c2.html" %}
-                        {% endif %}
+                    {% if configuracion == "S2.D2.C2"  %}
+                        {% include "configurations/s2d2c2.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "S2.D2.D2" %}
-                            {% include "configurations/s2d2d2.html" %}                        
-                        {% endif %}                        
+                    {% if configuracion == "S2.D2.D2" %}
+                        {% include "configurations/s2d2d2.html" %}                        
+                    {% endif %}                        
 
-                        {% if configuracion == "T2" %}
-                            {% include "configurations/t2.html" %}
-                        {% endif %}
+                    {% if configuracion == "T2" %}
+                        {% include "configurations/t2.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "T2.T2" %}
-                            {% include "configurations/t2t2.html" %}
-                        {% endif %}
+                    {% if configuracion == "T2.T2" %}
+                        {% include "configurations/t2t2.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "T4" %}
-                            {% include "configurations/t4.html" %}
-                        {% endif %}
+                    {% if configuracion == "T4" %}
+                        {% include "configurations/t4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "T4.T4" %}
-                            {% include "configurations/t4t4.html" %}
-                        {% endif %}
+                    {% if configuracion == "T4.T4" %}
+                        {% include "configurations/t4t4.html" %}
+                    {% endif %}
 
-                        {% if configuracion == "T4.T4.T4" %}
-                            {% include "configurations/t4t4t4.html" %}
-                        {% endif %}
+                    {% if configuracion == "T4.T4.T4" %}
+                        {% include "configurations/t4t4t4.html" %}
+                    {% endif %}
+                </div>
+                <div class="config__data">
+                    <nav class="config__nav">
+                        <div id="nav-table" class="flex-row">
+                            <button class="btn btn-aeto-crunch active" id="btn-general">General</button>
+                            <button class="btn btn-aeto-crunch" id="btn-problemas">Problemas Abiertos</button>
+                            <button class="btn btn-aeto-crunch" id="btn-llantas">Info Llantas</button>
+                        </div>
+                        <div class="flex-row">
+                            <a 
+                              href="{% url 'dashboards:configuracionVehiculo' %}" 
+                              class="btn btn-download">
+                                <span class="icon-magnifier"></span>
+                            </a>
+                            <a 
+                              href="{% url 'dashboards:diagrama' %}" 
+                              class="btn btn-download">
+                                <span class="icon-pencil"></span>
+                            </a>  
+                        </div>             
+                    </nav>
 
-
-                        <!-- col2 buttons -->
-                        <div class="cont-buttons-table"> 
-                            <div class="columnflex" id="col2">
-                                <!-- <div class="cont-buttons" id="col3"> -->
-                                    <!-- <a class="gnrl1" href="#General" onclick="general();" id="generalB">General</a>
-                                    <a class="gnrl1" href="#Problemas" onclick="problemasAbiertos();" id="problemAbiertos">Problemas Abiertos</a>
-                                    <a class="gnrl1" href="#Info" onclick="infoLlantas();" id="infoDeLlantas">Info de llantas</a> -->
-                                <!-- </div> -->
-
-                                <nav class="btn-group" id="nav-vehiculo">
-                                    <button class="btn btn-aeto-crunch active" onclick="general()" id="generalB">
-                                        General
-                                    </button>
-                                    <button class="btn btn-aeto-crunch" onclick="problemasAbiertos();" id="problemAbiertos">
-                                        Problemas abiertos
-                                    </button>
-                                    <button class="btn btn-aeto-crunch" onclick="infoLlantas();" id="infoDeLlantas">
-                                        Info. llanta
-                                    </button>
-                                </nav>
-                            
-                                <div class="cont-buttons" id="col4">
-                                    
-                                    <a href="{% url 'dashboards:configuracionVehiculo' %}">
-                                        <span class="icon-search-plus" id="searchColor"></span>
-                                    </a>
-
-                                    <a href="{% url 'dashboards:diagrama' %}"><span class="icon-edit-3" id="editColor"></span></a>
-                                </div>
-                            </div>
-                            <!-- col3 table -->
-                             <div id="infoLlantas">
-                                <table class="table1"> 
+                    <div class="config__container-table">
+                        <div class="tables__table on-table" id="general">
+                            <table class="config__table active">
+                                <thead>
                                     <tr>
-                                        <th class="th-table1">Pos</th>
-                                        <th class="th-table1">Serial</th>
-                                        <th class="th-table1">Producto</th>
-                                        <th class="th-table1">Km</th>
+                                        <th class="th-table3">Modelo</th>
+                                        <th class="th-table3">Marca</th>
+                                        <th class="th-table3">Clase</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>   
+                                    <tr>
+                                        <td class="td-table3">{{vehiculo.modelo}}</td>
+                                        <td class="td-table3">{{vehiculo.marca}}</td>
+                                        <td class="td-table3">{{vehiculo.clase}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
-                                </table>
-                            </div>
-                            <div id="problemasA">
-                                <table class="table2"> 
+                        <div class="tables__table" id="problemas">
+                            <table class="config__table">
+                                <thead> 
                                     <tr>
                                         <th class="th-table2">Llanta</th>
                                         <th class="th-table2">Problemas Abiertos</th>
                                         <th class="th-table2">Icono</th>
                                     </tr>
-                                    {% if message %}
+                                </thead>
+                                {% if message %}
+                                <tbody>
                                     <tr>
                                         <td class="td-table2">1</td>
                                         <td class="td-table2">{{message}}</td>
@@ -198,179 +207,280 @@
                                         <td class="td-table2">{{message}}</td>
                                         <td class="td-table2"><span class="icon-cross"></span>
                                     </tr>
-                                    {% endif %}
-                                </table>
-                            </div>
-                            <div id="table-general">
-                                <table class="table3">
-                                    <tr>
-                                        <th class="th-table3">Modelo</th>
-                                        <th class="th-table3">Marca</th>
-                                        <th class="th-table3">Clase</th>
-                                        
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table3">{{vehiculo.modelo}}</td>
-                                        <td class="td-table3">{{vehiculo.marca}}</td>
-                                        <td class="td-table3">{{vehiculo.clase}}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="rightcolumn">
-                    <div class="card">
-                        <h2 class="energize-title">BITACORA</h2>
-                        <div class="column" id="col-table">
-                            <table class="table4">
-                                <thead class="thead-dark">
-                                    <tr class="tr-head">
-                                        <th class="header" scope="col">Evento</th>
-                                        <th class="header" scope="col">Fecha</th>
-                                        <th class="header" scope="col">Encontrado</th>
-                                        <th class="header" scope="col">Tiempo</th>
-                                        <th class="header" scope="col">Reporte</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for vehiculo in bitacora %}
-                                    <tr id="paragraph {{vehiculo.id}}">
-                                        <td class="td-table4"><span class="icon-pulpo"></span></td>
-                                        <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
-                                        <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
-                                        <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
-                                        <td class="td-table4">
-                                            <a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}">
-                                                <span class="icon-file-pdf" ></span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
                                 </tbody>
+                                {% endif %}
                             </table>
                         </div>
+
+                        <div class="tables__table" id="llantas">
+                            <table class="config__table">
+                                <thead> 
+                                    <tr>
+                                        <th class="th-table1">Pos</th>
+                                        <th class="th-table1">Serial</th>
+                                        <th class="th-table1">Producto</th>
+                                        <th class="th-table1">Km</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- div rowbot -->
-        <div class="rowbot">
-        <div class="title-rowbot">
-            <div class="column" id="columna1">
-                <h2 class="energize-title">DASHBOARD DEL VEHICULO</h2>
+            <div class="bit-dash">
+                <div class="bitacora">
+                    <h2 class="bitacora-title">BITACORA</h2>
+                    <div class="column" id="col-table">
+                        <table class="config__table">
+                            <thead class="thead-dark">
+                                <tr class="tr-head">
+                                    <th class="header" scope="col">Evento</th>
+                                    <th class="header" scope="col">Fecha</th>
+                                    <th class="header" scope="col">Encontrado</th>
+                                    <th class="header" scope="col">Tiempo</th>
+                                    <th class="header" scope="col">Reporte</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vehiculo in bitacora %}
+                                <tr id="paragraph {{vehiculo.id}}">
+                                    <td class="td-table4"><span class="icon-pulpo"></span></td>
+                                    <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
+                                    <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
+                                    <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
+                                    <td class="td-table4">
+                                        <a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}">
+                                            <span class="icon-file-pdf" ></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="dash__container">
+                    <nav class="dash__nav">
+                        <h2>Tire Eye</h2>
+                        <div class="flex-row">
+                            <button class="btn btn-download" type="button" id="prev" disabled>
+                                <span class="icon-arrow-left2"></span>
+                            </button>
+                            <button class="btn btn-download" type="button" id="next">
+                                <span class="icon-arrow-right2"></span>
+                            </button>
+                        </div>
+                    </nav>
+
+                    <div class="dash__content page active" id="page-1">
+                        <div class="dash__data">
+                            <div class="score-card">
+                                <h2>DÍAS SIN INFLAR</h2>
+                                
+                                <div class="circle">
+                                    <span id="days">
+                                        0
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="score-card">
+                                <h2>TIEMPO PROMEDIO</h2>
+                                <div class="circle">
+                                    <span>
+                                        {% if vehiculo.tiempo_de_inflado %}
+                                            {{vehiculo.tiempo_de_inflado}}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="dash__content page" id="page-2">
+                        <div class="dash__chart">
+                            <div class="cont-chart" id="tire-eye-chart">
+                                <div class="buttons">
+                                    <button class="icono-pantallaC">
+                                        <span class="icon-question-circle-o"></span>
+                                    </button>
+                                    <button id="line-chart">
+                                        <span class="icon-fullscreen"></span>
+                                    </button>
+                                </div>
+                                <div class="cont-right" id="lineChartF">
+                                    <div id="lineChart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-             <div class="column" id="columna2">
-                <!-- <a href="#Pulpo" class="gnrl" id="btn-pulpo" onclick="pulpoDB();">PULPO DB</a>
-                <a href="#TireEye" class="gnrl" id="btn-tireEye" onclick="tireEyeDB();">TIRE EYE DB</a> -->
-                <nav class="btn-group" id="nav-dash">
-                    <button class="btn btn-aeto-crunch active" id="btn-pulpo" onclick="pulpoDB();">
-                        <span class="icon-pulpo"></span>
-                    </button>
-                    <button class="btn btn-aeto-crunch" id="btn-tireEye" onclick="tireEyeDB();">
-                        <span class="icon-tireeye"></span>
-                    </button>
+        </div>
+        <div class="animate__animated animate__fadeIn main__content grid-4" id="charts">
+            <div class="chart__container" id="pos-pro">
+                <nav class="chart__container-nav">
+                    <h2>Posición y profundidad</h2>
+                    <div class="flex-row"></div>
                 </nav>
+                <div class="container_fluid">
+                    <div id="chart-scatter" class="chart"></div>
+                </div>
             </div>
-        </div>
-        <div class="title-rowbot2" id="pulpo-tireEye">
-            <div class="column" id="columna3">
-                <h2>DÍAS SIN INFLAR</h2>
-                <h2 id="days" class="num f-size-3">0</h2>
+            <div class="chart__container" id="km-pro">
+                <nav class="chart__container-nav">
+                    <h2>Kilometro proyectado por posición</h2>
+                    <div class="flex-row"></div>
+                </nav>
+                <div class="container_fluid">
+                    <div id="bar-chart1" class="chart"></div>
+                </div>
             </div>
-            <div class="column" id="columna4">
-                <h2>TIEMPO PROMEDIO</h2>
-                <p class="time-text num f-size-3">{% if vehiculo.tiempo_de_inflado %}{{vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</p>
+            <div class="chart__container" id="km-mm">
+                <nav class="chart__container-nav">
+                    <h2>Km por mm por Eje</h2>
+                    <div class="flex-row"></div>
+                </nav>
+                <div class="container_fluid">
+                    <div id="bar-chart" class="chart"></div>
+                </div>
             </div>
-            <div class="column" id="columna5">
-                <div id="p1" class="sec2_grafica">
-                    <div class="cont-graf_sec2">
-                    <div class="buttons">
-                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
-                        <button class="icono-pantallaC" id="ocultarL1" onclick="closeFullscreenP1();"><span class="icon-fullscreen_exit"></span></button>
-                        <button class="icono-pantallaC" id="mostrarL1" onclick="openFullscreenP1();"><span class="icon-fullscreen"></span></button>
+            <div class="chart__container" id="tire-axle">
+                <div class="dash__data">
+                    <div class="score-card">
+                        <h2>Necesidad de llanta por tipo de Eje</h2>
+                        <div class="flex-row space-around">
+                            <div class="circle">
+                                <h3>Eje</h3>
+                                <span>20</span>
+                            </div>
+                            <div class="circle">
+                                <h3>Cant</h3>
+                                <span>10</span>
+                            </div>
+                        </div>
                     </div>
-                        <div class="cont-right" id="lineChartF">
-                            <div id="lineChart"></div>
+                    <div class="score-card">
+                        <h2>CPK del vehículo</h2>
+                        <div class="circle">
+                            <span>$0.019</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="column" id="columna6">
-                <div class="cont-graf_sec2" id="p2">
-                    <div class="buttons">
-                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
-                        <button class="icono-pantallaC" id="ocultarS1" onclick="closeFullscreenP2();"><span class="icon-fullscreen_exit"></span></button>
-                        <button class="icono-pantallaC" id="mostrarS1" onclick="openFullscreenP2();"><span class="icon-fullscreen"></span></button>
-                    </div>
-                    <div id="chart-scatter"></div>
-                </div>
-            </div>
-            <div class="column" id="columna7">
-                <div class="score-left">
-                    <div class="score-card f-evenly">
-                        <h3 class="title-score">Necesidad de llanta por tipo de Eje</h3>
-                        <div class="table-titles">
-                            <h3>EJE</h3>
-                            <h3>CANT</h3>
-                        </div>
-                         <div class="table-numbers">
-                            <h3 class="num llanta">20</h3>
-                            <h3 class="num llanta">10</h3>
-                        </div>
-                    </div>
-                    <div class="score-card d-flex">
-                        <h3 class="title-score">CPK del vehículo</h3>
-                        <h1 class="num cpk">$0.019</h1>
-                    </div>
-                </div>
-                <div class="score-right">
-                <div class="score-card" id="p4">
-                    <div class="buttons">
-                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
-                        <button class="icono-pantallaC" id="ocultarB2" onclick="closeFullscreenP4();"><span class="icon-fullscreen_exit"></span></button>
-                        <button class="icono-pantallaC" id="mostrarB2" onclick="openFullscreenP4();"><span class="icon-fullscreen"></span></button>
-                    </div>
-                    <div class="cont-bar1" id="barChart1">
-                        <div id="bar-chart1"></div>
-                    </div>
-                </div>
-                <div class="score-card" id="p3">
-                    <div class="buttons">
-                        <button class="icono-pantallaC"><span class="icon-question-circle-o"></span></button>
-                        <button class="icono-pantallaC" id="ocultarB1" onclick="closeFullscreenP3();"><span class="icon-fullscreen_exit"></span></button>
-                        <button class="icono-pantallaC" id="mostrarB1" onclick="openFullscreenP3();"><span class="icon-fullscreen"></span></button>
-                    </div>
-                    <div class="cont-bar" id="barChart">
-                        <div id="bar-chart"></div>
-                    </div>
-                </div>
-                </div>
-            </div>
         </div>
-        </div>
-    </div>
+    </section>
+
+</main>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.0/dist/chart.min.js"></script>
 <script type="text/javascript">
 
 
-    document.addEventListener("DOMContentLoaded", (e) => { // Cargando los scripts en la carga del documento
-
-        handleButtons('#nav-vehiculo'); // Los ID siempre se ponen con # al inicio
-        handleButtons('#nav-dash');
+    document.addEventListener("DOMContentLoaded", (e) => { // Cargando los scripts en la carga del documento    
         Llanta();
         hoverLlantas();
-        // statusLlantas();
+        handleButtons('#nav-dash');
+        handleButtons('#nav-table');
+        handleView('btn-table', '#table');
+        handleView('btn-chart', '#charts');
+        // Tablas
+        handleTables('btn-general', '#general');
+        handleTables('btn-problemas', '#problemas');
+        handleTables('btn-llantas', '#llantas');
 
+        // Handle Fullscreen
+        handleFullscreen('line-chart', 'tire-eye-chart');
+
+        handleNav();
+
+        dbFullscreen('pos-pro');
+        dbFullscreen('km-pro');
+        dbFullscreen('km-mm');
+        dbFullscreen('tire-axle');
     });
 
-    // const statusLlantas = () => {
-    //      const llantas = document.querySelectorAll('.tireDecoration');
+    const dbFullscreen = (container = '') => {
+        const element = document.getElementById(container);
 
-    //      llantas.forEach( (llanta) => {
-    //          console.log(llanta)
-    //      } );
-    //  };
+        element.addEventListener('dblclick', () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+                // Cuando se cierra
+            } else {
+                // Cuando se abre
+                element.requestFullscreen();
+            }
+        });
+    };
+
+    const handleFullscreen = (button = '', element = '') => {
+        const btn = document.getElementById(button);
+        const el = document.getElementById(element);
+
+        btn.addEventListener('click', (e) => {
+            if (!document.fullscreenElement) {
+            el.requestFullscreen();
+            btn.innerHTML = `
+                <span class="icon-fullscreen_exit"></span>
+            `;
+            console.clear();
+            } else {
+                document.exitFullscreen();
+                btn.innerHTML = `
+                    <span class="icon-fullscreen"></span>
+                `;
+            }
+        })
+    };
+
+    const handleNav = () => {
+        const next = document.getElementById('next');
+        const prev = document.getElementById('prev');
+
+        next.addEventListener('click', (e) => {
+            e.preventDefault();
+            prev.removeAttribute('disabled');
+            next.setAttribute('disabled', 'disabled');
+
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('page-2').classList.add('active');
+        });
+        prev.addEventListener('click', (e) => {
+            e.preventDefault();
+            next.removeAttribute('disabled');
+            prev.setAttribute('disabled', 'disabled');
+
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('page-1').classList.add('active');
+        });
+    };
+    
+    const handleTables = (button = '', view = '') => {
+        const btn = document.getElementById(button);
+        const image = document.querySelector(view);
+
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.on-table').forEach(view => view.classList.remove('on-table'));
+
+            image.classList.add('on-table');
+        });
+    };
+
+    const handleView = (button = '', view = '') => {
+        const btn = document.getElementById(button);
+        const image = document.querySelector(view);
+
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.on-view').forEach(view => view.classList.remove('on-view'));
+
+            image.classList.add('on-view');
+        });
+    };
 
     const Llanta = () => { //Creando un web component
             const llantas = document.querySelectorAll('.tireDecoration'); //
@@ -913,7 +1023,7 @@ var chart = anychart.bar();
 var series = chart.bar(data);
 
 // set the chart title
-chart.title("Km por mm por Eje");
+chart.title("");
 var title = chart.title();
     title.fontColor('#fff');
     title.fontSize('1vw');
@@ -1008,7 +1118,7 @@ var chart1 = anychart.column();
 var series = chart1.column(data);
 
 // set the chart title
-chart1.title("Kilometro proyectado por posición"); /* Pendiente de cambiar */
+chart1.title(""); /* Pendiente de cambiar */
 var title = chart1.title();
     title.fontColor('#fff');
     title.fontSize('1vw');
@@ -1107,7 +1217,7 @@ chart.yGrid(true);
 chart.animation(true);
   
 // set chart title text settings
-chart.title('Posición y Profundidad');
+chart.title('');
 var title = chart.title();
 title.fontColor('#fff');
 title.fontSize(18);

@@ -21,15 +21,7 @@ import pandas as pd
 import os
 import statistics
 
-def abrev(producto):
 
-    try:
-        producto = str(producto)
-        abrev=producto.split()
-
-        return abrev[2]
-    except:
-        return None
 
 class DiffDays(Func):
     function = 'DATE_PART'
@@ -152,10 +144,10 @@ def convertir_fecha(fecha):
         return None
 
 def convertir_fecha2(fecha):
-    partes_fecha = fecha.split("/")
-    year = int(partes_fecha[2][:4])
-    month = int(partes_fecha[0])
-    day = int(partes_fecha[1])
+    partes_fecha = fecha.split("-")
+    year = int(partes_fecha[0])
+    month = int(partes_fecha[1])
+    day = int(partes_fecha[2][:2])
     fecha = date(year, month, day)
     return fecha
 
@@ -163,7 +155,12 @@ def convertir_rango(fecha):
     partes_fecha = fecha.split("-")
     fecha = f"{partes_fecha[0]}/{partes_fecha[1]}/{partes_fecha[2]}"
     return fecha
-    
+
+def convertir_rango2(fecha):
+    partes_fecha = fecha.split("-")
+    fecha1 = f"{partes_fecha[0][0:2]}/{partes_fecha[0][3:5]}/{partes_fecha[0][6:10]}"
+    fecha2 = f"{partes_fecha[1][1:3]}/{partes_fecha[1][4:6]}/{partes_fecha[1][7:11]}"
+    return fecha1, fecha2
 
 def cpk_vehiculo_cantidad(cpk_vehiculos):
     try:

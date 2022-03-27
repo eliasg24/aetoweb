@@ -197,11 +197,6 @@ urlpatterns = [
         name="aplicacionFormulario"
     ),
     path(
-        route="informe_de_perdida_y_rendimiento",
-        view=views.informe_de_perdida_y_rendimiento,
-        name="informe_de_perdida_y_rendimiento"
-    ),
-    path(
         route="4umbrales",
         view=views.CuatroUmbralesView.as_view(),
         name="CuatroUmbrales"
@@ -355,5 +350,10 @@ urlpatterns = [
         route="perdida-rendimiento",
         view=views.perdidaRendimientoView.as_view(),
         name="perdidaRendimiento"
+    ),
+    path(
+        route="informe_de_perdida_y_rendimiento",
+        view=views.informe_de_perdida_y_rendimiento,
+        name="informe_de_perdida_y_rendimiento"
     ),
 ]

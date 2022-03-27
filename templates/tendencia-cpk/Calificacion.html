@@ -6,6 +6,17 @@
 
     // create a data set
     var data = anychart.data.set([
+    {% if compania == "Corcelip" %}
+    ["{{mes_8}}", 0, 0],
+    ["{{mes_7}}", 0, 0],
+    ["{{mes_6}}", 0, 0],
+    ["{{mes_5}}", 0, 0],
+    ["{{mes_4}}", 0, 0],
+    ["{{mes_3}}", 0, 0],
+    ["{{mes_2}}", 0, 0],
+    ["{{mes_1}}", {{cpk}}, {{llantas_limpias}}]
+    ]);
+    {% else %}
     ["{{mes_8}}", 0, 0],
     ["{{mes_7}}", 0, 0],
     ["{{mes_6}}", 0, 0],
@@ -15,6 +26,8 @@
     ["{{mes_2}}", 0.0625, 0],
     ["{{mes_1}}", {{cpk}}, 80]
     ]);
+    {% endif %}
+
 
     // map the data
     var seriesData_1 = data.mapAs({x: 0, value: 1});
