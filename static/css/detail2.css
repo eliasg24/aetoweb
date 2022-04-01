@@ -1,7 +1,26 @@
-.btn-download:disabled {
-  background-color: gainsboro;
-  color: gray;
-  pointer-events: none;
+.flex-row {
+  flex-flow: row wrap;
+}
+
+.btn-download {
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.btn-aeto-crunch,
+.btn-download {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-aeto-crunch span {
+  font-size: 1.25rem;
+}
+
+.detail__title {
+  font-size: 2rem;
 }
 
 .main-cont {
@@ -13,7 +32,7 @@
 .container {
   display: grid;
   gap: 0.5rem;
-  grid-template-rows: auto 1fr;
+  /* grid-template-rows: auto 1fr; */
   height: 100%;
   width: 95%;
   padding: 1rem 0;
@@ -26,6 +45,11 @@
 
 .main__content.on-view {
   display: grid;
+}
+
+#nav-table .btn-aeto-crunch.active {
+  border-top: none;
+  border-bottom: thin solid var(--border-alt-button);
 }
 
 .tables__table {
@@ -52,11 +76,13 @@
 }
 
 .config__data {
+  background-color: #202020;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   height: 100%;
   overflow-y: auto;
+  padding: 1rem;
   position: relative;
   width: 100%;
 }
@@ -77,7 +103,7 @@
 
 .dash__data {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 0.5rem;
   height: 100%;
 }
@@ -114,20 +140,20 @@
 }
 
 .col-2 {
-  gap: 20px;
-  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  grid-template-rows: repeat(2, auto);
 }
 
 .grid-4 {
   gap: 1rem;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
 }
 
 .config__container {
-  display: grid;
-  grid-template-rows: repeat(2, 50%);
   background-color: #202020;
+  display: grid;
+  gap: 0.25rem;
+  grid-template-rows: auto 1fr;
   padding: 1rem;
 }
 
@@ -135,21 +161,19 @@
   align-self: center;
 }
 
-.pop-out-llanta {
+/* .pop-out-llanta {
   background-color: #000;
   border-radius: 0.25rem;
-  margin-left: 3rem;
+  display: none;
+  margin-top: 1rem;
   opacity: 0;
   padding: 0.75rem;
   pointer-events: none;
   position: absolute;
   transition: all 0.2s ease-in-out;
   visibility: hidden;
+  width: max-content;
   z-index: 2;
-}
-
-.tireDecoration {
-  position: relative;
 }
 
 .tireDecoration:hover .pop-out-llanta {
@@ -164,38 +188,100 @@
   right: 0;
 }
 
+.pop-out-llanta h4 {
+  font-size: 2rem;
+}
+
 .pop-out-llanta p {
   font-family: var(--font);
   color: white;
-  font-size: 0.85rem;
+  font-size: 1rem;
   margin: 0.25rem 0;
+} */
+
+.config__config {
+  margin: auto;
+  width: 90%;
 }
 
 .par-llantas,
 .par-doble-llanta {
-  padding: 1rem;
-  display: flex;
   align-items: center;
-  flex-flow: row nowrap;
-  justify-content: center;
+  /* display: flex; */
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto 1fr auto;
+  /* flex-flow: row nowrap; */
+  padding: 1rem;
+}
+
+.icon-central-axle,
+.icon-da {
+  background-color: #fff;
 }
 
 .doble-llanta {
   display: flex;
-  gap: 4px;
+  gap: 0.5rem;
 }
 
 .tireDecoration {
-  text-decoration: none;
   color: white;
+  text-decoration: none;
+  position: relative;
 }
 
-.icon-tire2 {
-  font-size: 10vmin;
+.tire__top,
+.tire__bottom {
+  background-color: #fff;
+  font-size: 0.75rem;
+  position: absolute;
+  left: 0;
+  right: -1px;
+  /* padding: 0.25rem; */
+  text-align: center;
+  width: auto;
 }
 
-.icon-central-axle {
-  font-size: 2vmin;
+.tire__top:hover .tire__title,
+.tire__bottom:hover .tire__title {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tire__top:hover .tire__data,
+.tire__bottom:hover .tire__data {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.tire__top {
+  border-radius: 0.25rem 0.25rem 0 0;
+  top: 0;
+}
+
+.tire__bottom {
+  border-radius: 0 0 0.25rem 0.25rem;
+  bottom: 0;
+}
+
+.tire__bottom .tire__title {
+  font-size: 0.5rem;
+  top: 3px;
+}
+
+.tire__title {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  transition: all 0.4s ease-in;
+  left: 0;
+  right: 0;
+}
+
+.tire__data {
+  font-size: 0.75rem;
 }
 
 .dash__nav {
@@ -206,25 +292,25 @@
 }
 
 .good {
-  color: var(--main-blue);
+  background-color: var(--main-blue);
 }
 
 .yellow {
-  color: var(--yellow-color);
+  background-color: var(--yellow-color);
 }
 
 .bad {
-  color: var(--red-color);
+  background-color: var(--red-color);
 }
 
 .purple {
-  color: var(--purple-color);
+  background-color: var(--purple-color);
 }
 
 .config__nav {
   align-items: center;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: space-between;
 }
 
@@ -249,6 +335,14 @@
 
 .config__table tbody tr:nth-child(even) {
   background-color: #213944;
+}
+
+.config__table .icon-cross {
+  color: var(--red-color);
+}
+
+.config__table .icon-checkmark {
+  color: var(--green-color);
 }
 
 .bitacora-title {
@@ -293,7 +387,7 @@
 }
 
 .cont-right {
-  height: 100%;
+  height: 50vh;
   position: relative;
 }
 
@@ -324,4 +418,86 @@
 .space-around {
   width: 100%;
   justify-content: space-around;
+}
+
+.print__container {
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+}
+
+.print__content {
+  background-color: #202020;
+}
+
+/* ? Llanta en vista movil */
+.icon-tire2 {
+  font-size: 7rem;
+}
+/* -------- */
+
+@media screen and (min-width: 1024px) {
+  .col-2 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .config__config {
+    width: 80%;
+  }
+
+  .icon-tire2 {
+    color: #fff;
+    font-size: 15vmin;
+  }
+
+  .pop-out-llanta {
+    display: block;
+    top: 0;
+    left: 8vmin;
+  }
+
+  .dash__data {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .cont-right {
+    height: 100%;
+  }
+}
+
+@media screen and (min-width: 1336px) {
+  .pop-out-llanta h4 {
+    font-size: 1.5rem;
+  }
+
+  .icon-central-axle,
+  .icon-da {
+    font-size: 0.75rem;
+  }
+
+  .icon-tire2 {
+    font-size: 10vmin;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  .pop-out-llanta h4 {
+    font-size: 2rem;
+  }
+
+  .icon-tire2 {
+    font-size: 15vmin;
+  }
+
+  .icon-central-axle,
+  .icon-da {
+    font-size: 1rem;
+  }
 }

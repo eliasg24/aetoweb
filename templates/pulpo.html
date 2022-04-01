@@ -84,13 +84,20 @@
                     <i class="bx bx-search"></i>
                   </div>
                 </li>
+                <li>
+                  <label for="all-clase" class="input-check select-all">
+                    Seleccionar todas
+                    <input type="checkbox" name="clase2" value="all" id="all-clase" {% if clase2|slugify == "all" %}checked{% endif %} />
+                    <span class="checkmark"></span>
+                  </label>
+                </li>
                 {% for clase in clases_compania %}
                 <li class="search-item">
                   <label for={{clase}} class="input-check">
                     
                     {{clase}}
 
-                    <input type="checkbox" name="clase" id="{{clase}}" value="{{clase}}" />
+                    <input type="checkbox" name="clase" id="{{clase}}" value="{{clase}}"{% for c in clase1 %}{% if c|slugify == clase|slugify %}checked{% endif %}{% endfor %} />
                     <span class="checkmark"></span>
                   </label>
                 </li>
@@ -114,13 +121,20 @@
                       <i class="bx bx-search"></i>
                     </div>
                   </li>
+                  <li>
+                    <label for="all-ubicacion" class="input-check select-all">
+                      Seleccionar todas
+                      <input type="checkbox" name="ubicacion" value="all" id="all-ubicacion" {% if clase2|slugify == "all" %}checked{% endif %} />
+                      <span class="checkmark"></span>
+                    </label>
+                  </li>
                   {% for flota in flotas %}
                   <li class="search-item">
                     <label for={{flota}} class="input-check">
                       
                       {{flota}}
 
-                      <input type="checkbox" name="flota" id="{{flota}}" value="{{flota}}" />
+                      <input type="checkbox" name="flota" id="{{flota}}" value="{{flota}}" {% for f in flota1 %}{% if f|slugify == flota|slugify %}checked{% endif %}{% endfor %}   />
                       <span class="checkmark"></span>
 
                     </label>
@@ -170,9 +184,14 @@
         <div class="grid-c4 on-view">
           <article class="chart-container" id="chart-1">
             <nav class="nav-btn justify-end">
-              <button class="btn icono-pantallaC">
+              <div class="about-btn">
                 <span class="icon-question-circle-o"></span>
-              </button> 
+                <div class="popout-text">
+                  <p class="italic">
+                    Porcentaje de vehiculos de la flota inflados durante el periodo de inflado
+                  </p>
+                </div>
+              </div>
               <button class="btn icono-pantallaC" id="btn-1">
                 <span class="icon-fullscreen"></span>
               </button>
@@ -188,13 +207,7 @@
                     {% if fecha1 %}
                         <p class="divis">{{fecha1}}-{{fecha2}}</p>
                     {% else %}
-                        {% if clase %}
-                            <p class="divis">{{clase}}</p>
-                        {% elif flota %}
-                            <p class="divis">{{flota}}</p>
-                        {% else %}
-                            <p class="divis">Último mes</p>
-                        {% endif %}
+                        <p class="divis">Último mes</p>
                     {% endif %}
                 {% endif %}
                 {% if porcentaje_inflado %}
@@ -216,9 +229,14 @@
           </article>
           <article class="chart-container" id="chart-2">
             <nav class="nav-btn justify-end">
-              <button class="btn icono-pantallaC">
+              <div class="about-btn">
                 <span class="icon-question-circle-o"></span>
-              </button> 
+                <div class="popout-text">
+                  <p class="italic">
+                    Porcentaje de vehiculos inflados que tuvieron entrada por fuera del parametro de presión. 
+                  </p>
+                </div>
+              </div>
               <button class="btn icono-pantallaC" id="btn-2">
                 <span class="icon-fullscreen"></span>
               </button>
@@ -247,13 +265,7 @@
                     {% if fecha1 %}
                         <p class="divis">{{fecha1}}-{{fecha2}}</p>
                     {% else %}
-                        {% if clase %}
-                            <p class="divis">{{clase}}</p>
-                        {% elif flota %}
-                            <p class="divis">{{flota}}</p>
-                        {% else %}
-                            <p class="divis">Último mes</p>
-                        {% endif %}
+                        <p class="divis">Último mes</p>
                     {% endif %}
                 {% endif %}
                 {% if porcentaje_entrada_correcta %}
@@ -279,9 +291,17 @@
                 Periodos de inflados
               </h2>
               <div class="row">
-                <button class="btn icono-pantallaC">
+                <div class="about-btn">
                   <span class="icon-question-circle-o"></span>
-                </button> 
+                  <div class="popout-text">
+                    <p class="italic">
+                      Grafica que muestra la cantidad y porcentaje vencido.
+                    </p>
+                    <p>
+                      <strong>Objetivo</strong>: ver el pie lo mas azul posible
+                    </p>
+                  </div>
+                </div>
                 <button class="btn icono-pantallaC" id="btn-3">
                   <span class="icon-fullscreen"></span>
                 </button>
@@ -299,9 +319,17 @@
                 Cantidad de vehiculos Vs Inflados
               </h2>
               <div class="row">
-                <button class="btn icono-pantallaC">
+                <div class="about-btn">
                   <span class="icon-question-circle-o"></span>
-                </button> 
+                  <div class="popout-text">
+                    <p class="italic">
+                      Tendencia de cantidad de inflados totales, cantidad de malas entradas en esos inflados, cantidad de doble malas entradas en esos inflados.
+                    </p>
+                    <p>
+                      <strong>Objetivo</strong>: Ver la barra azul lo mas alta posible y las lineas morada y roja lo mas bajas posible.
+                    </p>
+                  </div>
+                </div>
                 <button class="btn icono-pantallaC" id="btn-4">
                   <span class="icon-fullscreen"></span>
                 </button>
@@ -411,9 +439,17 @@
               Porcentaje de Clase de Vehículos Inflados
             </h2>
             <div class="row">
-              <button class="btn icono-pantallaC">
+              <div class="about-btn">
                 <span class="icon-question-circle-o"></span>
-              </button> 
+                <div class="popout-text">
+                  <p class="italic">
+                    Porcentaje de clase de vehiculos inflado en el periodo de inflado.
+                  </p>
+                  <p>
+                    <strong>Objetivo</strong>: Ver el Radar lo más lleno posible. Los puntos del radar bajos son área de oportunidad.
+                  </p>
+                </div>
+              </div>
               <button class="btn icono-pantallaC" id="btn-5">
                 <span class="icon-fullscreen"></span>
               </button>
@@ -431,9 +467,17 @@
               Porcentaje de Aplicación de Vehículos Inflados
             </h2>
             <div class="row">
-              <button class="btn icono-pantallaC">
+              <div class="about-btn">
                 <span class="icon-question-circle-o"></span>
-              </button> 
+                <div class="popout-text">
+                  <p class="italic">
+                    Porcentaje de aplicación de vehiculos inflado en el periodo de inflado.
+                  </p>
+                  <p>
+                    <strong>Objetivo</strong>: Ver el Radar lo más lleno posible. Los puntos del radar bajos son área de oportunidad.
+                  </p>
+                </div>
+              </div>
               <button class="btn icono-pantallaC" id="btn-6">
                 <span class="icon-fullscreen"></span>
               </button>
@@ -481,7 +525,34 @@ document.addEventListener('DOMContentLoaded', (e) => {
     handleTables('btn-tab-1', 'table-1');
     handleTables('btn-tab-2', 'table-2');
     handleCheckbox();
+    // Select All
+    handleSelectAll({ container: 'menu-clase', selectAll: 'all-clase' });
+    handleSelectAll({ container: 'menu-ubicacion', selectAll: 'all-ubicacion' });
 });
+
+const handleSelectAll = ({ container = '', selectAll = 'all' }) => {
+  const selector = document.querySelector(`#${container} #${selectAll}`);
+  const checkboxs = document.querySelectorAll(
+    `#${container} input[type="checkbox"]`
+  );
+
+  selector.addEventListener('change', (e) => {
+    selector.checked
+      ? checkboxs.forEach((check) => (check.checked = true))
+      : checkboxs.forEach((check) => (check.checked = false));
+  });
+
+  checkboxs.forEach((item) => {
+    item.addEventListener('change', (e) => {
+      let notAll = false;
+
+      checkboxs.forEach((item) => {
+        if (!item.checked) notAll = true;
+        if (notAll) selector.checked = false;
+      });
+    });
+  });
+};
 
 const handleCheckbox = () => {
   const inputs = document.querySelectorAll('.input-check');
@@ -652,9 +723,6 @@ function showCheckboxes3(){
 
         window.onload = function dias_sin_inflado(){
                 hoy = new Date("{{hoy.month}}/{{hoy.day}}/{{hoy.year}}")
-                hoy2 = (cierre(hoy, 1))
-                hoy3 = (cierre(hoy, 2))
-                hoy4 = (cierre(hoy, 3))
                 var rango_1 = 0;
                 var rango_2 = 0;
                 var rango_3 = 0;
@@ -706,17 +774,17 @@ function showCheckboxes3(){
             {% for vehiculo_bitacora in bitacoras %}
                 vehiculo_fecha{{vehiculo_bitacora.id}} = new Date("{{vehiculo_bitacora.fecha_de_inflado.month}}/{{vehiculo_bitacora.fecha_de_inflado.day}}/{{vehiculo_bitacora.fecha_de_inflado.year}}")
                 fecha{{vehiculo_bitacora.id}} = vehiculo_fecha{{vehiculo_bitacora.id}}.getMonth() + 1;
-                switch (fecha{{vehiculo_bitacora.id}}){
+            switch (fecha{{vehiculo_bitacora.id}}){
                     case (hoy.getMonth() + 1):
                         mes_1++;
                         break;
-                    case hoy2:
+                    case (hoy.getMonth()):
                         mes_2++;
                         break;
-                    case hoy3:
+                    case (hoy.getMonth() - 1):
                         mes_3++;
                         break;
-                    case hoy4:
+                    case (hoy.getMonth() - 2):
                         mes_4++;
                         break;
                 }

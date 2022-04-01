@@ -43,13 +43,11 @@ def excel_productos():
             producto_hecho.precio=precio
             producto_hecho.save()
 
-
 def excel_vehiculos():
     FILE_PATH = "D:/Aetoweb/aeto/files/files/Vehicles2022_03_25_043019.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
-
 
     for row in reader:
         compania = row[3].capitalize()
@@ -64,7 +62,7 @@ def excel_vehiculos():
             fecha_de_creacion = row[21]
 
             functions_create.crear_clase(clase)
-            fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
+            fecha_de_creacion = functions.convertir_fecha2(fecha_de_creacion)
 
             try:
                 ubicacion = Ubicacion.objects.get(nombre=flota, compania=Compania.objects.get(compania=compania))
@@ -85,13 +83,13 @@ def excel_vehiculos():
                                 ubicacion=ubicacion,
                                 aplicacion=aplicacion,
                                 numero_de_llantas=numero_de_llantas,
-                                clase=clase,
+                                clase=clase.upper(),
                                 configuracion=configuracion,
                                 fecha_de_creacion=fecha_de_creacion
                                 )
-
+                                
 def excel_llantas_rodantes(user):
-    FILE_PATH = "D:/Aetoweb/aeto/files/files/RollingStock2022_03_25_040126.csv"
+    FILE_PATH = "D:/Aetoweb/aeto/files/files/Stock2022_03_25_041155.csv"
     file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
     next(file, None)
     reader = csv.reader(file, delimiter=",")
@@ -184,7 +182,7 @@ def excel_llantas(user):
         if compania == "Corcelip":
             numero_economico = row[7]
             try:
-                llanta = Llanta.objects.get(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
+                llanta = Llanta.objects.filter(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
                 i.append(llanta)
 
             except:
@@ -250,6 +248,7 @@ def excel_llantas(user):
 
 
 
+
 def excel_inspecciones():
     FILE_PATH = "D:/Aetoweb/aeto/files/files/Inspections_Bulk.csv"
     file = open(FILE_PATH, "r", encoding="latin-1", newline='')
@@ -291,6 +290,7 @@ def excel_inspecciones():
                 vehiculo.save()
             except:
                 pass
+
 
 
 def ExcelAeto(llanta, vehiculo, posicion, km_actual, km_proyectado, cpk, sucursal, aplicacion, clase, nomeje, producto, min_profundidad):
@@ -403,3 +403,39 @@ def agregarExcel():
         #print(c_cld.value)
         i += 1
     wb_obj.save(filename = 'informedeperdidayrendimiento.xlsx')
+
+def excel_vehiculos2():
+    FILE_PATH = "C:/Users/elias/Downloads/Compañia AGA pulpo.csv"
+    file = open(FILE_PATH, "r", encoding="latin-1", newline='')
+    next(file, None)
+    reader = csv.reader(file, delimiter=",")
+
+
+    for row in reader:
+        compania = row[0]
+        if compania == "AGA":
+            numero_economico = row[3]
+            flota = row[1]
+            aplicacion = row[2]
+            marca = row[4]
+            clase = row[6]
+            presion_establecida = row[7]
+
+            try:
+                ubicacion = Ubicacion.objects.get(nombre=flota, compania=Compania.objects.get(compania=compania))
+            except:
+                ubicacion = Ubicacion.objects.create(nombre=flota, compania=Compania.objects.get(compania=compania))
+
+            try:
+                aplicacion = Aplicacion.objects.get(nombre=aplicacion, compania=Compania.objects.get(compania=compania))
+            except:
+                aplicacion = Aplicacion.objects.create(nombre=aplicacion, compania=Compania.objects.get(compania=compania))
+
+            Vehiculo.objects.create(numero_economico=numero_economico,
+                                marca=marca,
+                                compania=Compania.objects.get(compania=compania),
+                                ubicacion=ubicacion,
+                                aplicacion=aplicacion,
+                                clase=clase.upper(),
+                                presion_establecida=presion_establecida
+                                )

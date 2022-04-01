@@ -114,8 +114,8 @@ class Vehiculo(models.Model):
     # Modelo del Vehiculo
 
     numero_economico = models.CharField(max_length=100)
-    modelo = models.CharField(max_length=200, null=True, default="Demo")
-    marca = models.CharField(max_length=200, null=True, default="Demo")
+    modelo = models.CharField(max_length=200, null=True, blank=True)
+    marca = models.CharField(max_length=200, null=True, blank=True)
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
     ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
     aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
@@ -127,6 +127,7 @@ class Vehiculo(models.Model):
                     ("TRAILER", "Trailer"),
                     ("VEHICLECLASSNAME", "VehicleClassName"),
                     ("AUTOBUS", "Autobus"),
+                    ("AUTOMOVIL", "Automovil"),
                     ("AUTOTANQUE ALIMENTICIO", "Autotanque Alimenticio"),
                     ("AUTOTANQUE COMBUSTIBLE", "Autotanque Combustible"),
                     ("AUTOTANQUE QUIMICOS", "Autotanque Químicos"),
@@ -136,11 +137,14 @@ class Vehiculo(models.Model):
                     ("CAJA SECA 48", "Caja Seca 48"),
                     ("CAJA SECA 53", "Caja Seca 53"),
                     ("CAJA SECA 53 (3 EJES)", "Caja Seca 53 (3 Ejes)"),
+                    ("CAMIÓN", "Camión"),
                     ("CAMIÓN - CAMAROTE", "Camión - Camarote"),
                     ("CAMIONETA", "Camioneta"),
+                    ("CAMIONETA LIGERA", "Camioneta ligera"),
                     ("CORTINA", "Cortina"),
                     ("CORTINA 38", "Cortina 38"),
                     ("DOLLY", "Dolly"),
+                    ("MOTOCICLETA", "Motocicleta"),
                     ("PICK-UP", "Pick-Up"),
                     ("PLATAFORMA 35", "Plataforma 35"),
                     ("PLATAFORMA 40", "Plataforma 40"),
@@ -197,7 +201,7 @@ class Vehiculo(models.Model):
     presion_de_entrada = models.IntegerField(blank=True, null=True)
     presion_de_salida = models.IntegerField(blank=True, null=True)
     presion_establecida = models.IntegerField(blank=True, null=True, default=100)
-    ultima_bitacora = models.ForeignKey("Bitacora_Pro", null=True, blank=True, on_delete=models.CASCADE, related_name="bitacoras_pro")
+    ultima_bitacora = models.ForeignKey("Bitacora", null=True, blank=True, on_delete=models.CASCADE, related_name="bitacoras")
     ultima_inspeccion = models.ForeignKey("Inspeccion", null=True, blank=True, on_delete=models.CASCADE, related_name="inspecciones_vehiculo")
 
     fecha_de_creacion = models.DateField(auto_now_add=True)

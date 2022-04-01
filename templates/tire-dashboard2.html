@@ -117,7 +117,7 @@
             <li>
               <label for="all-app" class="input-check select-all">
                 Seleccionar todas
-                <input type="checkbox" name="aplicacion2" value="all" id="all-aplicacion" {% if aplicacion2|slugify == "all" %}checked{% endif %} />
+                <input type="checkbox" name="aplicacion2" value="all" id="all-app" {% if aplicacion2|slugify == "all" %}checked{% endif %} />
                 <span class="checkmark"></span>
               </label>
             </li>
@@ -225,9 +225,14 @@
             action="{% url 'dashboards:tireDB2' %}"
             method="GET"
           >
-            <input type="hidden" name="app_dual" value="true" />
-            <h2 class="h2-score">Reemplazo Dual</h2>
-            <input type="checkbox" name="dual" id="dual" checked />
+            <!-- <input type="hidden" name="app_dual" value="true" /> -->
+            <!-- <h2 class="h2-score">Reemplazo Dual</h2> -->
+            
+            <label class="input-check-dual">
+              <h3>Remplazo Dual</h3>
+              <input type="checkbox" name="app-dual" id="dual" checked />
+              <div class="checkmark"></div>
+            </label>
 
             {% comment %}
             <div>

@@ -192,7 +192,7 @@ input[type='date']::-webkit-inner-spin-button,
 
 .table-container {
   max-height: 100%;
-  min-height: 50vh;
+  min-height: calc(65vh + 1rem);
   position: relative;
   overflow-x: auto;
   width: 100%;
@@ -292,7 +292,7 @@ th {
   }
 
   .container h2 {
-    font-size: 2.25vmin;
+    font-size: 2vmin;
   }
 
   .row-3 {

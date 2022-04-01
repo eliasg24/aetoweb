@@ -14,14 +14,10 @@
 <div class="all-cont">
     <section class="container">
 
-        <form class="form__container">
+        <div class="form__container">
 
             <nav class="config-nav">
                 <h1 class="title">CONFIGURACIÓN</h1>
-
-                <button class="btn btn-success" type="submit">
-                    <span class="icon-floppy1"></span>
-                </button>
             </nav>
 
             <nav class="buttonsC">
@@ -55,11 +51,13 @@
                         </div>
         
                         <div class="wrapper">
-                            <div class="con-sec">
+                            <form class="con-sec" action="{% url 'dashboards:config' %}" method="POST">
+                                {% csrf_token %}
                                 {% include 'config-params/operacion.html' %}
-                            </div>
+                            </form>
                         </div>
                     </div>
+        </form>
     
                     <div class="con" id="usuario">
         
@@ -70,9 +68,10 @@
                         </div>
                         
                         <div class="wrapper">
-                            <div class="con-sec">
+                            <form class="con-sec" action="{% url 'dashboards:config' %}" method="POST">
+                                {% csrf_token %}
                                 {% include 'config-params/usuario.html' %}
-                            </div>
+                            </form>
                         </div>
                     </div>
     
@@ -87,16 +86,16 @@
                             <div class="con-sec">
                                 <div class="buttons">
                                     <div>
-                                        <form style="margin: 0" method="POST" enctype="multipart/form-data">
+                                        <form style="margin: 0" action="{% url 'dashboards:config' %}" method="POST" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             <input type="hidden" name="compania" value="{{user.perfil.compania}}">
                                             <label>
                                                 <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
                                             </label>
-                                            <button class="btn btn-download w-100" type="submit">Continuar</button>
+                                            <button class="btn btn-download w-100" value="excelform" type="submit">Continuar</button>
                                         </form>
                                     </div>
-                                    <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
+                                    <a href="https://drive.google.com/uc?id=1AgjEnTFj8jZpS6zJcCJF1G_s8Wxu6ohp&export=download" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
                                 </div>
                             </div>
                         </div>
@@ -108,23 +107,23 @@
                         <div class="con-title">
                             <h2 class="con-title__text">
                                 <span class="icon-upload-cloud"></span>
-                                Alta de llantas
+                                Alta de llantas rodantes
                             </h2>
                         </div>
                         <div class="wrapper">
                             <div class="con-sec">
                                 <div class="buttons">
                                     <div>
-                                        <form style="margin: 0" method="POST" enctype="multipart/form-data">
+                                        <form style="margin: 0" action="{% url 'dashboards:config' %}"  method="POST" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             <input type="hidden" name="compania" value="{{user.perfil.compania}}">
                                             <label>
-                                                <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
+                                                <input type="file" name="file2"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
                                             </label>
                                             <button class="btn btn-download w-100" type="submit">Continuar</button>
                                         </form>
                                     </div>
-                                    <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
+                                    <a href="https://drive.google.com/uc?id=1DtE-s-P6C47l6df30PIAQtzm4QzSAPCw&export=download" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
                                 </div>
                             </div>
                         </div>
@@ -155,12 +154,12 @@
                                     <a href="{% url 'dashboards:catalogoRechazos' %}" class="btn btn-redirect">
                                         Catálogos de rechazos
                                     </a>
-                                    <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
+                                    <!-- <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
                                         Catálogos de metas
                                     </a>
                                     <a href="https://drive.google.com/uc?export=download&id=1Lg7iQZf_N3bwSjutnlWAJwF5mlPXERai" class="btn btn-redirect">
                                         Catálogos de presupuestos
-                                    </a>
+                                    </a> -->
                                 </div>
                             </div>
                         </div>
@@ -205,7 +204,6 @@
                     </button>
                 </nav>
             </article>
-        </form>
         
     </section>
 </div>                                        

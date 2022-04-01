@@ -84,6 +84,14 @@
         Rol de usuario
     </label>
     <datalist id="rol">
-        <option value="Rol 1"></option>
+        {% for grupo in groups_names %}
+            <option value="{{grupo}}"></option>
+        {% endfor %}
     </datalist>
 </div>
+
+<nav class="flex-row">
+    <button value='usuarioform' type="submit" class="btn btn-success">
+        <span class="icon-floppy1"></span>
+    </button>
+</nav>

@@ -3,15 +3,11 @@
 {% block head %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/detail2.css' %}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
 <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
 <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
 <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-exports.min.js"></script>
 <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AETO WEB</title>
+<title>Vehículo {{vehiculo.numero_economico}}</title>
 {% endblock head %}
 
 {% block content %}
@@ -21,20 +17,46 @@
         <div class="logo">
             <img src="{% static 'images/aeto.svg' %}" alt="logo">
         </div>
-        <h1 class="titleh1">VEHÍCULO {{vehiculo.numero_economico}}</h1>
-    </header>
 
-    <section class="container">
         <nav class="flex-row" id="nav-dash">
             <button class="btn btn-aeto-crunch active" id="btn-table">
+                <span class="icon-truck"></span>
                 Vehículo
             </button>
             <button class="btn btn-aeto-crunch" id="btn-chart">
-                Gráficas
+                <span class="icon-tireeye"></span>
+                Tire Eye
+            </button>
+            <button class="btn btn-aeto-crunch" id="btn-pulpo">
+                <span class="icon-pulpo"></span>
+                Pulpo
             </button>
         </nav>
+    </header>
+
+    <section class="container">
         <div class="animate__animated animate__fadeIn main__content col-2 on-view" id="table">
             <div class="config__container">
+
+                <nav class="config__nav">
+                    <h1 class="detail__title">VEHÍCULO {{vehiculo.numero_economico}}</h1>
+
+                    <div class="flex-row">
+                        <a 
+                          href="{% url 'dashboards:configuracionVehiculo' %}" 
+                          class="btn btn-download">
+                            <span class="icon-magnifier"></span>
+                            Smart View
+                        </a>
+                        <a 
+                          href="{% url 'dashboards:diagrama' %}" 
+                          class="btn btn-download">
+                            <span class="icon-pencil"></span>
+                            Edición Manual
+                        </a>  
+                    </div> 
+                </nav>
+
                 <div class="config__config">
                     {% if configuracion == "S2.C2.D2" %}
                         {% include "configurations/s2d4c4.html" %}
@@ -104,25 +126,25 @@
                         {% include "configurations/t4t4t4.html" %}
                     {% endif %}
                 </div>
+                <!-- ? Table -->
+            </div>
+            <div class="bit-dash">
                 <div class="config__data">
                     <nav class="config__nav">
                         <div id="nav-table" class="flex-row">
-                            <button class="btn btn-aeto-crunch active" id="btn-general">General</button>
-                            <button class="btn btn-aeto-crunch" id="btn-problemas">Problemas Abiertos</button>
-                            <button class="btn btn-aeto-crunch" id="btn-llantas">Info Llantas</button>
-                        </div>
-                        <div class="flex-row">
-                            <a 
-                              href="{% url 'dashboards:configuracionVehiculo' %}" 
-                              class="btn btn-download">
-                                <span class="icon-magnifier"></span>
-                            </a>
-                            <a 
-                              href="{% url 'dashboards:diagrama' %}" 
-                              class="btn btn-download">
-                                <span class="icon-pencil"></span>
-                            </a>  
-                        </div>             
+                            <button class="btn btn-aeto-crunch alt active" id="btn-general">
+                                General
+                            </button>
+                            <button class="btn btn-aeto-crunch alt" id="btn-problemas">
+                                Problemas Abiertos
+                            </button>
+                            <button class="btn btn-aeto-crunch alt" id="btn-llantas">
+                                Info Llantas
+                            </button>
+                            <button class="btn btn-aeto-crunch alt" id="btn-bitacora">
+                                Bitacora
+                            </button>
+                        </div>            
                     </nav>
 
                     <div class="config__container-table">
@@ -225,45 +247,41 @@
                             </table>
                         </div>
 
+                        <div class="tables__table" id="bitacora">
+                            <div class="column" id="col-table">
+                                <table class="config__table">
+                                    <thead class="thead-dark">
+                                        <tr class="tr-head">
+                                            <th class="header" scope="col">Evento</th>
+                                            <th class="header" scope="col">Fecha</th>
+                                            <th class="header" scope="col">Encontrado</th>
+                                            <th class="header" scope="col">Tiempo</th>
+                                            <th class="header" scope="col">Reporte</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for vehiculo in bitacora %}
+                                        <tr id="paragraph {{vehiculo.id}}">
+                                            <td class="td-table4"><span class="icon-pulpo"></span></td>
+                                            <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
+                                            <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
+                                            <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
+                                            <td class="td-table4">
+                                                <a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}" rel="noopener" target="_blank">
+                                                    <span class="icon-file-pdf" ></span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+        
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="bit-dash">
-                <div class="bitacora">
-                    <h2 class="bitacora-title">BITACORA</h2>
-                    <div class="column" id="col-table">
-                        <table class="config__table">
-                            <thead class="thead-dark">
-                                <tr class="tr-head">
-                                    <th class="header" scope="col">Evento</th>
-                                    <th class="header" scope="col">Fecha</th>
-                                    <th class="header" scope="col">Encontrado</th>
-                                    <th class="header" scope="col">Tiempo</th>
-                                    <th class="header" scope="col">Reporte</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for vehiculo in bitacora %}
-                                <tr id="paragraph {{vehiculo.id}}">
-                                    <td class="td-table4"><span class="icon-pulpo"></span></td>
-                                    <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
-                                    <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
-                                    <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
-                                    <td class="td-table4">
-                                        <a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}">
-                                            <span class="icon-file-pdf" ></span>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
                 </div>
                 <div class="dash__container">
-                    <nav class="dash__nav">
-                        <h2>Tire Eye</h2>
+                    <!-- <nav class="dash__nav">
                         <div class="flex-row">
                             <button class="btn btn-download" type="button" id="prev" disabled>
                                 <span class="icon-arrow-left2"></span>
@@ -272,7 +290,7 @@
                                 <span class="icon-arrow-right2"></span>
                             </button>
                         </div>
-                    </nav>
+                    </nav> -->
 
                     <div class="dash__content page active" id="page-1">
                         <div class="dash__data">
@@ -286,15 +304,9 @@
                                 </div>
                             </div>
                             <div class="score-card">
-                                <h2>TIEMPO PROMEDIO</h2>
+                                <h2>CPK del vehículo</h2>
                                 <div class="circle">
-                                    <span>
-                                        {% if vehiculo.tiempo_de_inflado %}
-                                            {{vehiculo.tiempo_de_inflado}}
-                                        {% else %}
-                                            0
-                                        {% endif %}
-                                    </span>
+                                    <span>$0.019</span>
                                 </div>
                             </div>
 
@@ -321,6 +333,7 @@
                 </div>
             </div>
         </div>
+
         <div class="animate__animated animate__fadeIn main__content grid-4" id="charts">
             <div class="chart__container" id="pos-pro">
                 <nav class="chart__container-nav">
@@ -353,7 +366,7 @@
                 <div class="dash__data">
                     <div class="score-card">
                         <h2>Necesidad de llanta por tipo de Eje</h2>
-                        <div class="flex-row space-around">
+                        <div class="flex-row-nowrap space-around">
                             <div class="circle">
                                 <h3>Eje</h3>
                                 <span>20</span>
@@ -373,6 +386,10 @@
                 </div>
             </div>
         </div>
+
+        <div class="animate__animated animate__fadeIn main__content" id="pulpo">
+            Pulpo View
+        </div>
     </section>
 
 </main>
@@ -382,21 +399,23 @@
 
 
     document.addEventListener("DOMContentLoaded", (e) => { // Cargando los scripts en la carga del documento    
-        Llanta();
-        hoverLlantas();
+        // Llanta();
+        // hoverLlantas();
         handleButtons('#nav-dash');
         handleButtons('#nav-table');
         handleView('btn-table', '#table');
         handleView('btn-chart', '#charts');
+        handleView('btn-pulpo', '#pulpo');
         // Tablas
         handleTables('btn-general', '#general');
         handleTables('btn-problemas', '#problemas');
         handleTables('btn-llantas', '#llantas');
+        handleTables('btn-bitacora', '#bitacora');
 
         // Handle Fullscreen
         handleFullscreen('line-chart', 'tire-eye-chart');
 
-        handleNav();
+        // handleNav();
 
         dbFullscreen('pos-pro');
         dbFullscreen('km-pro');
@@ -498,12 +517,18 @@
          const popOut = document.querySelectorAll('.pop-out-llanta');
 
          popOut.forEach( (llanta, key) => {
+             // Generación de numeros aleatorios 
              const presion = Math.floor(Math.random() * 100);
              const profundidad = Math.floor(Math.random() * 100);
+
              llanta.innerHTML = `
-                 <h4>Llanta #1</h4>
-                 <p>Profundidad: NA </p>
-                 <p>Presión: {{ vehiculo.presion_de_salida }}</p>
+                 <h4>Llanta #${ key + 1 }</h4>
+                 <p>
+                    <strong>Profundidad</strong> : NA 
+                 </p>
+                 <p>
+                    <strong>Presión</strong>: {{ vehiculo.presion_de_salida }}
+                </p>
              `;
          } );
 

@@ -130,12 +130,6 @@
             {% endfor %}
           </ul>
         </div>
-
-        <!-- <button class="btn btn-aeto" id="btn-buscar" type="submit">
-          <span>Buscar</span>
-          <span class="blur">Buscar</span>
-          <span class="icon-magnifier"></span>
-        </button> -->
       </nav>
     </form>
   </header>
@@ -560,8 +554,8 @@
           handleView('view4', '.col');
           handleCheckbox();
           changeGraph('.ea-graph', 'ea-dual', 'ea-desgaste', 'ea-obser', 'ea-pres');
-          handleSelectAll({ container: 'menu-ubicacion', selectAll: 'all-flota' })
-          handleSelectAll({ container: 'menu-clase', selectAll: 'all-clase' })
+          handleSelectAll({ container: 'menu-ubicacion', selectAll: 'all-flota' });
+          handleSelectAll({ container: 'menu-clase', selectAll: 'all-clase' });
           handleCheckbox();
         });
 

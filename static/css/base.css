@@ -52,7 +52,8 @@ h6 {
   margin: 0.25rem 0;
 }
 
-.flex-row {
+.flex-row,
+.flex-row-nowrap {
   align-items: center;
   display: flex;
   flex-flow: row nowrap;
@@ -439,6 +440,55 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
+/* Pop Out */
+
+.popout-text {
+  position: absolute;
+  background-color: #000;
+  border-radius: 0.25rem;
+  display: none;
+  margin-left: 3rem;
+  padding: 0.75rem;
+  transition: all 0.4s ease;
+  z-index: 2;
+  top: 45px;
+  right: -50px;
+}
+
+.about-btn > .popout-text {
+  top: 30px;
+  right: 0;
+}
+
+.popout-text p {
+  font-family: var(--font);
+  color: white;
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+
+.icon-score:hover .popout-text {
+  display: block;
+  z-index: 3;
+}
+
+.icono-pantallaC:hover .popout-text {
+  display: block;
+  z-index: 3;
+  width: 230px;
+}
+
+.about-btn:hover .popout-text {
+  display: block;
+  z-index: 3;
+  width: 230px;
+}
+
+.icon-score:hover .popout-text {
+  display: block;
+  z-index: 3;
+}
+
 .circle {
   align-items: center;
   background: linear-gradient(
@@ -470,6 +520,13 @@ input[type='number'] {
 
   .drop-menu {
     width: max-content;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .circle {
+    height: 150px;
+    width: 150px;
   }
 }
 

@@ -1108,41 +1108,33 @@
   // create data
   var data1 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
+          {x: "{{valores.2}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
       {% endfor %}
   ];
 
   // create data
   var data2 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
+          {x: "{{valores.2}}", value: "{{valores.3}}", size: "", name: ""},
       {% endfor %}
   ];
 
   // create data
   var data3 = [
       {% for pro, valores in comparativa_de_productos.items %}
-          {x: "{{valores.6}}", value: "{{valores.0}}", size: "{{valores.3}}", name: "{{valores.6}}"},
+          {x: "{{valores.2}}", value: "{{valores.2}}", size: "", name: ""},
       {% endfor %}
   ];
-
   
 
   // create a chart
   var chart = anychart.cartesian();
 
-  chart.yScale().ticks().interval(100000);
-  chart.yAxis().labels().format("{%value}");
-
-  var scale = anychart.scales.ordinal();
-
   // adjusting labels
   var yTicks = chart.yScale().ticks();
   yTicks.interval(100000);
   var yLabels = chart.yAxis().labels();
-  yLabels.format("${%value}{scale: (1000)(1000)(1000)|(K)(M)(B)}");
-
-  var scale = anychart.scales.ordinal();
+  yLabels.format("{%value}{scale: (1000)(1000)(1000)|(K)(M)(B)}");
 
   chart.xScale(scale);
 
@@ -1166,7 +1158,7 @@
   series1.selected().stroke("4 white");
 
   // create the first series and set the data
-  var series2 = chart.bubble(data2);
+  var series2 = chart.marker(data2);
   series2.name("Cantidad");
 
   // configure the visual settings of the first series
@@ -1179,26 +1171,25 @@
 
 
   // create the first series and set the data
-  var series3 = chart.bubble(data2);
+  var series3 = chart.marker(data3);
   series3.name("CPK");
 
   // configure the visual settings of the first series
-  series3.normal().fill("#A349A4");
-  series3.hovered().fill("#A349A4", 0.3);
-  series3.selected().fill("#A349A4", 0.5);
-  series3.normal().stroke("white");
-  series3.hovered().stroke("2 white");
-  series3.selected().stroke("4 white");
+  series3.normal().fill("#202020");
+  series3.hovered().fill("#202020");
+  series3.selected().fill("#202020");
+  series3.normal().stroke("#202020");
+  series3.hovered().stroke("#202020");
+  series3.selected().stroke("#202020");
 
-  series3.labels(true);
+  series1.labels(true);
 
   // set the color for the text of the labels
-  series3.labels().fontColor('white');
-  series3.hovered().labels().fontColor("white");
-  series3.selected().labels().fontColor("white");
+  series1.labels().fontColor('white');
+  series1.hovered().labels().fontColor("white");
+  series1.selected().labels().fontColor("white");
 
-  series3.labels().fontSize(10);
-
+  series1.labels().fontSize(10);
 
   // set the maximum size of the bubble
   chart.maxBubbleSize('15%');
