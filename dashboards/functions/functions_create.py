@@ -103,6 +103,17 @@ def crear_nombre_de_eje():
         llanta.ultima_inspeccion = i
         llanta.save()"""
 
+def crear_de_bitacora_el_vehiculo():
+    bitacoras = Bitacora.objects.filter(compania=Compania.objects.get(compania="New Pick"))
+    for b in bitacoras:
+        vehiculo = Vehiculo.objects.get(numero_economico=b.numero_economico)
+        vehiculo.fecha_de_inflado = b.fecha_de_inflado
+        vehiculo.tiempo_de_inflado = b.tiempo_de_inflado
+        vehiculo.presion_de_entrada = b.presion_de_entrada
+        vehiculo.presion_de_salida = b.presion_de_salida
+        vehiculo.presion_establecida = b.presion_establecida
+        vehiculo.save()
+
 def crear_1(numero_economico, compania, ubicacion, aplicacion, clase, configuracion, tiempo_de_inflado, presion_de_entrada, presion_de_salida, presion_establecida):
     """Vehiculo.objects.create(numero_economico=numero_economico,
                                 modelo="Kenworth",
