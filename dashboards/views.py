@@ -2461,7 +2461,7 @@ def informe_de_perdida_y_rendimiento(request):
         comparativa_de_productos = {}
         for producto in productos:
             valores_producto = []
-            
+
             llantas_producto_total = llantas.filter(producto=producto)
             llantas_producto = llantas.filter(producto=producto, numero_economico__in=llantas_limpias)
 
@@ -2481,10 +2481,10 @@ def informe_de_perdida_y_rendimiento(request):
             if dibujo and km_proyectado_producto != 0:
                 comparativa_de_productos[producto] = valores_producto
 
-        comparativa_de_flotas = {}    
+        comparativa_de_flotas = {}
         for flota in flotas:
             valores_flota = []
-            
+
             llantas_flota = llantas.filter(vehiculo__ubicacion=flota, numero_economico__in=llantas_limpias)
             if llantas_flota:
                 inspecciones_flota = Inspeccion.objects.filter(llanta__in=llantas_flota)
@@ -2494,7 +2494,7 @@ def informe_de_perdida_y_rendimiento(request):
 
                 valores_flota.append(km_proyectado_flota)
                 valores_flota.append(cpk_flota)
-                
+
                 comparativa_de_flotas[flota] = valores_flota
 
         comparativa_de_aplicaciones = {}
@@ -2511,7 +2511,7 @@ def informe_de_perdida_y_rendimiento(request):
 
                 valores_aplicacion.append(km_proyectado_aplicacion)
                 valores_aplicacion.append(cpk_aplicacion)
-                
+
                 comparativa_de_aplicaciones[aplicacion] = valores_aplicacion
 
         comparativa_de_ejes = {}
@@ -2527,9 +2527,9 @@ def informe_de_perdida_y_rendimiento(request):
 
                 valores_eje.append(km_proyectado_eje)
                 valores_eje.append(cpk_eje)
-                
+
                 comparativa_de_ejes[eje["nombre_de_eje"]] = valores_eje
-        
+
         comparativa_de_clases = {}
         for clase in clases:
             valores_clase = []
@@ -2543,7 +2543,7 @@ def informe_de_perdida_y_rendimiento(request):
 
                 valores_clase.append(km_proyectado_clase)
                 valores_clase.append(cpk_clase)
-                
+
                 comparativa_de_clases[clase["clase"]] = valores_clase
 
         print(comparativa_de_flotas)
@@ -2593,11 +2593,11 @@ def informe_de_perdida_y_rendimiento(request):
         ax.set_xticklabels(eje_titulos_flota, fontsize=fontsize)
         ax.set_title('Comparativa flotas')
 
-        
-        plt.grid()
-        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionFlotas.png", dpi = 70, bbox_inches="tight")
 
-        img_flotas = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionFlotas.png")
+        plt.grid()
+        plt.savefig(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionFlotas.png", dpi = 70, bbox_inches="tight")
+
+        img_flotas = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionFlotas.png")
 
         eje_titulos_aplicaciones = []
         for i in range(len(comparativa_de_aplicaciones)):
@@ -2633,9 +2633,9 @@ def informe_de_perdida_y_rendimiento(request):
         ax.set_xticklabels(eje_titulos_aplicaciones, fontsize=fontsize)
         ax.set_title('Comparación aplicaciones')
         plt.grid()
-        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionAplicaciones.png", dpi = 70, bbox_inches="tight")
+        plt.savefig(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionAplicaciones.png", dpi = 70, bbox_inches="tight")
 
-        img_aplicaciones = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionAplicaciones.png")
+        img_aplicaciones = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionAplicaciones.png")
 
         eje_titulos_ejes = []
         for i in range(len(comparativa_de_ejes)):
@@ -2679,9 +2679,9 @@ def informe_de_perdida_y_rendimiento(request):
         ax.set_title('Comparativa ejes')
 
         plt.grid()
-        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionEjes.png", dpi = 70, bbox_inches="tight")
+        plt.savefig(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionEjes.png", dpi = 70, bbox_inches="tight")
 
-        img_ejes = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionEjes.png")
+        img_ejes = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionEjes.png")
 
         eje_titulos_producto = []
         for i in range(len(comparativa_de_productos)):
@@ -2724,9 +2724,9 @@ def informe_de_perdida_y_rendimiento(request):
         ax.set_xticklabels(eje_titulos_producto, fontsize=fontsize)
         ax.set_title('Comparativa productos')
         plt.grid()
-        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionProductos.png", dpi = 70, bbox_inches="tight")
+        plt.savefig(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionProductos.png", dpi = 70, bbox_inches="tight")
 
-        img_producto = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionProductos.png")
+        img_producto = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionProductos.png")
 
         eje_titulos_clase = []
         for i in range(len(comparativa_de_clases)):
@@ -2768,9 +2768,9 @@ def informe_de_perdida_y_rendimiento(request):
         ax.set_xticklabels(eje_titulos_clase, fontsize=fontsize)
         ax.set_title('Comparativa clases')
         plt.grid()
-        plt.savefig(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionClases.png", dpi = 70, bbox_inches="tight")
+        plt.savefig(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionClases.png", dpi = 70, bbox_inches="tight")
 
-        img_clases = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"\files\files\ComparacionClases.png")
+        img_clases = openpyxl.drawing.image.Image(os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/ComparacionClases.png")
 
         #creating workbook
         wb = openpyxl.Workbook()
@@ -2817,7 +2817,7 @@ def informe_de_perdida_y_rendimiento(request):
         e12 = reporte.cell(row=1, column=28, value='Punto de retiro')
         e12 = reporte.cell(row=1, column=29, value='Pérdida total')
 
-        FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\Inspections_Bulk.csv"
+        FILE_PATH = os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/Inspections_Bulk.csv"
         file = open(FILE_PATH, "r", encoding="latin-1", newline='')
         next(file, None)
         reader = csv.reader(file, delimiter=",")
@@ -2827,7 +2827,7 @@ def informe_de_perdida_y_rendimiento(request):
             if row[4][:10] in lista_fechas:
                 iteracion += 1
                 llanta = row[12]
-                FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\RollingStock2022_03_25_040126.csv"
+                FILE_PATH = os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/RollingStock2022_03_25_040126.csv"
                 file2 = open(FILE_PATH, "r", encoding="latin-1", newline='')
                 next(file2, None)
                 reader2 = csv.reader(file2, delimiter=",")
@@ -2837,7 +2837,7 @@ def informe_de_perdida_y_rendimiento(request):
                         if llanta == llanta2:
 
                             producto = row2[10]
-                            FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\Products2022_03_25_043513.csv"
+                            FILE_PATH = os.path.abspath(os.getcwd()) + r"/aetoweb/files/files/Products2022_03_25_043513.csv"
                             file3 = open(FILE_PATH, "r", encoding="latin-1", newline='')
                             next(file3, None)
                             reader3 = csv.reader(file3, delimiter=",")
@@ -2846,11 +2846,11 @@ def informe_de_perdida_y_rendimiento(request):
                                 if producto == producto2:
                                     profundidad_inicial = float(row3[10])
                                     precio = float(row3[12])
-                            
+
 
                             numero_de_eje = int(row2[17]) - 1
                             vehiculo = row2[6]
-                            FILE_PATH = os.path.abspath(os.getcwd()) + r"\files\files\Vehicles2022_03_25_043019.csv"
+                            FILE_PATH = os.path.abspath(os.getcwd()) + "/aetoweb/files/files/Vehicles2022_03_25_043019.csv"
                             file4 = open(FILE_PATH, "r", encoding="latin-1", newline='')
                             next(file4, None)
                             reader4 = csv.reader(file4, delimiter=",")
@@ -2871,7 +2871,7 @@ def informe_de_perdida_y_rendimiento(request):
 
                     except:
                         pass
-                
+
                 tds = [float(row[18]), float(row[19]), float(row[20])]
                 min_profundidad = min(tds)
                 prom = round(statistics.mean(tds), 2)
@@ -2879,16 +2879,16 @@ def informe_de_perdida_y_rendimiento(request):
                     if profundidad_inicial == 0:
                         porcentaje = 0
                     else:
-                        porcentaje = round((prom - min_profundidad) * profundidad_inicial, 2)
+                        porcentaje = round((prom - min_profundidad) / profundidad_inicial, 2)
                 except:
                     porcentaje = None
                     profundidad_inicial = None
-                
+
                 try:
                     if min_profundidad >= 1000:
                         dinero_perdido = 0
                     else:
-                        dinero_perdido = round((precio * porcentaje) / 100, 2)
+                        dinero_perdido = round((precio * porcentaje), 2)
                 except:
                     dinero_perdido = None
                     precio = None
@@ -2957,7 +2957,7 @@ def informe_de_perdida_y_rendimiento(request):
                 column28.value = punto_de_retiro
                 column29 = reporte.cell(row=iteracion + 1, column=29)
                 column29.value = perdida_total
-            
+
         file.close()
 
         response = HttpResponse(content_type='application/ms-excel')
