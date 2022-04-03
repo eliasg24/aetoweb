@@ -36,23 +36,32 @@
 
     <section class="container">
         <div class="animate__animated animate__fadeIn main__content col-2 on-view" id="table">
+            
             <div class="config__container">
-
-                <nav class="config__nav">
+                <header class="config__header">
                     <h1 class="detail__title">VEHÍCULO {{vehiculo.numero_economico}}</h1>
+                </header>
+                
+                <nav class="config__nav">
 
                     <div class="flex-row">
                         <a 
-                          href="{% url 'dashboards:configuracionVehiculo' %}" 
-                          class="btn btn-download">
-                            <span class="icon-magnifier"></span>
+                          href="{% url 'dashboards:configuracionVehiculo' vehiculo.id %}" 
+                          class="btn btn-aeto-crunch alt active">
+                            <span class="icon-eye"></span>
                             Smart View
                         </a>
                         <a 
-                          href="{% url 'dashboards:diagrama' %}" 
-                          class="btn btn-download">
+                          href="{% url 'dashboards:diagrama' vehiculo.id %}" 
+                          class="btn btn-aeto-crunch alt active">
                             <span class="icon-pencil"></span>
                             Edición Manual
+                        </a>  
+                        <a 
+                          href="#" 
+                          class="btn btn-aeto-crunch alt active">
+                            <span class="icon-magnifier"></span>
+                            Inspección
                         </a>  
                     </div> 
                 </nav>
@@ -126,8 +135,8 @@
                         {% include "configurations/t4t4t4.html" %}
                     {% endif %}
                 </div>
-                <!-- ? Table -->
             </div>
+
             <div class="bit-dash">
                 <div class="config__data">
                     <nav class="config__nav">
@@ -306,7 +315,7 @@
                             <div class="score-card">
                                 <h2>CPK del vehículo</h2>
                                 <div class="circle">
-                                    <span>$0.019</span>
+                                    <span>${{cpk_vehiculo}}</span>
                                 </div>
                             </div>
 
@@ -367,20 +376,18 @@
                     <div class="score-card">
                         <h2>Necesidad de llanta por tipo de Eje</h2>
                         <div class="flex-row-nowrap space-around">
-                            <div class="circle">
-                                <h3>Eje</h3>
-                                <span>20</span>
-                            </div>
-                            <div class="circle">
-                                <h3>Cant</h3>
-                                <span>10</span>
-                            </div>
+                            {% for eje, cantidad in reemplazo_actual_ejes.items %}
+                                <div class="circle">
+                                    <h3>{{eje|capfirst}}</h3>
+                                    <span>{{cantidad}}</span>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="score-card">
                         <h2>CPK del vehículo</h2>
                         <div class="circle">
-                            <span>$0.019</span>
+                            <span>${{cpk_vehiculo}}</span>
                         </div>
                     </div>
                 </div>
@@ -501,6 +508,7 @@
         });
     };
 
+<<<<<<< HEAD
     const Llanta = () => { //Creando un web component
             const llantas = document.querySelectorAll('.tireDecoration'); //
 
@@ -527,7 +535,7 @@
                     <strong>Profundidad</strong> : NA 
                  </p>
                  <p>
-                    <strong>Presión</strong>: {{ vehiculo.presion_de_salida }}
+                    <strong>Presión</strong>: {{ vehiculo.presion_de_entrada }}
                 </p>
              `;
          } );
@@ -535,6 +543,9 @@
      };
 
      const handleButtons = (container = '') => {
+=======
+    const handleButtons = (container = '') => {
+>>>>>>> daa480cab263397ec97e4c7f846a0f6c00a58ab5
         const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
 
         buttons.forEach( button => {
@@ -1019,26 +1030,13 @@ anychart.onDocumentReady(function () {
 
 // create a data set
 var data = anychart.data.set([
-{x: "A", value: 30,
+{% for eje, kmxmm in comparativa_de_ejes.items %}
+{x: "{{eje}}", value: {{kmxmm}},
 normal:   {fill: "#0097fc", stroke: "#0097fc"},
 hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
 selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
 },
-{x: "B", value: 20,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-},
-{x: "C", value: 30,
-normal:   {fill: "#0097fc", stroke: "#0097fc"},
-hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
-selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
-},
-{x: "D", value: 10,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-}
+{% endfor %}
 ]);
 
 // create a chart
@@ -1084,56 +1082,14 @@ anychart.onDocumentReady(function () {
 
 // create a data set
 var data = anychart.data.set([
-{x: "A", value: 30,
-normal:   {fill: "#0097fc", stroke: "#0097fc"},
-hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
-selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
-},
-{x: "B", value: 20,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-},
-{x: "C", value: 30,
-normal:   {fill: "#0097fc", stroke: "#0097fc"},
-hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
-selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
-},
-{x: "D", value: 20,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-},
-{x: "E", value: 30,
-normal:   {fill: "#0097fc", stroke: "#0097fc"},
-hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
-selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
-},
-{x: "F", value: 20,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-},
-{x: "G", value: 30,
-normal:   {fill: "#0097fc", stroke: "#0097fc"},
-hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
-selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
-},
-{x: "H", value: 20,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-},
-{x: "I", value: 30,
-normal:   {fill: "#0097fc", stroke: "#0097fc"},
-hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
-selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
-},
-{x: "J", value: 20,
-normal:   {fill: "#12bcc8", stroke: "#12bcc8"},
-hovered:  {fill: "#12bcc8 0.1", stroke: "2 #12bcc8"},
-selected: {fill: "#12bcc8 0.5",stroke: "4 #12bcc8"}
-}
+    {% for posicion, profundidad in comparativa_de_posiciones.items %}
+        {x: "{{posicion}}", value: {{profundidad.0}},
+        normal:   {fill: "#0097fc", stroke: "#0097fc"},
+        hovered:  {fill: "#0097fc 0.1", stroke: "2 #0097fc"},
+        selected: {fill: "#0097fc 0.5",stroke: "4 #0097fc"}
+        },
+    {% endfor %}
+
 ]);
 
 // create a chart
@@ -1180,35 +1136,17 @@ anychart.onDocumentReady(function () {
 
 // create data
 var data = [
-  {x: 1, value: 3, markerSize:12,
-  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
-  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
-  selected: {fill: "#A349A4 0.5",stroke: "6 #A349A4"}
-  },
-  {x: 2, value: 4, markerSize:12,
-  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
-  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
-  selected: {fill: "#A349A4 0.5", stroke: "6 #A349A4"}
-  },
-  {x: 3, value: 6, markerSize:12,
-  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
-  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
-  selected: {fill: "#A349A4 0.5", stroke: "6 #A349A4"}
-  },
-  {x: 4, value: 2, markerSize:12,
-  normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
-  hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
-  selected: {fill: "#A349A4 0.5", stroke: "6 #A349A4"}
-  }
+    {% for posicion, profundidad in comparativa_de_posiciones.items %}
+        {x: "{{posicion}}", value: {{profundidad.1}}, markerSize:12,
+        normal:   {fill: "#A349A4", stroke: "#A349A4", type: "circle"},
+        hovered:  {fill: "#A349A4 0.3", stroke: "4 #A349A4"},
+        selected: {fill: "#A349A4 0.5",stroke: "6 #A349A4"}
+        },
+    {% endfor %}
 ];
 
 // create data for the third series
-var data1= [
-  {x: 1, value: 1},
-  {x: 1, value: 1},
-  {x: 1,   value: 1},
-  {x: 1, value: 1}
-];
+
 
 // create a chart
 var chart = anychart.scatter();
@@ -1220,16 +1158,9 @@ chart.xScale().ticks().interval(1);
 // create series, set the data and names
 series1 = chart.marker(data);
 
-series2 = chart.stepArea(data1);
-// // configure the visual settings of the second series
-series2.normal().fill("#A349A4", 0.5);
-series2.hovered().fill("#A349A4", 0.1);
-series2.normal().stroke("#A349A4");
-series2.hovered().stroke("#A349A4", 2);
-series2.selected().stroke("#A349A4", 4);
 
-series1.name("");
-series2.name("");
+
+series1.name("Profundidad");
 
 // create a marker series and set the data
 var series = chart.marker(data);

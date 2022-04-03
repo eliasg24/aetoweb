@@ -7,134 +7,173 @@
   type="text/css"
   href="{% static 'css/configVehiculo.css' %}"
 />
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AETO WEB</title>
+<title>Smart View</title>
 {% endblock %}
 
 {% block content %}
-<div class="all-cont">
-  <header>
-    <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" />
+<div class="main-cont">
+  <header class="head-cont">
+    <div class="logo">
+      <img src="{% static 'images/aeto.svg' %}" alt="logo">
+    </div>
+    <h1>Smart View</h1>
   </header>
   <h1 class="main-title">Configuración del Vehículo</h1>
   <div class="main-cont">
-    <div class="par-llantas">
-      <div class="tire">
-        <p class="presion-good">90</p>
-        <div class="good" id="llanta"></div>
-        <p class="profundidad-good">4</p>
-      </div>
 
-      <div class="shaft">
-        <svg
-          width="792pt"
-          height="61pt"
-          viewBox="0 0 792 61"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g id="#7f7f7f7f"></g>
-          <g id="#ffffffff">
-            <path
-              opacity="1.00"
-              d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
-            />
-          </g>
-        </svg>
-      </div>
+    {% for eje in ejes %}
 
-      <div class="tire">
-        <p class="presion-good">90</p>
-        <div class="good" id="llanta"></div>
-        <p class="profundidad-good">4</p>
-      </div>
+      {% if eje|length == 2 %}
+
+        <div class="par-llantas">
+          <div class="tire-relative">
+            <div class="tire__top {{ color }}">
+              <span class="tire__title">Presión</span>
+              <span class="tire__data">
+                {{eje.0.presion_de_entrada}}
+              </span>
+            </div>
+            
+            <span class="icon-tire2"></span>
+            
+            <div class="tire__bottom {{ color }}">
+                <span class="tire__title">Profundidad</span>
+                <span class="tire__data">
+                    {{eje.0.ultima_inspeccion.min_profundidad}}
+                </span>
+            </div>
+          </div>
+        
+          <span class="icon-central-axle"></span>
+        
+          <div class="tire">
+            <p class="{{style|safe}}">{{eje.1.presion_de_entrada}}</p>
+            <div class="good" id="llanta"></div>
+            
+            {% if eje.1 in llantas_azules %}
+
+              <p class="profundidad-good">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
+
+            {% else %}
+
+              {% if eje.1 in llantas_amarillas %}
+
+                <p class="profundidad-yellow">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
+
+              {% else %}
+
+                {% if eje.1 in llantas_rojas %}
+
+                  <p class=" profundidad-bad">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
+
+                {% else %}
+
+                  {% if eje.1 in llantas_sospechosas %}
+
+                    <p class="">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
+
+                  {% else %}
+
+                    <p class="">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
+                  
+                  {% endif %}
+                
+                {% endif %}
+              
+              {% endif %}
+
+            {% endif %}
+
+          </div>
+        </div>
+        
+      {% else %}
+        <div class="par-doble-llanta">
+          <div class="par-llantas">
+
+            <div class="tire-relative">
+              <div class="tire__top yellow">
+                <span class="tire__title">Presión</span>
+                <span class="tire__data">
+                  {{eje.0.presion_de_entrada}}
+                </span>
+              </div>
+              
+              <span class="icon-tire2"></span>
+              
+              <div class="tire__bottom good">
+                  <span class="tire__title">Profundidad</span>
+                  <span class="tire__data">
+                      {{eje.0.ultima_inspeccion.min_profundidad}}
+                  </span>
+              </div>
+            </div>
+
+            <div class="tire-relative">
+              <div class="tire__top yellow">
+                <span class="tire__title">Presión</span>
+                <span class="tire__data">
+                  {{eje.1.presion_de_entrada}}
+                </span>
+              </div>
+              
+              <span class="icon-tire2"></span>
+              
+              <div class="tire__bottom good">
+                  <span class="tire__title">Profundidad</span>
+                  <span class="tire__data">
+                      {{eje.1.ultima_inspeccion.min_profundidad}}
+                  </span>
+              </div>
+            </div>
+          </div>
+        
+          <span class="icon-central-axle"></span>
+        
+          <div class="par-llantas">
+
+            <div class="tire-relative">
+              <div class="tire__top yellow">
+                <span class="tire__title">Presión</span>
+                <span class="tire__data">
+                  {{eje.2.presion_de_entrada}}
+                </span>
+              </div>
+              
+              <span class="icon-tire2"></span>
+              
+              <div class="tire__bottom good">
+                  <span class="tire__title">Profundidad</span>
+                  <span class="tire__data">
+                      {{eje.2.ultima_inspeccion.min_profundidad}}
+                  </span>
+              </div>
+            </div>
+
+            <div class="tire-relative">
+              <div class="tire__top yellow">
+                <span class="tire__title">Presión</span>
+                <span class="tire__data">
+                  {{eje.3.presion_de_entrada}}
+                </span>
+              </div>
+              
+              <span class="icon-tire2"></span>
+              
+              <div class="tire__bottom good">
+                  <span class="tire__title">Profundidad</span>
+                  <span class="tire__data">
+                      {{eje.3.ultima_inspeccion.min_profundidad}}
+                  </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
     </div>
-
-    <div class="doble-llanta">
-      <div class="tire">
-        <p class="presion-yellow">90</p>
-        <div class="yellow" id="llanta"></div>
-        <p class="profundidad-yellow">4</p>
-      </div>
-      <div class="tire">
-        <p class="presion-yellow">90</p>
-        <div class="yellow" id="llanta"></div>
-        <p class="profundidad-yellow">4</p>
-      </div>
-
-      <div class="c-shaft">
-        <svg
-          width="84pt"
-          height="59pt"
-          viewBox="0 0 84 59"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g id="#7f7f7f7f"></g>
-          <g id="#ffffffff">
-            <path
-              opacity="1.00"
-              d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-            />
-          </g>
-        </svg>
-      </div>
-
-      <div class="tire">
-        <p class="presion-yellow">90</p>
-        <div class="yellow" id="llanta"></div>
-        <p class="profundidad-yellow">4</p>
-      </div>
-      <div class="tire">
-        <p class="presion-yellow">90</p>
-        <div class="yellow" id="llanta"></div>
-        <p class="profundidad-yellow">4</p>
-      </div>
-    </div>
-
-    <div class="doble-llanta">
-      <div class="tire">
-        <p class="presion-bad">90</p>
-        <div class="bad" id="llanta"></div>
-        <p class="profundidad-bad">4</p>
-      </div>
-      <div class="tire">
-        <p class="presion-bad">90</p>
-        <div class="bad" id="llanta"></div>
-        <p class="profundidad-bad">4</p>
-      </div>
-
-      <div class="c-shaft">
-        <svg
-          width="84pt"
-          height="59pt"
-          viewBox="0 0 84 59"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g id="#7f7f7f7f"></g>
-          <g id="#ffffffff">
-            <path
-              opacity="1.00"
-              d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-            />
-          </g>
-        </svg>
-      </div>
-
-      <div class="tire">
-        <p class="presion-bad">90</p>
-        <div class="bad" id="llanta"></div>
-        <p class="profundidad-bad">4</p>
-      </div>
-      <div class="tire">
-        <p class="presion-bad">90</p>
-        <div class="bad" id="llanta"></div>
-        <p class="profundidad-bad">4</p>
-      </div>
-    </div>
-  </div>
+  </main>
 </div>
 
 <script>
@@ -144,9 +183,7 @@
 
     llantas.forEach((llanta) => {
       llanta.innerHTML = `
-            {% include 'tireSvg.html' %}
-
-            <div class="pop-out-llanta"></div>
+            <span class="icon-tire2"></span>
             `;
     });
   };

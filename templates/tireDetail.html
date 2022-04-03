@@ -15,310 +15,312 @@
 <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-ui.min.js"></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TIRE DETAIL</title>
+<title>LLanta</title>
 
 {% endblock head %}
   
 {% block content %}
 
-<div class="all-cont">
-  <div class="header">
-    <img class="img-logo" src="{% static 'images/Grupo 66.png' %}" alt="" />
-  </div>
-  <div class="title-header">
-    <a class="a-economic-number" href="{% url 'dashboards:detail' llanta.vehiculo.id %}"
-      ><h2 class="economic-number">Vehículo: {{vehiculo}}</h2></a
-    >
-    <h2 class="upper-title">{{llanta}}</h2>
-  </div>
-  <div class="columns-top">
-    <div class="left-column">
-
-      <div class="card" id="vehiculo">
-        <!-- col1 tire-->
-        <div class="column" id="col1">
-          <h3 class="pos-title">Posición: <br>{{llanta.posicion}}</h3>
-            <div class="tire-img"> 
-              <div class="medida" id="presion">
-                <span class="tire-title">Presión</span>
-                <span class="tire-number">{{llanta.presion_de_salida}}</span>
-              </div>
-              <span class="icon-tire2"></span>
-              <div class="medida" id="profundidad">
-                <span class="tire-title">Profundidad</span>
-                <span class="tire-number">N/A</span>
+<main class="main-cont">
+  <header class="head-cont animate__animated animate__fadeIn">
+    <div class="logo">
+      <img src="{% static 'images/aeto.svg' %}">
+    </div>    
+  </header>
+  <section class="container">
+    <div class="animate__animated animate__fadeIn row-1">
+      <div class="cards">
+        <div class="card card__config">
+          <div class="card__tire">
+            <div class="pos">
+              <h2>Posición:</h2>
+              <h2>{{llanta.posicion}}</h2>
+            </div>
+            <div class="config__cont_config">
+              <div class="tire-config">
+                <div class="tire__top good">
+                  <span class="tire__title">Presión</span>
+                  <span class="tire__data">
+                    {{llanta.presion_de_salida}}
+                  </span>
+                </div>
+                
+                <span class="icon-tire2"></span>
+                
+                <div class="tire__bottom good">
+                    <span class="tire__title">Profundidad</span>
+                    <span class="tire__data">
+                        NA
+                    </span>
+                </div>
               </div>
             </div>
-        </div>
-
-        <!-- col2 buttons-->
-        <div class="cont-buttons-table">
-          <div class="columnflex" id="col2">
-            <!-- <div class="cont-buttons" id="col3">
-              <a
-                class="gnrl1"
-                href="#General"
-                onclick="general();"
-                id="generalB"
-                >General</a
-              >
-              <a
-                class="gnrl1"
-                href="#Problemas"
-                onclick="problemasAbiertos();"
-                id="problemAbiertos"
-                >Problemas Abiertos</a
-              >
-            </div> -->
-
-            <nav class="btn-group basis-80" id="nav-tire">
-              <button class="btn btn-aeto active" onclick="general()" id="generalB">
-                  <span>General</span>
-                  <span class="blur">General</span>
+          </div>
+          <div class="config__cont">
+            <nav class="flex-row btn-nav" id="nav-tire">
+              <button class="btn btn-aeto-crunch active" id="btn-general">
+                General
               </button>
-              <button class="btn btn-aeto" onclick="problemasAbiertos();" id="problemAbiertos">
-                  <span>Problemas abiertos</span>
-                  <span class="blur">Problemas abiertos</span>
+              <button class="btn btn-aeto-crunch" id="btn-problemas">
+                Problemas Abiertos
               </button>
-            </nav>
-
-            <div class="cont-buttons" id="col4">
-              <a href="{% url 'dashboards:configuracionLlanta' %}">
-                <span class="icon-search-plus" id="searchColor"></span>
+              <a 
+              href="{% url 'dashboards:configuracionLlanta' %}" 
+              class="btn btn-download">
+                <span class="icon-magnifier"></span>
               </a>
-              <a href="{% url 'dashboards:tireDiagrama' %}"
-                ><span
-                  class="icon-edit-3"
-                  id="editColor"
-                  onclick="editColor();"
-                ></span
-              ></a>
+              <a 
+              href="{% url 'dashboards:tireDiagrama' %}" 
+              class="btn btn-download">
+                <span class="icon-pencil"></span>
+              </a>
+            </nav>
+            <div class="config__cont-table on-table" id="general">
+              <table class="config__table">
+                <thead>
+                  <tr>
+                    <th class="th-table3">
+                      Posición
+                    </th>
+                    <th class="th-table3">
+                      Serial
+                    </th>
+                    <th class="th-table3">
+                      Producto
+                    </th>
+                    <th class="th-table3">
+                      Km
+                    </th>
+                  </tr>
+                  <tr>
+                    <th class="th-table3">
+                      Costo por Km
+                    </th>
+                    <th class="th-table3">
+                      Km Proyectado
+                    </th>
+                    <th class="th-table3">
+                      Precio
+                    </th>
+                    <th class="th-table3">
+                      Vida
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-table3"> </td>
+                    <td class="td-table3"> </td>
+                    <td class="td-table3"> </td>
+                    <td class="td-table3"> </td>
+                  </tr>
+                  <tr>
+                    <td class="td-table3"> </td>
+                    <td class="td-table3"> </td>
+                    <td class="td-table3"> </td>
+                    <td class="td-table3"> </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="config__cont-table" id="problemas">
+              <table class="config__table">
+                <thead>
+                  <tr>
+                    <th class="th-table3">
+                      Posición
+                    </th>
+                    <th class="th-table3">
+                      Problema Abierto
+                    </th>
+                    <th class="th-table3">
+                      Icono
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-table3">
+                      {{llanta.posicion}}
+                    </td>
+                    {% if message %}
+                      <td class="td-table3">
+                        {{message}}
+                      </td>
+                    {% endif %}
+                    <td class="td-table3">
+                      <span class="icon-cross"></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-
-          <!-- col3 table-->
-          <div id="problemasA">
-            <table class="table2">
-              <tr>
-                <th class="th-table2">Posición</th>
-                <th class="th-table2">Problema Abierto</th>
-                <th class="th-table2">Icono</th>
-              </tr>
-              
-              <tr>
-
-              <td class="td-table2">1</td>
-              
-              {% if message %}
-                    <td class="td-table2">{{message}}</td>
-              {% endif %}
-              <td class="td-table2">
-                  <span class="icon-cross"></span>
-              </td>
-
-              </tr>
-            </table>
-          </div>
-      
-          <div id="table-general">
-            <table class="table3">
-              <tr>
-                <th class="th-table3">Pos</th>
-                <th class="th-table3">Serial</th>
-                <th class="th-table3">Producto</th>
-                <th class="th-table3">Km</th>
-              </tr>
-              <tr>
-                <td class="td-table3"></td>
-                <td class="td-table3"></td>
-                <td class="td-table3"></td>
-                <td class="td-table3"></td>
-              </tr>
-              <tr>
-                <th class="th-table3">Costo por km</th>
-                <th class="th-table3">Km proyectado</th>
-                <th class="th-table3">Precio</th>
-                <th class="th-table3">Vida</th>
-              </tr>
-              <tr>
-                <td class="td-table3"></td>
-                <td class="td-table3"></td>
-                <td class="td-table3"></td>
-                <td class="td-table3"></td>
-              </tr>
-            </table>
-          </div>
         </div>
-      </div>
-
-    </div>
-    <div class="right-column">
-      <div class="card">
-        <h2 class="title">BITACORA</h2>
-        <div class="column" id="col-table">
-          <table class="table4">
-            <thead class="thead-dark">
-              <tr class="tr-head">
-                <th class="header" scope="col">Evento</th>
-                <th class="header" scope="col">Fecha</th>
-                <th class="header" scope="col">Encontrado</th>
-                <th class="header" scope="col">Tiempo</th>
-                <th class="header" scope="col">Reporte</th>
+        <div class="card card__bit">
+          <h2>Bitacora</h2>
+          <table class="config__table">
+            <thead>
+              <tr>
+                <th class="th-table3">
+                  Evento
+                </th>
+                <th class="th-table3">
+                  Fecha
+                </th>
+                <th class="th-table3">
+                  Encontrado
+                </th>
+                <th class="th-table3">
+                  Tiempo
+                </th>
+                <th class="th-table3">
+                  Reporte
+                </th>
               </tr>
             </thead>
             <tbody>
               {% for vehiculo in bitacora %}
-              <tr id="paragraph {{vehiculo.id}}">
-                <td class="td-table4">
-                  <img src="{% static 'images/Trazado 9.png' %}" />
-                </td>
-                <td class="td-table4">
-                  {{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}
-                </td>
-                <td class="td-table4">
-                  <span id="icon {{vehiculo.id}}"></span>
-                </td>
-                <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
-                <td class="td-table4">
-                  <span
-                    id="print-report {{vehiculo.id}}"
-                    class="icon-file-pdf"
-                  ></span>
-                </td>
-              </tr>
+                <tr id="paragraph {{vehiculo.id}}">
+                  <td class="td-table3">
+                    <span class="icon-pulpo"></span>
+                  </td>
+                  <td class="td-table3">
+                    {{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}
+                  </td>
+                  <td class="td-table3">
+                    <span id="icon {{vehiculo.id}}"></span>
+                  </td>
+                  <td class="td-table3">{{vehiculo.tiempo_de_inflado}}</td>
+                  <td class="td-table3">
+                    <span
+                      id="print-report {{vehiculo.id}}"
+                      class="icon-file-pdf"
+                    ></span>
+                  </td>
+                </tr>
               {% endfor %}
-
-              
             </tbody>
           </table>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="columns-bottom">
-    <div class="nav-row">
-      <h2 class="title">DASHBOARD VEHÍCULO</h2>
-      <!-- <div class="i-btns">
-        <a
-          href="#TireEye"
-          class="gnrl"
-          id="btn-tireEye"
-          onclick="tireEyeDB();"
-          >TIRE EYE DB</a
-        >
-        <a href="#Pulpo" class="gnrl" id="btn-pulpo" onclick="pulpoDB();"
-          >PULPO DB</a
-        >
-      </div> -->
-
-      <nav class="btn-group" id="nav-dash">
-        <button class="btn btn-aeto active" id="btn-pulpo" onclick="pulpoDB();">
-          <span class="icon-pulpo"></span>
-          <span class="icon-pulpo blur"></span>
-        </button>
-        <button class="btn btn-aeto" id="btn-tireEye" onclick="tireEyeDB();">
-          <span class="icon-tireeye"></span>
-          <span class="icon-tireeye blur"></span>
-        </button>
-      </nav>
-
-    </div>
-    <div class="cont-bottom" cont-bottom>
-      <div class="cont-bottom1" cont-bottom1>
-        <h2>DÍAS SIN INFLAR</h2>
-        <h2 id="days" class="num">0</h2>
-      </div>
-      <div class="cont-bottom2" cont-bottom2>
-        <h2>TIEMPO PROMEDIO</h2>
-        <h2 class="time-text num">{% if llanta.vehiculo.tiempo_de_inflado %}{{llanta.vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</h2>
-      </div>
-      <div class="cont-bottom3" cont-bottom3>
-        <div class="cont-graf_sec2" id="p1">
-          <div class="buttons">
-            <button class="icono-pantallaC">
-              <span class="icon-question-circle-o"></span>
+    <div class="animate__animated animate__fadeIn row-2">
+      <div class="card card__dash">
+        <div class="card__dash_nav">
+          <h2 class="h2-dash">Dashboard de llanta</h2>
+          <nav class="flex-row" id="btn-views">
+            <button class="btn btn-aeto-crunch active" id="btn-pulpo">
+              <span class="icon-pulpo"></span>
+              Pulpo
             </button>
-            <button
-              class="icono-pantallaC"
-              id="ocultarL1"
-              onclick="closeFullscreenP1();"
-            >
-              <span class="icon-fullscreen_exit"></span>
+            <button class="btn btn-aeto-crunch" id="btn-tire">
+              <span class="icon-tireeye"></span>
+              Tire Eye
             </button>
-            <button
-              class="icono-pantallaC"
-              id="mostrarL1"
-              onclick="openFullscreenP1();"
-            >
-              <span class="icon-fullscreen"></span>
-            </button>
+          </nav>
+        </div>
+        <div class="card__dash_dash on-view" id="pulpo">
+          <div class="dash__numbers">
+            <div class="sub-card">
+              <h2>Días sin Inflar</h2>
+              <div class="circle">
+                <span id="days">0</span>
+              </div>
+            </div>
+            <div class="sub-card">
+              <h2>Tiempo Promedio</h2>
+              <div class="circle">
+                <span>{% if llanta.vehiculo.tiempo_de_inflado %}{{llanta.vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</span>
+              </div>
+            </div>
           </div>
-          <div class="cont-lineChart" id="lineChartF">
+          <div class="dash__chart">
             <div id="lineChart"></div>
           </div>
         </div>
-      </div>
-      <div class="cont-left" cont-left id="p2">
-        <div class="buttons">
-          <button class="icono-pantallaC">
-            <span class="icon-question-circle-o"></span>
-          </button>
-          <button
-            class="icono-pantallaC"
-            id="ocultarS1"
-            onclick="closeFullscreenP2();"
-          >
-            <span class="icon-fullscreen_exit"></span>
-          </button>
-          <button
-            class="icono-pantallaC"
-            id="mostrarS1"
-            onclick="openFullscreenP2();"
-          >
-            <span class="icon-fullscreen"></span>
-          </button>
-        </div>
-        <div id="spline-chart"></div>
-      </div>
-      <div class="cont-right" cont-right>
-        <div class="score-card">
-          <h2 class="title-num">Desgaste Mensual</h2>
-          <h2 class="num indicador">18</h2>
-        </div>
-        <div class="score-card">
-          <h2 class="title-num">Km por mm</h2>
-          <h2 class="num indicador">23</h2>
-        </div>
-        <div class="score-card">
-          <h2 class="title-num">Desgaste</h2>
-          <h2 class="num indicador">26</h2>
-        </div>
-        <div class="score-card">
-          <h2 class="title-num">CPK</h2>
-          <h2 class="num indicador">3</h2>
+        <div class="card__dash_dash" id="tireeye">
+          <div class="dash__chart">
+            <div id="spline-chart"></div>
+          </div>
+          <div class="dash__numbers">
+            <div class="sub-card1">
+              <h2>Desgaste Mensual</h2>
+              <div class="circle circle1">
+                <span>1</span>
+              </div>
+            </div>
+            <div class="sub-card1">
+              <h2>Km por mm</h2>
+              <div class="circle circle1">
+                <span>2</span>
+              </div>
+            </div>
+            <div class="sub-card1">
+              <h2>Desgaste</h2>
+              <div class="circle circle1">
+                <span>3</span>
+              </div>
+            </div>
+            <div class="sub-card1">
+              <h2>CPK</h2>
+              <div class="circle circle1">
+                <span>4</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </section>
+</main>
 
 <script type="text/javascript">
 
   document.addEventListener('DOMContentLoaded', (e) => {
     handleButtons('#nav-tire');
-    handleButtons('#nav-dash');
+    handleButtons('#btn-views');
+
+    handleTables('btn-general', '#general');
+    handleTables('btn-problemas', '#problemas');
+
+    handleView('btn-pulpo', '#pulpo');
+    handleView('btn-tire', '#tireeye');
   });
 
-const handleButtons = (container = '') => {
-      const buttons = document.querySelectorAll(`${container} > .btn-aeto`); // Tenemos que agregar un id a la nav para decir que ese es el grupo que queremos seleccionar
+  const handleTables = (button = '', view = '') => {
+        const btn = document.getElementById(button);
+        const image = document.querySelector(view);
 
-      buttons.forEach((button) => {
-        button.addEventListener('click', (e) => {
-          buttons.forEach((item) => item.classList.remove('active'));
-          button.classList.add('active');
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.on-table').forEach(view => view.classList.remove('on-table'));
+
+            image.classList.add('on-table');
         });
+    };
+
+  const handleView = (button = '', view = '') => {
+      const btn = document.getElementById(button);
+      const image = document.querySelector(view);
+
+      btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.on-view').forEach(view => view.classList.remove('on-view'));
+
+          image.classList.add('on-view');
       });
+  };
+
+
+  const handleButtons = (container = '') => {
+    const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
+
+    buttons.forEach( button => {
+        button.addEventListener('click', ({ target }) => {
+        buttons.forEach(item => item.classList.remove('active'));
+
+        target.classList.add('active');
+        });
+    } );    
   };
 
   const printReport = (idReport = '') => {

@@ -217,7 +217,7 @@ urlpatterns = [
         name="tireDetail"
     ),
     path(
-        route="diagrama",
+        route="diagrama/<int:pk>/",
         view=views.diagramaView.as_view(),
         name="diagrama"
     ),
@@ -237,7 +237,7 @@ urlpatterns = [
         name="reporteLlanta"
     ),
     path(
-        route="configuracionVehiculo",
+        route="configuracionVehiculo/<int:pk>/",
         view=views.configuracionVehiculoView.as_view(),
         name="configuracionVehiculo"
     ),

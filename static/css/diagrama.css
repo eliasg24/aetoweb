@@ -1,272 +1,31 @@
-html {
-  font-family: Arial, Helvetica, sans-serif;
-  box-sizing: border-box;
-}
-
-*,
-*::after,
-*::before {
-  font-family: inherit;
-  box-sizing: inherit;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background: #363636;
-}
-
-.all-cont {
+.main__container {
+  align-items: center;
+  background-color: #202020;
   display: grid;
   gap: 1rem;
-  grid-template-rows: auto 1fr;
-  height: 100vh;
-}
-
-.img-logo {
-  margin-top: 1vh;
-  margin-left: 1vw;
-}
-
-.main-title {
-  color: white;
-  text-align: center;
-}
-
-.main-cont {
-  background: #171717;
-  border-radius: 10px;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  margin: 0 5vw 2vh 5vw;
-  align-items: center;
-  justify-items: center;
-}
-
-.container {
   grid-template-columns: 1fr 1fr;
-  width: 100%;
-  height: 75%;
+  margin: 1rem;
 }
 
-/* Define display: grid */
-
-.d-grid {
-  display: grid;
-  justify-content: center;
+.config__container {
   align-items: center;
-}
-
-.d-flex {
   display: flex;
-}
-
-.navbar {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.nav-items {
-  position: absolute;
-  top: 0;
-  right: 0;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
-  margin-right: 1rem;
-}
-
-.btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 2rem;
-  outline: none;
-}
-
-.disabled > * {
-  color: gray;
-}
-
-/* 3 shafts */
-
-.three-shaft {
-  grid-template-rows: repeat(3, 1fr);
-  gap: 5vh;
-}
-
-.src3,
-.src4,
-.src5 {
-  height: 27vh;
-}
-
-.col-1 {
-  margin: auto;
-  width: 80%;
-  height: 75%;
-}
-
-.par-llantas,
-.doble-llanta {
-  display: flex;
-  align-items: center;
-  flex-flow: row nowrap;
-  justify-content: center;
-  position: relative;
-}
-
-/*
-.doble-llanta > #llanta {
-  margin: 0 .25rem;
-}
-
-.c-shaft {
-  height: 1vh;
-}
-
-*/
-
-#llanta {
-  cursor: pointer;
-  margin: 0 0.25rem;
-  position: relative;
-  transition: all 0.4s ease;
-}
-
-#llanta > span {
-  font-size: 6vw;
-}
-
-#llanta:hover .pop-out-llanta {
-  display: block;
-}
-
-.pop-out-llanta {
-  background-color: #000;
-  color: #fff;
-  border-radius: 0.4rem;
-  display: none;
-  margin-left: 3rem;
-  padding: 0.75rem;
-  position: absolute;
-  bottom: -5vh;
-  right: -3vw;
-  transition: all 0.4s ease;
-  z-index: 2;
-}
-
-.shaft svg,
-.c-shaft svg {
-  width: 100%;
-  height: auto;
-}
-
-.icon-da,
-.icon-central-axle {
-  color: #fff;
-}
-
-.good {
-  color: #026cf5;
-}
-
-.yellow {
-  color: #dbc002;
-  fill: #dbc002 !important;
-}
-
-.bad {
-  color: #f0412c;
-  fill: #f0412c !important;
-}
-
-/* Manual edit */
-
-.col-2 {
-  margin: auto;
-  width: 80%;
   height: 100%;
-  position: relative;
 }
 
-.manual-edit {
-  display: flex;
-  background-color: #1f1f1f;
+.config__container > * {
+  flex: 1 1 auto;
+}
+
+.form__container {
+  background-color: var(--main-background);
   border-radius: 0.25rem;
-  bottom: 0;
-  color: #fff;
-  flex-direction: column;
-  gap: 1.5rem;
-  height: 100%;
-  left: 0;
-  margin: auto;
+  height: fit-content;
   padding: 1rem;
-  position: absolute;
-  overflow-y: auto;
-  right: 0;
-  top: 0;
-  width: 90%;
 }
 
-.manual-edit::-webkit-scrollbar {
-  width: 10px;
-}
-
-.manual-edit::-webkit-scrollbar-thumb {
-  border-radius: 5px;
-  background-color: black;
-}
-
-.manual-edit::-webkit-scrollbar-track {
-  border-radius: 5px;
-  background-color: gray;
-}
-
-.manual-edit > h3,
-.manual-edit > h4 {
-  margin: 0.25rem 0;
-}
-
-.manual-edit > h3 {
-  text-align: center;
-  font-size: 2vw;
-}
-
-.manual-edit > h4 {
-  font-size: 1.75vw;
-}
-
-.label-group,
-.label-input-options {
+.form__wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-label,
-input {
-  display: block;
-}
-
-.label-group > input,
-.label-input-options > input {
-  background: none;
-  border: thin solid #fff;
-  border-radius: 0.25rem;
-  color: #fff;
-  font-size: 1rem;
-  padding: 0.5rem;
-  outline: none;
-}
-
-.label-input-options {
-  cursor: pointer;
-}
-
-.select {
-  border-radius: 9px;
-  fill: #2e8b57 !important;
-  color: seagreen !important;
+  gap: 1rem;
+  flex-flow: column nowrap;
 }

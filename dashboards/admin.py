@@ -60,9 +60,9 @@ class VehiculosAdmin(admin.ModelAdmin):
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('id', 'numero_economico', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje', 'posicion', 'producto',)
+    list_display = ('id', 'numero_economico', "vehiculo", 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje', 'posicion', 'producto',)
     search_fields= ('numero_economico',)
-    list_filter = ('compania', 'tipo_de_eje')
+    list_filter = ('compania', "vehiculo", 'tipo_de_eje')
     def min_profundidad(self, obj):
         if obj.ultima_inspeccion:
             return obj.ultima_inspeccion.min_profundidad

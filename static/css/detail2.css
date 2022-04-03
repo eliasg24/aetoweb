@@ -2,14 +2,14 @@
   flex-flow: row wrap;
 }
 
-.btn-download {
+.btn-info {
   border-radius: 0.25rem;
   font-size: 1rem;
   padding: 0.5rem;
 }
 
 .btn-aeto-crunch,
-.btn-download {
+.btn-info {
   align-items: center;
   display: flex;
   gap: 0.5rem;
@@ -151,53 +151,21 @@
 
 .config__container {
   background-color: #202020;
+  border-radius: 0.25rem;
   display: grid;
-  gap: 0.25rem;
-  grid-template-rows: auto 1fr;
-  padding: 1rem;
+  grid-template-rows: auto auto 1fr;
+  overflow: hidden;
+}
+
+.config__header {
+  background-color: var(--bg-button-active);
+  text-align: center;
+  padding: 0.25rem;
 }
 
 .config__config {
   align-self: center;
 }
-
-/* .pop-out-llanta {
-  background-color: #000;
-  border-radius: 0.25rem;
-  display: none;
-  margin-top: 1rem;
-  opacity: 0;
-  padding: 0.75rem;
-  pointer-events: none;
-  position: absolute;
-  transition: all 0.2s ease-in-out;
-  visibility: hidden;
-  width: max-content;
-  z-index: 2;
-}
-
-.tireDecoration:hover .pop-out-llanta {
-  opacity: 1;
-  pointer-events: all;
-  visibility: visible;
-  z-index: 3;
-}
-
-.about-btn > .pop-out-llanta {
-  top: 30px;
-  right: 0;
-}
-
-.pop-out-llanta h4 {
-  font-size: 2rem;
-}
-
-.pop-out-llanta p {
-  font-family: var(--font);
-  color: white;
-  font-size: 1rem;
-  margin: 0.25rem 0;
-} */
 
 .config__config {
   margin: auto;
@@ -207,11 +175,9 @@
 .par-llantas,
 .par-doble-llanta {
   align-items: center;
-  /* display: flex; */
   display: grid;
   gap: 1rem;
   grid-template-columns: auto 1fr auto;
-  /* flex-flow: row nowrap; */
   padding: 1rem;
 }
 
@@ -312,6 +278,7 @@
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
+  padding: 0.5rem;
 }
 
 .config__table {
@@ -456,12 +423,6 @@
     font-size: 15vmin;
   }
 
-  .pop-out-llanta {
-    display: block;
-    top: 0;
-    left: 8vmin;
-  }
-
   .dash__data {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
@@ -481,10 +442,6 @@
   .icon-da {
     font-size: 0.75rem;
   }
-
-  .icon-tire2 {
-    font-size: 10vmin;
-  }
 }
 
 @media screen and (min-width: 1920px) {
@@ -493,7 +450,7 @@
   }
 
   .icon-tire2 {
-    font-size: 15vmin;
+    font-size: 20vmin;
   }
 
   .icon-central-axle,

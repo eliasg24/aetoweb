@@ -308,6 +308,7 @@ class TireDB2View(LoginRequiredMixin, TemplateView):
         ubicacion = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[0]
 
         reemplazo_actual = functions.reemplazo_actual(llantas)
+        print(reemplazo_actual)
         # Te elimina los ejes vacíos
         reemplazo_actual_llantas = reemplazo_actual[0]
         reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual[1].items() if v != 0}
@@ -315,10 +316,10 @@ class TireDB2View(LoginRequiredMixin, TemplateView):
         reemplazo_dual = functions.reemplazo_dual(llantas, reemplazo_actual_llantas)
         reemplazo_total = functions.reemplazo_total(reemplazo_actual_ejes, reemplazo_dual)
 
-        print("llantas", llantas)
+        """print("llantas", llantas)
         print("reemplazo_actual_llantas", reemplazo_actual_llantas)
         print("reemplazo_actual", reemplazo_actual)
-        print("reemplazo_dual", reemplazo_dual)
+        print("reemplazo_dual", reemplazo_dual)"""
 
         # Sin regresión
         embudo_vida1 = functions.embudo_vidas(llantas)
@@ -716,6 +717,44 @@ class diagramaView(LoginRequiredMixin, TemplateView):
     # Vista de diagramaView
 
     template_name = "diagrama.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        vehiculo = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        llantas = Llanta.objects.filter(vehiculo=vehiculo)
+        configuracion = vehiculo.configuracion
+
+        cantidad_llantas = functions.cantidad_llantas(configuracion)
+
+        if cantidad_llantas >= 2:
+            context["llanta1"] = llantas[0]
+            context["llanta2"] = llantas[1]
+            if cantidad_llantas >= 4:
+                context["llanta3"] = llantas[2]
+                context["llanta4"] = llantas[3]
+                if cantidad_llantas >= 6:
+                    context["llanta5"] = llantas[4]
+                    context["llanta6"] = llantas[5]
+                    if cantidad_llantas >= 8:
+                        context["llanta7"] = llantas[6]
+                        context["llanta8"] = llantas[7]
+                        context["llanta9"] = llantas[7]
+                        context["llanta10"] = llantas[7]
+                        context["llanta11"] = llantas[7]
+                        context["llanta12"] = llantas[7]
+                        context["llanta13"] = llantas[7]
+                        context["llanta14"] = llantas[7]
+                        if cantidad_llantas >= 10:
+                            context["llanta9"] = llantas[8]
+                            context["llanta10"] = llantas[9]
+                            if cantidad_llantas >= 12:
+                                context["llanta11"] = llantas[10]
+                                context["llanta12"] = llantas[11]
+                                if cantidad_llantas >= 14:
+                                    context["llanta13"] = llantas[12]
+                                    context["llanta14"] = llantas[13]
+        context["configuracion"] = configuracion
+        return context
 
 class tireDiagramaView(LoginRequiredMixin, TemplateView):
     # Vista de tireDiagramaView
@@ -1124,7 +1163,9 @@ class reporteVehiculoView(LoginRequiredMixin, DetailView):
         bitacora = self.get_object()
         hoy = date.today()
         user = User.objects.get(username=self.request.user)
-
+        vehiculo = bitacora.numero_economico
+        llantas = Llanta.objects.filter(vehiculo = vehiculo)
+        
         color1 = functions.entrada_correcta(bitacora)
         color2 = functions.salida_correcta(bitacora)
         
@@ -1136,6 +1177,23 @@ class reporteVehiculoView(LoginRequiredMixin, DetailView):
             signo2 = "icon-checkmark"
         else:
             signo2 = "icon-cross"
+          
+          
+        #Obtencion de la data
+        num_ejes = vehiculo.configuracion.split('.')
+        ejes = []
+        eje = 1
+        for num in num_ejes:
+            list_temp = []
+            for llanta in llantas:
+                #print(llanta.eje)
+                if llanta.eje == eje:
+                    list_temp.append(llanta)
+            eje += 1
+            ejes.append(list_temp)
+            list_temp = []
+            
+        #print(ejes)       
 
         context["color1"] = color1
         context["color2"] = color2
@@ -1143,6 +1201,7 @@ class reporteVehiculoView(LoginRequiredMixin, DetailView):
         context["user"] = user
         context["signo1"] = signo1
         context["signo2"] = signo2
+        context['ejes'] = ejes
         return context
 
 class reporteLlantaView(LoginRequiredMixin, DetailView):
@@ -1185,6 +1244,64 @@ class configuracionVehiculoView(LoginRequiredMixin, TemplateView):
     # Vista de configuracionVehiculoView
 
     template_name = "configuracionVehiculo.html" 
+    
+    def get_context_data(self, **kwargs):
+        
+        context = super().get_context_data(**kwargs)
+        #Declaracion de variables
+        vehiculo = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        llantas = Llanta.objects.filter(vehiculo = self.kwargs['pk'])
+        inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
+        #Obtencion de la data
+        num_ejes = vehiculo.configuracion.split('.')
+        ejes = []
+        eje = 1
+        for num in num_ejes:
+            list_temp = []
+            for llanta in llantas:
+                #print(llanta.eje)
+                if llanta.eje == eje:
+                    list_temp.append(llanta)
+            eje += 1
+            ejes.append(list_temp)
+            list_temp = []
+            
+            
+        color = functions.entrada_correcta(vehiculo)
+        print(color)
+        if color == 'good':
+            style = 'presion-good'
+        elif color == 'bad':
+            style = 'presion-bad'
+        else:
+            style = 'presion-bad'
+        
+        filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones)
+        llantas_sospechosas = llantas.filter(numero_economico__in=filtro_sospechoso)
+
+        filtro_rojo = functions.vehiculo_rojo_llanta(llantas)
+        llantas_rojas = llantas.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
+        
+        filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas)
+        llantas_amarillas = llantas.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
+        
+        llantas_azules = llantas.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
+
+        print(llantas_sospechosas)
+        print(llantas_rojas)
+        print(llantas_amarillas)
+        print(llantas_azules)
+        #Paso del contexto a los templates
+        context['llantas'] = llantas
+        context['ejes'] = ejes
+        context['configuracion'] = vehiculo.configuracion
+        context['llantas_sospechosas'] = llantas_sospechosas
+        context['llantas_rojas'] = llantas_rojas
+        context['llantas_amarillas'] = llantas_amarillas
+        context['llantas_azules'] = llantas_azules
+        context['style'] = style
+        
+        return context 
 
 class configuracionLlantaView(LoginRequiredMixin, TemplateView):
     # Vista de configuracionLlantaView
@@ -2184,6 +2301,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         vehiculo = self.get_object()
         llantas = Llanta.objects.filter(vehiculo=vehiculo)
+        inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
         try:
             bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         except:
@@ -2238,6 +2356,45 @@ class DetailView(LoginRequiredMixin, DetailView):
             configuracion = vehiculo.configuracion
             cantidad_llantas = functions.cantidad_llantas(configuracion)
 
+            posiciones = llantas.values("posicion").distinct()
+            ejes = llantas.values("nombre_de_eje").distinct()
+
+            comparativa_de_posiciones = {}
+            for posicion in posiciones:
+                valores_posicion = []
+
+                llantas_posicion = llantas.filter(posicion=posicion["posicion"])
+                inspecciones_posicion = Inspeccion.objects.filter(llanta__in=llantas_posicion)
+                if inspecciones_posicion.exists():
+                    regresion_posicion = functions.km_proyectado(inspecciones_posicion, False)
+                    km_proyectado = regresion_posicion[0]
+                    profundidad = regresion_posicion[6]
+
+                    valores_posicion.append(km_proyectado)
+                    valores_posicion.append(profundidad)
+                    
+                    comparativa_de_posiciones[posicion["posicion"]] = valores_posicion
+
+            comparativa_de_ejes = {}
+            for eje in ejes:
+                valores_eje = []
+
+                llantas_eje = llantas.filter(nombre_de_eje=eje["nombre_de_eje"])
+                inspecciones_eje = Inspeccion.objects.filter(llanta__in=llantas_eje)
+                if inspecciones_eje.exists():
+                    regresion_eje = functions.km_proyectado(inspecciones_eje, False)
+                    km_x_mm_eje = regresion_eje[1]
+
+                    valores_eje.append(km_x_mm_eje)
+                    
+                    comparativa_de_ejes[eje["nombre_de_eje"]] = valores_eje
+            
+            regresion_vehiculo = functions.km_proyectado(inspecciones, False)
+            cpk_vehiculo = regresion_vehiculo[2]
+
+            reemplazo_actual = functions.reemplazo_actual2(llantas)
+            reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual.items() if v != 0}
+
             context["bitacora"] = bitacora
             context["cantidad_doble_entrada_mes1"] = doble_entrada[1]["mes1"]
             context["cantidad_doble_entrada_mes2"] = doble_entrada[1]["mes2"]
@@ -2250,7 +2407,10 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["cantidad_inflado"] = inflado
             context["cantidad_llantas"] = cantidad_llantas
             context["color"] = color
+            context["comparativa_de_ejes"] = comparativa_de_ejes
+            context["comparativa_de_posiciones"] = comparativa_de_posiciones
             context["configuracion"] = configuracion
+            context["cpk_vehiculo"] = cpk_vehiculo
             context["doble_entrada"] = doble_entrada
             context["entradas"] = entradas_correctas
             context["fecha"] = fecha
@@ -2287,6 +2447,7 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["mes_3"] = mes_3.strftime("%b")
             context["mes_4"] = mes_4.strftime("%b")
             context["message"] = message
+            context["reemplazo_actual_ejes"] = reemplazo_actual_ejes
             context["vehiculo_mes1"] = vehiculo_mes1.count()
             context["vehiculo_mes2"] = vehiculo_mes2.count()
             context["vehiculo_mes3"] = vehiculo_mes3.count()

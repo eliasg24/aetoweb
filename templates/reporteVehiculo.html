@@ -38,6 +38,92 @@
       <div class="leftcolumn">
         <h2>ENTRADA</h2>
         <div class="configA">
+
+          {% for eje in ejes %}
+            {% if eje|length == 2 %}
+
+            <div class="ejeDireccion">
+  
+              <div class="cont-llanta">
+                <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
+                <div id="llanta" class={{color1}}></div>
+                <span class={{signo1}}></span>
+              </div>
+    
+              <div class="shaft">
+                <svg
+                  width="792pt"
+                  height="61pt"
+                  viewBox="0 0 792 61"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g id="#7f7f7f7f"></g>
+                  <g id="#ffffffff">
+                    <path
+                      opacity="1.00"
+                      d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
+                    />
+                  </g>
+                </svg>
+              </div>
+    
+              <div class="cont-llanta">
+                <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
+                <div id="llanta" class={{color1}}></div>
+                <span class={{signo1}}></span>
+              </div>
+            </div>
+
+            {% else %}
+
+            <div class="ejeTraccionTD">
+              <div class="cont-llanta">
+                <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
+                <div id="llanta" class={{color1}}></div>
+                <span class={{signo1}}></span>
+              </div>
+              <div class="cont-llanta">
+                <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
+                <div id="llanta" class={{color1}}></div>
+                <span class={{signo1}}></span>
+              </div>
+    
+              <div class="c-shaft">
+                <svg
+                  width="84pt"
+                  height="59pt"
+                  viewBox="0 0 84 59"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g id="#7f7f7f7f"></g>
+                  <g id="#ffffffff">
+                    <path
+                      opacity="1.00"
+                      d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
+                    />
+                  </g>
+                </svg>
+              </div>
+    
+              <div class="cont-llanta">
+                <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
+                <div id="llanta" class={{color1}}></div>
+                <span class={{signo1}}></span>
+    
+              </div>
+              <div class="cont-llanta">
+                <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
+                <div id="llanta" class={{color1}}></div>
+                <span class={{signo1}}></span>
+              </div>
+            </div>
+            
+            {% endif %}
+          {% endfor %}
+
+          <!--
           <div class="ejeDireccion">
   
             <div class="cont-llanta">
@@ -153,12 +239,96 @@
               <span class={{signo1}}></span>
             </div>
           </div>
+        -->
         </div>
       </div>
       <span class="icon-arrow-right2"></span>
       <div class="rightcolumn">
         <h2>SALIDA</h2>
         <div class="configA">
+
+        {% for eje in ejes %}
+        {% if eje|length == 2 %}
+
+        <div class="ejeDireccion">
+          <div class="cont-llanta">
+            <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
+            <div id="llanta" class={{color2}}></div>
+            <span class={{signo2}}></span>
+          </div>
+
+          <div class="shaft">
+            <svg
+              width="792pt"
+              height="61pt"
+              viewBox="0 0 792 61"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g id="#7f7f7f7f"></g>
+              <g id="#ffffffff">
+                <path
+                  opacity="1.00"
+                  d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
+                />
+              </g>
+            </svg>
+          </div>
+
+          <div class="cont-llanta">
+            <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
+            <div id="llanta" class={{color2}}></div>
+            <span class={{signo2}}></span>
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class="ejeTraccionTD">
+          <div class="cont-llanta">
+            <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
+            <div id="llanta" class={{color2}}></div>
+            <span class={{signo2}}></span>
+          </div>
+          <div class="cont-llanta">
+            <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
+            <div id="llanta" class={{color2}}></div>
+            <span class={{signo2}}></span>
+          </div>
+
+          <div class="c-shaft">
+            <svg
+              width="84pt"
+              height="59pt"
+              viewBox="0 0 84 59"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g id="#7f7f7f7f"></g>
+              <g id="#ffffffff">
+                <path
+                  opacity="1.00"
+                  d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
+                />
+              </g>
+            </svg>
+          </div>
+
+          <div class="cont-llanta">
+            <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
+            <div id="llanta" class={{color2}}></div>
+            <span class={{signo2}}></span>
+          </div>
+          <div class="cont-llanta">
+            <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
+            <div id="llanta" class={{color2}}></div>
+            <span class={{signo2}}></span>
+          </div>
+        </div>
+
+        {% endif %}
+      {% endfor %}
+        <!--
           <div class="ejeDireccion">
             <div class="cont-llanta">
               <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
@@ -272,6 +442,7 @@
               <span class={{signo2}}></span>
             </div>
           </div>
+      -->
         </div>
       </div>
     </div>

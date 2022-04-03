@@ -151,6 +151,14 @@ def convertir_fecha2(fecha):
     fecha = date(year, month, day)
     return fecha
 
+def convertir_fecha3(fecha):
+    partes_fecha = fecha.split("/")
+    year = int(partes_fecha[2][:4])
+    month = int(partes_fecha[0])
+    day = int(partes_fecha[1])
+    fecha = date(year, month, day)
+    return fecha
+
 def convertir_rango(fecha):
     partes_fecha = fecha.split("-")
     fecha = f"{partes_fecha[0]}/{partes_fecha[1]}/{partes_fecha[2]}"
@@ -548,6 +556,7 @@ def km_proyectado(inspecciones, mediana):
     kms_proyectados = []
     kms_x_mm = []
     cpks = []
+    min_profundidades = []
     for llanta in llantas:
         llanta_completa = Llanta.objects.get(id=llanta["llanta"])
         if llanta_completa.km_montado:
@@ -576,7 +585,7 @@ def km_proyectado(inspecciones, mediana):
             km_proyectado = (termino[0]*(3**2))+(termino[1]*3)+termino[2]
             km_x_mm = km_proyectado / (llanta_completa.producto.profundidad_inicial - 3)
             precio = llanta_completa.producto.precio
-            cpk = (precio / km_proyectado)
+            cpk = round((precio / km_proyectado), 3)
 
             if km_actual >= 20000:
 
@@ -584,9 +593,10 @@ def km_proyectado(inspecciones, mediana):
                 kms_proyectados.append(km_proyectado)
                 kms_x_mm.append(km_x_mm)
                 cpks.append(cpk)
-
+                min_profundidades.append(profundidades[1:][0]["min_profundidad"])
         else:
             valores_llanta = regresion.filter(llanta=llanta["llanta"]).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km")-Min("km"), min_mm=Min("min_profundidad"))
+            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
             mm_desgastados = valores_llanta["max_mm"] - valores_llanta["min_mm"]
             if mm_desgastados == 0:
                 mm_desgastados = 1
@@ -597,7 +607,7 @@ def km_proyectado(inspecciones, mediana):
             km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
 
             precio = llanta_completa.producto.precio
-            cpk = (precio / km_teorico_proyectado)
+            cpk = round((precio / km_teorico_proyectado), 3)
 
             """print("llanta", llanta)
             print("mm_desgastados", mm_desgastados)
@@ -614,6 +624,7 @@ def km_proyectado(inspecciones, mediana):
                 kms_proyectados.append(km_teorico_proyectado)
                 kms_x_mm.append(km_x_mm)
                 cpks.append(cpk)
+                min_profundidades.append(profundidades[1:][0]["min_profundidad"])
         
     """print("km proyectados: ", kms_proyectados)
     print("cpks: ", cpks)"""
@@ -639,7 +650,11 @@ def km_proyectado(inspecciones, mediana):
         mediana_cpks = round(statistics.median(cpks), 3)
     except:
         mediana_cpks = 0
-    return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados
+    try:
+        mediana_mms = round(statistics.median(min_profundidades), 3)
+    except:
+        mediana_mms = 0
+    return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados, mediana_mms
 
 def km_proyectado_mediana(kms_proyectados):
     q1 =  np.quantile(kms_proyectados, 0.25)
@@ -790,37 +805,30 @@ def reemplazo_actual(llantas):
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
     return reemplazo_actual_llantas, reemplazo_actual_ejes
 
+def reemplazo_actual2(llantas):
+    reemplazo_actual_llantas = llantas.select_related("ultima_inspeccion").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"))
+    reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")))
+    return reemplazo_actual_ejes
+
+
 def reemplazo_dual(llantas, reemplazo_actual):
     try:
         llantas = Llanta.objects.filter(id__in=llantas)
         llantas_duales = duales(llantas)
-        print("hola1")
         reemplazo_dual_1 = llantas_duales[0].filter(id__in=reemplazo_actual)
         reemplazo_dual_2 = llantas_duales[1].filter(id__in=reemplazo_actual)
-        print("hola2")
         dual_dictionary = llantas_duales[2]
-        print("hola3")
         reemplazo_dual_1_list = reemplazo_dual_1.values_list("numero_economico", flat=True)
         reemplazo_dual_2_list = reemplazo_dual_2.values_list("numero_economico", flat=True)
-        print("reemplazo_dual_1_list", reemplazo_dual_1_list)
-        print("hola4")
         array_of_qs = []
         for k, v in dual_dictionary.items():
             array_of_qs.append(reemplazo_dual_1.filter(numero_economico=k).annotate(pareja=ExpressionWrapper(Value(v),output_field=CharField())).exclude(pareja__in=reemplazo_dual_2_list).values("id"))
         for k, v in dual_dictionary.items():
             array_of_qs.append(reemplazo_dual_2.filter(numero_economico=v).annotate(pareja=ExpressionWrapper(Value(k),output_field=CharField())).exclude(pareja__in=reemplazo_dual_1_list).values("id"))
-        print("array_of_qs", array_of_qs)
-        print("hola5")
         reemplazo_dual = array_of_qs[0].union(*array_of_qs[1:])
-        print("reemplazo_dual", reemplazo_dual)
         reemplazo_dual_llantas = llantas.filter(id__in=reemplazo_dual)
-        print("hola6")
         reemplazo_dual_ejes = reemplazo_dual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
-        print("hola7")
-        print("reemplazo_dual_ejes", reemplazo_dual_ejes)
         reemplazo_dual_ejes = {k: v for k, v in reemplazo_dual_ejes.items() if v != 0}
-        print("hola8")
-        print("reemplazo_dual_ejes", reemplazo_dual_ejes)
         return reemplazo_dual_ejes
     except:
         return {}
@@ -846,6 +854,12 @@ def renovables(llantas, vehiculos_amarillos):
     cantidad_renovables = llantas.select_related("vehiculo").filter(vehiculo__in=vehiculos_amarillos).count()
     return cantidad_renovables
 
+def sacar_eje(posicion, vehiculo):
+    configuracion = vehiculo.configuracion
+    ejes = configuracion.split(".")
+    eje = ejes[posicion - 1]
+    return eje
+
 def salida_correcta(vehiculos):
     try:
         presion_de_salida = vehiculos.presion_de_salida
@@ -860,11 +874,7 @@ def salida_correcta(vehiculos):
     except:
         return None
 
-def sacar_eje(posicion, vehiculo):
-    configuracion = vehiculo.configuracion
-    ejes = configuracion.split(".")
-    eje = ejes[posicion - 1]
-    return eje
+
 
 def sin_informacion(llantas):
     llantas_sin_informacion = llantas.filter(producto__isnull=True).count()
@@ -877,13 +887,30 @@ def vehiculo_amarillo(llantas):
         llantas_desgaste = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(resta=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).filter(resta__gt=3).values("vehiculo").distinct()
 
         # Arriba del punto de retiro
-        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__gt=F("punto_de_retiro") + 1).values("vehiculo").distinct()
+        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") + 1).values("vehiculo").distinct()
         vehiculos_amarillos = llantas_desgaste.union(llantas_retiro)
         
         # Desdualización
         dual = llantas.select_related("ultima_inspeccion", "vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("vehiculo").distinct()
         vehiculos_amarillos = vehiculos_amarillos.union(dual)
         return vehiculos_amarillos
+    except:
+        return []
+
+def vehiculo_amarillo_llanta(llantas):
+    llantas_amarillas = []
+    try:
+        # Desgaste irregular
+        llantas_desgaste = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(resta=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).filter(resta__gt=3).values("numero_economico").distinct()
+
+        # Arriba del punto de retiro
+        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") + 1).values("numero_economico").distinct()
+        llantas_amarillas = llantas_desgaste.union(llantas_retiro)
+        
+        # Desdualización
+        dual = llantas.select_related("ultima_inspeccion", "vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("numero_economico").distinct()
+        llantas_amarillas = llantas_amarillas.union(dual)
+        return llantas_amarillas
     except:
         return []
 
@@ -910,6 +937,10 @@ def vehiculo_rojo(llantas, doble_entrada, vehiculo):
     vehiculos = vehiculo.filter(id__in=llantas)
     union = vehiculos | doble_entrada
     return union
+
+def vehiculo_rojo_llanta(llantas):
+    llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") - 1).values("numero_economico").distinct()
+    return llantas
 
 def vehiculo_sospechoso(inspecciones):
     triplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=2)
@@ -976,3 +1007,69 @@ def vehiculo_sospechoso(inspecciones):
                 vehiculos_lista.append(vehiculo[0]["llanta__vehiculo"])
     #print(vehiculos_sospechosos)
     return vehiculos_sospechosos
+
+def vehiculo_sospechoso_llanta(inspecciones):
+    triplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=2)
+    regresion = inspecciones.select_related("llanta__vehiculo").annotate(poli=Case(When(llanta__in=triplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
+    llantas = regresion.values("llanta").distinct()
+    llantas_sospechosas = []
+    for llanta in llantas:
+        x = []
+        y = []
+        primera_fecha = regresion.filter(llanta=llanta["llanta"]).aggregate(primera_fecha=Min("fecha_hora"))
+        fecha_llanta = regresion.filter(llanta=llanta["llanta"]).values("fecha_hora")
+        for r in fecha_llanta:
+            resta = abs(r["fecha_hora"] - primera_fecha["primera_fecha"]).days
+            x.append(resta)
+        profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+        for p in profundidades:
+            y.append(p["min_profundidad"])
+        
+        x = np.array(x)
+        y = np.array(y)
+
+        if len(x) > 2:
+            dia = x[-1]
+
+            f = np.polyfit(x, y, 2)
+            p = np.poly1d(f)
+            termino = []
+            for numero in p:
+                numero = round(numero, 4)
+                termino.append(numero)
+            regresion_resultado = (termino[0]*(dia**2))+(termino[1]*dia)+termino[2]
+            resta = y[0]-regresion_resultado
+            diario = resta/dia
+            diferencia_dias = dia-x[-2]
+            prediccion = diario*diferencia_dias
+            desgaste_normal = prediccion*2.5
+            llantas_sospechosas = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta").distinct()
+    # En un futuro poner el parámetro sospechoso para cuando es 1 inspección
+    duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count=2)
+    sin_regresion = inspecciones.select_related("llanta__vehiculo__compania").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
+    llantas = sin_regresion.values("llanta").distinct()
+    llantas_lista = []
+    if llantas_sospechosas:
+        llantas_sospechosas_iteracion = True
+    else:
+        llantas_sospechosas_iteracion = False
+    for llanta in llantas:
+        fechas = sin_regresion.filter(llanta=llanta["llanta"]).aggregate(primera_fecha=Min("fecha_hora"),ultima_fecha=Max("fecha_hora"))
+        dias = abs(fechas["ultima_fecha"] - fechas["primera_fecha"]).days
+        #print("llanta: ", Llanta.objects.get(id=llanta["llanta"]))
+        #print("dias: ", dias)
+        primera_profundidad = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first().min_profundidad
+        ultima_profundidad = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad
+        #print("primera_profundidad: ", primera_profundidad)
+        #print("ultima_profundidad: ", ultima_profundidad)
+        llanta_sospechosa = sin_regresion.filter(llanta=llanta["llanta"]).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta").distinct()
+        if llanta_sospechosa:
+            if not(llanta_sospechosa[0]["llanta"] in llantas_lista):
+                if llantas_sospechosas_iteracion:
+                    llantas_sospechosas = llantas_sospechosas | llanta_sospechosa
+                else:
+                    llantas_sospechosas = llanta_sospechosa
+                    llantas_sospechosas_iteracion = True
+                llantas_lista.append(llanta_sospechosa[0]["llanta"])
+    #print(vehiculos_sospechosos)
+    return llantas_sospechosas

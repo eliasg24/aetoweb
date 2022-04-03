@@ -1,171 +1,133 @@
-html {
-	font-family: Arial, Helvetica, sans-serif;
-	box-sizing: border-box;
-}
-
-*,
-*::after,
-*::before {
-	font-family: inherit;
-	box-sizing: inherit;
-}
-
-body {
-	margin: 0;
-	padding: 0;
-	background: #363636;
-}
-
-p {
-  margin: 0;
-}
-
-.all-cont {
-	display: grid;
-	grid-template-rows: auto auto 1fr;
-	height: 100vh;
-}
-
-.img-logo {
-	margin-top: 1vh;
-	margin-left: 1vw;
-}
-
-.main-title {
-	color: white;
-	text-align: center;
-}
-
-.main-cont {
-	background: #171717;
-	border-radius: 10px;
-	margin: 0 5vw 2vh 5vw;
-	display: grid;
-	grid-template-rows: 1fr 1fr 1fr;
-  justify-items: center;
-  align-items: center;
-}	
-
-.src3,.src4, .src5 {
-	height: 27vh;
-}
-
-
- .par-llantas,
-.doble-llanta {
-  display: flex;
-  align-items: center;
-  flex-flow: row nowrap;
-  justify-content: center;
-  position: relative;
-}
-
-/*
-.doble-llanta > #llanta {
-  margin: 0 .25rem;
-}
-
-.c-shaft {
-  height: 1vh;
-}
-
-*/
-
-.tire {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.presion-good, .profundidad-good,
-.presion-yellow, .profundidad-yellow,
-.presion-bad, .profundidad-bad {
-  color: #fff;
-  margin: 0 .25rem;
-  width: -webkit-fill-available !important;
-  width: -moz-available !important;
-  position: absolute;
-}
-
-.presion-good, .profundidad-good{
-  background: #026cf5;
-  display: flex;
-  align-items: center;
-  border-radius: 5px;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-.presion-yellow, .profundidad-yellow {
-  background: #dbc002;
-  display: flex;
-  align-items: center;
-  border-radius: 5px;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-.presion-bad, .profundidad-bad {
-  background: #f0412c;
-  width: 40%;
-  display: flex;
-  align-items: center;
-  border-radius: 5px;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-.profundidad-good,
-.profundidad-yellow,
-.profundidad-bad {
-  bottom: 0;
-}
-
-#llanta {
-  margin: 0 .25rem;
-}
-
-#llanta > svg {
-  width: 4vw;
-  height: auto;
-}
-
-#llanta:hover .pop-out-llanta {
-  display: block;
-}
-
-.shaft svg,
-.c-shaft svg {
-  width: 100%;
-  height: auto;
-}
-
-.shaft {
-  width: 8vw;
-}
-
-.c-shaft {
-  width: 2vw;
-}
-
-.shaft,
-.c-shaft {
-  fill: #fff;
-}
-
+/* ? Colors */
 
 .good {
-  fill: #ddd !important;
+  background-color: var(--main-blue);
 }
 
 .yellow {
-  fill: #ddd !important;
+  background-color: var(--yellow-color);
 }
 
 .bad {
-  fill: #ddd !important;
+  background-color: var(--red-color);
+}
+
+.purple {
+  background-color: var(--purple-color);
+}
+
+.par-llantas,
+.par-doble-llanta {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto 1fr auto;
+  padding: 1rem;
+}
+
+.tire-relative {
+  color: white;
+  text-decoration: none;
+  position: relative;
+}
+
+.tire__top,
+.tire__bottom {
+  font-size: 0.75rem;
+  position: absolute;
+  left: 0;
+  right: -1px;
+  /* padding: 0.25rem; */
+  text-align: center;
+  width: auto;
+}
+
+.tire__top:hover .tire__title,
+.tire__bottom:hover .tire__title {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tire__top:hover .tire__data,
+.tire__bottom:hover .tire__data {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.tire__top {
+  border-radius: 0.25rem 0.25rem 0 0;
+  top: 0;
+}
+
+.tire__bottom {
+  border-radius: 0 0 0.25rem 0.25rem;
+  bottom: 0;
+}
+
+.tire__bottom .tire__title {
+  font-size: 0.5rem;
+  top: 3px;
+}
+
+.tire__title {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  transition: all 0.4s ease-in;
+  left: 0;
+  right: 0;
+}
+
+.tire__data {
+  font-size: 1rem;
+}
+
+.icon-central-axle,
+.icon-da {
+  background-color: #fff;
+}
+
+.icon-tire2 {
+  font-size: 5rem;
+}
+
+.head-cont {
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.main-cont {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.smart__container {
+  background-color: var(--head-bg);
+  margin: 1rem;
+}
+
+.config__container {
+  align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  justify-content: center;
+  margin: auto;
+  width: 90%;
+}
+
+@media screen and (min-width: 1024px) {
+  .par-llantas,
+  .par-doble-llanta {
+    width: 80%;
+  }
+
+  .icon-tire2 {
+    font-size: 20vmin;
+  }
+
+  .config__container {
+    width: 70%;
+  }
 }
