@@ -3129,3 +3129,6 @@ def informe_de_perdida_y_rendimiento(request):
 
         wb.save(response)
         return response
+
+def ftp_newpick(request):
+    functions_ftp.ftp_descarga()

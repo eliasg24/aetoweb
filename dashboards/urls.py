@@ -356,4 +356,9 @@ urlpatterns = [
         view=views.informe_de_perdida_y_rendimiento,
         name="informe_de_perdida_y_rendimiento"
     ),
+    path(
+        route="OSEmingUEZRAftp_newpick",
+        view=views.ftp_newpick,
+        name="ftp_newpick"
+    ),
 ]

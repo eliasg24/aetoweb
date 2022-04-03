@@ -1,15 +1,16 @@
 # Django
 from django.core.files import File
+from django.contrib.auth.models import User
 
 # Utilities
 from dashboards.functions import functions, functions_create
-from dashboards.models import FTP, Llanta, Perfil, Vehiculo, Producto, Ubicacion, Aplicacion, Compania, Inspeccion
+from dashboards.models import Llanta, Perfil, Vehiculo, Producto, Ubicacion, Aplicacion, Compania, Inspeccion
 from datetime import date, datetime, timedelta
 from ftplib import FTP as fileTP
 import csv
 import os
 
-def ftp_descarga(user):
+def ftp_descarga():
     hoy = date.today()
     year = hoy.year
     month = hoy.month
@@ -88,7 +89,7 @@ def ftp_descarga(user):
                             llanta = Llanta.objects.get(numero_economico=numero_economico, compania=company)
                         except:
 
-                            usuario = Perfil.objects.get(user=user)
+                            usuario = Perfil.objects.get(user=User.objects.get(username="NewPick"))
                             vehiculo = Vehiculo.objects.get(numero_economico=row[6], compania=company)
                             vida = row[15]
                             if vida == "New":
@@ -181,7 +182,7 @@ def ftp_descarga(user):
                             try:
                                 llanta = Llanta.objects.get(numero_economico=numero_economico, compania=company)
                             except:
-                                usuario = Perfil.objects.get(user=user)
+                                usuario = Perfil.objects.get(user=User.objects.get(username="NewPick"))
                                 vida = row[14]
                                 if vida == "New":
                                     vida = "Nueva"
