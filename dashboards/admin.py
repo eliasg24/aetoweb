@@ -12,7 +12,7 @@ from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, Ub
 class BitacorasAdmin(admin.ModelAdmin):
     # Admin de las Bitácoras
     list_display = ('numero_economico', 'presion_de_entrada', 'presion_de_salida', 'compania', 'fecha_de_inflado')
-    search_fields= ('numero_economico',)
+    search_fields= ('numero_economico__numero_economico',)
     list_filter = ('fecha_de_inflado', 'compania')
     def clase(self, obj):
         if obj.vehiculo:

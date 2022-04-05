@@ -19,7 +19,6 @@ def ftp_descarga():
         month = f"0{month}"
     if day < 10:
         day = f"0{day}"
-
     ftp1 = fileTP("208.109.20.121")
     ftp1.login(user="tyrecheck@aeto.com", passwd="TyreDB!25")
     for file_name in ftp1.nlst():
@@ -50,7 +49,7 @@ def ftp_descarga():
                                     aplicacion = Aplicacion.objects.get(nombre=row[7], compania=company)
                                 except:
                                     aplicacion = Aplicacion.objects.create(nombre=row[7], compania=company)
-                                
+
                                 functions_create.crear_clase(row[12])
                                 fecha_de_creacion = row[21]
                                 fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
@@ -112,11 +111,12 @@ def ftp_descarga():
                             if presion_de_entrada == "":
                                 presion_de_entrada = None
                                 presion_de_salida = None
+                                fecha_de_inflado = None
                             else:
                                 presion_de_entrada = int(float(row[11]))
                                 presion_de_salida = int(float(row[11]))
                                 fecha_de_inflado = date.today()
-                            
+
                             if tipo_de_eje[0] == "S":
                                 nombre_de_eje = "Dirección"
                             elif tipo_de_eje[0] == "D":
@@ -158,7 +158,7 @@ def ftp_descarga():
                                                 inventario=inventario,
                                                 km_montado=km_montado
                                                 )
-                    
+
 
             local_file.close()
             local_read_file.close()
@@ -206,7 +206,7 @@ def ftp_descarga():
                                     presion_de_entrada = int(float(row[9]))
                                     presion_de_salida = int(float(row[9]))
                                     fecha_de_inflado = date.today()
-                                
+
                                 producto = row[8]
                                 try:
                                     producto = Producto.objects.get(producto=producto)
@@ -249,54 +249,62 @@ def ftp_descarga():
         if file_type6 == f"Inspections{year}_{month}_{day}":
             local_file = open(file_name, "wb")
             ftp1.retrbinary("RETR " + file_name, local_file.write)
-            local_read_file = open(file_name, "r", encoding="utf-8-sig", newline='')
-            reader = csv.reader(local_read_file, delimiter=",")
-            for row in reader:
-                try:
-                    if file_type6 == f"Inspections{year}_{month}_{day}":
-                        company = row[1]
-                        if company == "NEW PICK SA DE CV":
-                            company = Compania.objects.get(compania="New Pick")
-                            llanta = row[12]
-
-                            try:
-                                llanta_hecha = Llanta.objects.get(numero_economico=llanta, compania=company)
-                            except:
-                                llanta_hecha = None
-                            if llanta_hecha:
-                                fecha_hora = row[4]
-                                fecha_hora = functions.convertir_fecha3(fecha_hora)
-                                km = row[6]
-                                if km == "":
-                                    km = 2000
-                                else:
-                                    km = int(float(row[6]))
-
-                                profundidades = [float(row[18]), float(row[19]), float(row[20])]
-                                min_profundidad = min(profundidades)
-                                max_profundidad = max(profundidades)
-
-                                inspeccion_creada = Inspeccion.objects.create(llanta=llanta_hecha,
-                                                        fecha_hora=fecha_hora,
-                                                        km=km,
-                                                        min_profundidad=min_profundidad,
-                                                        max_profundidad=max_profundidad,
-                                )
-                                llanta_hecha.ultima_inspeccion = inspeccion_creada
-                                llanta_hecha.save()
-                                try:
-                                    vehiculo = Vehiculo.objects.get(numero_economico=llanta_hecha.vehiculo.numero_economico)
-                                    vehiculo.ultima_inspeccion = inspeccion_creada
-                                    vehiculo.save()
-                                except:
-                                    pass
-                except:
-                    break
             local_file.close()
-            local_read_file.close()
-            os.remove(os.path.abspath(file_name))
+
+            with open(file_name, 'r', encoding="utf-8-sig", newline='') as local_read_file:
+
+                next(local_read_file, None)
+                reader = csv.reader(local_read_file)
+
+                print(reader)
+                for row in reader:
+                    try:
+                        if file_type6 == f"Inspections{year}_{month}_{day}":
+                            company = row[1]
+                            if company == "NEW PICK SA DE CV":
+                                company = Compania.objects.get(compania="New Pick")
+                                llanta = row[12]
+
+                                try:
+                                    llanta_hecha = Llanta.objects.get(numero_economico=llanta, compania=company)
+                                except:
+                                    llanta_hecha = None
+                                if llanta_hecha:
+                                    fecha_hora = row[4]
+                                    fecha_hora = functions.convertir_fecha3(fecha_hora)
+                                    km = row[6]
+                                    if km == "":
+                                        km = 2000
+                                    else:
+                                        km = int(float(row[6]))
+
+                                    profundidades = [float(row[18]), float(row[19]), float(row[20])]
+                                    min_profundidad = min(profundidades)
+                                    max_profundidad = max(profundidades)
+
+                                    inspeccion_creada = Inspeccion.objects.create(llanta=llanta_hecha,
+                                                            fecha_hora=fecha_hora,
+                                                            km=km,
+                                                            min_profundidad=min_profundidad,
+                                                            max_profundidad=max_profundidad,
+                                    )
+                                    llanta_hecha.ultima_inspeccion = inspeccion_creada
+                                    llanta_hecha.save()
+                                    try:
+                                        vehiculo = Vehiculo.objects.get(numero_economico=llanta_hecha.vehiculo.numero_economico)
+                                        vehiculo.ultima_inspeccion = inspeccion_creada
+                                        vehiculo.save()
+                                    except:
+                                        pass
+                    except:
+                        break
+
+
+                local_read_file.close()
+                os.remove(os.path.abspath(file_name))
 
     ftp1.quit()
+
 
 def ftp1():
 
@@ -321,7 +329,7 @@ def ftp1():
             csv_dict_reader = csv.DictReader(file)
             column_names = csv_dict_reader.fieldnames
             writer.writerow(column_names)
-    
+
             for row in reader:
                 try:
                     if file_type1 == "Vehicles20":
@@ -374,7 +382,6 @@ def ftp2(user):
             file = open(DIR + file_name, "r", encoding="utf-8-sig", newline='')
             reader = csv.reader(file, delimiter=",")
             if file_type1 == "Vehicles20":
-                print(file_name)
                 for row in reader:
                     compania = row[3]
                     if compania == "MPV360":
@@ -410,7 +417,7 @@ def ftp2(user):
                             vida = "3R"
                         elif vida == "Retread":
                             vida = "4R"
-                            
+
                         llanta.vida = vida
                         producto = Producto.objects.create(producto=row[8])
                         llanta.producto = producto
@@ -430,7 +437,7 @@ def ftp2(user):
     ftp1.quit()
 
 
-        
+
     """if file_type1 == "Vehicles20" or file_type2 == "Stock20" or file_type3 == "Services20" or file_type4 == "ScrappedTires20" or file_type5 == "RollingStock20" or file_type6 == "Inspections20" or file_type7 == "Casing20":
         file = open(DIR + FILE_PATH, "r", encoding="utf-8-sig", newline='')
         reader = csv.reader(file, delimiter=",")
