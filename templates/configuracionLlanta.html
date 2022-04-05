@@ -2,23 +2,60 @@
 
 {% block head %}
 {% load static %}
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'css/detail2.css' %}"> 
+<link rel="stylesheet" type="text/css" href="{% static 'css/diagrama.css' %}"> 
 <link rel="stylesheet" type="text/css" href="{% static 'css/tireDiagrama.css' %}">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AETO WEB</title>
+<title>Tire Eye View</title>
 {% endblock %}
 
 {% block content %}
-<div class="all-cont">
-	<header>
-		<img class="img-logo" src="{% static 'images/Grupo 66.png' %}">
+<div class="main-cont">
+
+	<header class="head-cont">
+		<div class="logo">
+			<img src="{% static 'images/aeto.svg' %}" alt="logo aeto">
+		</div>
+
+		<h1>
+			Tire Eye View
+		</h1>
 	</header>
-	<div class="main-cont">
-		<h1 class="main-title">Configuración Llanta</h1>
-		<div class="tire good">
-			{% include 'tireSvg.html' %}
+
+	<div class="main__container">
+		<div class="tire__container">
+			<div class="tire">
+        <div class="tire__top good">
+          <span class="tire__data">
+            0
+          </span>
+        </div>
+
+        <div class="tire__medium good">
+          <span class="tire__data">
+              1LO
+          </span>
+        </div>
+        
+        <span class="icon-tire2"></span>
+        
+        <div class="tire__bottom good">
+            <span class="tire__data">
+              0
+            </span>
+        </div>
+      </div>
+		</div>
+		<div class="tire__box">
+			<h2>Analisis</h2>
+
+			<hr>
+
+			<div class="tire__box-text">
+				<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus praesentium consectetur suscipit similique velit quisquam perferendis, molestiae quis quod tenetur nesciunt non itaque eius veritatis excepturi unde vitae nobis nisi?</p>
+			</div>
+
 		</div>
 	</div>
+
 </div>
 {% endblock %}

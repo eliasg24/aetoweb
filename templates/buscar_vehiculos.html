@@ -26,17 +26,29 @@
             {% csrf_token %}
             <nav class="nav-header">
                 <div class="flex-row wrap" id="status">
-                    <button type="button" class="btn btn-aeto-crunch ok active" id="btn-ok">
-                        Verde
+                    <button type="button" class="btn btn-aeto-crunch active" id="btn-all">
+                        Todos los vehículos
+                        <span>
+                            <strong>
+                                {{cantidad_total}}
+                            </strong>
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-aeto-crunch ok" id="btn-ok">
+                        Azules
+                        <span class="status__ok">{{cantidad_verdes}}</span>
                     </button>
                     <button type="button" class="btn btn-aeto-crunch yellow" id="btn-yellow">
-                        Amarillo
+                        Amarillos
+                        <span class="status__yellow">{{cantidad_amarillos}}</span>
                     </button>
                     <button type="button" class="btn btn-aeto-crunch bad" id="btn-bad">
-                        Rojo
+                        Rojos
+                        <span class="status__bad">{{cantidad_rojos}}</span>
                     </button>
                     <button type="button" class="btn btn-aeto-crunch suspicious" id="btn-suspicious">
-                        Sospechoso
+                        Sospechosos
+                        <span class="status__suspicious">{{cantidad_sospechosos}}</span>
                     </button>
                 </div>
                 <div class="flex-row wrap">
@@ -60,13 +72,42 @@
                       </button>
                 </div>
             </nav>
-            <article class="wrapper on-view" id="ok">
-                <header class="vehicles-head__container">
-                    <h2>
-                        Cantidad de vehiculo 
-                        <span class="ok-text">{{cantidad_verdes}}/{{cantidad_total}}</span>
-                    </h2>
-                </header>
+            <article class="wrapper on-view" id="all">
+                <div class="container-fluid">
+                    <div class="card-container">
+                        {% for vehiculo in vehiculos_verdes %}
+                            {% include 'search/vehiculos-lista.html' %}
+                        {% endfor %}
+                        {% for vehiculo in vehiculos_amarillos %}
+                            {% include 'search/vehiculos-lista.html' %}
+                        {% endfor %}
+                        {% for vehiculo in vehiculos_rojos %}
+                        <a href="{% url 'dashboards:detail' vehiculo.id %}">
+                            <figure class="vehicle-card animate__animated animate__fadeInUp">
+                        
+                                <div class="vehicle-card__img">
+                                    <span class="icon-truck vehicle-card__icon"></span>
+                                    <h3>{{vehiculo.numero_economico}}</h3>
+                                </div>
+                        
+                                <figcaption class="vehicle-card__info">
+                                    <p>
+                                        <span class="icon-pulpo"></span>
+                                    </p>
+                                    <p>
+                                        {{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}
+                                    </p>
+                                    <p>
+                                        <span class="icon-cross"></span>
+                                    </p>
+                                </figcaption>
+                            </figure>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+            <article class="wrapper" id="ok">
                 <div class="container-fluid">
                     <div class="card-container">
                         {% for vehiculo in vehiculos_verdes %}
@@ -76,12 +117,6 @@
                 </div>
             </article>
             <article class="wrapper" id="yellow">
-                <header class="vehicles-head__container">
-                    <h2>
-                        Cantidad de vehiculo 
-                        <span class="yellow-text">{{cantidad_amarillos}}/{{cantidad_total}}</span>
-                    </h2>
-                </header>
                 <div class="container-fluid">
                     <div class="card-container">
                         {% for vehiculo in vehiculos_amarillos %}
@@ -91,12 +126,6 @@
                 </div>
             </article>
             <article class="wrapper" id="bad">
-                <header class="vehicles-head__container">
-                    <h2>
-                        Cantidad de vehiculo 
-                        <span class="bad-text">{{cantidad_rojos}}/{{cantidad_total}}</span>
-                    </h2>
-                </header>
                 <div class="container-fluid">
                     <div class="card-container">
                         {% for vehiculo in vehiculos_rojos %}
@@ -126,12 +155,6 @@
                 </div>
             </article>
             <article class="wrapper" id="suspicious">
-                <header class="vehicles-head__container">
-                    <h2>
-                        Cantidad de vehiculo 
-                        <span class="suspicious-text">{{cantidad_sospechosos}}/{{cantidad_total}}</span>
-                    </h2>
-                </header>
                 <div class="container-fluid">
                     <div class="card-container">
                         {% for vehiculo in vehiculos_sospechosos %}
@@ -145,7 +168,8 @@
 </main>
     
 <script type="text/javascript">
-    document.addEventListener('click', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        handleView('btn-all', 'all');
         handleView('btn-ok', 'ok');
         handleView('btn-yellow', 'yellow');
         handleView('btn-bad', 'bad');

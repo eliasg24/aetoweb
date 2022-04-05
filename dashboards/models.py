@@ -392,9 +392,18 @@ class FTP(models.Model):
 class TendenciaCPK(models.Model):
     # Modelo de la Tendencia CPK
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
+    mes = models.IntegerField()
+    cpk = models.FloatField()
     cantidad = models.CharField(max_length=200)
-    vida = models.CharField(max_length=200)
-    calificacion = models.CharField(max_length=200)
+    opciones_vida = (("Nueva", "Nueva"),
+                        ("1R", "1R"),
+                        ("2R", "2R"),
+                        ("3R", "3R"),
+                        ("4R", "4R"),
+                        ("5R", "5R"),
+            )
+    vida = models.CharField(max_length=200, choices=opciones_vida)
+    calificacion = models.IntegerField()
 
 class Renovador(models.Model):
     # Modelo del Renovador

@@ -13,6 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.http.response import JsonResponse, HttpResponse
+from django.db.models.aggregates import Min, Max, Count
 from django.db.models.functions import Cast, ExtractMonth, ExtractDay, Now, Round, Substr, ExtractYear
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
@@ -30,7 +31,7 @@ from dashboards.forms.forms import ExcelForm, LlantaForm, VehiculoForm, Producto
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, TendenciaCPK
 
 # Utilities
 from multi_form_view import MultiModelFormView
@@ -648,6 +649,37 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         km_aplicaciones = functions.distribucion_cantidad(km_aplicaciones)
         km_productos = functions.distribucion_cantidad(km_productos)
 
+        try:
+            tendencia_cpk_mes2 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=2)
+        except:
+            tendencia_cpk_mes2 = 0
+        try:
+            tendencia_cpk_mes3 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=3)
+        except:
+            tendencia_cpk_mes3 = 0
+        try:
+            tendencia_cpk_mes4 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=4)
+        except:
+            tendencia_cpk_mes4 = 0
+        try:
+            tendencia_cpk_mes5 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=5)
+        except:
+            tendencia_cpk_mes5 = 0
+        try:
+            tendencia_cpk_mes6 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=6)
+        except:
+            tendencia_cpk_mes6 = 0
+        try:
+            tendencia_cpk_mes7 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=7)
+        except:
+            tendencia_cpk_mes7 = 0
+        try:
+            tendencia_cpk_mes8 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=8)
+        except:
+            tendencia_cpk_mes8 = 0
+
+        print(cpk_vehiculos)
+
         context["aplicacion1"] = aplicacion1
         context["aplicacion2"] = aplicacion2
         context["aplicaciones"] = aplicaciones
@@ -701,6 +733,13 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         context["producto1"] = producto1
         context["producto2"] = producto2
         context["productos"] = productos
+        context["tendencia_cpk_mes2"] = tendencia_cpk_mes2
+        context["tendencia_cpk_mes3"] = tendencia_cpk_mes3
+        context["tendencia_cpk_mes4"] = tendencia_cpk_mes4
+        context["tendencia_cpk_mes5"] = tendencia_cpk_mes5
+        context["tendencia_cpk_mes6"] = tendencia_cpk_mes6
+        context["tendencia_cpk_mes7"] = tendencia_cpk_mes7
+        context["tendencia_cpk_mes8"] = tendencia_cpk_mes8
         context["vehiculo1"] = vehiculo1
         context["vehiculo2"] = vehiculo2
         context["vehiculos"] = vehiculos
@@ -715,7 +754,7 @@ class hubView(LoginRequiredMixin, TemplateView):
 
 class diagramaView(LoginRequiredMixin, TemplateView):
     # Vista de diagramaView
-
+    
     template_name = "diagrama.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -725,35 +764,100 @@ class diagramaView(LoginRequiredMixin, TemplateView):
         configuracion = vehiculo.configuracion
 
         cantidad_llantas = functions.cantidad_llantas(configuracion)
-
-        if cantidad_llantas >= 2:
-            context["llanta1"] = llantas[0]
-            context["llanta2"] = llantas[1]
-            if cantidad_llantas >= 4:
-                context["llanta3"] = llantas[2]
-                context["llanta4"] = llantas[3]
-                if cantidad_llantas >= 6:
-                    context["llanta5"] = llantas[4]
-                    context["llanta6"] = llantas[5]
-                    if cantidad_llantas >= 8:
-                        context["llanta7"] = llantas[6]
-                        context["llanta8"] = llantas[7]
-                        context["llanta9"] = llantas[7]
-                        context["llanta10"] = llantas[7]
-                        context["llanta11"] = llantas[7]
-                        context["llanta12"] = llantas[7]
-                        context["llanta13"] = llantas[7]
-                        context["llanta14"] = llantas[7]
-                        if cantidad_llantas >= 10:
-                            context["llanta9"] = llantas[8]
-                            context["llanta10"] = llantas[9]
-                            if cantidad_llantas >= 12:
-                                context["llanta11"] = llantas[10]
-                                context["llanta12"] = llantas[11]
-                                if cantidad_llantas >= 14:
-                                    context["llanta13"] = llantas[12]
-                                    context["llanta14"] = llantas[13]
+        
         context["configuracion"] = configuracion
+        
+        #Generacion de ejes dinamico
+        vehiculo_actual = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        llantas_actuales = Llanta.objects.filter(vehiculo = self.kwargs['pk'])
+        inspecciones_actuales = Inspeccion.objects.filter(llanta__in=llantas_actuales)
+        
+        #Obtencion de la lista de las llantas
+        
+        filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones_actuales)
+        llantas_sospechosas = llantas_actuales.filter(numero_economico__in=filtro_sospechoso)
+
+        filtro_rojo = functions.vehiculo_rojo_llanta(llantas_actuales)
+        llantas_rojas = llantas_actuales.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
+        
+        filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas_actuales)
+        llantas_amarillas = llantas_actuales.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
+        
+        llantas_azules = llantas_actuales.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
+        
+        #Obtencion de la data
+        num_ejes = vehiculo_actual.configuracion.split('.')
+        ejes_no_ordenados = []
+        ejes = []
+        eje = 1
+        color_presion = ""
+        for num in num_ejes:
+            list_temp = []
+            for llanta in llantas_actuales:
+                if llanta in llantas_sospechosas:
+                    color_presion = 'purple'
+                elif llanta in llantas_rojas:
+                    color_presion = 'bad'
+                elif llanta in llantas_amarillas:
+                    color_presion = 'yellow'
+                elif llanta in llantas_azules:
+                    color_presion = 'good'
+                    
+                if llanta.eje == eje:
+                    list_temp.append([llanta, color_presion])
+            eje += 1
+            ejes_no_ordenados.append(list_temp)
+        
+        for eje in ejes_no_ordenados:
+            if len(eje) == 2:
+                lista_temp = ['', '']
+                for llanta_act in eje:
+                    if 'LI' in llanta_act[0].posicion:
+                        lista_temp[0] = llanta_act
+                        
+                    elif 'RI' in llanta_act[0].posicion:
+                        lista_temp[1] = llanta_act
+                ejes.append(lista_temp)
+                print(' 0---0')
+            
+            else:
+                lista_temp = ['', '', '', '']
+                for llanta_act in eje:
+                    if 'LO' in llanta_act[0].posicion:
+                        lista_temp[0] = llanta_act
+                    elif 'LI' in llanta_act[0].posicion:
+                        lista_temp[1] = llanta_act
+                    elif 'RI' in llanta_act[0].posicion:
+                        lista_temp[2] = llanta_act
+                    elif 'RO' in llanta_act[0].posicion:
+                        lista_temp[3] = llanta_act
+                ejes.append(lista_temp)
+                print('00---00')
+            
+            
+        color = functions.entrada_correcta(vehiculo_actual)
+        #print(color)
+        if color == 'good':
+            style = 'good'
+        elif color == 'bad':
+            style = 'bad'
+        else:
+            style = 'bad'
+        
+        cant_ejes = len(ejes)
+        
+        
+        #print(vehiculo.configuracion)
+        #print(ejes)
+        #print(f'style: {style}')
+        #print(f'llantas_sospechosas: {llantas_sospechosas}')
+        #print(f'llantas_rojas: {llantas_rojas}')
+        #print(f'llantas_amarillas: {llantas_amarillas}')
+        #print(f'llantas_azules: {llantas_azules}')
+        context['ejes'] = ejes
+        context['style'] = style
+        context['cant_ejes'] = cant_ejes
+
         return context
 
 class tireDiagramaView(LoginRequiredMixin, TemplateView):
@@ -1249,59 +1353,100 @@ class configuracionVehiculoView(LoginRequiredMixin, TemplateView):
         
         context = super().get_context_data(**kwargs)
         #Declaracion de variables
-        vehiculo = Vehiculo.objects.get(pk = self.kwargs['pk'])
-        llantas = Llanta.objects.filter(vehiculo = self.kwargs['pk'])
-        inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
+        
+        #Generacion de ejes dinamico
+        vehiculo_actual = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        llantas_actuales = Llanta.objects.filter(vehiculo = self.kwargs['pk'])
+        inspecciones_actuales = Inspeccion.objects.filter(llanta__in=llantas_actuales)
+        
+        #Obtencion de la lista de las llantas
+        
+        filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones_actuales)
+        llantas_sospechosas = llantas_actuales.filter(numero_economico__in=filtro_sospechoso)
+
+        filtro_rojo = functions.vehiculo_rojo_llanta(llantas_actuales)
+        llantas_rojas = llantas_actuales.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
+        
+        filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas_actuales)
+        llantas_amarillas = llantas_actuales.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
+        
+        llantas_azules = llantas_actuales.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
+        
         #Obtencion de la data
-        num_ejes = vehiculo.configuracion.split('.')
+        num_ejes = vehiculo_actual.configuracion.split('.')
+        ejes_no_ordenados = []
         ejes = []
         eje = 1
+        color_presion = ""
         for num in num_ejes:
             list_temp = []
-            for llanta in llantas:
-                #print(llanta.eje)
+            for llanta in llantas_actuales:
+                if llanta in llantas_sospechosas:
+                    color_presion = 'purple'
+                elif llanta in llantas_rojas:
+                    color_presion = 'bad'
+                elif llanta in llantas_amarillas:
+                    color_presion = 'yellow'
+                elif llanta in llantas_azules:
+                    color_presion = 'good'
+                    
                 if llanta.eje == eje:
-                    list_temp.append(llanta)
+                    list_temp.append([llanta, color_presion])
             eje += 1
-            ejes.append(list_temp)
-            list_temp = []
+            ejes_no_ordenados.append(list_temp)
+        
+        for eje in ejes_no_ordenados:
+            if len(eje) == 2:
+                lista_temp = ['', '']
+                for llanta_act in eje:
+                    if 'LI' in llanta_act[0].posicion:
+                        lista_temp[0] = llanta_act
+                        
+                    elif 'RI' in llanta_act[0].posicion:
+                        lista_temp[1] = llanta_act
+                ejes.append(lista_temp)
+                print(' 0---0')
+            
+            else:
+                lista_temp = ['', '', '', '']
+                for llanta_act in eje:
+                    if 'LO' in llanta_act[0].posicion:
+                        lista_temp[0] = llanta_act
+                    elif 'LI' in llanta_act[0].posicion:
+                        lista_temp[1] = llanta_act
+                    elif 'RI' in llanta_act[0].posicion:
+                        lista_temp[2] = llanta_act
+                    elif 'RO' in llanta_act[0].posicion:
+                        lista_temp[3] = llanta_act
+                ejes.append(lista_temp)
+                print('00---00')
             
             
-        color = functions.entrada_correcta(vehiculo)
-        print(color)
+        color = functions.entrada_correcta(vehiculo_actual)
+        #print(color)
         if color == 'good':
-            style = 'presion-good'
+            style = 'good'
         elif color == 'bad':
-            style = 'presion-bad'
+            style = 'bad'
         else:
-            style = 'presion-bad'
+            style = 'bad'
         
-        filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones)
-        llantas_sospechosas = llantas.filter(numero_economico__in=filtro_sospechoso)
-
-        filtro_rojo = functions.vehiculo_rojo_llanta(llantas)
-        llantas_rojas = llantas.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
+        cant_ejes = len(ejes)
         
-        filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas)
-        llantas_amarillas = llantas.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
         
-        llantas_azules = llantas.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
-
-        print(llantas_sospechosas)
-        print(llantas_rojas)
-        print(llantas_amarillas)
-        print(llantas_azules)
-        #Paso del contexto a los templates
-        context['llantas'] = llantas
+        #print(vehiculo.configuracion)
+        #print(ejes)
+        #print(f'style: {style}')
+        #print(f'llantas_sospechosas: {llantas_sospechosas}')
+        #print(f'llantas_rojas: {llantas_rojas}')
+        #print(f'llantas_amarillas: {llantas_amarillas}')
+        #print(f'llantas_azules: {llantas_azules}')
         context['ejes'] = ejes
-        context['configuracion'] = vehiculo.configuracion
-        context['llantas_sospechosas'] = llantas_sospechosas
-        context['llantas_rojas'] = llantas_rojas
-        context['llantas_amarillas'] = llantas_amarillas
-        context['llantas_azules'] = llantas_azules
         context['style'] = style
+        context['cant_ejes'] = cant_ejes
         
-        return context 
+        
+        return context
 
 class configuracionLlantaView(LoginRequiredMixin, TemplateView):
     # Vista de configuracionLlantaView
@@ -2415,33 +2560,6 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["entradas"] = entradas_correctas
             context["fecha"] = fecha
             context["hoy"] = hoy
-            if cantidad_llantas >= 2:
-                context["llanta1"] = llantas[0]
-                context["llanta2"] = llantas[1]
-                if cantidad_llantas >= 4:
-                    context["llanta3"] = llantas[2]
-                    context["llanta4"] = llantas[3]
-                    if cantidad_llantas >= 6:
-                        context["llanta5"] = llantas[4]
-                        context["llanta6"] = llantas[5]
-                        if cantidad_llantas >= 8:
-                            context["llanta7"] = llantas[6]
-                            context["llanta8"] = llantas[7]
-                            context["llanta9"] = llantas[7]
-                            context["llanta10"] = llantas[7]
-                            context["llanta11"] = llantas[7]
-                            context["llanta12"] = llantas[7]
-                            context["llanta13"] = llantas[7]
-                            context["llanta14"] = llantas[7]
-                            if cantidad_llantas >= 10:
-                                context["llanta9"] = llantas[8]
-                                context["llanta10"] = llantas[9]
-                                if cantidad_llantas >= 12:
-                                    context["llanta11"] = llantas[10]
-                                    context["llanta12"] = llantas[11]
-                                    if cantidad_llantas >= 14:
-                                        context["llanta13"] = llantas[12]
-                                        context["llanta14"] = llantas[13]
             context["mes_1"] = mes_1
             context["mes_2"] = mes_2.strftime("%b")
             context["mes_3"] = mes_3.strftime("%b")
@@ -2453,6 +2571,106 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["vehiculo_mes3"] = vehiculo_mes3.count()
             context["vehiculo_mes4"] = vehiculo_mes4.count()
             context["vehiculo_status"] = vehiculo_status
+            
+        #Generacion de ejes dinamico
+        vehiculo_actual = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        llantas_actuales = Llanta.objects.filter(vehiculo = self.kwargs['pk'])
+        inspecciones_actuales = Inspeccion.objects.filter(llanta__in=llantas_actuales)
+        
+        #Obtencion de la lista de las llantas
+        
+        filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones_actuales)
+        llantas_sospechosas = llantas_actuales.filter(numero_economico__in=filtro_sospechoso)
+
+        filtro_rojo = functions.vehiculo_rojo_llanta(llantas_actuales)
+        llantas_rojas = llantas_actuales.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
+        
+        filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas_actuales)
+        llantas_amarillas = llantas_actuales.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
+        
+        llantas_azules = llantas_actuales.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
+        
+        #Obtencion de la data
+        num_ejes = vehiculo_actual.configuracion.split('.')
+        ejes_no_ordenados = []
+        ejes = []
+        eje = 1
+        color_presion = ""
+        for num in num_ejes:
+            list_temp = []
+            for llanta in llantas_actuales:
+                if llanta in llantas_sospechosas:
+                    color_presion = 'purple'
+                elif llanta in llantas_rojas:
+                    color_presion = 'bad'
+                elif llanta in llantas_amarillas:
+                    color_presion = 'yellow'
+                elif llanta in llantas_azules:
+                    color_presion = 'good'
+                    
+                if llanta.eje == eje:
+                    list_temp.append([llanta, color_presion])
+            eje += 1
+            ejes_no_ordenados.append(list_temp)
+        
+        for eje in ejes_no_ordenados:
+            if len(eje) == 2:
+                lista_temp = ['', '']
+                for llanta_act in eje:
+                    if 'LI' in llanta_act[0].posicion:
+                        lista_temp[0] = llanta_act
+                        
+                    elif 'RI' in llanta_act[0].posicion:
+                        lista_temp[1] = llanta_act
+                ejes.append(lista_temp)
+                print(' 0---0')
+            
+            else:
+                lista_temp = ['', '', '', '']
+                for llanta_act in eje:
+                    if 'LO' in llanta_act[0].posicion:
+                        lista_temp[0] = llanta_act
+                    elif 'LI' in llanta_act[0].posicion:
+                        lista_temp[1] = llanta_act
+                    elif 'RI' in llanta_act[0].posicion:
+                        lista_temp[2] = llanta_act
+                    elif 'RO' in llanta_act[0].posicion:
+                        lista_temp[3] = llanta_act
+                ejes.append(lista_temp)
+                print('00---00')
+            
+            
+        color = functions.entrada_correcta(vehiculo_actual)
+        #print(color)
+        if color == 'good':
+            style = 'good'
+        elif color == 'bad':
+            style = 'bad'
+        else:
+            style = 'bad'
+        
+        cant_ejes = len(ejes)
+        
+        if len(llantas_actuales) == 0:
+            sin_llantas = True
+        else:
+            sin_llantas = False
+        
+        print(len(llantas_actuales))
+        print(sin_llantas)
+        #print(vehiculo.configuracion)
+        #print(ejes)
+        #print(f'style: {style}')
+        #print(f'llantas_sospechosas: {llantas_sospechosas}')
+        #print(f'llantas_rojas: {llantas_rojas}')
+        #print(f'llantas_amarillas: {llantas_amarillas}')
+        #print(f'llantas_azules: {llantas_azules}')
+        context['ejes'] = ejes
+        context['style'] = style
+        context['cant_ejes'] = cant_ejes
+        context['sin_llantas'] = sin_llantas
+        
+        
         return context
 
 def download_rendimiento_de_llanta(request):
@@ -3131,4 +3349,5 @@ def informe_de_perdida_y_rendimiento(request):
         return response
 
 def ftp_newpick(request):
+
     functions_ftp.ftp_descarga()

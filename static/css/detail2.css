@@ -1,3 +1,64 @@
+.btn-download {
+  background-color: var(--border-button);
+}
+
+.tire-relative {
+  color: white;
+  text-decoration: none;
+  position: relative;
+}
+
+.tire__top,
+.tire__medium,
+.tire__bottom {
+  font-size: 1rem;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+  right: -1px;
+  /* padding: 0.25rem; */
+  text-align: center;
+  width: auto;
+}
+
+.tire__top {
+  border-radius: 0.25rem 0.25rem 0 0;
+  top: -1px;
+}
+
+.tire__medium {
+  border-radius: 50%;
+  bottom: 35%;
+  margin: auto;
+  padding: 0.75rem;
+  width: fit-content;
+}
+
+.tire__bottom {
+  border-radius: 0 0 0.25rem 0.25rem;
+  bottom: 0;
+}
+
+.tire__data {
+  font-size: 1rem;
+}
+
+.icon-central-axle,
+.icon-da {
+  background-color: #fff;
+  height: 1rem;
+}
+
+.double-tire {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.5rem;
+}
+
+.icon-tire2 {
+  font-size: 8rem;
+}
+
 .flex-row {
   flex-flow: row wrap;
 }
@@ -149,6 +210,11 @@
   grid-template-rows: repeat(4, 1fr);
 }
 
+.rows-2 {
+  gap: 1rem;
+  grid-template-rows: repeat(2, 1fr);
+}
+
 .config__container {
   background-color: #202020;
   border-radius: 0.25rem;
@@ -159,12 +225,18 @@
 
 .config__header {
   background-color: var(--bg-button-active);
+  border-bottom: thin solid var(--border-alt-button);
   text-align: center;
   padding: 0.25rem;
 }
 
 .config__config {
   align-self: center;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  height: 100%;
+  position: relative;
 }
 
 .config__config {
@@ -172,82 +244,10 @@
   width: 90%;
 }
 
-.par-llantas,
-.par-doble-llanta {
-  align-items: center;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: auto 1fr auto;
-  padding: 1rem;
-}
-
-.icon-central-axle,
-.icon-da {
-  background-color: #fff;
-}
-
-.doble-llanta {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.tireDecoration {
-  color: white;
-  text-decoration: none;
-  position: relative;
-}
-
-.tire__top,
-.tire__bottom {
-  background-color: #fff;
-  font-size: 0.75rem;
-  position: absolute;
-  left: 0;
-  right: -1px;
-  /* padding: 0.25rem; */
-  text-align: center;
-  width: auto;
-}
-
-.tire__top:hover .tire__title,
-.tire__bottom:hover .tire__title {
-  opacity: 1;
-  visibility: visible;
-}
-
-.tire__top:hover .tire__data,
-.tire__bottom:hover .tire__data {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.tire__top {
-  border-radius: 0.25rem 0.25rem 0 0;
-  top: 0;
-}
-
-.tire__bottom {
-  border-radius: 0 0 0.25rem 0.25rem;
-  bottom: 0;
-}
-
-.tire__bottom .tire__title {
-  font-size: 0.5rem;
-  top: 3px;
-}
-
-.tire__title {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  position: absolute;
-  transition: all 0.4s ease-in;
-  left: 0;
-  right: 0;
-}
-
-.tire__data {
-  font-size: 0.75rem;
+.config__config > .relative {
+  height: 100%;
+  min-height: 70vh;
+  width: 100%;
 }
 
 .dash__nav {
@@ -274,11 +274,51 @@
 }
 
 .config__nav {
+  padding: 0.5rem;
+}
+
+.config__buttons {
   align-items: center;
   display: flex;
   flex-flow: row wrap;
-  justify-content: space-between;
-  padding: 0.5rem;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.relative {
+  position: relative;
+}
+
+.relative.absolute {
+  overflow-y: auto;
+}
+
+/* .btn-download.relative {
+  justify-content: flex-start;
+} */
+
+.pop-out {
+  background-color: #111;
+  position: absolute;
+  font-size: 1rem;
+  width: max-content;
+  padding: 0.25rem;
+  top: 4px;
+  transition: all 0.3s ease;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn:hover .pop-out {
+  opacity: 1;
+  transform: translateY(45px);
+  visibility: visible;
+}
+
+.btn:hover {
+  opacity: 1;
 }
 
 .config__table {
@@ -397,13 +437,32 @@
   background-color: #202020;
 }
 
-/* ? Llanta en vista movil */
-.icon-tire2 {
-  font-size: 7rem;
+.par-llantas,
+.par-doble-llanta {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto 1fr auto;
+  padding: 1rem;
 }
-/* -------- */
+
+.icon-central-axle,
+.icon-da {
+  background-color: #fff;
+  height: 1rem;
+}
+
+.axle {
+  display: flex;
+  background-color: white;
+  height: 1rem;
+}
 
 @media screen and (min-width: 1024px) {
+  .tire__medium {
+    bottom: 37%;
+  }
+
   .col-2 {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
@@ -431,6 +490,10 @@
   .cont-right {
     height: 100%;
   }
+
+  .config__buttons {
+    padding: 1rem;
+  }
 }
 
 @media screen and (min-width: 1336px) {
@@ -456,5 +519,128 @@
   .icon-central-axle,
   .icon-da {
     font-size: 1rem;
+  }
+}
+
+.tire {
+  position: relative;
+}
+
+.absolute {
+  display: grid;
+  height: 100%;
+  position: absolute;
+  overflow-y: auto;
+  width: 100%;
+}
+
+@media screen and (min-width: 1024px) {
+  .config__config > .relative {
+    min-height: auto;
+  }
+
+  /*ejes__1*/
+
+  .par-doble-llanta.ejes__1 {
+    width: 50%;
+  }
+
+  .ejes__1 > .tire > .icon-tire2 {
+    font-size: 34vmin;
+  }
+
+  .ejes__1 > .axle {
+    height: 2rem;
+  }
+  /*end ejes__1*/
+
+  /*ejes__2*/
+
+  .ejes__2 > .tire > .icon-tire2 {
+    font-size: 24vmin;
+  }
+
+  .par-doble-llanta.ejes__2 .icon-tire2 {
+    font-size: 24vmin;
+  }
+
+  .ejes__2 > .axle {
+    height: 2rem;
+  }
+  /*end ejes__2*/
+
+  /*ejes__3*/
+  .ejes__3 > .tire > .icon-tire2 {
+    font-size: 18vmin;
+  }
+
+  .par-doble-llanta.ejes__3 .icon-tire2 {
+    font-size: 18vmin;
+  }
+
+  .ejes__3 > .axle {
+    height: 1.4rem;
+  }
+  /*end ejes__3*/
+
+  /*ejes__4*/
+
+  .ejes__4 > .tire > .icon-tire2 {
+    font-size: 14vmin;
+  }
+
+  .par-doble-llanta.ejes__4 .icon-tire2 {
+    font-size: 14vmin;
+  }
+
+  .ejes__4 > .axle {
+    height: 1.2rem;
+  }
+  /*end ejes__4*/
+
+  /*ejes__5*/
+  .ejes__5 > .tire > .icon-tire2 {
+    font-size: 16vmin;
+  }
+
+  .par-doble-llanta.ejes__5 .icon-tire2 {
+    font-size: 16vmin;
+  }
+
+  .ejes__5 > .axle {
+    height: 1rem;
+  }
+  /*end ejes__5*/
+
+  /*ejes__6*/
+
+  .ejes__6 > .tire > .icon-tire2 {
+    font-size: 14vmin;
+  }
+
+  .par-doble-llanta.ejes__6 .icon-tire2 {
+    font-size: 14vmin;
+  }
+
+  .ejes__6 > .axle {
+    height: 0.8rem;
+  }
+  /*end ejes__6*/
+
+  .ejes__7 > .tire > .icon-tire2 {
+    font-size: 12vmin;
+  }
+
+  .par-doble-llanta.ejes__7 .icon-tire2 {
+    font-size: 12vmin;
+  }
+
+  .ejes__7 > .axle {
+    height: 0.6rem;
+  }
+  /*end ejes__7*/
+
+  .icon-tire2 {
+    font-size: 20vmin;
   }
 }

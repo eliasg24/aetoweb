@@ -41,99 +41,205 @@
                 <header class="config__header">
                     <h1 class="detail__title">VEHÍCULO {{vehiculo.numero_economico}}</h1>
                 </header>
-                
-                <nav class="config__nav">
+                {% if sin_llantas %}
 
-                    <div class="flex-row">
+                {% else %}
+                    <div class="config__buttons">
                         <a 
-                          href="{% url 'dashboards:configuracionVehiculo' vehiculo.id %}" 
-                          class="btn btn-aeto-crunch alt active">
+                            href="{% url 'dashboards:configuracionVehiculo' vehiculo.id %}" 
+                            class="btn btn-download relative">
                             <span class="icon-eye"></span>
-                            Smart View
+                            <div class="pop-out">Smart View</div>
                         </a>
                         <a 
-                          href="{% url 'dashboards:diagrama' vehiculo.id %}" 
-                          class="btn btn-aeto-crunch alt active">
+                            href="{% url 'dashboards:diagrama' vehiculo.id %}" 
+                            class="btn btn-download relative">
                             <span class="icon-pencil"></span>
-                            Edición Manual
+                            <div class="pop-out">Edición Manual</div>
                         </a>  
                         <a 
-                          href="#" 
-                          class="btn btn-aeto-crunch alt active">
+                            href="#" 
+                            class="btn btn-download relative">
                             <span class="icon-magnifier"></span>
-                            Inspección
+                            <div class="pop-out">Inspección</div>
                         </a>  
-                    </div> 
-                </nav>
-
+                    </div>
+                {% endif %}
                 <div class="config__config">
-                    {% if configuracion == "S2.C2.D2" %}
-                        {% include "configurations/s2d4c4.html" %}
-                    {% endif %}
 
-                    {% if configuracion == "S2.D4.D4" %}
-                        {% include "configurations/s2d4d4.html" %}
-                    {% endif %}
+                    <!-- * Configuración -->
 
-                    {% if configuracion == "S2.D2.D4" %}
-                        {% include "configurations/s2d2d4.html" %}
-                    {% endif %}
+                    <div class="relative">
+                        <div class="absolute">
+                            {% if sin_llantas %}
+                            
+                            {% else %}
+                            
+                                {% for eje in ejes %}
 
-                    {% if configuracion == "S2.D4" %}
-                        {% include "configurations/s2d4.html" %}
-                    {% endif %}
+                                    {% if eje|length == 2 %}
 
-                    {% if configuracion == "S2.D4.D2" %}
-                        {% include "configurations/s2d4d2.html" %}
-                    {% endif %}
+                                        <div class="par-llantas ejes__{{cant_ejes|safe}}">
+                                            <a href="{% url 'dashboards:tireDetail' eje.0.0.id %}" class="tire">
+                                                <div class="tire__top {{style|safe}}">
+                                                <span class="tire__data">
+                                                    {{eje.0.0.presion_de_entrada}}
+                                                </span>
+                                                </div>
 
-                    {% if configuracion == "S2.D4.D2.D4" %}
-                        {% include "configurations/s2d4d4d4.html" %}
-                    {% endif %}
+                                                <div class="tire__medium {{style|safe}}">
+                                                    <span class="tire__data">
+                                                        {{eje.0.0.posicion}}
+                                                    </span>
+                                                </div>
+                                                
+                                                <span class="icon-tire2"></span>
+                                                
+                                                <div class="tire__bottom {{eje.0.1}}">
+                                                    <span class="tire__data">
+                                                        {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                                                    </span>
+                                                </div>
+                                            </a>
+                                    
+                                            <div class="axle">
+                                                <span class="axle-white"></span>
+                                            </div>
+                                    
+                                            <a href="{% url 'dashboards:tireDetail' eje.1.0.id %}" class="tire">
+                                                <div class="tire__top {{style|safe}}">
+                                                    <span class="tire__data">
+                                                        {{eje.1.0.presion_de_entrada}}
+                                                    </span>
+                                                </div>
 
-                    {% if configuracion == "S2.L2.D4.D4" %}
-                        {% include "configurations/s2l2d4d4.html" %}
-                    {% endif %}
+                                                <div class="tire__medium {{style|safe}}">
+                                                    <span class="tire__data">
+                                                        {{eje.1.0.posicion}}
+                                                    </span>
+                                                </div>
+                                                
+                                                <span class="icon-tire2"></span>
+                                                
+                                                <div class="tire__bottom {{eje.1.1}}">
+                                                    <span class="tire__data">
+                                                        {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        
+                                    {% else %}
 
-                    {% if configuracion == "S2.L4.D4.D4" %}
-                        {% include "configurations/s2l4d4d4.html" %}
-                    {% endif %}
+                                        <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
+                            
+                                            <div class="double-tire">
+                                                <a href="{% url 'dashboards:tireDetail' eje.0.0.id %}" class="tire">
+                                                    <div class="tire__top {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.0.0.presion_de_entrada}}
+                                                        </span>
+                                                    </div>
 
-                    {% if configuracion == "S2.C2.D2" %}
-                        {% include "configurations/s2c2d2.html" %}
-                    {% endif %}
+                                                    <div class="tire__medium {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.0.0.posicion}}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <span class="icon-tire2"></span>
+                                                    
+                                                    <div class="tire__bottom {{eje.0.1}}">
+                                                        <span class="tire__data">
+                                                            {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                                                        </span>
+                                                    </div>
+                                                </a>
+                                                <a href="{% url 'dashboards:tireDetail' eje.1.0.id %}" class="tire">
+                                                    <div class="tire__top {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.1.0.presion_de_entrada}}
+                                                        </span>
+                                                    </div>
 
-                    {% if configuracion == "S2.C4.D4" %}
-                        {% include "configurations/s2c4d4.html" %}
-                    {% endif %}
+                                                    <div class="tire__medium {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.1.0.posicion}}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <span class="icon-tire2"></span>
+                                                    
+                                                    <div class="tire__bottom {{eje.1.1}}">
+                                                        <span class="tire__data">
+                                                            {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                                                        </span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                    
+                                            <div class="axle">
+                                                <span class="axle-white"></span>
+                                            </div>
+                                            
+                                            <div class="double-tire">
+                                                <a href="{% url 'dashboards:tireDetail' eje.2.0.id %}" class="tire">
+                                                    <div class="tire__top {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.2.0.presion_de_entrada}}
+                                                        </span>
+                                                    </div>
 
-                    {% if configuracion == "S2.D2.C2"  %}
-                        {% include "configurations/s2d2c2.html" %}
-                    {% endif %}
+                                                    <div class="tire__medium {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.2.0.posicion}}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <span class="icon-tire2"></span>
+                                                    
+                                                    <div class="tire__bottom {{eje.2.1}}">
+                                                        <span class="tire__data">
+                                                            {{eje.2.0.ultima_inspeccion.min_profundidad}}
+                                                        </span>
+                                                    </div>
+                                                </a>
+                                                <a href="{% url 'dashboards:tireDetail' eje.3.0.id %}" class="tire">
+                                                    <div class="tire__top {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.3.0.presion_de_entrada}}
+                                                        </span>
+                                                    </div>
 
-                    {% if configuracion == "S2.D2.D2" %}
-                        {% include "configurations/s2d2d2.html" %}                        
-                    {% endif %}                        
+                                                    <div class="tire__medium {{style|safe}}">
+                                                        <span class="tire__data">
+                                                            {{eje.3.0.posicion}}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <span class="icon-tire2"></span>
+                                                    
+                                                    <div class="tire__bottom {{eje.3.1}}">
+                                                        <span class="tire__data">
+                                                            {{eje.3.0.ultima_inspeccion.min_profundidad}}
+                                                        </span>
+                                                    </div>
+                                                </a>
+                                            </div>
 
-                    {% if configuracion == "T2" %}
-                        {% include "configurations/t2.html" %}
-                    {% endif %}
+                                        </div>
 
-                    {% if configuracion == "T2.T2" %}
-                        {% include "configurations/t2t2.html" %}
-                    {% endif %}
+                                    {% endif %}
 
-                    {% if configuracion == "T4" %}
-                        {% include "configurations/t4.html" %}
-                    {% endif %}
+                                
+                                {% endfor %}
+                                
+                            {% endif %}
+                        </div>
+                    </div>
 
-                    {% if configuracion == "T4.T4" %}
-                        {% include "configurations/t4t4.html" %}
-                    {% endif %}
-
-                    {% if configuracion == "T4.T4.T4" %}
-                        {% include "configurations/t4t4t4.html" %}
-                    {% endif %}
+                    <!-- *** -->
+                    
                 </div>
             </div>
 
@@ -394,8 +500,33 @@
             </div>
         </div>
 
-        <div class="animate__animated animate__fadeIn main__content" id="pulpo">
-            Pulpo View
+        <div class="animate__animated animate__fadeIn main__content rows-2" id="pulpo">
+            <div class="chart__container">
+                <div class="dash__data">
+                    <div class="score-card">
+                        <h2>DÍAS SIN INFLAR</h2>
+                        
+                        <div class="circle">
+                            <span id="days">
+                                0
+                            </span>
+                        </div>
+                    </div>
+                    <div class="score-card">
+                        <h2>CPK del vehículo</h2>
+                        <div class="circle">
+                            <span>${{cpk_vehiculo}}</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="chart__container">
+                <div class="container_fluid">
+                    <div id="spline-chart" class="chart"></div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -508,44 +639,7 @@
         });
     };
 
-<<<<<<< HEAD
-    const Llanta = () => { //Creando un web component
-            const llantas = document.querySelectorAll('.tireDecoration'); //
-
-            llantas.forEach( (llanta) => {
-                llanta.innerHTML += `
-                <div class="pop-out-llanta"></div>
-                `;
-            } )
-
-        }
-
-     const hoverLlantas = () => {
-
-         const popOut = document.querySelectorAll('.pop-out-llanta');
-
-         popOut.forEach( (llanta, key) => {
-             // Generación de numeros aleatorios 
-             const presion = Math.floor(Math.random() * 100);
-             const profundidad = Math.floor(Math.random() * 100);
-
-             llanta.innerHTML = `
-                 <h4>Llanta #${ key + 1 }</h4>
-                 <p>
-                    <strong>Profundidad</strong> : NA 
-                 </p>
-                 <p>
-                    <strong>Presión</strong>: {{ vehiculo.presion_de_entrada }}
-                </p>
-             `;
-         } );
-
-     };
-
-     const handleButtons = (container = '') => {
-=======
     const handleButtons = (container = '') => {
->>>>>>> daa480cab263397ec97e4c7f846a0f6c00a58ab5
         const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
 
         buttons.forEach( button => {
@@ -993,7 +1087,7 @@ anychart.onDocumentReady(function () {
             .padding([0, 0, 10, 0]);
 
     // set container id for the chart
-    chart.container('lineChart');
+    chart.container('spline-chart');
 
     //Set Background
     var background = chart.background();
@@ -1198,6 +1292,9 @@ credits.enabled(false);
 // initiate drawing the chart
 chart.draw();
 });
+
+//Graph spline-chart
+
 
 </script>
 

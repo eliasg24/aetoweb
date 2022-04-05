@@ -6,7 +6,7 @@ from django.contrib import admin
 # Models
 from django.contrib.auth.models import User
 from django.db.models.fields.related import RelatedField
-from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
+from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, TendenciaCPK, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
 
 @admin.register(Bitacora)
 class BitacorasAdmin(admin.ModelAdmin):
@@ -49,6 +49,13 @@ class AplicacionesAdmin(admin.ModelAdmin):
     search_fields= ('nombre',)
     list_filter = ('compania',)
 
+@admin.register(TendenciaCPK)
+class TendenciaCPKAdmin(admin.ModelAdmin):
+    # Admin de las Tendencias CPK
+    list_display = ('compania', 'cpk', 'mes', 'cantidad', 'vida', 'calificacion')
+    search_fields= ('compania',)
+    list_filter = ('compania',)
+
 
 @admin.register(Vehiculo)
 class VehiculosAdmin(admin.ModelAdmin):
@@ -60,7 +67,7 @@ class VehiculosAdmin(admin.ModelAdmin):
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('id', 'numero_economico', "vehiculo", 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje', 'posicion', 'producto',)
+    list_display = ('id', 'numero_economico', "vehiculo", 'posicion', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje')
     search_fields= ('numero_economico',)
     list_filter = ('compania', "vehiculo", 'tipo_de_eje')
     def min_profundidad(self, obj):

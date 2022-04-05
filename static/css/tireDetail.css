@@ -159,8 +159,16 @@ h2 {
   border-collapse: collapse;
 }
 
-.th-table3 {
-  border-bottom: 2px solid var(--border-alt-button);
+tbody tr:nth-child(even) {
+  background-color: #213944;
+}
+
+thead {
+  border-bottom: thin solid var(--border-alt-button);
+}
+
+th,
+td {
   padding: 0.5rem;
   text-align: center;
 }

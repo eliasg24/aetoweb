@@ -68,9 +68,7 @@ def configurar_producto():
 def crear_clase(clase):
     clases = Vehiculo.opciones_clase
     for c in clases:
-        print(c[0])
         if c[0] == clase.upper():
-            print("si paso")
             return None
     clase_mayuscula = clase.upper()
     path = os.path.abspath(os.getcwd()) + "\dashboards\models.py"

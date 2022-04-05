@@ -600,31 +600,34 @@ def km_proyectado(inspecciones, mediana):
             mm_desgastados = valores_llanta["max_mm"] - valores_llanta["min_mm"]
             if mm_desgastados == 0:
                 mm_desgastados = 1
-            km_recorrido = valores_llanta["km_recorrido"]
-            km_x_mm = km_recorrido / mm_desgastados
-            profundidad_inicial = llanta_completa.producto.profundidad_inicial
-            km_teorico_actual = int((profundidad_inicial - valores_llanta["min_mm"]) * km_x_mm)
-            km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
-
-            precio = llanta_completa.producto.precio
-            cpk = round((precio / km_teorico_proyectado), 3)
-
-            """print("llanta", llanta)
-            print("mm_desgastados", mm_desgastados)
-            print("km_recorrido", km_recorrido)
-            print("km_x_mm", km_x_mm)
-            print("profundidad_inicial", profundidad_inicial)
-            print("km_teorico_actual", km_teorico_actual)
-            print("km_proyectado", km_teorico_proyectado)
-            print("cpk", cpk)"""
-
-            if km_teorico_actual >= 20000:
-
-                llantas_limpias.append(llanta_completa)
-                kms_proyectados.append(km_teorico_proyectado)
-                kms_x_mm.append(km_x_mm)
-                cpks.append(cpk)
-                min_profundidades.append(profundidades[1:][0]["min_profundidad"])
+            try:
+                km_recorrido = valores_llanta["km_recorrido"]
+                km_x_mm = km_recorrido / mm_desgastados
+                profundidad_inicial = llanta_completa.producto.profundidad_inicial
+                km_teorico_actual = int((profundidad_inicial - valores_llanta["min_mm"]) * km_x_mm)
+                km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
+    
+                precio = llanta_completa.producto.precio
+                cpk = round((precio / km_teorico_proyectado), 3)
+    
+                """print("llanta", llanta)
+                print("mm_desgastados", mm_desgastados)
+                print("km_recorrido", km_recorrido)
+                print("km_x_mm", km_x_mm)
+                print("profundidad_inicial", profundidad_inicial)
+                print("km_teorico_actual", km_teorico_actual)
+                print("km_proyectado", km_teorico_proyectado)
+                print("cpk", cpk)"""
+    
+                if km_teorico_actual >= 20000:
+    
+                    llantas_limpias.append(llanta_completa)
+                    kms_proyectados.append(km_teorico_proyectado)
+                    kms_x_mm.append(km_x_mm)
+                    cpks.append(cpk)
+                    min_profundidades.append(profundidades[1:][0]["min_profundidad"])
+            except:
+                pass
         
     """print("km proyectados: ", kms_proyectados)
     print("cpks: ", cpks)"""

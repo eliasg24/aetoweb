@@ -8,11 +8,13 @@
       type="text/css"
       href="{% static 'css/diagrama.css' %}"
     />
-    <title>Edición Manual</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <title>Edición Manua l</title>
 {% endblock %}
 
 {% block content %}
-    <div class="main-cont">
+    <div class="main-cont animate__animated animate__fadeIn">
 
       <header class="head-cont">
         <div class="logo">
@@ -24,197 +26,341 @@
 
       <main class="main__container">
         <div class="config__container">
-          {% if configuracion == "S2.C2.D2" %}
-            {% include "configurations/s2d4c4.html" %}
-          {% endif %}
+         
+          <div class="relative">
+            <div class="absolute">
 
-          {% if configuracion == "S2.D4.D4" %}
-              {% include "configurations/s2d4d4.html" %}
-          {% endif %}
+              {% for eje in ejes %}
 
-          {% if configuracion == "S2.D2.D4" %}
-              {% include "configurations/s2d2d4.html" %}
-          {% endif %}
+                {% if eje|length == 2 %}
 
-          {% if configuracion == "S2.D4" %}
-              {% include "configurations/s2d4.html" %}
-          {% endif %}
+                  <div class="par-llantas ejes__{{cant_ejes|safe}}">
+                    <div class="tire">
+                      <div class="tire__top {{style|safe}}">
+                        <span class="tire__data">
+                          0
+                        </span>
+                      </div>
 
-          {% if configuracion == "S2.D4.D2" %}
-              {% include "configurations/s2d4d2.html" %}
-          {% endif %}
+                      <div class="tire__medium {{style|safe}}">
+                        <span class="tire__data">
+                          {{eje.0.0.posicion}}
+                        </span>
+                      </div>
+                      
+                      <span class="icon-tire2"></span>
+                      
+                      <div class="tire__bottom {{eje.0.1}}">
+                          <span class="tire__data">
+                            {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                          </span>
+                      </div>
+                    </div>
+            
+                    <div class="axle">
+                      <span class="axle-white"></span>
+                    </div>
+            
+                    <div class="tire">
+                      <div class="tire__top {{style|safe}}">
+                        <span class="tire__data">
+                          {{eje.1.0.presion_de_entrada}}
+                        </span>
+                      </div>
 
-          {% if configuracion == "S2.D4.D2.D4" %}
-              {% include "configurations/s2d4d4d4.html" %}
-          {% endif %}
+                      <div class="tire__medium {{style|safe}}">
+                        <span class="tire__data">
+                          {{eje.1.0.posicion}}
+                        </span>
+                      </div>
+                      
+                      <span class="icon-tire2"></span>
+                      
+                      <div class="tire__bottom {{eje.1.1}}">
+                          <span class="tire__data">
+                            {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                          </span>
+                      </div>
+                    </div>
+                  </div>
 
-          {% if configuracion == "S2.L2.D4.D4" %}
-              {% include "configurations/s2l2d4d4.html" %}
-          {% endif %}
+                {% else %}
 
-          {% if configuracion == "S2.L4.D4.D4" %}
-              {% include "configurations/s2l4d4d4.html" %}
-          {% endif %}
+                  <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
+                    <div class="double-tire">
+                      <div class="tire">
+                        <div class="tire__top {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.0.0.presion_de_entrada}}
+                          </span>
+                        </div>
 
-          {% if configuracion == "S2.C2.D2" %}
-              {% include "configurations/s2c2d2.html" %}
-          {% endif %}
+                        <div class="tire__medium {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.0.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.0.1}}">
+                            <span class="tire__data">
+                              {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                            </span>
+                        </div>
+                      </div>
+                      <div class="tire">
+                        <div class="tire__top {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.1.0.presion_de_entrada}}
+                          </span>
+                        </div>
 
-          {% if configuracion == "S2.C4.D4" %}
-              {% include "configurations/s2c4d4.html" %}
-          {% endif %}
+                        <div class="tire__medium {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.1.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.1.1}}">
+                            <span class="tire__data">
+                              {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                            </span>
+                        </div>
+                      </div>
+                    </div>
+            
+                    <div class="axle"></div>
+            
+                    <div class="double-tire">
+                      <div class="tire">
+                        <div class="tire__top {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.2.0.presion_de_entrada}}
+                          </span>
+                        </div>
 
-          {% if configuracion == "S2.D2.C2"  %}
-              {% include "configurations/s2d2c2.html" %}
-          {% endif %}
+                        <div class="tire__medium {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.2.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.2.1}}">
+                            <span class="tire__data">
+                              {{eje.2.0.ultima_inspeccion.min_profundidad}}
+                            </span>
+                        </div>
+                      </div>
+                      <div class="tire">
+                        <div class="tire__top {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.3.0.presion_de_entrada}}
+                          </span>
+                        </div>
 
-          {% if configuracion == "S2.D2.D2" %}
-              {% include "configurations/s2d2d2.html" %}                        
-          {% endif %}                        
+                        <div class="tire__medium {{style|safe}}">
+                          <span class="tire__data">
+                            {{eje.3.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.3.1}}">
+                            <span class="tire__data">
+                              {{eje.3.0.ultima_inspeccion.min_profundidad}}
+                            </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-          {% if configuracion == "T2" %}
-              {% include "configurations/t2.html" %}
-          {% endif %}
+                {% endif %}
 
-          {% if configuracion == "T2.T2" %}
-              {% include "configurations/t2t2.html" %}
-          {% endif %}
+              {% endfor %}
 
-          {% if configuracion == "T4" %}
-              {% include "configurations/t4.html" %}
-          {% endif %}
+            </div>
+          </div>
 
-          {% if configuracion == "T4.T4" %}
-              {% include "configurations/t4t4.html" %}
-          {% endif %}
-
-          {% if configuracion == "T4.T4.T4" %}
-              {% include "configurations/t4t4t4.html" %}
-          {% endif %}
         </div>
 
-        <div class="form__container">
-          <form action="" class="form__wrapper">
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="number"
-                placeholder="economico"
-                name="economico"
-                autocomplete="off"
-                required
-              />
-              <label for="economico" class="form__label">
-                Número económico
-              </label>
-            </div>
-            <!-- End input -->
+        <div class="forms__container">
+          <div class="form__container">
+            <form action="" class="form__wrapper">
 
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="text"
-                placeholder="producto"
-                name="producto"
-                autocomplete="off"
-                required
-              />
-              <label for="producto" class="form__label">
-                Producto
-              </label>
-            </div>
-            <!-- End input -->
+              <legend>
+                <h2>Vehículo</h2>
+              </legend>
 
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="text"
-                placeholder="vida"
-                name="vida"
-                autocomplete="off"
-                required
-              />
-              <label for="vida" class="form__label">
-                Vida
-              </label>
-            </div>
-            <!-- End input -->
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="vehiculo"
+                  name="vehiculo"
+                  autocomplete="off"
+                />
+                <label for="vehiculo" class="form__label">
+                  KM de vehículo
+                </label>
+              </div>
+              <!-- End input -->
 
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="text"
-                placeholder="montado"
-                name="montado"
-                autocomplete="off"
-                required
-              />
-              <label for="montado" class="form__label">
-                KM de montado
-              </label>
-            </div>
-            <!-- End input -->
-
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="text"
-                placeholder="vehiculo"
-                name="vehiculo"
-                autocomplete="off"
-                required
-              />
-              <label for="vehiculo" class="form__label">
-                KM de vehículo
-              </label>
-            </div>
-            <!-- End input -->
-
-            <nav class="flex-row">
-              <button type="submit" class="btn btn-success" title="Enviar">
-                <span class="icon-checkmark"></span>
-              </button>
-              <button type="reset" class="btn btn-danger" title="Borrar">
-                <span class="icon-trash"></span>
-              </button>
-            </nav>
-          </form>
+              <nav class="flex-row">
+                <button type="submit" class="btn btn-success disabled">
+                  <span class="icon-checkmark"></span>
+                </button>
+              </nav>
+            </form>
+          </div>
+  
+          <div class="form__container">
+  
+            <form action="" class="form__wrapper" id="tire-form">
+  
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="number"
+                  placeholder="economico"
+                  name="economico"
+                  autocomplete="off"
+                  required
+                />
+                <label for="economico" class="form__label">
+                  Número económico
+                </label>
+              </div>
+              <!-- End input -->
+  
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="producto"
+                  name="producto"
+                  autocomplete="off"
+                  required
+                />
+                <label for="producto" class="form__label">
+                  Producto
+                </label>
+              </div>
+              <!-- End input -->
+  
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="vida"
+                  name="vida"
+                  autocomplete="off"
+                  required
+                />
+                <label for="vida" class="form__label">
+                  Vida
+                </label>
+              </div>
+              <!-- End input -->
+  
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="montado"
+                  name="montado"
+                  autocomplete="off"
+                  required
+                />
+                <label for="montado" class="form__label">
+                  KM de montado
+                </label>
+              </div>
+              <!-- End input -->
+  
+              <div>
+                <label for="reemplazar" class="input-check">
+                  Reemplazar
+                  <input type="checkbox" name="reemplazar" id="reemplazar" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+  
+              <nav class="flex-row">
+                <button type="submit" class="btn btn-success" title="Enviar">
+                  <span class="icon-checkmark"></span>
+                </button>
+              </nav>
+            </form>
+          </div>
         </div>
+        
       </main>
     </div>
 
     <script>
 
-      const manualEdit = () => {
-        const tireTitle = document.getElementById('tire-title'),
-          economicNumber = document.getElementById('economic-number');
+      document.addEventListener('DOMContentLoaded', (e) => {
+        onSelectTire();
+        confirmAlert();
+        handleForms();
+      });
 
-        document.addEventListener('click', ({ target }) => {
-          if (target.matches('.icon-tire2')) {
+      const handleForms = () => {
+        const forms = document.querySelectorAll('form');
 
-            document.querySelectorAll('.select').forEach(item => item.classList.remove('select')); // limpiando las llantas
-            target.classList.add('select'); // Agregando la clase de selección
-
-            tireTitle.textContent = `Tire #${target.getAttribute(
-              'data-tire-id' 
-            )}`; // Titulo de la llanta
-
-            economicNumber.setAttribute(
-              // Colocando el numero economico en el input
-              'value',
-              Math.floor(Math.random() * 1000)
-            );
-
+        forms[0].addEventListener('submit', (e) => {
+          if (forms[0].querySelector('input').value === '') {
+            e.preventDefault();
+            alert('El campo no puede estar vacío');
+            forms[0].querySelector('input').focus();
           }
         });
+      }
 
+      const confirmAlert = () => {
+        const form = document.getElementById('tire-form');
+
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const alert = Swal.fire({
+            title: 'Confirmación',
+            text: '¿Seguro que desea continuar?',
+            icon: 'question',
+            confirmButtonText: 'Si',
+            backdrop: true,
+            showDenyButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then(res => {
+            (res.value) && form.submit();
+          } )
+          
+        });
       };
 
-      // manualEdit();
+      const onSelectTire = () => {
+        const tires = document.querySelectorAll('.icon-tire2');
+
+        tires.forEach(tire => {
+          tire.addEventListener('click', (e) => {
+            tires.forEach(tire => tire.classList.remove('select'));
+
+            tire.classList.add('select');
+          });
+        });
+      };
+    
     </script>
 {% endblock %}

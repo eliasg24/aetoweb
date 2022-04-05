@@ -6,27 +6,16 @@
 
     // create a data set
     var data = anychart.data.set([
-    {% if compania == "Corcelip" %}
+
     ["{{mes_8}}", 0, 0],
     ["{{mes_7}}", 0, 0],
     ["{{mes_6}}", 0, 0],
     ["{{mes_5}}", 0, 0],
     ["{{mes_4}}", 0, 0],
-    ["{{mes_3}}", 0, 0],
-    ["{{mes_2}}", 0, 0],
-    ["{{mes_1}}", {{cpk}}, {{llantas_limpias}}]
-    ]);
-    {% else %}
-    ["{{mes_8}}", 0, 0],
-    ["{{mes_7}}", 0, 0],
-    ["{{mes_6}}", 0, 0],
-    ["{{mes_5}}", 0, 0],
-    ["{{mes_4}}", 0, 0],
-    ["{{mes_3}}", 0, 0],
-    ["{{mes_2}}", 0.0625, 0],
+    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, {{tendencia_cpk_mes3.calificacion}}{% endif %}],
+    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, {{tendencia_cpk_mes2.calificacion}}{% endif %}],
     ["{{mes_1}}", {{cpk}}, 80]
     ]);
-    {% endif %}
 
 
     // map the data

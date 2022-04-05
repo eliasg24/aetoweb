@@ -10,7 +10,7 @@
 <title>Smart View</title>
 {% endblock %}
 
-{% block content %}
+{% block content %} 
 <div class="main-cont">
   <header class="head-cont">
     <div class="logo">
@@ -18,161 +18,136 @@
     </div>
     <h1>Smart View</h1>
   </header>
-  <h1 class="main-title">Configuración del Vehículo</h1>
-  <div class="main-cont">
+  <div class="main-content">
 
-    {% for eje in ejes %}
+    <div class="config__llantas">
+      
+      <div class="absolute">
 
-      {% if eje|length == 2 %}
-
-        <div class="par-llantas">
-          <div class="tire-relative">
-            <div class="tire__top {{ color }}">
-              <span class="tire__title">Presión</span>
-              <span class="tire__data">
-                {{eje.0.presion_de_entrada}}
-              </span>
-            </div>
+        {% for eje in ejes %}
+          
+          {% if eje|length == 2 %}
             
-            <span class="icon-tire2"></span>
-            
-            <div class="tire__bottom {{ color }}">
-                <span class="tire__title">Profundidad</span>
-                <span class="tire__data">
-                    {{eje.0.ultima_inspeccion.min_profundidad}}
-                </span>
-            </div>
-          </div>
-        
-          <span class="icon-central-axle"></span>
-        
-          <div class="tire">
-            <p class="{{style|safe}}">{{eje.1.presion_de_entrada}}</p>
-            <div class="good" id="llanta"></div>
-            
-            {% if eje.1 in llantas_azules %}
-
-              <p class="profundidad-good">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
-
-            {% else %}
-
-              {% if eje.1 in llantas_amarillas %}
-
-                <p class="profundidad-yellow">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
-
-              {% else %}
-
-                {% if eje.1 in llantas_rojas %}
-
-                  <p class=" profundidad-bad">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
-
-                {% else %}
-
-                  {% if eje.1 in llantas_sospechosas %}
-
-                    <p class="">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
-
-                  {% else %}
-
-                    <p class="">{{eje.1.ultima_inspeccion.min_profundidad}}</p>
-                  
-                  {% endif %}
+            <div class="par-llantas ejes__{{cant_ejes|safe}}">
+              <div class="tire">
+                <div class="tire__top {{style|safe}}">
+                  <span class="tire__data">
+                    {{eje.0.0.presion_de_entrada}}
+                  </span>
+                </div>
                 
-                {% endif %}
-              
-              {% endif %}
-
-            {% endif %}
-
-          </div>
-        </div>
-        
-      {% else %}
-        <div class="par-doble-llanta">
-          <div class="par-llantas">
-
-            <div class="tire-relative">
-              <div class="tire__top yellow">
-                <span class="tire__title">Presión</span>
-                <span class="tire__data">
-                  {{eje.0.presion_de_entrada}}
-                </span>
+                <span class="icon-tire2"></span>
+                
+                <div class="tire__bottom {{eje.0.1}}">
+                    <span class="tire__data">
+                      {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                    </span>
+                </div>
               </div>
-              
-              <span class="icon-tire2"></span>
-              
-              <div class="tire__bottom good">
-                  <span class="tire__title">Profundidad</span>
+      
+              <div class="axle">
+                <span class="axle-white"></span>
+              </div>
+      
+              <div class="tire">
+                <div class="tire__top {{style|safe}}">
                   <span class="tire__data">
-                      {{eje.0.ultima_inspeccion.min_profundidad}}
+                    {{eje.1.0.presion_de_entrada}}
                   </span>
+                </div>
+                
+                <span class="icon-tire2"></span>
+                
+                <div class="tire__bottom {{eje.1.1}}">
+                    <span class="tire__data">
+                      {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                    </span>
+                </div>
               </div>
             </div>
 
-            <div class="tire-relative">
-              <div class="tire__top yellow">
-                <span class="tire__title">Presión</span>
-                <span class="tire__data">
-                  {{eje.1.presion_de_entrada}}
-                </span>
+          {% else %}
+            
+            <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
+              <div class="double-tire">
+                <div class="tire">
+                  <div class="tire__top {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.0.0.presion_de_entrada}}
+                    </span>
+                  </div>
+                  
+                  <span class="icon-tire2"></span>
+                  
+                  <div class="tire__bottom {{eje.0.1}}">
+                      <span class="tire__data">
+                        {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                      </span>
+                  </div>
+                </div>
+                <div class="tire">
+                  <div class="tire__top {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.1.0.presion_de_entrada}}
+                    </span>
+                  </div>
+                  
+                  <span class="icon-tire2"></span>
+                  
+                  <div class="tire__bottom {{eje.1.1}}">
+                      <span class="tire__data">
+                        {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                      </span>
+                  </div>
+                </div>
               </div>
-              
-              <span class="icon-tire2"></span>
-              
-              <div class="tire__bottom good">
-                  <span class="tire__title">Profundidad</span>
-                  <span class="tire__data">
-                      {{eje.1.ultima_inspeccion.min_profundidad}}
+      
+              <div class="axle"></div>
+      
+              <div class="double-tire">
+                <div class="tire">
+                  <div class="tire__top {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.2.0.presion_de_entrada}}
+                    </span>
+                  </div>
+                  
+                  <span class="icon-tire2">
+                    <span class="axle-white"></span>
                   </span>
+                  
+                  <div class="tire__bottom {{eje.2.1}}">
+                      <span class="tire__data">
+                        {{eje.2.0.ultima_inspeccion.min_profundidad}}
+                      </span>
+                  </div>
+                </div>
+                <div class="tire">
+                  <div class="tire__top {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.3.0.presion_de_entrada}}
+                    </span>
+                  </div>
+                  
+                  <span class="icon-tire2"></span>
+                  
+                  <div class="tire__bottom {{eje.3.1}}">
+                      <span class="tire__data">
+                        {{eje.3.0.ultima_inspeccion.min_profundidad}}
+                      </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        
-          <span class="icon-central-axle"></span>
-        
-          <div class="par-llantas">
 
-            <div class="tire-relative">
-              <div class="tire__top yellow">
-                <span class="tire__title">Presión</span>
-                <span class="tire__data">
-                  {{eje.2.presion_de_entrada}}
-                </span>
-              </div>
-              
-              <span class="icon-tire2"></span>
-              
-              <div class="tire__bottom good">
-                  <span class="tire__title">Profundidad</span>
-                  <span class="tire__data">
-                      {{eje.2.ultima_inspeccion.min_profundidad}}
-                  </span>
-              </div>
-            </div>
+          {% endif %}
 
-            <div class="tire-relative">
-              <div class="tire__top yellow">
-                <span class="tire__title">Presión</span>
-                <span class="tire__data">
-                  {{eje.3.presion_de_entrada}}
-                </span>
-              </div>
-              
-              <span class="icon-tire2"></span>
-              
-              <div class="tire__bottom good">
-                  <span class="tire__title">Profundidad</span>
-                  <span class="tire__data">
-                      {{eje.3.ultima_inspeccion.min_profundidad}}
-                  </span>
-              </div>
-            </div>
+        {% endfor %}
 
-          </div>
-        </div>
-      {% endif %}
-    {% endfor %}
+      </div>
+
     </div>
+    
   </main>
 </div>
 

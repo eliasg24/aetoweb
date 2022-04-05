@@ -1,7 +1,34 @@
 /* utilities */
 
+.status__ok,
+.status__yellow,
+.status__bad,
+.status__suspicious {
+  font-weight: bold;
+}
+
+.status__ok {
+  color: var(--main-blue);
+}
+
+.status__yellow {
+  color: var(--yellow-color);
+}
+
+.status__bad {
+  color: var(--red-color);
+}
+
+.status__suspicious {
+  color: var(--purple-color);
+}
+
+.btn-aeto-crunch {
+  font-size: 1rem;
+}
+
 .btn-aeto-crunch.ok {
-  border-top: thin solid seagreen;
+  border-top: thin solid var(--main-blue);
 }
 
 .btn-aeto-crunch.yellow {
@@ -104,7 +131,7 @@ figure {
 .wrapper {
   display: none;
   gap: 1rem;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
 }
 
 .wrapper.on-view {
