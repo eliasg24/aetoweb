@@ -5,18 +5,12 @@
     <link rel="stylesheet" href="{% static 'css/reporteVehiculo.css' %}" />
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
     <link rel="shortcut icon" href="{% static 'images/logo-border.png' %}" />
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-      integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
     <link
       rel="stylesheet"
       type="text/css"
       href="{% static 'css/icomoon/style.css' %}"
     />
-    <title>Reporte Vehiculo</title>
+    <title>Reporte Vehiculo {{bitacora}}</title>
 </head>
 <body>
   <aside>
@@ -24,15 +18,16 @@
       <span class="icon-printer8"></span>
     </button>
   </aside>
-  <main id="reporte">
+  <main class="report" id="reporte">
     <div class="title">
-      <img class="img-pulpo" src="{% static 'images/pulpo.png' %}" alt="">
-      <h1 class="main-title">Pulpo Report</h1>
-    </div>
-    <div class="header">
-      <img class="img-logo" src="{% static 'images/pulpo.png' %}" alt="pulpo">
-      <h4 class="user">Numero economico: {{bitacora}}</h4>
-      <h4>Fecha Reporte: {{hoy}}</h4>
+      <nav class="flex-row">
+        <img class="img-pulpo" src="/static/images/logo-aeto.png" alt="logo">
+        <h1 class="main-title">Pulpo Report</h1>
+      </nav>
+      <div class="header">
+        <h4 class="user">Numero economico: {{bitacora}}</h4>
+        <h4 class="date">Fecha Reporte: {{hoy}}</h4>
+      </div>
     </div>
     <div class="container">
       <div class="leftcolumn">
@@ -123,123 +118,6 @@
             {% endif %}
           {% endfor %}
 
-          <!--
-          <div class="ejeDireccion">
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-  
-            <div class="shaft">
-              <svg
-                width="792pt"
-                height="61pt"
-                viewBox="0 0 792 61"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="#7f7f7f7f"></g>
-                <g id="#ffffffff">
-                  <path
-                    opacity="1.00"
-                    d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
-                  />
-                </g>
-              </svg>
-            </div>
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-          </div>
-          <div class="ejeTraccionTD">
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-  
-            <div class="c-shaft">
-              <svg
-                width="84pt"
-                height="59pt"
-                viewBox="0 0 84 59"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="#7f7f7f7f"></g>
-                <g id="#ffffffff">
-                  <path
-                    opacity="1.00"
-                    d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-                  />
-                </g>
-              </svg>
-            </div>
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-  
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-          </div>
-          <div class="ejeTraccionTT">
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-  
-            <div class="c-shaft">
-              <svg
-                width="84pt"
-                height="59pt"
-                viewBox="0 0 84 59"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="#7f7f7f7f"></g>
-                <g id="#ffffffff">
-                  <path
-                    opacity="1.00"
-                    d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-                  />
-                </g>
-              </svg>
-            </div>
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_entrada}}</h4>
-              <div id="llanta" class={{color1}}></div>
-              <span class={{signo1}}></span>
-            </div>
-          </div>
-        -->
         </div>
       </div>
       <span class="icon-arrow-right2"></span>
@@ -328,127 +206,21 @@
 
         {% endif %}
       {% endfor %}
-        <!--
-          <div class="ejeDireccion">
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-  
-            <div class="shaft">
-              <svg
-                width="792pt"
-                height="61pt"
-                viewBox="0 0 792 61"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="#7f7f7f7f"></g>
-                <g id="#ffffffff">
-                  <path
-                    opacity="1.00"
-                    d=" M 1.01 1.00 C 264.67 1.00 528.34 1.00 792.00 1.00 L 792.00 61.00 L 1.00 61.00 C 1.01 41.00 0.99 21.00 1.01 1.00 Z"
-                  />
-                </g>
-              </svg>
-            </div>
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-          </div>
-          <div class="ejeTraccionTD">
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-  
-            <div class="c-shaft">
-              <svg
-                width="84pt"
-                height="59pt"
-                viewBox="0 0 84 59"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="#7f7f7f7f"></g>
-                <g id="#ffffffff">
-                  <path
-                    opacity="1.00"
-                    d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-                  />
-                </g>
-              </svg>
-            </div>
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-          </div>
-          <div class="ejeTraccionTT">
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-  
-            <div class="c-shaft">
-              <svg
-                width="84pt"
-                height="59pt"
-                viewBox="0 0 84 59"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="#7f7f7f7f"></g>
-                <g id="#ffffffff">
-                  <path
-                    opacity="1.00"
-                    d=" M 1.00 1.01 C 28.67 0.99 56.33 1.00 84.00 1.00 L 84.00 59.00 L 1.00 59.00 C 1.00 39.67 0.99 20.34 1.00 1.01 Z"
-                  />
-                </g>
-              </svg>
-            </div>
-  
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-            <div class="cont-llanta">
-              <h4 class="presion">{{bitacora.presion_de_salida}}</h4>
-              <div id="llanta" class={{color2}}></div>
-              <span class={{signo2}}></span>
-            </div>
-          </div>
-      -->
         </div>
       </div>
     </div>
-    <h3>Tiempo de Inflado: {{bitacora.tiempo_de_inflado}}</h3>
-    <h4 class="text-center">Usuario: {{user}}</h4>
+    <div class="text">
+      <h3 class="text-center">Tiempo de Inflado: {{bitacora.tiempo_de_inflado}}</h3>
+      <h4 class="text-center">Usuario: {{user}}</h4>
+    </div>
   </main>
+
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+      integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+  ></script>
   
   <script>
 
@@ -460,8 +232,8 @@
     const $elementoParaConvertir = document.getElementById('reporte'); // <-- Aquí puedes elegir cualquier elemento del DOM
     html2pdf()
       .set({
-        margin: 1,
-        filename: 'reporte-vehiculo.pdf',
+        margin: .25,
+        filename: 'reporte-vehiculo-{{bitacora}}.pdf',
         image: {
           type: 'jpeg',
           quality: 0.98,
@@ -472,7 +244,7 @@
         },
         jsPDF: {
           unit: 'in',
-          format: 'a3',
+          format: 'letter',
           orientation: 'portrait', // landscape o portrait
         },
       })

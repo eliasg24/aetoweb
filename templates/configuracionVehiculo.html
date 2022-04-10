@@ -2,6 +2,7 @@
 
 {% block head %}
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/detail2.css' %}">
 <link
   rel="stylesheet"
   type="text/css"
@@ -35,6 +36,12 @@
                     {{eje.0.0.presion_de_entrada}}
                   </span>
                 </div>
+
+                <div class="tire__medium {{style|safe}}">
+                  <span class="tire__data">
+                    {{eje.0.0.posicion}}
+                  </span>
+                </div>
                 
                 <span class="icon-tire2"></span>
                 
@@ -53,6 +60,12 @@
                 <div class="tire__top {{style|safe}}">
                   <span class="tire__data">
                     {{eje.1.0.presion_de_entrada}}
+                  </span>
+                </div>
+
+                <div class="tire__medium {{style|safe}}">
+                  <span class="tire__data">
+                    {{eje.0.0.posicion}}
                   </span>
                 </div>
                 
@@ -76,6 +89,12 @@
                       {{eje.0.0.presion_de_entrada}}
                     </span>
                   </div>
+
+                  <div class="tire__medium {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.0.0.posicion}}
+                    </span>
+                  </div>
                   
                   <span class="icon-tire2"></span>
                   
@@ -89,6 +108,12 @@
                   <div class="tire__top {{style|safe}}">
                     <span class="tire__data">
                       {{eje.1.0.presion_de_entrada}}
+                    </span>
+                  </div>
+
+                  <div class="tire__medium {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.0.0.posicion}}
                     </span>
                   </div>
                   
@@ -111,6 +136,12 @@
                       {{eje.2.0.presion_de_entrada}}
                     </span>
                   </div>
+
+                  <div class="tire__medium {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.0.0.posicion}}
+                    </span>
+                  </div>
                   
                   <span class="icon-tire2">
                     <span class="axle-white"></span>
@@ -126,6 +157,12 @@
                   <div class="tire__top {{style|safe}}">
                     <span class="tire__data">
                       {{eje.3.0.presion_de_entrada}}
+                    </span>
+                  </div>
+
+                  <div class="tire__medium {{style|safe}}">
+                    <span class="tire__data">
+                      {{eje.0.0.posicion}}
                     </span>
                   </div>
                   

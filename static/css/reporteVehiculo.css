@@ -18,15 +18,25 @@ main {
   color: #000;
 }
 
-.title {
+.report {
   display: flex;
+  height: 100vh;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+}
+
+.title {
+  justify-content: center;
+  display: flex;
+  flex-flow: column nowrap;
   text-align: center;
+  background-color: #111;
 }
 
 .img-pulpo {
-  margin-top: 2.5vh;
+  margin: 1vh;
   width: 50px;
-  height: 30px;
+  height: auto;
 }
 
 .img-logo {
@@ -35,14 +45,21 @@ main {
   height: 30px;
 }
 
+.text {
+  background: #cdcecf;
+  border-top-style: double;
+}
+
 .text-center {
   text-align: center;
   margin: 0;
 }
 
+.date {
+}
+
 .main-title {
-  position: absolute;
-  width: 100%;
+  color: white;
 }
 
 .user {
@@ -55,6 +72,8 @@ main {
   display: flex;
   height: 5vh;
   justify-content: space-between;
+  background: #787878;
+  border-bottom: solid;
 }
 
 .container {
@@ -113,7 +132,7 @@ main {
 }
 
 #llanta > svg {
-  width: 6vw;
+  width: 3rem;
   height: auto;
 }
 

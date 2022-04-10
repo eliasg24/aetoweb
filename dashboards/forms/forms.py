@@ -144,3 +144,8 @@ class ExcelForm(forms.ModelForm):
         # Configuración del Form
         model = Excel
         fields = ("file",)
+
+class EdicionManual(forms.ModelForm):
+    class Meta:
+        model = Llanta
+        fields = ("numero_economico", "producto", "vida", "km_montado", )

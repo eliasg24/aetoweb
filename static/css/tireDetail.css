@@ -14,42 +14,239 @@
   background-color: var(--purple-color);
 }
 
+.head-cont {
+  flex-direction: column;
+}
+
+.icon-cross {
+  color: red;
+}
+
+.icon-checkmark {
+  color: green;
+}
+
+.main-cont {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.config__tables,
+.circle__chart {
+  height: 100%;
+  width: 100%;
+}
+
+.col-2 {
+  height: 100%;
+  width: 95%;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.config__tables {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.circle__chart {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.cont__circle {
+  display: grid;
+  margin: 1rem;
+}
+
+.card {
+  background: #202020;
+  border-radius: 0.25rem;
+}
+
+.card__circle {
+  background-color: var(--main-background);
+  margin: 1rem;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  border-radius: 0.25rem;
+}
+
+.card__config {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+}
+
+.card__tire {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pos {
+  text-align: center;
+}
+
+.config__header {
+  background-color: var(--main-blue);
+  border-bottom: thin solid #00f0ff;
+  text-align: center;
+  padding: 0.25rem;
+  display: flex;
+  justify-content: center;
+}
+
+.detail__title {
+  font-size: 2rem;
+}
+
+.config__buttons {
+  align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.relative {
+  position: relative;
+}
+
+.btn-download {
+  background-color: var(--border-button);
+}
+
+.pop-out {
+  background-color: #111;
+  position: absolute;
+  font-size: 1rem;
+  width: max-content;
+  padding: 0.25rem;
+  top: 4px;
+  transition: all 0.3s ease;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn:hover .pop-out {
+  opacity: 1;
+  transform: translateY(45px);
+  visibility: visible;
+}
+
+.circle__chart {
+  display: none;
+  gap: 0.5rem;
+}
+
+.circle__chart.on-view {
+  display: grid;
+}
+
+.dashboards__wrapper {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.circle1 {
+  align-items: center;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 151, 240, 1) 0%,
+    rgba(18, 188, 200, 1) 100%
+  );
+  border-radius: 50%;
+  box-shadow: 0 0.25rem 1rem rgb(255 255 255 / 25%);
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.config__data {
+  padding: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-rows: auto 1fr;
+}
+
+.config__cont-table {
+  display: none;
+  width: 100%;
+}
+
+.absolute {
+  overflow: auto;
+}
+
+.config__cont-table.on-table {
+  display: table;
+}
+
+.config__table thead {
+  background-color: #213944;
+}
+
+thead {
+  border-bottom: thin solid var(--border-alt-button);
+}
+
+.config__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem;
+  text-align: center;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #213944;
+}
+
+.absolute {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.tire__config {
+  width: fit-content;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: auto;
+}
+
 .tire__top,
 .tire__bottom {
   font-size: 0.75rem;
   position: absolute;
-  left: 0;
-  right: -1px;
-  /* padding: 0.25rem; */
+  left: 0px;
+  right: 0px;
+  padding: 0.25rem;
   text-align: center;
   width: auto;
 }
 
-.tire__top:hover .tire__title,
-.tire__bottom:hover .tire__title {
-  opacity: 1;
-  visibility: visible;
-}
-
-.tire__top:hover .tire__data,
-.tire__bottom:hover .tire__data {
-  opacity: 0;
-  visibility: hidden;
-}
-
 .tire__top {
   border-radius: 0.25rem 0.25rem 0 0;
-  top: 0;
+  top: -1px;
 }
 
 .tire__bottom {
   border-radius: 0 0 0.25rem 0.25rem;
   bottom: 0;
-}
-
-.tire__bottom .tire__title {
-  font-size: 0.5rem;
-  top: 3px;
 }
 
 .tire__title {
@@ -63,194 +260,43 @@
 }
 
 .tire__data {
-  font-size: 0.75rem;
+  font-size: 1.5rem;
+  color: #fff;
+  text-shadow: 2px 2px #000;
 }
 
-h2 {
-  text-align: center;
-}
-
-.main-cont {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  height: 100%;
-}
-
-.container {
-  display: grid;
-  grid-template-rows: repeat(2, 1fr);
-  width: 95%;
-  gap: 0.5rem;
-  margin: auto;
-  padding: 1rem 0;
-  height: 100%;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  height: 100%;
-}
-
-.card {
-  background: #202020;
-  border-radius: 0.25rem;
-  padding: 1rem;
-  height: 100%;
-}
-
-.card__config {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: auto 1fr;
-}
-
-.card__tire {
-  align-items: center;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-}
-
-.tire-config > .icon-tire2 {
-  font-size: 20vmin;
-}
-
-.config__nav {
-  display: grid;
-  grid-template-columns: 2fr 4fr 4fr;
-  gap: 0.25rem;
-}
-
-.pos {
-  text-align: center;
-}
-
-.config__cont {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 1rem;
-}
-
-.config__cont-table {
-  display: none;
-}
-
-.config__cont-table.on-table {
-  display: block;
-}
-
-.tire-number {
-  transition: all 0.4s ease;
-  pointer-events: none;
-}
-
-.tire-config {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.config__table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #213944;
-}
-
-thead {
-  border-bottom: thin solid var(--border-alt-button);
-}
-
-th,
-td {
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.td-table3 {
-  padding: 0.5rem;
-  text-align: center;
-}
-.config__table thead {
-  background-color: #213944;
-}
-
-.card__dash {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 0.5rem;
-}
-
-.card__dash_nav {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.h2-dash {
-  text-align: start;
-}
-
-.card__dash_dash {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-}
-
-.dash__numbers {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-}
-
-.sub-card {
-  margin: 1rem;
-  background-color: var(--main-background);
-  border-radius: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.sub-card1 {
-  background-color: var(--main-background);
-  border-radius: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.dash__chart {
-  margin: 1rem;
-  position: relative;
-}
-
-#lineChart,
-#spline-chart {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.card__dash_dash {
-  display: none;
-}
-
-.card__dash_dash.on-view {
-  display: grid;
+.tire__config > .icon-tire2 {
+  font-size: 11rem;
 }
 
 @media screen and (min-width: 1024px) {
   .circle1 {
     height: 50px;
     width: 50px;
+  }
+
+  .head-cont {
+    flex-direction: row;
+  }
+
+  .tire__config > .icon-tire2 {
+    font-size: 21vmin;
+  }
+
+  .col-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .config__tables {
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .cont__circle {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .circle__chart {
+    grid-template-rows: repeat(2, 1fr);
   }
 }
 

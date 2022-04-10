@@ -25,262 +25,211 @@
   <header class="head-cont animate__animated animate__fadeIn">
     <div class="logo">
       <img src="{% static 'images/aeto.svg' %}">
-    </div>    
+    </div>
+    <a href="">
+      <h1>{{vehiculo.numero_economico}}</h1>
+    </a>
+    <nav class="flex-row" id="nav-dash">
+      <button class="btn btn-aeto-crunch active" id="btn-pulpo">
+        <span class="icon-pulpo"></span>
+        Pulpo
+      </button>
+      <button class="btn btn-aeto-crunch" id="btn-tire">
+        <span class="icon-tireeye"></span>
+        Tire Eye
+      </button>
+    </nav>
   </header>
-  <section class="container">
-    <div class="animate__animated animate__fadeIn row-1">
-      <div class="cards">
-        <div class="card card__config">
-          <div class="card__tire">
-            <div class="pos">
-              <h2>Posición:</h2>
-              <h2>{{llanta.posicion}}</h2>
-            </div>
-            <div class="config__cont_config">
-              <div class="tire-config">
-                <div class="tire__top good">
-                  <span class="tire__title">Presión</span>
-                  <span class="tire__data">
-                    {{llanta.presion_de_salida}}
-                  </span>
-                </div>
-                
-                <span class="icon-tire2"></span>
-                
-                <div class="tire__bottom good">
-                    <span class="tire__title">Profundidad</span>
-                    <span class="tire__data">
-                        NA
-                    </span>
-                </div>
+  <section class="container col-2">
+    <div class="animate__animated animate__fadeIn config__tables">
+      <div class="card card__config">
+        <header class="config__header">
+          <h1 class="detail__title">{{llanta.numero_economico}}</h1>
+        </header>
+        <div class="config__buttons">
+          <a class="btn btn-download relative" 
+          href="{% url 'dashboards:configuracionLlanta' %}">
+            <span class="icon-brain"></span>
+            <div class="pop-out">Smart View</div>
+          </a>
+          <a class="btn btn-download relative" 
+          href="{% url 'dashboards:tireDiagrama' %}">
+            <span class="icon-pencil"></span>
+            <div class="pop-out">Edición Manual</div>
+          </a>
+        </div>
+        <div class="card__tire">
+          <div class="cont__config">
+            <div class="tire__config">
+              <div class="tire__top {{color}}">
+                <span class="tire__data">{{llanta.presion_de_salida}}</span>
+              </div>
+              <span class="icon-tire2"></span>
+              <div class="tire__bottom {{color_profundidad}}">
+                <span class="tire__data">{{llanta.ultima_inspeccion.min_profundidad}}</span>
               </div>
             </div>
           </div>
-          <div class="config__cont">
-            <nav class="flex-row btn-nav" id="nav-tire">
-              <button class="btn btn-aeto-crunch active" id="btn-general">
-                General
-              </button>
-              <button class="btn btn-aeto-crunch" id="btn-problemas">
-                Problemas Abiertos
-              </button>
-              <a 
-              href="{% url 'dashboards:configuracionLlanta' %}" 
-              class="btn btn-download">
-                <span class="icon-magnifier"></span>
-              </a>
-              <a 
-              href="{% url 'dashboards:tireDiagrama' %}" 
-              class="btn btn-download">
-                <span class="icon-pencil"></span>
-              </a>
-            </nav>
+        </div>
+      </div>
+      <div class="card config__data">
+        <nav class="config__nav">
+          <div class="flex-row" id="nav-table">
+            <button class="btn btn-aeto-crunch alt active" id="btn-general">General</button>
+            <button class="btn btn-aeto-crunch alt" id="btn-problemas">Problemas Abiertos</button>
+            <button class="btn btn-aeto-crunch alt" id="btn-bitacora">Bitacora</button>
+          </div>
+        </nav>
+        <div class="relative">
+          <div class="absolute">
             <div class="config__cont-table on-table" id="general">
               <table class="config__table">
-                <thead>
-                  <tr>
-                    <th class="th-table3">
-                      Posición
-                    </th>
-                    <th class="th-table3">
-                      Serial
-                    </th>
-                    <th class="th-table3">
-                      Producto
-                    </th>
-                    <th class="th-table3">
-                      Km
-                    </th>
-                    <th class="th-table3">
-                      Costo por Km
-                    </th>
-                    <th class="th-table3">
-                      Km Proyectado
-                    </th>
-                    <th class="th-table3">
-                      Precio
-                    </th>
-                    <th class="th-table3">
-                      Vida
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      {{llanta.posicion}}
-                    </td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      {{llanta.posicion}}
-                    </td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                    <td>Data</td>
-                  </tr>
-                </tbody>
-              </table>
+                  <thead>
+                    <tr>
+                      <th class="th-table3">Serial</th>
+                      <th class="th-table3">Producto</th>
+                      <th class="th-table3">Km</th>
+                      <th class="th-table3">Precio</th>
+                      <th class="th-table3">Vida</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{llanta.numero_economico}}</td>
+                      <td>{{llanta.producto}}</td>
+                      <td>{{llanta.ultima_inspeccion.km}}</td>
+                      <td>{{llanta.producto.precio}}</td>
+                      <td>{{llanta.vida}}</td>
+                    </tr>
+                  </tbody>
+                </table>
             </div>
             <div class="config__cont-table" id="problemas">
               <table class="config__table">
                 <thead>
                   <tr>
+                    <th>Posición</th>
+                    <th>Problema Abierto</th>
+                    <th>Icono</th>
+                  </tr>
+                </thead>
+                {% if problemas_abiertos %}
+                <tbody>
+                  {% for llanta in problemas_abiertos %}
+                    <tr>
+                        <td class="td-table2">{{llanta.0.posicion}}</td>
+                        <td class="td-table2">{{llanta.1}}</td>
+                        <td class="td-table2"><span class="icon-cross"></span>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+                {% endif %}
+              </table>
+            </div>
+            <div class="config__cont-table" id="bitacora">
+              <table class="config__table">
+                <thead>
+                  <tr>
                     <th class="th-table3">
-                      Posición
+                      Evento
                     </th>
                     <th class="th-table3">
-                      Problema Abierto
+                      Fecha
                     </th>
                     <th class="th-table3">
-                      Icono
+                      Encontrado
+                    </th>
+                    <th class="th-table3">
+                      Tiempo
+                    </th>
+                    <th class="th-table3">
+                      Reporte
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="td-table3">
-                      {{llanta.posicion}}
-                    </td>
-                    {% if message %}
+                  {% for bitacora in bitacoras %}
+                    <tr id="paragraph {{bitacora.id}}">
                       <td class="td-table3">
-                        {{message}}
+                        <span class="icon-pulpo"></span>
                       </td>
-                    {% endif %}
-                    <td class="td-table3">
-                      <span class="icon-cross"></span>
-                    </td>
-                  </tr>
+                      <td class="td-table3">
+                        {{bitacora.fecha_de_inflado.day}}/{{bitacora.fecha_de_inflado.month}}/{{bitacora.fecha_de_inflado.year}}
+                      </td>
+                      <td class="td-table3">
+                        <span id="icon {{bitacora.id}}"></span>
+                      </td>
+                      <td class="td-table3">{{bitacora.tiempo_de_inflado}}</td>
+                      <td class="td-table3">
+                        <a href="{% url 'dashboards:reporteLlanta' bitacora.id llanta.id %}" rel="noopener" target="_blank">
+                          <span class="icon-file-pdf" ></span>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
-        <div class="card card__bit">
-          <h2>Bitacora</h2>
-          <table class="config__table">
-            <thead>
-              <tr>
-                <th class="th-table3">
-                  Evento
-                </th>
-                <th class="th-table3">
-                  Fecha
-                </th>
-                <th class="th-table3">
-                  Encontrado
-                </th>
-                <th class="th-table3">
-                  Tiempo
-                </th>
-                <th class="th-table3">
-                  Reporte
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for vehiculo in bitacora %}
-                <tr id="paragraph {{vehiculo.id}}">
-                  <td class="td-table3">
-                    <span class="icon-pulpo"></span>
-                  </td>
-                  <td class="td-table3">
-                    {{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}
-                  </td>
-                  <td class="td-table3">
-                    <span id="icon {{vehiculo.id}}"></span>
-                  </td>
-                  <td class="td-table3">{{vehiculo.tiempo_de_inflado}}</td>
-                  <td class="td-table3">
-                    <span
-                      id="print-report {{vehiculo.id}}"
-                      class="icon-file-pdf"
-                    ></span>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
-    <div class="animate__animated animate__fadeIn row-2">
-      <div class="card card__dash">
-        <div class="card__dash_nav">
-          <h2 class="h2-dash">Dashboard de llanta</h2>
-          <nav class="flex-row" id="btn-views">
-            <button class="btn btn-aeto-crunch active" id="btn-pulpo">
-              <span class="icon-pulpo"></span>
-              Pulpo
-            </button>
-            <button class="btn btn-aeto-crunch" id="btn-tire">
-              <span class="icon-tireeye"></span>
-              Tire Eye
-            </button>
-          </nav>
-        </div>
-        <div class="card__dash_dash on-view" id="pulpo">
-          <div class="dash__numbers">
-            <div class="sub-card">
-              <h2>Días sin Inflar</h2>
-              <div class="circle">
-                <span id="days">0</span>
-              </div>
-            </div>
-            <div class="sub-card">
-              <h2>Tiempo Promedio</h2>
-              <div class="circle">
-                <span>{% if llanta.vehiculo.tiempo_de_inflado %}{{llanta.vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</span>
-              </div>
+    <div class="animate__animated animate__fadeIn dashboards__wrapper card">
+      <header class="config__header">
+        <h1 class="detail__title">Dashboards</h1>
+      </header>
+      <div class="circle__chart on-view" id="pulpo">
+        <div class="cont__circle">
+          <div class="card__circle">
+            <h2>Días sin Inflar</h2>
+            <div class="circle">
+              <span id="days">0</span>
             </div>
           </div>
-          <div class="dash__chart">
-            <div id="lineChart"></div>
+          <div class="card__circle">
+            <h2>Tiempo Promedio</h2>
+            <div class="circle">
+              <span>{% if llanta.vehiculo.tiempo_de_inflado %}{{llanta.vehiculo.tiempo_de_inflado}}{% else %}0{% endif %}</span>
+            </div>
           </div>
         </div>
-        <div class="card__dash_dash" id="tireeye">
-          <div class="dash__chart">
-            <div id="spline-chart"></div>
-          </div>
-          <div class="dash__numbers">
-            <div class="sub-card1">
-              <h2>Desgaste Mensual</h2>
-              <div class="circle circle1">
-                <span>1</span>
-              </div>
-            </div>
-            <div class="sub-card1">
-              <h2>Km por mm</h2>
-              <div class="circle circle1">
-                <span>2</span>
-              </div>
-            </div>
-            <div class="sub-card1">
-              <h2>Desgaste</h2>
-              <div class="circle circle1">
-                <span>3</span>
-              </div>
-            </div>
-            <div class="sub-card1">
-              <h2>CPK</h2>
-              <div class="circle circle1">
-                <span>4</span>
-              </div>
-            </div>
-          </div>
+        <div class="card relative">
+          <div class="absolute" id="lineChart"></div>
         </div>
       </div>
+
+      <div class="circle__chart" id="tireeye">
+        <div class="cont__circle">
+          <div class="card__circle">
+            <h2>Km Proyectado</h2>
+            <div class="circle1">
+              <span>{{km_proyectado}}</span>
+            </div>
+          </div>
+          <div class="card__circle">
+            <h2>Km por mm</h2>
+            <div class="circle1">
+              <span>{{km_x_mm}}</span>
+            </div>
+          </div>
+          <div class="card__circle">
+            <h2>Desgaste</h2>
+            <div class="circle1">
+              <span>3</span>
+            </div>
+          </div>
+          <div class="card__circle">
+            <h2>CPK</h2>
+            <div class="circle1">
+              <span>{{cpk}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card relative">
+          <div class="absolute" id="spline-chart"></div>
+        </div>
+      </div>
+      
     </div>
   </section>
 </main>
@@ -288,11 +237,12 @@
 <script type="text/javascript">
 
   document.addEventListener('DOMContentLoaded', (e) => {
-    handleButtons('#nav-tire');
-    handleButtons('#btn-views');
+    handleButtons('#nav-table');
+    handleButtons('#nav-dash');
 
     handleTables('btn-general', '#general');
     handleTables('btn-problemas', '#problemas');
+    handleTables('btn-bitacora', '#bitacora');
 
     handleView('btn-pulpo', '#pulpo');
     handleView('btn-tire', '#tireeye');
@@ -333,91 +283,7 @@
     } );    
   };
 
-  const printReport = (idReport = '') => {
-    const printButton = document.querySelector(idReport);
 
-    document.addEventListener('click', (e) => {
-      if (e.target === printButton) {
-        open(
-          "{% url 'dashboards:reporteLlanta' vehiculo.id %}",
-          'Print',
-          'height=900, width=1440'
-        );
-      }
-    });
-  };
-
-  printReport('.icon-file-pdf');
-
-  const statusLlantas = () => {
-    const llantas = document.querySelectorAll('#llanta');
-
-    llantas.forEach((llanta) => {
-      // const presion = Math.floor(Math.random() * 100);
-      // const profundidad = Math.floor(Math.random() * 100);
-      // llanta.querySelector('.pop-out-llanta').innerHTML += `
-      //     <p>Inflado: ${ presion }</p>
-      //     <p>Presión: ${ profundidad }</p>
-      // `;
-
-      if (llanta.classList.contains('good')) {
-        llanta.querySelector('.pop-out-llanta').innerHTML += 'Status: Good';
-      } else if (llanta.classList.contains('bad')) {
-        llanta.querySelector('.pop-out-llanta').innerHTML += 'Status: Bad';
-      } else if (llanta.classList.contains('yellow')) {
-        llanta.querySelector('.pop-out-llanta').innerHTML +=
-          'Status: Yellow';
-      }
-    });
-  };
-
-  statusLlantas();
-
-  function searchColor() {
-    document.getElementById('searchColor').style.color = '#026CF5';
-    document.getElementById('editColor').style.color = 'gray';
-  }
-
-  function editColor() {
-    document.getElementById('editColor').style.color = '#026CF5';
-    document.getElementById('searchColor').style.color = 'gray';
-  }
-
-  function general() {
-    document.getElementById('problemasA').style.display = 'none';
-    document.getElementById('table-general').style.display = 'block';
-    document.getElementById('searchColor').style.color = 'gray';
-    document.getElementById('editColor').style.color = 'gray';
-  }
-
-  function problemasAbiertos() {
-    document.getElementById('problemasA').style.display = 'block';
-    document.getElementById('table-general').style.display = 'none';
-    document.getElementById('searchColor').style.color = 'gray';
-    document.getElementById('editColor').style.color = 'gray';
-  }
-
-  function tireEyeDB() {
-    document.querySelector('[cont-bottom]').style.gridTemplateColumns =
-      '1fr 1fr';
-    document.querySelector('[cont-bottom1]').style.display = 'none';
-    document.querySelector('[cont-bottom2]').style.display = 'none';
-    document.querySelector('[cont-bottom3]').style.display = 'none';
-    document.querySelector('[cont-left]').style.display = 'block';
-    document.querySelector('[cont-right').style.display = 'grid';
-    document.querySelector('[cont-right]').style.gridTemplateColumns =
-      '1fr 1fr';
-  }
-
-  function pulpoDB() {
-    document.querySelector('[cont-bottom]').style.gridTemplateColumns =
-      '1fr 1fr 2fr';
-    document.querySelector('[cont-bottom1]').style.display = 'flex';
-    document.querySelector('[cont-bottom2]').style.display = 'flex';
-    document.querySelector('[cont-bottom3]').style.display = 'block';
-    document.querySelector('[cont-left]').style.display = 'none';
-    document.querySelector('[cont-right').style.display = 'none';
-  }
 
   //variables
   hoy = new Date("{{hoy.month}}/{{hoy.day}}/{{hoy.year}}")
@@ -632,10 +498,14 @@
   });
   function getData() {
     return [
-      ['{{mes_4}}', {{vehiculo_mes4}}, {{cantidad_entrada_mes4}}, {{cantidad_doble_entrada_mes4}}],
-      ['{{mes_3}}', {{vehiculo_mes3}}, {{cantidad_entrada_mes3}}, {{cantidad_doble_entrada_mes3}}],
-      ['{{mes_2}}', {{vehiculo_mes2}}, {{cantidad_entrada_mes2}}, {{cantidad_doble_entrada_mes2}}],
-      ['{{mes_1}}', {{vehiculo_mes1}}, {{cantidad_entrada_mes1}}, {{cantidad_doble_entrada_mes1}}],
+        ["{{mes_8}}", {{vehiculo_mes8}}, {{cantidad_entrada_mes8}}, {{cantidad_doble_entrada_mes8}}],
+        ["{{mes_7}}", {{vehiculo_mes7}}, {{cantidad_entrada_mes7}}, {{cantidad_doble_entrada_mes7}}],
+        ["{{mes_6}}", {{vehiculo_mes6}}, {{cantidad_entrada_mes6}}, {{cantidad_doble_entrada_mes6}}],
+        ["{{mes_5}}", {{vehiculo_mes5}}, {{cantidad_entrada_mes5}}, {{cantidad_doble_entrada_mes5}}],
+        ["{{mes_4}}", {{vehiculo_mes4}}, {{cantidad_entrada_mes4}}, {{cantidad_doble_entrada_mes4}}],
+        ["{{mes_3}}", {{vehiculo_mes3}}, {{cantidad_entrada_mes3}}, {{cantidad_doble_entrada_mes3}}],
+        ["{{mes_2}}", {{vehiculo_mes2}}, {{cantidad_entrada_mes2}}, {{cantidad_doble_entrada_mes2}}],
+        ["{{mes_1}}", {{vehiculo_mes1}}, {{cantidad_entrada_mes1}}, {{cantidad_doble_entrada_mes1}}]
     ];
   }
 
@@ -668,7 +538,7 @@
     chart.yGrid().enabled(true);
 
     // set the chart title
-    chart.title('Posición y profundidad');
+    chart.title('Comportamiento de Desgaste');
     var title = chart.title();
     title.align('center');
     title.fontColor('#fff');

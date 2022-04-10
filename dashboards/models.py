@@ -202,8 +202,9 @@ class Vehiculo(models.Model):
     presion_de_entrada = models.IntegerField(blank=True, null=True)
     presion_de_salida = models.IntegerField(blank=True, null=True)
     presion_establecida = models.IntegerField(blank=True, null=True, default=100)
-    ultima_bitacora = models.ForeignKey("Bitacora", null=True, blank=True, on_delete=models.CASCADE, related_name="bitacoras")
+    ultima_bitacora_pro = models.ForeignKey("Bitacora_Pro", null=True, blank=True, on_delete=models.CASCADE, related_name="bitacoras_pro")
     ultima_inspeccion = models.ForeignKey("Inspeccion", null=True, blank=True, on_delete=models.CASCADE, related_name="inspecciones_vehiculo")
+    tirecheck = models.BooleanField(default=False)
 
     fecha_de_creacion = models.DateField(auto_now_add=True)
 
@@ -217,8 +218,12 @@ class Inspeccion(models.Model):
     fecha_hora = models.DateTimeField(null=True, blank=True)
     tiempo_de_inspeccion = models.FloatField(blank=True, null=True, default=2)
     km = models.IntegerField(default=1000)
+    presion = models.IntegerField(null=True, blank=True)
     min_profundidad = models.IntegerField()
     max_profundidad = models.IntegerField()
+    observacion_1 = models.CharField(max_length=200, null=True, blank=True)
+    observacion_2 = models.CharField(max_length=200, null=True, blank=True)
+    observacion_3 = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         # Retorna el número económico
@@ -301,6 +306,8 @@ class Llanta(models.Model):
                 )
     inventario = models.CharField(max_length=200, choices=opciones_de_inventario, null=True, blank=True, default="Rodante")
     km_montado = models.IntegerField(blank=True, null=True)
+    tirecheck = models.BooleanField(default=False)
+    archivado = models.BooleanField(default=False)
 
     def __str__(self):
         # Retorna el número económico

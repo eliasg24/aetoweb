@@ -37,7 +37,7 @@
     <section class="container">
         <div class="animate__animated animate__fadeIn main__content col-2 on-view" id="table">
             
-            <div class="config__container">
+            <div class="{% if sin_llantas %} config__container none {% else %} config__container  {% endif %}">
                 <header class="config__header">
                     <h1 class="detail__title">VEHÍCULO {{vehiculo.numero_economico}}</h1>
                 </header>
@@ -48,7 +48,7 @@
                         <a 
                             href="{% url 'dashboards:configuracionVehiculo' vehiculo.id %}" 
                             class="btn btn-download relative">
-                            <span class="icon-eye"></span>
+                            <span class="icon-brain"></span>
                             <div class="pop-out">Smart View</div>
                         </a>
                         <a 
@@ -58,22 +58,25 @@
                             <div class="pop-out">Edición Manual</div>
                         </a>  
                         <a 
-                            href="#" 
+                            href="{% url 'dashboards:inspeccionVehiculo' %}" 
                             class="btn btn-download relative">
                             <span class="icon-magnifier"></span>
                             <div class="pop-out">Inspección</div>
                         </a>  
                     </div>
                 {% endif %}
-                <div class="config__config">
+                <div class="{% if sin_llantas %} alert__container {% else %} config__config {% endif %}">
 
                     <!-- * Configuración -->
 
+                    {% if sin_llantas %}
+                    <div class="alert__warn">
+                        <span class="alert__icon">:(</span>
+                        <p class="alert__message">El vehículo no tiene una configuración</p>
+                    </div>
+                    {% else %}
                     <div class="relative">
                         <div class="absolute">
-                            {% if sin_llantas %}
-                            
-                            {% else %}
                             
                                 {% for eje in ejes %}
 
@@ -101,9 +104,10 @@
                                                     </span>
                                                 </div>
                                             </a>
-                                    
-                                            <div class="axle">
-                                                <span class="axle-white"></span>
+                                            <div class="eje">
+                                                <h2>presion</h2>
+                                                    <div class="axle"></div>
+                                                <h2>dimension</h2>
                                             </div>
                                     
                                             <a href="{% url 'dashboards:tireDetail' eje.1.0.id %}" class="tire">
@@ -178,8 +182,10 @@
                                                 </a>
                                             </div>
                                     
-                                            <div class="axle">
-                                                <span class="axle-white"></span>
+                                            <div class="eje">
+                                                <h2>presion</h2>
+                                                    <div class="axle"></div>
+                                                <h2>dimension</h2>
                                             </div>
                                             
                                             <div class="double-tire">
@@ -234,9 +240,9 @@
                                 
                                 {% endfor %}
                                 
-                            {% endif %}
+                            </div>
                         </div>
-                    </div>
+                        {% endif %}
 
                     <!-- *** -->
                     
@@ -292,58 +298,15 @@
                                         <th class="th-table2">Icono</th>
                                     </tr>
                                 </thead>
-                                {% if message %}
+                                {% if problemas_abiertos %}
                                 <tbody>
-                                    <tr>
-                                        <td class="td-table2">1</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">2</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">3</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">4</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">5</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">6</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">7</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">8</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">9</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-table2">10</td>
-                                        <td class="td-table2">{{message}}</td>
-                                        <td class="td-table2"><span class="icon-cross"></span>
-                                    </tr>
+                                    {% for llanta in problemas_abiertos %}
+                                        <tr>
+                                            <td class="td-table2">{{llanta.0.posicion}}</td>
+                                            <td class="td-table2">{{llanta.1}}</td>
+                                            <td class="td-table2"><span class="icon-cross"></span>
+                                        </tr>
+                                    {% endfor %}
                                 </tbody>
                                 {% endif %}
                             </table>
@@ -370,19 +333,19 @@
                                             <th class="header" scope="col">Evento</th>
                                             <th class="header" scope="col">Fecha</th>
                                             <th class="header" scope="col">Encontrado</th>
-                                            <th class="header" scope="col">Tiempo</th>
+                                            <th class="header" scope="col">ID</th>
                                             <th class="header" scope="col">Reporte</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for vehiculo in bitacora %}
-                                        <tr id="paragraph {{vehiculo.id}}">
+                                        {% for bitacora in bitacoras %}
+                                        <tr id="paragraph {{bitacora.id}}">
                                             <td class="td-table4"><span class="icon-pulpo"></span></td>
-                                            <td class="td-table4">{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.year}}</td>
-                                            <td class="td-table4"><span id="icon {{vehiculo.id}}"></span><span id="icon2 {{vehiculo.id}}"></span></td>
-                                            <td class="td-table4">{{vehiculo.tiempo_de_inflado}}</td>
+                                            <td class="td-table4">{{bitacora.fecha_de_inflado.day}}/{{bitacora.fecha_de_inflado.month}}/{{bitacora.fecha_de_inflado.year}}</td>
+                                            <td class="td-table4"><span id="icon {{bitacora.id}}"></span><span id="icon2 {{bitacora.id}}"></span></td>
+                                            <td class="td-table4">{{bitacora.id}}</td>
                                             <td class="td-table4">
-                                                <a href="{% url 'dashboards:reporteVehiculo' vehiculo.id %}" rel="noopener" target="_blank">
+                                                <a href="{% url 'dashboards:reporteVehiculo' bitacora.id %}" rel="noopener" target="_blank">
                                                     <span class="icon-file-pdf" ></span>
                                                 </a>
                                             </td>
@@ -507,7 +470,7 @@
                         <h2>DÍAS SIN INFLAR</h2>
                         
                         <div class="circle">
-                            <span id="days">
+                            <span id="days2">
                                 0
                             </span>
                         </div>
@@ -651,85 +614,6 @@
         } );    
     };
 
-    function searchColor() {
-        document.getElementById('searchColor').style.color = "#026CF5";
-        document.getElementById('editColor').style.color = "gray";
-    }
-
-    function editColor() {
-        document.getElementById('editColor').style.color = "#026CF5";
-        document.getElementById('searchColor').style.color = "gray";
-    }
-
-    function general() {
-        document.getElementById('problemasA').style.display = "none";
-        document.getElementById('table-general').style.display = "block";
-        document.getElementById('infoLlantas').style.display = "none";
-        document.getElementById('searchColor').style.color = "gray";
-        document.getElementById('editColor').style.color = "gray";
-    }
-
-    function problemasAbiertos() {
-        document.getElementById('problemasA').style.display = "block";
-        document.getElementById('table-general').style.display = "none";
-        document.getElementById('infoLlantas').style.display = "none";
-        document.getElementById('searchColor').style.color = "gray";
-        document.getElementById('editColor').style.color = "gray";
-    }
-
-    function infoLlantas() {
-        document.getElementById('problemasA').style.display = "none";
-        document.getElementById('table-general').style.display = "none";
-        document.getElementById('infoLlantas').style.display = "block";
-        document.getElementById('searchColor').style.color = "gray";
-        document.getElementById('editColor').style.color = "gray"; 
-    }
-
-    function tireEyeDB() {
-        document.getElementById('columna3').style.display = "none";
-        document.getElementById('columna4').style.display = "none";
-        document.getElementById('columna5').style.display = "none";
-        document.getElementById('columna6').style.display = "block";
-        document.getElementById('columna7').style.display = "grid";
-        document.getElementById('columna7').style.gridTemplateColumns = "1fr 1fr";
-        document.getElementById('pulpo-tireEye').style.gridTemplateColumns = "1fr 1fr";
-        // document.getElementById('btn-pulpo').style.background = "#363636";
-        // document.getElementById('btn-tireEye').style.background = "#9147ff";
-    }
-
-    function pulpoDB() {
-        document.getElementById('columna3').style.display = "flex";
-        document.getElementById('columna4').style.display = "flex";
-        document.getElementById('columna5').style.display = "block";
-        document.getElementById('columna6').style.display = "none";
-        document.getElementById('columna7').style.display = "none";
-        document.getElementById('pulpo-tireEye').style.gridTemplateColumns = "1fr 1fr 2fr";
-        // document.getElementById('btn-pulpo').style.background = "#9147ff";
-        // document.getElementById('btn-tireEye').style.background = "#363636";
-    }
-
-    // function imprimirElemento(elemento){
-    //     var ventana = window.open('', 'PRINT', 'height=900,width=1440');
-    //     ventana.document.write('<html><head><title>' + document.title + '</title>');
-    //     ventana.document.write('</head><body >');
-    //     ventana.document.write(elemento.innerHTML);
-    //     ventana.document.write('</body></html>');
-    //     ventana.document.close();
-    //     ventana.focus();
-    //     ventana.print();
-    //     ventana.close();
-    //     return true;
-    // }
-
-    // {% for vehiculo in bitacora %}
-    // document.querySelector("#" + CSS.escape("print-report {{vehiculo.id}}")).addEventListener("click", function() {
-    //     var parrafo = document.querySelector("#" + CSS.escape("col1"));
-    //     imprimirElemento(parrafo);
-    // });
-    // {% endfor %}
-
-
-
     //funciones mostrar y ocultar clases
     var elem1 = document.getElementById('p1');
     function openFullscreenP1() {
@@ -845,6 +729,7 @@
             {% for vehiculo_bitacora in bitacora %}
                 vehiculo_fecha{{vehiculo_bitacora.id}} = new Date("{{vehiculo_bitacora.fecha_de_inflado.month}}/{{vehiculo_bitacora.fecha_de_inflado.day}}/{{vehiculo_bitacora.fecha_de_inflado.year}}")
                 fecha{{vehiculo_bitacora.id}} = vehiculo_fecha{{vehiculo_bitacora.id}}.getMonth() + 1;
+
                 switch (fecha{{vehiculo_bitacora.id}}){
                     case (hoy.getMonth() + 1):
                         mes_1++;
@@ -867,8 +752,10 @@
 
             if (days) {
                 document.getElementById("days").innerText = days;
+                document.getElementById("days2").innerText = days;
             }else{
                 document.getElementById("days").innerText = "0";
+                document.getElementById("days2").innerText = "0";
             }
 
             {% for id, entrada in entradas.items %}
@@ -1111,6 +998,10 @@ anychart.onDocumentReady(function () {
 });
  function getData() {
     return [
+        ["{{mes_8}}", {{vehiculo_mes8}}, {{cantidad_entrada_mes8}}, {{cantidad_doble_entrada_mes8}}],
+        ["{{mes_7}}", {{vehiculo_mes7}}, {{cantidad_entrada_mes7}}, {{cantidad_doble_entrada_mes7}}],
+        ["{{mes_6}}", {{vehiculo_mes6}}, {{cantidad_entrada_mes6}}, {{cantidad_doble_entrada_mes6}}],
+        ["{{mes_5}}", {{vehiculo_mes5}}, {{cantidad_entrada_mes5}}, {{cantidad_doble_entrada_mes5}}],
         ["{{mes_4}}", {{vehiculo_mes4}}, {{cantidad_entrada_mes4}}, {{cantidad_doble_entrada_mes4}}],
         ["{{mes_3}}", {{vehiculo_mes3}}, {{cantidad_entrada_mes3}}, {{cantidad_doble_entrada_mes3}}],
         ["{{mes_2}}", {{vehiculo_mes2}}, {{cantidad_entrada_mes2}}, {{cantidad_doble_entrada_mes2}}],
@@ -1138,6 +1029,8 @@ var chart = anychart.bar();
 
 // create a bar series and set the data
 var series = chart.bar(data);
+
+series.name('Km');
 
 // set the chart title
 chart.title("");
@@ -1191,6 +1084,7 @@ var chart1 = anychart.column();
 
 // create a bar series and set the data
 var series = chart1.column(data);
+series.name('Km');
 
 // set the chart title
 chart1.title(""); /* Pendiente de cambiar */
@@ -1251,13 +1145,11 @@ chart.xScale().ticks().interval(1);
 
 // create series, set the data and names
 series1 = chart.marker(data);
-
-
-
 series1.name("Profundidad");
 
 // create a marker series and set the data
 var series = chart.marker(data);
+series.name('Posición');
 
 // enable major grids
 chart.xGrid(true);

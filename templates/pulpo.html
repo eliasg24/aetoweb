@@ -733,8 +733,53 @@ function showCheckboxes3(){
 
 
                 {% for vehiculo in vehiculos_todos %}
-                    {% if vehiculo.fecha_de_inflado %}
+                    {% if vehiculo.fecha_de_inflado and vehiculo.ultima_bitacora_pro.fecha_de_inflado %}
+                        fecha1 = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+                        fecha2 = new Date("{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.month}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.day}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.year}}")
+                        if (fecha1 > fecha2){
+                          vehiculo_fecha{{vehiculo.id}} = fecha1
+                        }
+                        else {
+                          vehiculo_fecha{{vehiculo.id}} = fecha2
+                        }
+                        var difference= Math.abs(hoy-vehiculo_fecha{{vehiculo.id}});
+                        days = Math.round(difference/(1000 * 3600 * 24));
+                        {% if vehiculo in vehiculos_periodo %}
+                            document.getElementById("dias {{vehiculo.id}}").innerText = days;
+                        {% endif %}
+                        {% if vehiculo in vehiculos_malos %}
+                            document.getElementById("dias_malos {{vehiculo.id}}").innerText = days;
+                        {% endif %}
+                        if (0<=days && days<= {{rango_1}} ){
+                            rango_1 = rango_1 + 1;
+                        }
+                        else if ( {{rango_3}} <=days && days<= {{rango_2}}){
+                            rango_2++;
+                        }
+                        else if ( {{rango_4}} <=days){
+                            rango_3++;
+                        }
+                    {% elif vehiculo.fecha_de_inflado %}
                         vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+                        var difference= Math.abs(hoy-vehiculo_fecha{{vehiculo.id}});
+                        days = Math.round(difference/(1000 * 3600 * 24));
+                        {% if vehiculo in vehiculos_periodo %}
+                            document.getElementById("dias {{vehiculo.id}}").innerText = days;
+                        {% endif %}
+                        {% if vehiculo in vehiculos_malos %}
+                            document.getElementById("dias_malos {{vehiculo.id}}").innerText = days;
+                        {% endif %}
+                        if (0<=days && days<= {{rango_1}} ){
+                            rango_1 = rango_1 + 1;
+                        }
+                        else if ( {{rango_3}} <=days && days<= {{rango_2}}){
+                            rango_2++;
+                        }
+                        else if ( {{rango_4}} <=days){
+                            rango_3++;
+                        }
+                    {% elif vehiculo.ultima_bitacora_pro.fecha_de_inflado %}  
+                        vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.month}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.day}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.year}}")
                         var difference= Math.abs(hoy-vehiculo_fecha{{vehiculo.id}});
                         days = Math.round(difference/(1000 * 3600 * 24));
                         {% if vehiculo in vehiculos_periodo %}
@@ -772,6 +817,26 @@ function showCheckboxes3(){
               }
 
             {% for vehiculo_bitacora in bitacoras %}
+                vehiculo_fecha{{vehiculo_bitacora.id}} = new Date("{{vehiculo_bitacora.fecha_de_inflado.month}}/{{vehiculo_bitacora.fecha_de_inflado.day}}/{{vehiculo_bitacora.fecha_de_inflado.year}}")
+                fecha{{vehiculo_bitacora.id}} = vehiculo_fecha{{vehiculo_bitacora.id}}.getMonth() + 1;
+            switch (fecha{{vehiculo_bitacora.id}}){
+                    case (hoy.getMonth() + 1):
+                        mes_1++;
+                        break;
+                    case (hoy.getMonth()):
+                        mes_2++;
+                        break;
+                    case (hoy.getMonth() - 1):
+                        mes_3++;
+                        break;
+                    case (hoy.getMonth() - 2):
+                        mes_4++;
+                        break;
+                }
+                
+            {% endfor %}
+
+            {% for vehiculo_bitacora in bitacoras_pro %}
                 vehiculo_fecha{{vehiculo_bitacora.id}} = new Date("{{vehiculo_bitacora.fecha_de_inflado.month}}/{{vehiculo_bitacora.fecha_de_inflado.day}}/{{vehiculo_bitacora.fecha_de_inflado.year}}")
                 fecha{{vehiculo_bitacora.id}} = vehiculo_fecha{{vehiculo_bitacora.id}}.getMonth() + 1;
             switch (fecha{{vehiculo_bitacora.id}}){
@@ -1492,10 +1557,10 @@ chart.legend().itemsLayout('horizontal');
 
 function getData() {
 return [
-    ['{{mes_4}}', mes_4, {{cantidad_entrada_mes4}}, {{doble_entrada.1.mes4}}],
-    ['{{mes_3}}', mes_3, {{cantidad_entrada_mes3}}, {{doble_entrada.1.mes3}}],
-    ['{{mes_2}}', mes_2, {{cantidad_entrada_mes2}}, {{doble_entrada.1.mes2}}],
-    ['{{mes_1}}', mes_1, {{cantidad_entrada_mes1}}, {{doble_entrada.1.mes1}}],
+    ['{{mes_4}}', mes_4, {{cantidad_entrada_mes4}}, {{doble_entrada.1.mes4}} + {{doble_entrada_pro.1.mes4}}],
+    ['{{mes_3}}', mes_3, {{cantidad_entrada_mes3}}, {{doble_entrada.1.mes3}} + {{doble_entrada_pro.1.mes3}}],
+    ['{{mes_2}}', mes_2, {{cantidad_entrada_mes2}}, {{doble_entrada.1.mes2}} + {{doble_entrada_pro.1.mes2}}],
+    ['{{mes_1}}', mes_1, {{cantidad_entrada_mes1}}, {{doble_entrada.1.mes1}} + {{doble_entrada_pro.1.mes1}}],
 ]
 }
 

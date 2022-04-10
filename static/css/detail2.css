@@ -2,6 +2,10 @@
   background-color: var(--border-button);
 }
 
+.eje{
+  text-align: center;
+}
+
 .tire-relative {
   color: white;
   text-decoration: none;
@@ -41,6 +45,8 @@
 
 .tire__data {
   font-size: 1rem;
+  color: #fff;
+  text-shadow: 2px 2px #000;
 }
 
 .icon-central-axle,
@@ -224,8 +230,8 @@
 }
 
 .config__header {
-  background-color: var(--bg-button-active);
-  border-bottom: thin solid var(--border-alt-button);
+  background-color: var(--main-blue);
+  border-bottom: thin solid #00f0ff;
   text-align: center;
   padding: 0.25rem;
 }
@@ -456,6 +462,10 @@
   display: flex;
   background-color: white;
   height: 1rem;
+}
+
+.config__container.none {
+  grid-template-rows: auto 1fr;
 }
 
 @media screen and (min-width: 1024px) {

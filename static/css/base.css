@@ -512,6 +512,15 @@ input[type='number'] {
   font-size: 1.5rem;
 }
 
+.alert__container {
+  align-items: center;
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
 @media screen and (min-width: 1024px) {
   body {
     grid-template-rows: auto;

@@ -10,7 +10,7 @@
     />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <title>Edición Manua l</title>
+    <title>Edición Manual</title>
 {% endblock %}
 
 {% block content %}
@@ -35,7 +35,7 @@
                 {% if eje|length == 2 %}
 
                   <div class="par-llantas ejes__{{cant_ejes|safe}}">
-                    <div class="tire">
+                    <div class="tire" data-tire-id="{{eje.0.0.id}}">
                       <div class="tire__top {{style|safe}}">
                         <span class="tire__data">
                           0
@@ -61,7 +61,7 @@
                       <span class="axle-white"></span>
                     </div>
             
-                    <div class="tire">
+                    <div class="tire" data-tire-id="{{eje.1.0.id}}">
                       <div class="tire__top {{style|safe}}">
                         <span class="tire__data">
                           {{eje.1.0.presion_de_entrada}}
@@ -88,7 +88,7 @@
 
                   <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
                     <div class="double-tire">
-                      <div class="tire">
+                      <div class="tire" data-tire-id="{{eje.0.0.id}}">
                         <div class="tire__top {{style|safe}}">
                           <span class="tire__data">
                             {{eje.0.0.presion_de_entrada}}
@@ -109,7 +109,7 @@
                             </span>
                         </div>
                       </div>
-                      <div class="tire">
+                      <div class="tire" data-tire-id="{{eje.1.0.id}}">
                         <div class="tire__top {{style|safe}}">
                           <span class="tire__data">
                             {{eje.1.0.presion_de_entrada}}
@@ -135,7 +135,7 @@
                     <div class="axle"></div>
             
                     <div class="double-tire">
-                      <div class="tire">
+                      <div class="tire" data-tire-id="{{eje.2.0.id}}">
                         <div class="tire__top {{style|safe}}">
                           <span class="tire__data">
                             {{eje.2.0.presion_de_entrada}}
@@ -156,7 +156,7 @@
                             </span>
                         </div>
                       </div>
-                      <div class="tire">
+                      <div class="tire" data-tire-id="{{eje.3.0.id}}">
                         <div class="tire__top {{style|safe}}">
                           <span class="tire__data">
                             {{eje.3.0.presion_de_entrada}}
@@ -191,118 +191,154 @@
 
         <div class="forms__container">
           <div class="form__container">
-            <form action="" class="form__wrapper">
-
-              <legend>
-                <h2>Vehículo</h2>
-              </legend>
-
-              <!-- Start input -->
-              <div class="form__group field">
-                <input
-                  class="form__field"
-                  type="text"
-                  placeholder="vehiculo"
-                  name="vehiculo"
-                  autocomplete="off"
-                />
-                <label for="vehiculo" class="form__label">
-                  KM de vehículo
-                </label>
-              </div>
-              <!-- End input -->
-
-              <nav class="flex-row">
-                <button type="submit" class="btn btn-success disabled">
-                  <span class="icon-checkmark"></span>
-                </button>
-              </nav>
-            </form>
+            <details>
+              <summary>
+                Vehículo
+              </summary>
+              <form action="" class="form__wrapper" style="display: flex;">
+  
+                <!-- Start input -->
+                <div class="form__group field">
+                  <input
+                    class="form__field"
+                    type="text"
+                    placeholder="vehiculo"
+                    name="vehiculo"
+                    autocomplete="off"
+                    value="100"
+                  />
+                  <label for="vehiculo" class="form__label">
+                    KM de vehículo
+                  </label>
+                </div>
+                <!-- End input -->
+  
+                <nav class="flex-row">
+                  <button type="submit" class="btn btn-success disabled">
+                    <span class="icon-checkmark"></span>
+                  </button>
+                </nav>
+              </form>
+            </details>
           </div>
   
-          <div class="form__container">
-  
-            <form action="" class="form__wrapper" id="tire-form">
-  
-              <!-- Start input -->
-              <div class="form__group field">
-                <input
-                  class="form__field"
-                  type="number"
-                  placeholder="economico"
-                  name="economico"
-                  autocomplete="off"
-                  required
-                />
-                <label for="economico" class="form__label">
-                  Número económico
-                </label>
-              </div>
-              <!-- End input -->
-  
-              <!-- Start input -->
-              <div class="form__group field">
-                <input
-                  class="form__field"
-                  type="text"
-                  placeholder="producto"
-                  name="producto"
-                  autocomplete="off"
-                  required
-                />
-                <label for="producto" class="form__label">
-                  Producto
-                </label>
-              </div>
-              <!-- End input -->
-  
-              <!-- Start input -->
-              <div class="form__group field">
-                <input
-                  class="form__field"
-                  type="text"
-                  placeholder="vida"
-                  name="vida"
-                  autocomplete="off"
-                  required
-                />
-                <label for="vida" class="form__label">
-                  Vida
-                </label>
-              </div>
-              <!-- End input -->
-  
-              <!-- Start input -->
-              <div class="form__group field">
-                <input
-                  class="form__field"
-                  type="text"
-                  placeholder="montado"
-                  name="montado"
-                  autocomplete="off"
-                  required
-                />
-                <label for="montado" class="form__label">
-                  KM de montado
-                </label>
-              </div>
-              <!-- End input -->
-  
-              <div>
-                <label for="reemplazar" class="input-check">
-                  Reemplazar
-                  <input type="checkbox" name="reemplazar" id="reemplazar" />
-                  <span class="checkmark"></span>
-                </label>
-              </div>
-  
-              <nav class="flex-row">
-                <button type="submit" class="btn btn-success" title="Enviar">
-                  <span class="icon-checkmark"></span>
-                </button>
-              </nav>
-            </form>
-          </div>
+          <form class="form__container" method="POST">
+            {% for eje in ejes %}
+              {% for ej in eje %}
+                <div class="form__wrapper" id="tire-form" data-item-id="{{ej.0.id}}">
+                  <!-- Start input -->
+                  <div class="form__group field">
+                    <input
+                      class="form__field"
+                      type="text"
+                      placeholder="economico"
+                      name="economico"
+                      autocomplete="off"
+                      value = "{{ej.2.numero_economico.value}}"
+                    />
+                    <label for="economico" class="form__label">
+                      Número económico
+                    </label>
+                  </div>
+                  
+                  <!-- End input -->
+      
+                  <!-- Start input -->
+                  <div class="form__group field">
+                    <input
+                      class="form__field"
+                      type="text"
+                      placeholder="producto"
+                      name="producto"
+                      autocomplete="off"
+                      list="producto"
+                      value = "{{ej.0.producto}}"
+                      
+                    />
+                    <label for="producto" class="form__label">
+                      Producto
+                    </label>
+                    <datalist id="producto">
+                      
+                      {% for i in ej.2.producto %}
+                    
+                          <option value="{{i.data.label}}">{{i.data.label}}</option>
+
+                      {% endfor %}
+              
+                    </datalist>
+                  </div>
+                  <!-- End input -->
+      
+                  <!-- Start input -->
+                  <div class="form__group field">
+                    <input
+                      class="form__field"
+                      type="text"
+                      placeholder="vida"
+                      name="vida"
+                      autocomplete="off"
+                      list="vida"
+                      value = {{ej.2.vida.value}}
+                    />
+                    <label for="vida" class="form__label">
+                      Vida
+                    </label>
+                    <datalist id="vida">
+
+                      {% for i in ej.2.vida %}
+                    
+                          <option value="{{i.data.label}}">{{i.data.label}}</option>
+
+                      {% endfor %}
+
+                    </datalist>
+                  </div>
+                  <!-- End input -->
+      
+                  <!-- Start input -->
+                  <div class="form__group field">
+                    <input
+                      class="form__field"
+                      type="number"
+                      placeholder="montado"
+                      name="montado"
+                      autocomplete="off"
+                      {% if ej.2.km_montado.value == None %}
+                        
+                      {% else %}
+                        value = {{ej.2.km_montado.value}}
+                      {% endif %}
+                      
+                    />
+                    <label for="montado" class="form__label">
+                      KM de montado
+                    </label>
+                  </div>
+                  <!-- End input -->
+
+                  <input id="ids" name="ids" type="text" value={{ej.0.id}} style="display: None">
+
+                  <div>
+                    <label for="reemplazar-{{ej.0.id}}" class="input-check">
+                      Remplazar
+                      <input type="checkbox" name="reemplazar" id="reemplazar-{{ej.0.id}}"/>
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+
+                  <input type="hidden" name="id" value="">
+      
+                </div>
+              {% endfor %}
+            {% endfor %}
+            {% csrf_token %}
+                <nav class="flex-row">
+                  <button type="submit" class="btn btn-success" title="Enviar">
+                    <span class="icon-checkmark"></span>
+                  </button>
+                </nav>
+              </form>
         </div>
         
       </main>
@@ -314,7 +350,29 @@
         onSelectTire();
         confirmAlert();
         handleForms();
+        handleTire();
       });
+
+      const handleTire = () => {
+        const buttons = document.querySelectorAll('.tire');
+        const items = document.querySelectorAll('.form__wrapper');
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', (e) => {
+            const id = button.getAttribute('data-tire-id');
+
+            items.forEach((item) => {
+              const itemId = item.getAttribute('data-item-id');
+              if (id === itemId) {
+                items.forEach((item) => item.classList.remove('select'));
+
+                item.classList.add('select');
+              }
+            });
+          });
+        });
+
+      }
 
       const handleForms = () => {
         const forms = document.querySelectorAll('form');
@@ -351,11 +409,14 @@
       };
 
       const onSelectTire = () => {
-        const tires = document.querySelectorAll('.icon-tire2');
+        const tires = document.querySelectorAll('.tire');
+        const hidden = document.querySelector("input[type='hidden']");
 
         tires.forEach(tire => {
           tire.addEventListener('click', (e) => {
             tires.forEach(tire => tire.classList.remove('select'));
+
+            hidden.value = tire.getAttribute('id');
 
             tire.classList.add('select');
           });

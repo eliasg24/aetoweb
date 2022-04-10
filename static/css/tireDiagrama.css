@@ -8,6 +8,10 @@
   margin: auto;
 }
 
+.tire {
+  opacity: 1;
+}
+
 .tire__data {
   font-size: 2rem;
 }

@@ -76,6 +76,11 @@
   bottom: 0;
 }
 
+.tire__medium {
+  bottom: 30%;
+  padding: 0.25rem;
+}
+
 .tire__bottom .tire__title {
   font-size: 1rem;
 }
@@ -152,6 +157,11 @@
 }
 
 @media screen and (min-width: 1024px) {
+  .tire__medium {
+    bottom: 40%;
+    padding: 0.75rem;
+  }
+
   .par-llantas,
   .par-doble-llanta {
     margin: 0 auto;

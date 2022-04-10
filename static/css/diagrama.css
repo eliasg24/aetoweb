@@ -26,6 +26,7 @@
   display: flex;
   background-color: white;
   height: 1rem;
+  opacity: 0.25;
 }
 
 .main__container {
@@ -59,24 +60,42 @@
 
 .form__container {
   background-color: var(--main-background);
+  display: flex;
+  gap: 1rem;
+  flex-flow: column nowrap;
   border-radius: 0.25rem;
   height: fit-content;
   padding: 1rem;
+  gap: 1rem;
+  position: relative;
 }
 
 .form__wrapper {
   display: flex;
   gap: 1rem;
   flex-flow: column nowrap;
+
+  /* opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  top: 0; */
+  display: none;
+}
+
+.form__wrapper.select {
+  display: flex;
 }
 
 .tire {
   cursor: pointer;
   position: relative;
+  opacity: 0.25;
+  transition: all 0.3s ease-in;
 }
 
-.tire .icon-tire2.select {
-  color: seagreen;
+.tire.select {
+  opacity: 1;
 }
 
 .absolute {
@@ -106,7 +125,21 @@
   width: 100%;
 }
 
+.tire__medium {
+  bottom: 30%;
+  padding: 0.25rem;
+}
+
+.icon-tire2 {
+  font-size: 6rem;
+}
+
 @media screen and (min-width: 1024px) {
+  .tire__medium {
+    bottom: 40%;
+    padding: 0.75rem;
+  }
+
   .main__container {
     grid-template-rows: auto;
     grid-template-columns: 1fr 1fr;

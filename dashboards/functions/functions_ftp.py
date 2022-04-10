@@ -24,6 +24,75 @@ def ftp_descarga():
     for file_name in ftp1.nlst():
         file_type1 = file_name[0:18]
 
+        if file_type1 == f"Products{year}_{month}_{day}":
+            local_file = open(file_name, "wb")
+            ftp1.retrbinary("RETR " + file_name, local_file.write)
+            local_read_file = open(file_name, "r", encoding="utf-8-sig", newline='')
+            reader = csv.reader(local_read_file, delimiter=",")
+            for row in reader:
+                try:
+                    if file_type1 == f"Products{year}_{month}_{day}":
+                        company = row[1]
+                        company = Compania.objects.get(compania="New Pick")
+                        try:
+                            print(row[4])
+                            producto = Producto.objects.get(producto=row[4])
+                            marca = row[6]
+                            dibujo = row[7]
+                            dimension = row[8]
+                            profundidad_inicial = int(float(row[10]))
+                            vida = row[9]
+                            if vida == "New":
+                                vida = "Nueva"
+                            elif vida == "Retread":
+                                vida = "Renovada"
+                            precio = row[12]
+                            if precio == "":
+                                precio = 2000
+                            else:
+                                precio = int(float(row[12]))
+                            producto.marca=marca
+                            producto.dibujo=dibujo
+                            producto.dimension=dimension
+                            producto.profundidad_inicial=profundidad_inicial
+                            producto.vida=vida
+                            producto.precio=precio
+                            print(row[4])
+                            producto.save()
+                        except:
+                            marca = row[6]
+                            dibujo = row[7]
+                            dimension = row[8]
+                            profundidad_inicial = int(float(row[10]))
+                            vida = row[9]
+                            if vida == "New":
+                                vida = "Nueva"
+                            elif vida == "Retread":
+                                vida = "Renovada"
+                            precio = row[12]
+                            if precio == "":
+                                precio = 2000
+                            else:
+                                precio = int(float(row[12]))
+
+                            Producto.objects.create(producto=row[4],
+                                                    marca=marca,
+                                                    dibujo=dibujo,
+                                                    dimension=dimension,
+                                                    profundidad_inicial=profundidad_inicial,
+                                                    vida=vida,
+                                                    precio=precio
+                                                )
+
+                except:
+                    pass
+            local_file.close()
+            local_read_file.close()
+            os.remove(os.path.abspath(file_name))
+
+    """for file_name in ftp1.nlst():
+        file_type1 = file_name[0:18]
+
         if file_type1 == f"Vehicles{year}_{month}_{day}":
             local_file = open(file_name, "wb")
             ftp1.retrbinary("RETR " + file_name, local_file.write)
@@ -37,33 +106,33 @@ def ftp_descarga():
                             company = Compania.objects.get(compania="New Pick")
                             try:
                                 vehiculo = Vehiculo.objects.get(numero_economico=row[9], compania=company)
-                                if not(vehiculo.configuracion):
-                                    vehiculo.configuracion = row[14]
-                                    vehiculo.save()
                             except:
-                                try:
-                                    ubicacion = Ubicacion.objects.get(nombre=row[5], compania=company)
-                                except:
-                                    ubicacion = Ubicacion.objects.create(nombre=row[5], compania=company)
-                                try:
-                                    aplicacion = Aplicacion.objects.get(nombre=row[7], compania=company)
-                                except:
-                                    aplicacion = Aplicacion.objects.create(nombre=row[7], compania=company)
+                                status = row[20]
+                                if status != "Inactive":
+                                    try:
+                                        ubicacion = Ubicacion.objects.get(nombre=row[5], compania=company)
+                                    except:
+                                        ubicacion = Ubicacion.objects.create(nombre=row[5], compania=company)
+                                    try:
+                                        aplicacion = Aplicacion.objects.get(nombre=row[7], compania=company)
+                                    except:
+                                        aplicacion = Aplicacion.objects.create(nombre=row[7], compania=company)
 
-                                functions_create.crear_clase(row[12])
-                                fecha_de_creacion = row[21]
-                                fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
-                                vehiculo = Vehiculo.objects.create(numero_economico=row[9],
-                                                                modelo=row[18],
-                                                                marca=row[16],
-                                                                compania=company,
-                                                                ubicacion=ubicacion,
-                                                                aplicacion=aplicacion,
-                                                                numero_de_llantas = functions.cantidad_llantas(row[14]),
-                                                                clase = row[12].upper(),
-                                                                configuracion = row[14],
-                                                                fecha_de_creacion=fecha_de_creacion
-                                                                )
+                                    functions_create.crear_clase(row[12])
+                                    fecha_de_creacion = row[21]
+                                    fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
+                                    vehiculo = Vehiculo.objects.create(numero_economico=row[9],
+                                                                    modelo=row[18],
+                                                                    marca=row[16],
+                                                                    compania=company,
+                                                                    ubicacion=ubicacion,
+                                                                    aplicacion=aplicacion,
+                                                                    numero_de_llantas = functions.cantidad_llantas(row[14]),
+                                                                    clase = row[12].upper(),
+                                                                    configuracion = row[14],
+                                                                    fecha_de_creacion=fecha_de_creacion,
+                                                                    tirecheck=True
+                                                                    )
                 except:
                     break
             local_file.close()
@@ -86,78 +155,70 @@ def ftp_descarga():
                         numero_economico = row[9]
                         try:
                             llanta = Llanta.objects.get(numero_economico=numero_economico, compania=company)
-                        except:
-
-                            usuario = Perfil.objects.get(user=User.objects.get(username="NewPick"))
                             vehiculo = Vehiculo.objects.get(numero_economico=row[6], compania=company)
-                            vida = row[15]
-                            if vida == "New":
-                                vida = "Nueva"
-                            elif vida == "1st Retread":
-                                vida = "1R"
-                            elif vida == "2st Retread":
-                                vida = "2R"
-                            elif vida == "3st Retread":
-                                vida = "3R"
-                            elif vida == "4st Retread":
-                                vida = "4R"
-                            elif vida == "Retread":
-                                vida = "1R"
-
-                            posicion = row[7]
-                            tipo_de_eje = functions.sacar_eje(int(posicion[0]), vehiculo)
-                            eje = int(posicion[0])
-                            presion_de_entrada = row[11]
-                            if presion_de_entrada == "":
-                                presion_de_entrada = None
-                                presion_de_salida = None
-                                fecha_de_inflado = None
-                            else:
-                                presion_de_entrada = int(float(row[11]))
-                                presion_de_salida = int(float(row[11]))
-                                fecha_de_inflado = date.today()
-
-                            if tipo_de_eje[0] == "S":
-                                nombre_de_eje = "Dirección"
-                            elif tipo_de_eje[0] == "D":
-                                nombre_de_eje = "Tracción"
-                            elif tipo_de_eje[0] == "T":
-                                nombre_de_eje = "Arrastre"
-                            elif tipo_de_eje[0] == "C":
-                                nombre_de_eje = "Loco"
-                            elif tipo_de_eje[0] == "L":
-                                nombre_de_eje = "Retractil"
-
-                            producto = row[10]
+                        except:
                             try:
-                                producto = Producto.objects.get(producto=producto)
+                                usuario = Perfil.objects.get(user=User.objects.get(username="NewPick"))
+                                vehiculo = Vehiculo.objects.get(numero_economico=row[6], compania=company)
+                                vida = row[15]
+                                if vida == "New":
+                                    vida = "Nueva"
+                                elif vida == "1st Retread":
+                                    vida = "1R"
+                                elif vida == "2st Retread":
+                                    vida = "2R"
+                                elif vida == "3st Retread":
+                                    vida = "3R"
+                                elif vida == "4st Retread":
+                                    vida = "4R"
+                                elif vida == "Retread":
+                                    vida = "1R"
+
+                                posicion = row[7]
+                                tipo_de_eje = functions.sacar_eje(int(posicion[0]), vehiculo)
+                                eje = int(posicion[0])
+
+                                if tipo_de_eje[0] == "S":
+                                    nombre_de_eje = "Dirección"
+                                elif tipo_de_eje[0] == "D":
+                                    nombre_de_eje = "Tracción"
+                                elif tipo_de_eje[0] == "T":
+                                    nombre_de_eje = "Arrastre"
+                                elif tipo_de_eje[0] == "C":
+                                    nombre_de_eje = "Loco"
+                                elif tipo_de_eje[0] == "L":
+                                    nombre_de_eje = "Retractil"
+
+                                producto = row[10]
+                                try:
+                                    producto = Producto.objects.get(producto=producto)
+                                except:
+                                    producto = Producto.objects.create(producto=producto)
+
+                                inventario = "Rodante"
+                                km_montado = row[13]
+                                if km_montado == "":
+                                    km_montado = None
+                                else:
+                                    km_montado = int(float(row[13]))
+
+                                Llanta.objects.create(numero_economico=numero_economico,
+                                                    usuario=usuario,
+                                                    compania=company,
+                                                    vehiculo=vehiculo,
+                                                    ubicacion=vehiculo.ubicacion,
+                                                    vida=vida,
+                                                    tipo_de_eje=tipo_de_eje,
+                                                    eje=eje,
+                                                    posicion=posicion,
+                                                    nombre_de_eje=nombre_de_eje,
+                                                    producto=producto,
+                                                    inventario=inventario,
+                                                    km_montado=km_montado,
+                                                    tirecheck=True
+                                                    )
                             except:
-                                producto = Producto.objects.create(producto=producto)
-
-                            inventario = "Rodante"
-                            km_montado = row[13]
-                            if km_montado == "":
-                                km_montado = None
-                            else:
-                                km_montado = int(float(row[13]))
-
-                            Llanta.objects.create(numero_economico=numero_economico,
-                                                usuario=usuario,
-                                                compania=company,
-                                                vehiculo=vehiculo,
-                                                ubicacion=vehiculo.ubicacion,
-                                                vida=vida,
-                                                tipo_de_eje=tipo_de_eje,
-                                                eje=eje,
-                                                posicion=posicion,
-                                                presion_de_entrada=presion_de_entrada,
-                                                presion_de_salida=presion_de_salida,
-                                                fecha_de_inflado=fecha_de_inflado,
-                                                nombre_de_eje=nombre_de_eje,
-                                                producto=producto,
-                                                inventario=inventario,
-                                                km_montado=km_montado
-                                                )
+                                pass
 
 
             local_file.close()
@@ -197,16 +258,6 @@ def ftp_descarga():
                                 elif vida == "Retread":
                                     vida = "1R"
 
-                                presion_de_entrada = row[9]
-                                if presion_de_entrada == "":
-                                    presion_de_entrada = None
-                                    presion_de_salida = None
-                                    fecha_de_inflado = None
-                                else:
-                                    presion_de_entrada = int(float(row[9]))
-                                    presion_de_salida = int(float(row[9]))
-                                    fecha_de_inflado = date.today()
-
                                 producto = row[8]
                                 try:
                                     producto = Producto.objects.get(producto=producto)
@@ -230,12 +281,10 @@ def ftp_descarga():
                                                     usuario=usuario,
                                                     compania=company,
                                                     vida=vida,
-                                                    presion_de_entrada=presion_de_entrada,
-                                                    presion_de_salida=presion_de_salida,
-                                                    fecha_de_inflado=fecha_de_inflado,
                                                     producto=producto,
                                                     inventario=inventario,
                                                     km_montado=km_montado,
+                                                    tirecheck=True
                                                     )
                 except:
                     break
@@ -244,22 +293,21 @@ def ftp_descarga():
             os.remove(os.path.abspath(file_name))
 
     for file_name in ftp1.nlst():
-        file_type6 = file_name[0:21]
+        file_type6 = file_name[0:11]
 
-        if file_type6 == f"Inspections{year}_{month}_{day}":
+        if file_type6 == f"Inspections" and file_name != "Inspections_Bulk_01142022.csv" and file_name != "Inspections.csv":
+            print(file_name)
             local_file = open(file_name, "wb")
             ftp1.retrbinary("RETR " + file_name, local_file.write)
             local_file.close()
 
             with open(file_name, 'r', encoding="utf-8-sig", newline='') as local_read_file:
 
-                next(local_read_file, None)
                 reader = csv.reader(local_read_file)
 
-                print(reader)
                 for row in reader:
                     try:
-                        if file_type6 == f"Inspections{year}_{month}_{day}":
+                        if file_type6 == f"Inspections" and file_name != "Inspections_Bulk_01142022.csv" and file_name != "Inspections.csv":
                             company = row[1]
                             if company == "NEW PICK SA DE CV":
                                 company = Compania.objects.get(compania="New Pick")
@@ -271,7 +319,7 @@ def ftp_descarga():
                                     llanta_hecha = None
                                 if llanta_hecha:
                                     fecha_hora = row[4]
-                                    fecha_hora = functions.convertir_fecha3(fecha_hora)
+                                    fecha_hora = functions.convertir_fecha4(fecha_hora)
                                     km = row[6]
                                     if km == "":
                                         km = 2000
@@ -282,14 +330,44 @@ def ftp_descarga():
                                     min_profundidad = min(profundidades)
                                     max_profundidad = max(profundidades)
 
+                                    presion = float(row[21])
+                                    presion = int(presion * 14.5038)
+
+                                    try:
+                                        observacion_1 = row[22]
+                                    except:
+                                        observacion_1 = None
+                                    try:
+                                        observacion_2 = row[23]
+                                    except:
+                                        observacion_2 = None
+                                    try:
+                                        observacion_3 = row[24]
+                                    except:
+                                        observacion_3 = None
+
                                     inspeccion_creada = Inspeccion.objects.create(llanta=llanta_hecha,
                                                             fecha_hora=fecha_hora,
                                                             km=km,
+                                                            presion=presion,
                                                             min_profundidad=min_profundidad,
                                                             max_profundidad=max_profundidad,
+                                                            observacion_1=observacion_1,
+                                                            observacion_2=observacion_2,
+                                                            observacion_3=observacion_3
                                     )
-                                    llanta_hecha.ultima_inspeccion = inspeccion_creada
-                                    llanta_hecha.save()
+                                    if llanta_hecha.ultima_inspeccion:
+                                        fecha_ultima_inspeccion = llanta_hecha.ultima_inspeccion.fecha_hora
+                                        fecha_inspeccion_actual = inspeccion_creada.fecha_hora
+                                        if fecha_ultima_inspeccion.timestamp() > fecha_inspeccion_actual.timestamp():
+                                            pass
+                                        else:
+                                            llanta_hecha.ultima_inspeccion = inspeccion_creada
+                                            llanta_hecha.save()
+                                    else:
+                                        llanta_hecha.ultima_inspeccion = inspeccion_creada
+                                        llanta_hecha.save()
+
                                     try:
                                         vehiculo = Vehiculo.objects.get(numero_economico=llanta_hecha.vehiculo.numero_economico)
                                         vehiculo.ultima_inspeccion = inspeccion_creada
@@ -297,11 +375,11 @@ def ftp_descarga():
                                     except:
                                         pass
                     except:
-                        break
+                        pass
 
 
                 local_read_file.close()
-                os.remove(os.path.abspath(file_name))
+                os.remove(os.path.abspath(file_name))"""
 
     ftp1.quit()
 

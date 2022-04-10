@@ -60,14 +60,14 @@ class TendenciaCPKAdmin(admin.ModelAdmin):
 @admin.register(Vehiculo)
 class VehiculosAdmin(admin.ModelAdmin):
     # Admin de los Vehículos
-    list_display = ('numero_economico', 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'ultima_inspeccion', 'fecha_de_creacion')
+    list_display = ('numero_economico', 'tirecheck', 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'ultima_inspeccion', 'fecha_de_creacion')
     search_fields= ('numero_economico',)
-    list_filter = ('compania', 'fecha_de_creacion', 'clase')
+    list_filter = ('compania', 'tirecheck', 'fecha_de_creacion', 'clase')
 
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('id', 'numero_economico', "vehiculo", 'posicion', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje')
+    list_display = ('id', 'numero_economico', 'tirecheck', 'archivado', "vehiculo", 'posicion', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje')
     search_fields= ('numero_economico',)
     list_filter = ('compania', "vehiculo", 'tipo_de_eje')
     def min_profundidad(self, obj):
@@ -81,7 +81,7 @@ class LlantasAdmin(admin.ModelAdmin):
 class InspeccionesAdmin(admin.ModelAdmin):
     # Admin de las Inspecciones
     list_display = ('id', 'llanta', 'fecha_hora', "km", 'min_profundidad', 'max_profundidad')
-    search_fields= ('llanta',)
+    search_fields= ('llanta__numero_economico',)
     list_filter = ('llanta__compania', 'llanta')
     def get_view_count(self, obj):
         return obj.llanta.producto

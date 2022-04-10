@@ -81,11 +81,19 @@ def crear_clase(clase):
     archivo_nuevo.writelines(lines)
     archivo_nuevo.close()
 
-def crear_clase_en_vehiculo():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Corcelip"))
+def borrar_ultima_inspeccion_llanta():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="New Pick"))
+    for llanta in llantas:
+        if llanta.ultima_inspeccion:
+            llanta.ultima_inspeccion = None
+            llanta.save()
+
+def borrar_ultima_inspeccion_vehiculo():
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="New Pick"))
     for vehiculo in vehiculos:
-        vehiculo.clase = "TRUCK - DUMP"
-        vehiculo.save()
+        if vehiculo.ultima_inspeccion:
+            vehiculo.ultima_inspeccion = None
+            vehiculo.save()
 
 def crear_nombre_de_eje():
     """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))

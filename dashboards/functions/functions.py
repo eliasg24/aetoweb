@@ -133,7 +133,7 @@ def contar_mala_entrada(vehiculos):
         mala_entrada_contar = vehiculos.annotate(entrada=F("presion_de_entrada")/F("presion_de_salida")).filter(entrada__lt=0.9).count()
         return mala_entrada_contar
     except:
-        return None
+        return 0
 
 
 def convertir_fecha(fecha):
@@ -157,6 +157,14 @@ def convertir_fecha3(fecha):
     month = int(partes_fecha[0])
     day = int(partes_fecha[1])
     fecha = date(year, month, day)
+    return fecha
+
+def convertir_fecha4(fecha):
+    partes_fecha = fecha.split("/")
+    year = int(partes_fecha[2][:4])
+    month = int(partes_fecha[0])
+    day = int(partes_fecha[1])
+    fecha = datetime(year, month, day)
     return fecha
 
 def convertir_rango(fecha):
@@ -338,12 +346,28 @@ def distribucion_cantidad(cpks):
 
 def doble_entrada(bitacoras):
     bitacora = bitacoras.annotate(presiones_de_entrada=Cast(F("presion_de_entrada"), FloatField()) / Cast(F("presion_de_salida"), FloatField())).filter(presiones_de_entrada__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
-    meses = bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1),distinct=True), mes2=Count("mes",filter=Q(mes=2),distinct=True), mes3=Count("mes",filter=Q(mes=3),distinct=True), mes4=Count("mes",filter=Q(mes=4),distinct=True))
+    meses = bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1),distinct=True), mes2=Count("mes",filter=Q(mes=2),distinct=True), mes3=Count("mes",filter=Q(mes=3),distinct=True), mes4=Count("mes",filter=Q(mes=4),distinct=True), mes5=Count("mes",filter=Q(mes=5),distinct=True), mes6=Count("mes",filter=Q(mes=6),distinct=True), mes7=Count("mes",filter=Q(mes=7),distinct=True), mes8=Count("mes",filter=Q(mes=8),distinct=True))
+    bitacora = bitacora.values("numero_economico")
+    return bitacora, meses
+
+def doble_entrada_pro(bitacoras):
+    bitacora = bitacoras.annotate(presiones_de_entrada1=Cast(F("presion_de_entrada_1"), FloatField()) / Cast(F("presion_de_salida_1"), FloatField())).filter(presiones_de_entrada1__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada2=Cast(F("presion_de_entrada_2"), FloatField()) / Cast(F("presion_de_salida_2"), FloatField())).filter(presiones_de_entrada2__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada3=Cast(F("presion_de_entrada_3"), FloatField()) / Cast(F("presion_de_salida_3"), FloatField())).filter(presiones_de_entrada3__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada4=Cast(F("presion_de_entrada_4"), FloatField()) / Cast(F("presion_de_salida_4"), FloatField())).filter(presiones_de_entrada4__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada5=Cast(F("presion_de_entrada_5"), FloatField()) / Cast(F("presion_de_salida_5"), FloatField())).filter(presiones_de_entrada5__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada6=Cast(F("presion_de_entrada_6"), FloatField()) / Cast(F("presion_de_salida_6"), FloatField())).filter(presiones_de_entrada6__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada7=Cast(F("presion_de_entrada_7"), FloatField()) / Cast(F("presion_de_salida_7"), FloatField())).filter(presiones_de_entrada7__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada8=Cast(F("presion_de_entrada_8"), FloatField()) / Cast(F("presion_de_salida_8"), FloatField())).filter(presiones_de_entrada8__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada9=Cast(F("presion_de_entrada_9"), FloatField()) / Cast(F("presion_de_salida_9"), FloatField())).filter(presiones_de_entrada9__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada10=Cast(F("presion_de_entrada_10"), FloatField()) / Cast(F("presion_de_salida_10"), FloatField())).filter(presiones_de_entrada10__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada11=Cast(F("presion_de_entrada_11"), FloatField()) / Cast(F("presion_de_salida_11"), FloatField())).filter(presiones_de_entrada11__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada12=Cast(F("presion_de_entrada_12"), FloatField()) / Cast(F("presion_de_salida_12"), FloatField())).filter(presiones_de_entrada12__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
+    meses = bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1),distinct=True), mes2=Count("mes",filter=Q(mes=2),distinct=True), mes3=Count("mes",filter=Q(mes=3),distinct=True), mes4=Count("mes",filter=Q(mes=4),distinct=True), mes5=Count("mes",filter=Q(mes=5),distinct=True), mes6=Count("mes",filter=Q(mes=6),distinct=True), mes7=Count("mes",filter=Q(mes=7),distinct=True), mes8=Count("mes",filter=Q(mes=8),distinct=True))
     bitacora = bitacora.values("numero_economico")
     return bitacora, meses
 
 def doble_mala_entrada(bitacoras, vehiculos):
     bitacora = bitacoras.annotate(presiones_de_entrada=Cast(F("presion_de_entrada"), FloatField()) / Cast(F("presion_de_salida"), FloatField())).filter(presiones_de_entrada__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico")
+    try:
+        vehiculos = vehiculos.filter(id__in=bitacora)
+        return vehiculos
+    except:
+        if bitacora.exists():
+            return vehiculos
+        return None
+
+def doble_mala_entrada_pro(bitacoras, vehiculos):
+    bitacora = bitacoras.annotate(presiones_de_entrada1=Cast(F("presion_de_entrada_1"), FloatField()) / Cast(F("presion_de_salida_1"), FloatField())).filter(presiones_de_entrada1__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada2=Cast(F("presion_de_entrada_2"), FloatField()) / Cast(F("presion_de_salida_2"), FloatField())).filter(presiones_de_entrada2__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada3=Cast(F("presion_de_entrada_3"), FloatField()) / Cast(F("presion_de_salida_3"), FloatField())).filter(presiones_de_entrada3__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada4=Cast(F("presion_de_entrada_4"), FloatField()) / Cast(F("presion_de_salida_4"), FloatField())).filter(presiones_de_entrada4__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada5=Cast(F("presion_de_entrada_5"), FloatField()) / Cast(F("presion_de_salida_5"), FloatField())).filter(presiones_de_entrada5__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada6=Cast(F("presion_de_entrada_6"), FloatField()) / Cast(F("presion_de_salida_6"), FloatField())).filter(presiones_de_entrada6__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada7=Cast(F("presion_de_entrada_7"), FloatField()) / Cast(F("presion_de_salida_7"), FloatField())).filter(presiones_de_entrada7__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada8=Cast(F("presion_de_entrada_8"), FloatField()) / Cast(F("presion_de_salida_8"), FloatField())).filter(presiones_de_entrada8__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada9=Cast(F("presion_de_entrada_9"), FloatField()) / Cast(F("presion_de_salida_9"), FloatField())).filter(presiones_de_entrada9__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada10=Cast(F("presion_de_entrada_10"), FloatField()) / Cast(F("presion_de_salida_10"), FloatField())).filter(presiones_de_entrada10__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada11=Cast(F("presion_de_entrada_11"), FloatField()) / Cast(F("presion_de_salida_11"), FloatField())).filter(presiones_de_entrada11__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada12=Cast(F("presion_de_entrada_12"), FloatField()) / Cast(F("presion_de_salida_12"), FloatField())).filter(presiones_de_entrada12__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico")
     try:
         vehiculos = vehiculos.filter(id__in=bitacora)
         return vehiculos
@@ -529,6 +553,20 @@ def entrada_correcta(vehiculos):
         except:
             return None
 
+def entrada_correcta_actual(vehiculo):
+    try:
+        presion_actual = vehiculo.presion_de_salida
+        presion_establecida = vehiculo.presion_establecida
+        entrada_correcta = presion_actual/presion_establecida
+
+        if entrada_correcta >= 0.9:
+            entradas = "good"
+        else:
+            entradas = "bad"
+        return entradas
+    except:
+        return None
+
 def estatus_profundidad(llantas):
     estatus = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil"))), nombre_eje=Case(When(llanta_eje="S", then=Value("direccion")),When(llanta_eje="D", then=Value("traccion")),When(llanta_eje="T",then=Value("arrastre")),When(llanta_eje="C", then=Value("loco")),When(llanta_eje="L", then=Value("retractil")), output_field=CharField())).annotate(estatus=Case(When(ultima_inspeccion__min_profundidad__gt=F("punto_de_retiro"), then=Value("verde")),When(ultima_inspeccion__min_profundidad__gte=F("punto_de_retiro"),then=Value("amarillo")),When(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"),then=Value("rojo")), output_field=CharField())).values("nombre_eje").annotate(num_verde=Count("estatus",filter=Q(estatus="verde")),num_amarillo=Count("estatus",filter=Q(estatus="amarillo")),num_rojo=Count("estatus",filter=Q(estatus="rojo")))
     return estatus
@@ -547,6 +585,35 @@ def inflado_promedio(vehiculo):
         return round(tiempo_promedio/promedio_contar, 2)
     except:
         return None
+
+def juntar_bitacoras(vehiculos, bitacora, bitacora_pro):
+    nueva_bitacora = []
+    values_bitacora = bitacora.values()
+    for value in values_bitacora:
+        nueva_bitacora.append(value)
+    for b in nueva_bitacora:
+        print(b)
+
+
+    vehiculos_bitacora = bitacora.values_list("numero_economico__numero_economico", flat=True).distinct()
+    vehiculos_bitacora_pro = bitacora_pro.values_list("numero_economico__numero_economico", flat=True).distinct()
+    vehiculos = vehiculos.filter(numero_economico__in=vehiculos_bitacora) & vehiculos.filter(numero_economico__in=vehiculos_bitacora_pro)
+
+    for vehiculo in vehiculos:
+        print(vehiculo)
+        fecha_bitacora = bitacora.filter(numero_economico=vehiculo).order_by("fecha_de_inflado").values("fecha_de_inflado")
+        fecha_bitacora_pro = bitacora_pro.filter(numero_economico=vehiculo).order_by("fecha_de_inflado").values("fecha_de_inflado")
+
+        fecha_bitacora = bitacora.filter(numero_economico=vehiculo).order_by("fecha_de_inflado")[0].fecha_de_inflado
+        fecha_bitacora_pro = bitacora_pro.filter(numero_economico=vehiculo).order_by("fecha_de_inflado")[0].fecha_de_inflado
+        print(fecha_bitacora)
+        print(fecha_bitacora_pro)
+
+        if fecha_bitacora > fecha_bitacora_pro:
+            print(True)
+        else:
+            print(False)
+
 
 def km_proyectado(inspecciones, mediana):
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
@@ -606,10 +673,11 @@ def km_proyectado(inspecciones, mediana):
                 profundidad_inicial = llanta_completa.producto.profundidad_inicial
                 km_teorico_actual = int((profundidad_inicial - valores_llanta["min_mm"]) * km_x_mm)
                 km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
-    
+                
+
                 precio = llanta_completa.producto.precio
                 cpk = round((precio / km_teorico_proyectado), 3)
-    
+
                 """print("llanta", llanta)
                 print("mm_desgastados", mm_desgastados)
                 print("km_recorrido", km_recorrido)
@@ -618,9 +686,9 @@ def km_proyectado(inspecciones, mediana):
                 print("km_teorico_actual", km_teorico_actual)
                 print("km_proyectado", km_teorico_proyectado)
                 print("cpk", cpk)"""
-    
+
                 if km_teorico_actual >= 20000:
-    
+
                     llantas_limpias.append(llanta_completa)
                     kms_proyectados.append(km_teorico_proyectado)
                     kms_x_mm.append(km_x_mm)
@@ -628,7 +696,7 @@ def km_proyectado(inspecciones, mediana):
                     min_profundidades.append(profundidades[1:][0]["min_profundidad"])
             except:
                 pass
-        
+
     """print("km proyectados: ", kms_proyectados)
     print("cpks: ", cpks)"""
     if inspecciones:
@@ -658,6 +726,115 @@ def km_proyectado(inspecciones, mediana):
     except:
         mediana_mms = 0
     return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados, mediana_mms
+        
+    """print("km proyectados: ", kms_proyectados)
+    print("cpks: ", cpks)"""
+    if inspecciones:
+        if mediana:
+            try:
+                mediana_km_proyectado = km_proyectado_mediana(kms_proyectados)
+            except:
+                try:
+                    mediana_km_proyectado = int(statistics.median(kms_proyectados))
+                except:
+                   mediana_km_proyectado = 0
+        else:
+            try:
+                mediana_km_proyectado = int(statistics.median(kms_proyectados))
+            except:
+                mediana_km_proyectado = 0
+    else:
+        mediana_km_proyectado = 0
+
+    try:
+        mediana_kms_x_mm = int(statistics.median(kms_x_mm))
+    except:
+        mediana_kms_x_mm = 0
+    try:
+        mediana_cpks = round(statistics.median(cpks), 3)
+    except:
+        mediana_cpks = 0
+    try:
+        mediana_mms = round(statistics.median(min_profundidades), 3)
+    except:
+        mediana_mms = 0
+    return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados, mediana_mms
+
+def km_proyectado_llanta(inspecciones):
+    duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
+    regresion = inspecciones.select_related("llanta__vehiculo").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
+    llantas = regresion.values("llanta").distinct()
+    kms_proyectados = []
+    kms_x_mm = []
+    cpks = []
+    min_profundidades = []
+    for llanta in llantas:
+        llanta_completa = Llanta.objects.get(id=llanta["llanta"])
+        if llanta_completa.km_montado:
+            x = []
+            y = []
+            x.append(llanta_completa.km_montado)
+            y.append(llanta_completa.producto.profundidad_inicial)
+            km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km")
+            for r in km_llanta:
+                suma = abs(r["km"] + llanta_completa.km_montado)
+                y.append(suma)
+            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+            for p in profundidades:
+                x.append(p["min_profundidad"])
+            
+            x = np.array(x)
+            y = np.array(y)
+
+            f = np.polyfit(x, y, 2)
+            p = np.poly1d(f)
+            termino = []
+            for numero in p:
+                numero = round(numero, 4)
+                termino.append(numero)
+            km_actual = y[-1]
+            km_proyectado = (termino[0]*(3**2))+(termino[1]*3)+termino[2]
+            km_x_mm = km_proyectado / (llanta_completa.producto.profundidad_inicial - 3)
+            precio = llanta_completa.producto.precio
+            cpk = round((precio / km_proyectado), 3)
+
+            """print("llanta", llanta)
+            print("km_x_mm", km_x_mm)
+            print("profundidad_inicial", llanta_completa.producto.profundidad_inicial)
+            print("km_teorico_actual", km_actual)
+            print("km_proyectado", km_proyectado)
+            print("cpk", cpk)"""
+
+            return km_proyectado, km_x_mm, cpk
+
+        else:
+            valores_llanta = regresion.filter(llanta=llanta["llanta"]).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km")-Min("km"), min_mm=Min("min_profundidad"))
+            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+            mm_desgastados = valores_llanta["max_mm"] - valores_llanta["min_mm"]
+            if mm_desgastados == 0:
+                mm_desgastados = 1
+            try:
+                km_recorrido = valores_llanta["km_recorrido"]
+                km_x_mm = km_recorrido / mm_desgastados
+                profundidad_inicial = llanta_completa.producto.profundidad_inicial
+                km_teorico_actual = int((profundidad_inicial - valores_llanta["min_mm"]) * km_x_mm)
+                km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
+    
+                precio = llanta_completa.producto.precio
+                cpk = round((precio / km_teorico_proyectado), 3)
+    
+                """print("llanta", llanta)
+                print("mm_desgastados", mm_desgastados)
+                print("km_recorrido", km_recorrido)
+                print("km_x_mm", km_x_mm)
+                print("profundidad_inicial", profundidad_inicial)
+                print("km_teorico_actual", km_teorico_actual)
+                print("km_proyectado", km_teorico_proyectado)
+                print("cpk", cpk)"""
+                return km_teorico_proyectado, km_x_mm, cpk
+                
+            except:
+                return 0, 0, 0
 
 def km_proyectado_mediana(kms_proyectados):
     q1 =  np.quantile(kms_proyectados, 0.25)
@@ -704,6 +881,11 @@ def km_proyectado_mediana(kms_proyectados):
 def mala_entrada(vehiculos):
     vehiculos_fallidos = {}
     vehiculos_fallidos = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9)
+    return vehiculos_fallidos
+
+def mala_entrada_pro(vehiculos):
+    vehiculos_fallidos = {}
+    vehiculos_fallidos = vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_1"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_1"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_2"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_2"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_3"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_3"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_4"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_4"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_5"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_5"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_6"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_6"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_7"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_7"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_8"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_8"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_9"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_9"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_10"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_10"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_11"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_11"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_12"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_12"),FloatField())).filter(entrada__lt=0.9)
     return vehiculos_fallidos
 
 def mala_entrada_ejes(llantas, periodo):
@@ -805,7 +987,9 @@ def reduce(func, items):
 
 def reemplazo_actual(llantas):
     reemplazo_actual_llantas = llantas.select_related("ultima_inspeccion").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"))
+    print("reemplazo_actual_llantas", reemplazo_actual_llantas)
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
+    print("reemplazo_actual_ejes", reemplazo_actual_ejes)
     return reemplazo_actual_llantas, reemplazo_actual_ejes
 
 def reemplazo_actual2(llantas):
@@ -980,7 +1164,10 @@ def vehiculo_sospechoso(inspecciones):
             diferencia_dias = dia-x[-2]
             prediccion = diario*diferencia_dias
             desgaste_normal = prediccion*2.5
-            vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+            try:
+                vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+            except:
+                pass
     # En un futuro poner el parámetro sospechoso para cuando es 1 inspección
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count=2)
     sin_regresion = inspecciones.select_related("llanta__vehiculo__compania").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
