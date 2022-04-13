@@ -33,59 +33,60 @@ def ftp_descarga():
                 try:
                     if file_type1 == f"Products{year}_{month}_{day}":
                         company = row[1]
-                        if company == "NEW PICK":
-                            company = Compania.objects.get(compania="New Pick")
-                        elif company == "Tramo":
-                            company = Compania.objects.get(compania="Tramo")
-                        elif company == "SOLAQRO":
-                            company = Compania.objects.get(compania="SOLAQRO")
-                        try:
-                            producto = Producto.objects.get(producto=row[4])
-                            marca = row[6]
-                            dibujo = row[7]
-                            dimension = row[8]
-                            profundidad_inicial = int(float(row[10]))
-                            vida = row[9]
-                            if vida == "New":
-                                vida = "Nueva"
-                            elif vida == "Retread":
-                                vida = "Renovada"
-                            precio = row[12]
-                            if precio == "":
-                                precio = 2000
-                            else:
-                                precio = int(float(row[12]))
-                            producto.marca=marca
-                            producto.dibujo=dibujo
-                            producto.dimension=dimension
-                            producto.profundidad_inicial=profundidad_inicial
-                            producto.vida=vida
-                            producto.precio=precio
-                            producto.save()
-                        except:
-                            marca = row[6]
-                            dibujo = row[7]
-                            dimension = row[8]
-                            profundidad_inicial = int(float(row[10]))
-                            vida = row[9]
-                            if vida == "New":
-                                vida = "Nueva"
-                            elif vida == "Retread":
-                                vida = "Renovada"
-                            precio = row[12]
-                            if precio == "":
-                                precio = 2000
-                            else:
-                                precio = int(float(row[12]))
+                        if company == "NEW PICK" or company == "Tramo" or company == "SOLAQRO":
+                            if company == "NEW PICK":
+                                company = Compania.objects.get(compania="New Pick")
+                            elif company == "Tramo":
+                                company = Compania.objects.get(compania="Tramo")
+                            elif company == "SOLAQRO":
+                                company = Compania.objects.get(compania="SOLAQRO")
+                            try:
+                                producto = Producto.objects.get(producto=row[4])
+                                marca = row[6]
+                                dibujo = row[7]
+                                dimension = row[8]
+                                profundidad_inicial = int(float(row[10]))
+                                vida = row[9]
+                                if vida == "New":
+                                    vida = "Nueva"
+                                elif vida == "Retread":
+                                    vida = "Renovada"
+                                precio = row[12]
+                                if precio == "":
+                                    precio = 2000
+                                else:
+                                    precio = int(float(row[12]))
+                                producto.marca=marca
+                                producto.dibujo=dibujo
+                                producto.dimension=dimension
+                                producto.profundidad_inicial=profundidad_inicial
+                                producto.vida=vida
+                                producto.precio=precio
+                                producto.save()
+                            except:
+                                marca = row[6]
+                                dibujo = row[7]
+                                dimension = row[8]
+                                profundidad_inicial = int(float(row[10]))
+                                vida = row[9]
+                                if vida == "New":
+                                    vida = "Nueva"
+                                elif vida == "Retread":
+                                    vida = "Renovada"
+                                precio = row[12]
+                                if precio == "":
+                                    precio = 2000
+                                else:
+                                    precio = int(float(row[12]))
 
-                            Producto.objects.create(producto=row[4],
-                                                    marca=marca,
-                                                    dibujo=dibujo,
-                                                    dimension=dimension,
-                                                    profundidad_inicial=profundidad_inicial,
-                                                    vida=vida,
-                                                    precio=precio
-                                                )
+                                Producto.objects.create(producto=row[4],
+                                                        marca=marca,
+                                                        dibujo=dibujo,
+                                                        dimension=dimension,
+                                                        profundidad_inicial=profundidad_inicial,
+                                                        vida=vida,
+                                                        precio=precio
+                                                    )
 
                 except:
                     pass
@@ -120,7 +121,7 @@ def ftp_descarga():
                                 status = row[20]
                                 if status != "Inactive":
                                     try:
-                                        ubicacion = Ubicacion.objects.get(nombre=row[5], compania=company)
+                                        ubicacion = Ubicacion.objects.get1(nombre=row[5], compania=company)
                                     except:
                                         ubicacion = Ubicacion.objects.create(nombre=row[5], compania=company)
                                     try:
