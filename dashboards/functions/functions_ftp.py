@@ -131,7 +131,7 @@ def ftp_descarga():
                                     if km == "":
                                         km = None
                                     else:
-                                        km = int(float(row[6]))
+                                        km = int(float(row[10]))
                                     functions_create.crear_clase(row[12])
                                     fecha_de_creacion = row[21]
                                     fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
