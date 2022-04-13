@@ -1,8 +1,9 @@
 # Django
+from dataclasses import field
 from django import forms
 
 # Models
-from dashboards.models import Vehiculo, Excel, Llanta, Producto, Renovador, Desecho, Compania, Observacion, Rechazo, Ubicacion, Taller, User, Perfil, Aplicacion
+from dashboards.models import Inspeccion, Vehiculo, Excel, Llanta, Producto, Renovador, Desecho, Compania, Observacion, Rechazo, Ubicacion, Taller, User, Perfil, Aplicacion
 from django.contrib.auth.models import Group
 
 
@@ -149,3 +150,8 @@ class EdicionManual(forms.ModelForm):
     class Meta:
         model = Llanta
         fields = ("numero_economico", "producto", "vida", "km_montado", )
+
+class InspeccionForm(forms.ModelForm):
+    class Meta:
+        model = Inspeccion
+        fields = ('llanta', 'km', 'presion', 'min_profundidad', 'observacion_1', 'observacion_2', 'observacion_3')

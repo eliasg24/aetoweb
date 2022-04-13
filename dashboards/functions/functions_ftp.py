@@ -11,7 +11,7 @@ import csv
 import os
 
 def ftp_descarga():
-    hoy = date.today()
+    hoy = date(2022, 4, 12)
     year = hoy.year
     month = hoy.month
     day = hoy.day
@@ -33,9 +33,13 @@ def ftp_descarga():
                 try:
                     if file_type1 == f"Products{year}_{month}_{day}":
                         company = row[1]
-                        company = Compania.objects.get(compania="New Pick")
+                        if company == "NEW PICK":
+                            company = Compania.objects.get(compania="New Pick")
+                        elif company == "Tramo":
+                            company = Compania.objects.get(compania="Tramo")
+                        elif company == "SOLAQRO":
+                            company = Compania.objects.get(compania="SOLAQRO")
                         try:
-                            print(row[4])
                             producto = Producto.objects.get(producto=row[4])
                             marca = row[6]
                             dibujo = row[7]
@@ -57,7 +61,6 @@ def ftp_descarga():
                             producto.profundidad_inicial=profundidad_inicial
                             producto.vida=vida
                             producto.precio=precio
-                            print(row[4])
                             producto.save()
                         except:
                             marca = row[6]
@@ -90,7 +93,7 @@ def ftp_descarga():
             local_read_file.close()
             os.remove(os.path.abspath(file_name))
 
-    """for file_name in ftp1.nlst():
+    for file_name in ftp1.nlst():
         file_type1 = file_name[0:18]
 
         if file_type1 == f"Vehicles{year}_{month}_{day}":
@@ -102,8 +105,15 @@ def ftp_descarga():
                 try:
                     if file_type1 == f"Vehicles{year}_{month}_{day}":
                         company = row[3]
-                        if company == "NEW PICK SA DE CV":
-                            company = Compania.objects.get(compania="New Pick")
+                        if company == "NEW PICK SA DE CV" or company == "CSI" or company == "MPV360" or company == "SOLAQRO":
+                            if company == "NEW PICK SA DE CV":
+                                company = Compania.objects.get(compania="New Pick")
+                            elif company == "CSI":
+                                company = Compania.objects.get(compania="CSI")
+                            elif company == "MPV360":
+                                company = Compania.objects.get(compania="TDR")
+                            elif company == "SOLAQRO":
+                                company = Compania.objects.get(compania="SOLAQRO")
                             try:
                                 vehiculo = Vehiculo.objects.get(numero_economico=row[9], compania=company)
                             except:
@@ -118,6 +128,10 @@ def ftp_descarga():
                                     except:
                                         aplicacion = Aplicacion.objects.create(nombre=row[7], compania=company)
 
+                                    if km == "":
+                                        km = None
+                                    else:
+                                        km = int(float(row[6]))
                                     functions_create.crear_clase(row[12])
                                     fecha_de_creacion = row[21]
                                     fecha_de_creacion = functions.convertir_fecha3(fecha_de_creacion)
@@ -130,6 +144,7 @@ def ftp_descarga():
                                                                     numero_de_llantas = functions.cantidad_llantas(row[14]),
                                                                     clase = row[12].upper(),
                                                                     configuracion = row[14],
+                                                                    km=km,
                                                                     fecha_de_creacion=fecha_de_creacion,
                                                                     tirecheck=True
                                                                     )
@@ -139,7 +154,7 @@ def ftp_descarga():
             local_read_file.close()
             os.remove(os.path.abspath(file_name))
 
-    for file_name in ftp1.nlst():
+    """for file_name in ftp1.nlst():
         file_type5 = file_name[0:22]
 
         if file_type5 == f"RollingStock{year}_{month}_{day}":
@@ -290,7 +305,7 @@ def ftp_descarga():
                     break
             local_file.close()
             local_read_file.close()
-            os.remove(os.path.abspath(file_name))
+            os.remove(os.path.abspath(file_name))"""
 
     for file_name in ftp1.nlst():
         file_type6 = file_name[0:11]
@@ -309,8 +324,15 @@ def ftp_descarga():
                     try:
                         if file_type6 == f"Inspections" and file_name != "Inspections_Bulk_01142022.csv" and file_name != "Inspections.csv":
                             company = row[1]
-                            if company == "NEW PICK SA DE CV":
-                                company = Compania.objects.get(compania="New Pick")
+                            if company == "NEW PICK SA DE CV" or company == "CSI" or company == "MPV360" or company == "SOLAQRO":
+                                if company == "NEW PICK SA DE CV":
+                                    company = Compania.objects.get(compania="New Pick")
+                                elif company == "CSI":
+                                    company = Compania.objects.get(compania="CSI")
+                                elif company == "MPV360":
+                                    company = Compania.objects.get(compania="TDR")
+                                elif company == "SOLAQRO":
+                                    company = Compania.objects.get(compania="SOLAQRO")
                                 llanta = row[12]
 
                                 try:
@@ -379,7 +401,7 @@ def ftp_descarga():
 
 
                 local_read_file.close()
-                os.remove(os.path.abspath(file_name))"""
+                os.remove(os.path.abspath(file_name))
 
     ftp1.quit()
 

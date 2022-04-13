@@ -25,149 +25,193 @@
       <div class="relative">
         <div class="absolute">
 
-          <div class="par-llantas ejes__{{cant_ejes|safe}}">
-            <div class="tire" id="1">
-              <div class="tire__top {{style|safe}}">
-                <span class="tire__data">
-                  0
-                </span>
-              </div>
+          {% for eje in ejes %}
 
-              <div class="tire__medium {{style|safe}}">
-                <span class="tire__data">
-                  {{eje.0.0.posicion}}
-                </span>
-              </div>
-              
-              <span class="icon-tire2"></span>
-              
-              <div class="tire__bottom {{eje.0.1}}">
-                  <span class="tire__data">
-                    {{eje.0.0.ultima_inspeccion.min_profundidad}}
-                  </span>
-              </div>
-            </div>
-    
-            <div class="axle">
-              <span class="axle-white"></span>
-            </div>
-    
-            <div class="tire">
-              <div class="tire__top {{style|safe}}">
-                <span class="tire__data">
-                  {{eje.1.0.presion_de_entrada}}
-                </span>
-              </div>
+                {% if eje|length == 2 %}
 
-              <div class="tire__medium {{style|safe}}">
-                <span class="tire__data">
-                  {{eje.1.0.posicion}}
-                </span>
-              </div>
-              
-              <span class="icon-tire2"></span>
-              
-              <div class="tire__bottom {{eje.1.1}}">
-                  <span class="tire__data">
-                    {{eje.1.0.ultima_inspeccion.min_profundidad}}
-                  </span>
-              </div>
-            </div>
-          </div>
+                  <div class="par-llantas ejes__{{cant_ejes|safe}}">
+                    <div class="tire" data-tire-id="{{eje.0.0.id}}">
+                      <div class="tire__top {{eje.0.3}}">
+                        <span class="tire__data">
+                          {{eje.0.0.presion_de_salida}}
+                        </span>
+                      </div>
 
-          <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
-            <div class="double-tire">
-              <div class="tire">
-                <div class="tire__top {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.0.0.presion_de_entrada}}
-                  </span>
-                </div>
+                      <div class="tire__medium {{eje.0.3}}">
+                        <span class="tire__data">
+                          {{eje.0.0.posicion}}
+                        </span>
+                      </div>
+                      
+                      <span class="icon-tire2"></span>
+                      
+                      <div class="tire__bottom {{eje.0.1}}">
+                          <span class="tire__data">
 
-                <div class="tire__medium {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.0.0.posicion}}
-                  </span>
-                </div>
-                
-                <span class="icon-tire2"></span>
-                
-                <div class="tire__bottom {{eje.0.1}}">
-                    <span class="tire__data">
-                      {{eje.0.0.ultima_inspeccion.min_profundidad}}
-                    </span>
-                </div>
-              </div>
-              <div class="tire">
-                <div class="tire__top {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.1.0.presion_de_entrada}}
-                  </span>
-                </div>
+                            {% if eje.0.0.ultima_inspeccion == None %}
+                              N/A
+                            {% else %}
+                              {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                            {% endif %}
 
-                <div class="tire__medium {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.1.0.posicion}}
-                  </span>
-                </div>
-                
-                <span class="icon-tire2"></span>
-                
-                <div class="tire__bottom {{eje.1.1}}">
-                    <span class="tire__data">
-                      {{eje.1.0.ultima_inspeccion.min_profundidad}}
-                    </span>
-                </div>
-              </div>
-            </div>
-    
-            <div class="axle"></div>
-    
-            <div class="double-tire">
-              <div class="tire">
-                <div class="tire__top {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.2.0.presion_de_entrada}}
-                  </span>
-                </div>
+                          </span>
+                      </div>
+                    </div>
+            
+                    <div class="axle">
+                      <span class="axle-white"></span>
+                    </div>
+            
+                    <div class="tire" data-tire-id="{{eje.1.0.id}}">
+                      <div class="tire__top {{eje.1.3}}">
+                        <span class="tire__data">
+                          {{eje.1.0.presion_de_salida}}
+                        </span>
+                      </div>
 
-                <div class="tire__medium {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.2.0.posicion}}
-                  </span>
-                </div>
-                
-                <span class="icon-tire2"></span>
-                
-                <div class="tire__bottom {{eje.2.1}}">
-                    <span class="tire__data">
-                      {{eje.2.0.ultima_inspeccion.min_profundidad}}
-                    </span>
-                </div>
-              </div>
-              <div class="tire">
-                <div class="tire__top {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.3.0.presion_de_entrada}}
-                  </span>
-                </div>
+                      <div class="tire__medium {{eje.1.3}}">
+                        <span class="tire__data">
+                          {{eje.1.0.posicion}}
+                        </span>
+                      </div>
+                      
+                      <span class="icon-tire2"></span>
+                      
+                      <div class="tire__bottom {{eje.1.1}}">
+                          <span class="tire__data">
+                            
+                            {% if eje.1.0.ultima_inspeccion == None %}
+                              N/A
+                            {% else %}
+                              {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                            {% endif %}
+                            
+                          </span>
+                      </div>
+                    </div>
+                  </div>
 
-                <div class="tire__medium {{style|safe}}">
-                  <span class="tire__data">
-                    {{eje.3.0.posicion}}
-                  </span>
-                </div>
-                
-                <span class="icon-tire2"></span>
-                
-                <div class="tire__bottom {{eje.3.1}}">
-                    <span class="tire__data">
-                      {{eje.3.0.ultima_inspeccion.min_profundidad}}
-                    </span>
-                </div>
-              </div>
-            </div>
-          </div>
+                {% else %}
+
+                  <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
+                    <div class="double-tire">
+                      <div class="tire" data-tire-id="{{eje.0.0.id}}">
+                        <div class="tire__top {{eje.0.3}}">
+                          <span class="tire__data">
+                            {{eje.0.0.presion_de_salida}}
+                          </span>
+                        </div>
+
+                        <div class="tire__medium {{eje.0.3}}">
+                          <span class="tire__data">
+                            {{eje.0.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.0.1}}">
+                            <span class="tire__data">
+                              {% if eje.0.0.ultima_inspeccion == None %}
+                                N/A
+                              {% else %}
+                                {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                              {% endif %}
+                            </span>
+                        </div>
+                      </div>
+                      <div class="tire" data-tire-id="{{eje.1.0.id}}">
+                        <div class="tire__top {{eje.1.3}}">
+                          <span class="tire__data">
+                            {{eje.1.0.presion_de_salida}}
+                          </span>
+                        </div>
+
+                        <div class="tire__medium {{eje.1.3}}">
+                          <span class="tire__data">
+                            {{eje.1.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.1.1}}">
+                            <span class="tire__data">
+                              
+                            {% if eje.1.0.ultima_inspeccion == None %}
+                              N/A
+                            {% else %}
+                              {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                            {% endif %}
+                          
+                            </span>
+                        </div>
+                      </div>
+                    </div>
+            
+                    <div class="axle"></div>
+            
+                    <div class="double-tire">
+                      <div class="tire" data-tire-id="{{eje.2.0.id}}">
+                        <div class="tire__top {{eje.2.3}}">
+                          <span class="tire__data">
+                            {{eje.2.0.presion_de_salida}}
+                          </span>
+                        </div>
+
+                        <div class="tire__medium {{eje.2.3}}">
+                          <span class="tire__data">
+                            {{eje.2.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.2.1}}">
+                            <span class="tire__data">
+                                                            
+                            {% if eje.2.0.ultima_inspeccion == None %}
+                              N/A
+                            {% else %}
+                              {{eje.2.0.ultima_inspeccion.min_profundidad}}
+                            {% endif %}
+                        
+                            </span>
+                        </div>
+                      </div>
+                      <div class="tire" data-tire-id="{{eje.3.0.id}}">
+                        <div class="tire__top {{eje.3.3}}">
+                          <span class="tire__data">
+                            {{eje.3.0.presion_de_salida}}
+                          </span>
+                        </div>
+
+                        <div class="tire__medium {{eje.3.3}}">
+                          <span class="tire__data">
+                            {{eje.3.0.posicion}}
+                          </span>
+                        </div>
+                        
+                        <span class="icon-tire2"></span>
+                        
+                        <div class="tire__bottom {{eje.3.1}}">
+                            <span class="tire__data">
+                                                                                          
+                            {% if eje.3.0.ultima_inspeccion == None %}
+                              N/A
+                            {% else %}
+                              {{eje.3.0.ultima_inspeccion.min_profundidad}}
+                            {% endif %}
+                      
+                            </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                {% endif %}
+
+              {% endfor %}
 
         </div>
       </div>
@@ -208,83 +252,254 @@
 
       <div class="form__container">
 
-        <form action="" class="form__wrapper" id="tire-form">
+        <form class="form__container" method="POST">
+          {% for eje in ejes %}
+            {% for ej in eje %}
+              <div class="form__wrapper" id="tire-form" data-item-id="{{ej.0.id}}">
+                <!-- Start input -->
+                {% if ej.0.ultima_inspeccion == None %}
+                  Sin inspecciones.
+                {% else %}
+                        
+                  <div class="form__group field">
+                    <input
+                      class="form__field"
+                      type="text"
+                      placeholder="llanta"
+                      name="llanta"
+                      autocomplete="off"
+                      list="llanta"
+                      value = "{{ej.0.numero_economico}}"
+                      readonly
+                      
+                    />
+                    <label for="llanta" class="form__label">
+                      Llanta
+                    </label>
+                    <!--
+                      <datalist id="llanta">
+                        
+                        {% for i in ej.2.llanta %}
+                      
+                            <option value="{{i.data.label}}">{{i.data.label}}</option>
 
-          <!-- Start input -->
-          <div class="form__group field">
-            <input
-              class="form__field"
-              type="number"
-              placeholder="economico"
-              name="economico"
-              autocomplete="off"
-              required
-            />
-            <label for="economico" class="form__label">
-              Número económico
-            </label>
-          </div>
-          <!-- End input -->
+                        {% endfor %}
+                
+                      </datalist>
+                    -->
+                  </div>
 
-          <!-- Start input -->
-          <div class="form__group field">
-            <input
-              class="form__field"
-              type="text"
-              placeholder="producto"
-              name="producto"
-              autocomplete="off"
-              required
-            />
-            <label for="producto" class="form__label">
-              Producto
-            </label>
-          </div>
-          <!-- End input -->
+                
+                <!-- End input -->
+    
+                <!-- Start input -->
+                
+                <div class="form__group field">
+                  <input
+                    class="form__field"
+                    type="number"
+                    placeholder="km"
+                    name="km"
+                    autocomplete="off"
+                    value = "{{ej.2.km.value}}"
+                    
+                  />
+                  <label for="km" class="form__label">
+                    Km
+                  </label>
+                </div>
+                <!-- End input -->
+    
+                <!-- Start input -->
+                
+                <div class="form__group field">
+                  <input
+                    class="form__field"
+                    type="number"
+                    placeholder="min_profundidad"
+                    name="min_profundidad"
+                    autocomplete="off"
+                    value = "{{ej.2.min_profundidad.value}}"
+                    
+                  />
+                  <label for="min_profundidad" class="form__label">
+                    Profundidad
+                  </label>
+                </div>
+                <!-- End input -->
+    
+                <!-- Start input -->
+                
+                <div class="form__group field">
+                  <input
+                    class="form__field"
+                    type="text"
+                    placeholder="observacion_1"
+                    name="observacion_1"
+                    autocomplete="off"
+                    {% if ej.2.observacion_1.value == None %}
+                      value = ""
+                    {% else %}
+                      value = "{{ej.2.observacion_1.value}}"
+                    {% endif %}
 
-          <!-- Start input -->
-          <div class="form__group field">
-            <input
-              class="form__field"
-              type="text"
-              placeholder="vida"
-              name="vida"
-              autocomplete="off"
-              required
-            />
-            <label for="vida" class="form__label">
-              Vida
-            </label>
-          </div>
-          <!-- End input -->
+                  />
+                  <label for="observacion_1" class="form__label">
+                    Observacion 1
+                  </label>
+                </div>
+                <!-- End input -->
 
-          <!-- Start input -->
-          <div class="form__group field">
-            <input
-              class="form__field"
-              type="text"
-              placeholder="montado"
-              name="montado"
-              autocomplete="off"
-              required
-            />
-            <label for="montado" class="form__label">
-              KM de montado
-            </label>
-          </div>
-          <!-- End input -->
+                <!-- Start input -->
+                
+                <div class="form__group field">
+                  <input
+                    class="form__field"
+                    type="text"
+                    placeholder="observacion_2"
+                    name="observacion_2"
+                    autocomplete="off"
+                    {% if ej.2.observacion_2.value == None %}
+                      value = ""
+                    {% else %}
+                      value = "{{ej.2.observacion_2.value}}"
+                    {% endif %}
+                    
+                  />
+                  <label for="observacion_2" class="form__label">
+                    Observacion 2
+                  </label>
+                </div>
+                <!-- End input -->
 
-          <input type="hidden" name="id" value="">
+                <!-- Start input -->
+                
+                <div class="form__group field">
+                  <input
+                    class="form__field"
+                    type="text"
+                    placeholder="observacion_3"
+                    name="observacion_3"
+                    autocomplete="off"
+                    {% if ej.2.observacion_3.value == None %}
+                      value = ""
+                    {% else %}
+                      value = "{{ej.2.observacion_3.value}}"
+                    {% endif %}
+                    
+                  />
+                  <label for="observacion_3" class="form__label">
+                    Observacion 3
+                  </label>
+                </div>
+                <!-- End input -->
 
-          <nav class="flex-row">
-            <button type="submit" class="btn btn-success" title="Enviar">
-              <span class="icon-checkmark"></span>
-            </button>
-          </nav>
+                <input id="ids" name="ids" type="text" value={{ej.0.id}} style="display: None">
+                <!--
+                <div>
+                  <label for="reemplazar-{{ej.0.id}}" class="input-check">
+                    Remplazar
+                    <input type="checkbox" value="{{ej.0.id}}" name="reemplazar" id="reemplazar-{{ej.0.id}}"/>
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
+                -->
+                <input type="hidden" name="id" value="">
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endfor %}
+          {% csrf_token %}
+              <nav class="flex-row">
+                <button type="submit" class="btn btn-success" title="Enviar">
+                  <span class="icon-checkmark"></span>
+                </button>
+              </nav>
         </form>
       </div>
     </div>
   </main>
 </div>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', (e) => {
+    onSelectTire();
+    confirmAlert();
+    handleForms();
+    handleTire();
+  });
+
+  const handleTire = () => {
+    const buttons = document.querySelectorAll('.tire');
+    const items = document.querySelectorAll('.form__wrapper');
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const id = button.getAttribute('data-tire-id');
+
+        items.forEach((item) => {
+          const itemId = item.getAttribute('data-item-id');
+          if (id === itemId) {
+            items.forEach((item) => item.classList.remove('select'));
+
+            item.classList.add('select');
+          }
+        });
+      });
+    });
+
+  }
+
+  const handleForms = () => {
+    const forms = document.querySelectorAll('form');
+
+    forms[0].addEventListener('submit', (e) => {
+      if (forms[0].querySelector('input').value === '') {
+        e.preventDefault();
+        alert('El campo no puede estar vacío');
+        forms[0].querySelector('input').focus();
+      }
+    });
+  }
+
+  const confirmAlert = () => {
+    const form = document.getElementById('tire-form');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const alert = Swal.fire({
+        title: 'Confirmación',
+        text: '¿Seguro que desea continuar?',
+        icon: 'question',
+        confirmButtonText: 'Si',
+        backdrop: true,
+        showDenyButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then(res => {
+        (res.value) && form.submit();
+      } )
+      
+    });
+  };
+
+  const onSelectTire = () => {
+    const tires = document.querySelectorAll('.tire');
+    const hidden = document.querySelector("input[type='hidden']");
+
+    tires.forEach(tire => {
+      tire.addEventListener('click', (e) => {
+        tires.forEach(tire => tire.classList.remove('select'));
+
+        hidden.value = tire.getAttribute('id');
+
+        tire.classList.add('select');
+      });
+    });
+  };
+
+</script>
 
 {% endblock %}

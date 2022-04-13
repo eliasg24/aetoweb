@@ -81,6 +81,19 @@ def crear_clase(clase):
     archivo_nuevo.writelines(lines)
     archivo_nuevo.close()
 
+def tirecheck_llanta():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="New Pick"))
+    for llanta in llantas:
+        llanta.tirecheck = True
+        llanta.save()
+
+def crear_configuracion():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="AGA"))
+    for llanta in llantas:
+        if llanta.ultima_inspeccion:
+            llanta.ultima_inspeccion = None
+            llanta.save()
+
 def borrar_ultima_inspeccion_llanta():
     llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="New Pick"))
     for llanta in llantas:
@@ -94,6 +107,17 @@ def borrar_ultima_inspeccion_vehiculo():
         if vehiculo.ultima_inspeccion:
             vehiculo.ultima_inspeccion = None
             vehiculo.save()
+
+def crear_configuracion():
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="New Pick"))
+    for vehiculo in vehiculos:
+        if vehiculo.numero_economico[0:3] == "ANP":
+            vehiculo.configuracion = "S2.D4.D4"
+            vehiculo.save()
+        if vehiculo.numero_economico[0:1] == "N":
+            vehiculo.configuracion = "T4.T4"
+            vehiculo.save()
+
 
 def crear_nombre_de_eje():
     """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))

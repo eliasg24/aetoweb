@@ -7,6 +7,29 @@
   font-weight: bold;
 }
 
+.status__card-ok,
+.status__card-yellow,
+.status__card-bad,
+.status__card-suspicious {
+  border-left: 6px solid;
+}
+
+.status__card-ok {
+  border-color: var(--main-blue);
+}
+
+.status__card-yellow {
+  border-color: var(--yellow-color);
+}
+
+.status__card-bad {
+  border-color: var(--red-color);
+}
+
+.status__card-suspicious {
+  border-color: var(--purple-color);
+}
+
 .status__ok {
   color: var(--main-blue);
 }
@@ -211,4 +234,14 @@ figure {
 
 .vehicle-card__info p {
   margin: 0;
+}
+
+.head-cont {
+  flex-flow: column nowrap;
+}
+
+@media screen and (min-width: 1024px) {
+  .head-cont {
+    flex-flow: row wrap;
+  }
 }

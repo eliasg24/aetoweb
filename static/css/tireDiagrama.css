@@ -30,5 +30,9 @@
   bottom: 45%;
 }
 
+.form__wrapper {
+  display: flex;
+}
+
 @media screen and (min-width: 1024px) {
 }

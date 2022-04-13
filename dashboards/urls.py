@@ -227,7 +227,7 @@ urlpatterns = [
         name="tireDiagrama"
     ),
     path(
-        route="inspeccion-vehiculo",
+        route="inspeccion-vehiculo/<int:pk>/",
         view=views.inspeccionVehiculo.as_view(),
         name="inspeccionVehiculo"
     ),
@@ -365,5 +365,10 @@ urlpatterns = [
         route="OSEmingUEZRAftp_newpick",
         view=views.ftp_newpick,
         name="ftp_newpick"
+    ),
+    path(
+        route="reporteDeCambios/<int:pk>/",
+        view=views.ReporteDeCambios.as_view(),
+        name="reporteDeCambios"
     ),
 ]

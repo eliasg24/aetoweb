@@ -31,13 +31,13 @@
             
             <div class="par-llantas ejes__{{cant_ejes|safe}}">
               <div class="tire">
-                <div class="tire__top {{style|safe}}">
+                <div class="tire__top {{eje.0.2}}">
                   <span class="tire__data">
-                    {{eje.0.0.presion_de_entrada}}
+                    {{eje.0.0.presion_de_salida}}
                   </span>
                 </div>
 
-                <div class="tire__medium {{style|safe}}">
+                <div class="tire__medium {{eje.0.2}}">
                   <span class="tire__data">
                     {{eje.0.0.posicion}}
                   </span>
@@ -47,7 +47,13 @@
                 
                 <div class="tire__bottom {{eje.0.1}}">
                     <span class="tire__data">
-                      {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                      
+                      {% if eje.0.0.ultima_inspeccion == None %}
+                        N/A
+                      {% else %}
+                        {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                      {% endif %}
+                    
                     </span>
                 </div>
               </div>
@@ -57,13 +63,13 @@
               </div>
       
               <div class="tire">
-                <div class="tire__top {{style|safe}}">
+                <div class="tire__top {{eje.1.2}}">
                   <span class="tire__data">
-                    {{eje.1.0.presion_de_entrada}}
+                    {{eje.1.0.presion_de_salida}}
                   </span>
                 </div>
 
-                <div class="tire__medium {{style|safe}}">
+                <div class="tire__medium {{eje.1.2}}">
                   <span class="tire__data">
                     {{eje.0.0.posicion}}
                   </span>
@@ -73,7 +79,13 @@
                 
                 <div class="tire__bottom {{eje.1.1}}">
                     <span class="tire__data">
-                      {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                      
+                      {% if eje.1.0.ultima_inspeccion == None %}
+                        N/A
+                      {% else %}
+                        {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                      {% endif %}
+                    
                     </span>
                 </div>
               </div>
@@ -84,13 +96,13 @@
             <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
               <div class="double-tire">
                 <div class="tire">
-                  <div class="tire__top {{style|safe}}">
+                  <div class="tire__top {{eje.0.2}}">
                     <span class="tire__data">
-                      {{eje.0.0.presion_de_entrada}}
+                      {{eje.0.0.presion_de_salida}}
                     </span>
                   </div>
 
-                  <div class="tire__medium {{style|safe}}">
+                  <div class="tire__medium {{eje.0.2}}">
                     <span class="tire__data">
                       {{eje.0.0.posicion}}
                     </span>
@@ -100,20 +112,26 @@
                   
                   <div class="tire__bottom {{eje.0.1}}">
                       <span class="tire__data">
+                        
+                      {% if eje.0.0.ultima_inspeccion == None %}
+                        N/A
+                      {% else %}
                         {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                      {% endif %}
+                  
                       </span>
                   </div>
                 </div>
                 <div class="tire">
-                  <div class="tire__top {{style|safe}}">
+                  <div class="tire__top {{eje.1.2}}">
                     <span class="tire__data">
-                      {{eje.1.0.presion_de_entrada}}
+                      {{eje.1.0.presion_de_salida}}
                     </span>
                   </div>
 
-                  <div class="tire__medium {{style|safe}}">
+                  <div class="tire__medium {{eje.1.2}}">
                     <span class="tire__data">
-                      {{eje.0.0.posicion}}
+                      {{eje.1.0.posicion}}
                     </span>
                   </div>
                   
@@ -121,7 +139,13 @@
                   
                   <div class="tire__bottom {{eje.1.1}}">
                       <span class="tire__data">
+                        
+                      {% if eje.1.0.ultima_inspeccion == None %}
+                        N/A
+                      {% else %}
                         {{eje.1.0.ultima_inspeccion.min_profundidad}}
+                      {% endif %}
+                  
                       </span>
                   </div>
                 </div>
@@ -131,15 +155,15 @@
       
               <div class="double-tire">
                 <div class="tire">
-                  <div class="tire__top {{style|safe}}">
+                  <div class="tire__top {{eje.2.2}}">
                     <span class="tire__data">
-                      {{eje.2.0.presion_de_entrada}}
+                      {{eje.2.0.presion_de_salida}}
                     </span>
                   </div>
 
-                  <div class="tire__medium {{style|safe}}">
+                  <div class="tire__medium {{eje.2.2}}">
                     <span class="tire__data">
-                      {{eje.0.0.posicion}}
+                      {{eje.2.0.posicion}}
                     </span>
                   </div>
                   
@@ -149,20 +173,26 @@
                   
                   <div class="tire__bottom {{eje.2.1}}">
                       <span class="tire__data">
-                        {{eje.2.0.ultima_inspeccion.min_profundidad}}
+
+                        {% if eje.2.0.ultima_inspeccion == None %}
+                          N/A
+                        {% else %}
+                          {{eje.2.0.ultima_inspeccion.min_profundidad}}
+                        {% endif %}
+                        
                       </span>
                   </div>
                 </div>
                 <div class="tire">
-                  <div class="tire__top {{style|safe}}">
+                  <div class="tire__top {{eje.3.2}}">
                     <span class="tire__data">
-                      {{eje.3.0.presion_de_entrada}}
+                      {{eje.3.0.presion_de_salida}}
                     </span>
                   </div>
 
-                  <div class="tire__medium {{style|safe}}">
+                  <div class="tire__medium {{eje.3.2}}">
                     <span class="tire__data">
-                      {{eje.0.0.posicion}}
+                      {{eje.3.0.posicion}}
                     </span>
                   </div>
                   
@@ -170,7 +200,13 @@
                   
                   <div class="tire__bottom {{eje.3.1}}">
                       <span class="tire__data">
-                        {{eje.3.0.ultima_inspeccion.min_profundidad}}
+
+                        {% if eje.3.0.ultima_inspeccion == None %}
+                          N/A
+                        {% else %}
+                          {{eje.3.0.ultima_inspeccion.min_profundidad}}
+                        {% endif %}
+
                       </span>
                   </div>
                 </div>

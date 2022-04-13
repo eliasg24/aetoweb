@@ -106,6 +106,30 @@ def cantidad_llantas(configuracion):
     except:
         return 0
 
+def comportamiento_de_desgaste(inspecciones):
+    duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
+    regresion = inspecciones.select_related("llanta__vehiculo").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
+    llanta = regresion.values("llanta").distinct()
+    llanta_completa = Llanta.objects.get(id=llanta[0]["llanta"])
+    if llanta_completa.km_montado:
+        x = []
+        y = []
+        x.append(llanta_completa.producto.profundidad_inicial)
+        y.append(llanta_completa.km_montado)
+        km_llanta = regresion.filter(llanta=llanta[0]["llanta"]).values("km")
+        for r in km_llanta:
+            suma = abs(r["km"] + llanta_completa.km_montado)
+            y.append(suma)
+        profundidades = regresion.filter(llanta=llanta[0]["llanta"]).values("min_profundidad")
+        for p in profundidades:
+            x.append(p["min_profundidad"])
+        print(x, y)
+        valores = {}
+        for valor in range(len(x)):
+            valores[valor] = [x[valor], y[valor]]
+        return valores
+    else:
+        return None
 
 def contar_dias(fecha):
     fecha_date = datetime.strptime(fecha, "%Y-%m-%d").date()
@@ -329,6 +353,22 @@ def desgaste_irregular_producto(llantas):
         porcentaje = 0
     return porcentaje
 
+def desgaste_mensual(inspecciones):
+    duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__lte=2, count__gt=0)
+    sin_regresion = inspecciones.select_related("llanta__vehiculo__compania").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
+    llanta = sin_regresion.values("llanta").distinct()
+    if llanta:
+        fechas = sin_regresion.filter(llanta=llanta[0]["llanta"]).aggregate(primera_fecha=Min("fecha_hora"),ultima_fecha=Max("fecha_hora"))
+        dias = abs(fechas["ultima_fecha"] - fechas["primera_fecha"]).days
+        if dias == 0:
+            dias = 1
+        #print(dias)
+        resta = sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").first().min_profundidad - sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").last().min_profundidad
+        #print(resta)
+        diario = resta/dias
+        #print(diario)
+        dias_30 = sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 30)
+        return round(dias_30, 2)
 
 def distribucion_cantidad(cpks):
     for cpk in cpks:
@@ -553,6 +593,99 @@ def entrada_correcta(vehiculos):
         except:
             return None
 
+def entrada_correcta_pro(vehiculos):
+    try:
+        entradas = {}
+        for vehiculo in vehiculos:
+            configuracion = vehiculo.numero_economico.configuracion
+            llantas = cantidad_llantas(configuracion)
+            if llantas >= 2:                    
+                presion_encontrada_1 = vehiculo.presion_de_entrada_1
+                presion_establecida_1 = vehiculo.presion_de_salida_1
+                entrada_correcta_1 = presion_encontrada_1/presion_establecida_1
+                presion_encontrada_2 = vehiculo.presion_de_entrada_2
+                presion_establecida_2 = vehiculo.presion_de_salida_2
+                entrada_correcta_2 = presion_encontrada_2/presion_establecida_2
+                if llantas >= 4:                    
+                    presion_encontrada_3 = vehiculo.presion_de_entrada_3
+                    presion_establecida_3 = vehiculo.presion_de_salida_3
+                    entrada_correcta_3 = presion_encontrada_3/presion_establecida_3
+                    presion_encontrada_4 = vehiculo.presion_de_entrada_4
+                    presion_establecida_4 = vehiculo.presion_de_salida_4
+                    entrada_correcta_4 = presion_encontrada_4/presion_establecida_4
+                    if llantas >= 6:      
+                        presion_encontrada_5 = vehiculo.presion_de_entrada_5
+                        presion_establecida_5 = vehiculo.presion_de_salida_5
+                        entrada_correcta_5 = presion_encontrada_5/presion_establecida_5
+                        presion_encontrada_6 = vehiculo.presion_de_entrada_6
+                        presion_establecida_6 = vehiculo.presion_de_salida_6
+                        entrada_correcta_6 = presion_encontrada_6/presion_establecida_6
+                        if llantas >= 8:
+                            presion_encontrada_7 = vehiculo.presion_de_entrada_7
+                            presion_establecida_7 = vehiculo.presion_de_salida_7
+                            entrada_correcta_7 = presion_encontrada_7/presion_establecida_7
+                            presion_encontrada_8 = vehiculo.presion_de_entrada_8
+                            presion_establecida_8 = vehiculo.presion_de_salida_8
+                            entrada_correcta_8 = presion_encontrada_8/presion_establecida_8
+                            if llantas >= 10:
+                                presion_encontrada_9 = vehiculo.presion_de_entrada_9
+                                presion_establecida_9 = vehiculo.presion_de_salida_9
+                                entrada_correcta_9 = presion_encontrada_9/presion_establecida_9
+                                presion_encontrada_10 = vehiculo.presion_de_entrada_10
+                                presion_establecida_10 = vehiculo.presion_de_salida_10
+                                entrada_correcta_10 = presion_encontrada_10/presion_establecida_10
+                                if llantas >= 12:
+                                    presion_encontrada_11 = vehiculo.presion_de_entrada_11
+                                    presion_establecida_11 = vehiculo.presion_de_salida_11
+                                    entrada_correcta_11 = presion_encontrada_11/presion_establecida_11
+                                    presion_encontrada_12 = vehiculo.presion_de_entrada_12
+                                    presion_establecida_12 = vehiculo.presion_de_salida_12
+                                    entrada_correcta_12 = presion_encontrada_12/presion_establecida_12
+            if llantas >= 12:
+                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9 or entrada_correcta_9 >= 0.9 or entrada_correcta_10 >= 0.9 or entrada_correcta_11 >= 0.9 or entrada_correcta_12 >= 0.9:
+                    entradas[vehiculo.id] = True
+                else:
+                    entradas[vehiculo.id] = False
+            elif llantas >= 10:
+                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9 or entrada_correcta_9 >= 0.9 or entrada_correcta_10 >= 0.9:
+                    entradas[vehiculo.id] = True
+                else:
+                    entradas[vehiculo.id] = False
+            elif llantas >= 8:
+                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9:
+                    entradas[vehiculo.id] = True
+                else:
+                    entradas[vehiculo.id] = False
+            elif llantas >= 6:
+                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9:
+                    entradas[vehiculo.id] = True
+                else:
+                    entradas[vehiculo.id] = False
+            elif llantas >= 4:
+                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9:
+                    entradas[vehiculo.id] = True
+                else:
+                    entradas[vehiculo.id] = False
+            elif llantas >= 2:
+                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9:
+                    entradas[vehiculo.id] = True
+                else:
+                    entradas[vehiculo.id] = False
+        return entradas
+    except:
+        try:
+            presion_encontrada = vehiculos.presion_de_entrada
+            presion_establecida = vehiculos.presion_de_salida
+            entrada_correcta = presion_encontrada/presion_establecida
+
+            if entrada_correcta >= 0.9:
+                entradas = "good"
+            else:
+                entradas = "bad"
+            return entradas
+        except:
+            return None
+
 def entrada_correcta_actual(vehiculo):
     try:
         presion_actual = vehiculo.presion_de_salida
@@ -729,36 +862,6 @@ def km_proyectado(inspecciones, mediana):
         
     """print("km proyectados: ", kms_proyectados)
     print("cpks: ", cpks)"""
-    if inspecciones:
-        if mediana:
-            try:
-                mediana_km_proyectado = km_proyectado_mediana(kms_proyectados)
-            except:
-                try:
-                    mediana_km_proyectado = int(statistics.median(kms_proyectados))
-                except:
-                   mediana_km_proyectado = 0
-        else:
-            try:
-                mediana_km_proyectado = int(statistics.median(kms_proyectados))
-            except:
-                mediana_km_proyectado = 0
-    else:
-        mediana_km_proyectado = 0
-
-    try:
-        mediana_kms_x_mm = int(statistics.median(kms_x_mm))
-    except:
-        mediana_kms_x_mm = 0
-    try:
-        mediana_cpks = round(statistics.median(cpks), 3)
-    except:
-        mediana_cpks = 0
-    try:
-        mediana_mms = round(statistics.median(min_profundidades), 3)
-    except:
-        mediana_mms = 0
-    return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados, mediana_mms
 
 def km_proyectado_llanta(inspecciones):
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)

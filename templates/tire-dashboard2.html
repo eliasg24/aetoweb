@@ -555,8 +555,7 @@
 
   // setting yAxis settings
   chart.yAxis(0).title("");
-  chart.yAxis(0).labels().format("${%value}");
-
+  chart.yAxis(0).labels().format("${%value}{groupsSeparator:\\,, decimalsCount:3}");
   chart.yAxis(1).title("");
 
   // setting Grid settings
@@ -654,6 +653,9 @@
   lineSeries2.hovered().stroke("#12bcc8", 4);
   lineSeries2.selected().stroke("#12bcc8", 6);
   lineSeries2.yScale(extraYScale);
+
+  //tooltip
+  columnSeries.tooltip().format("{%seriesName}: ${%value}{groupsSeparator:\\,, decimalsCount:3}");
 
   // enable the legend
   chart.legend(true);

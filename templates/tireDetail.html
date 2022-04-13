@@ -61,13 +61,23 @@
         <div class="card__tire">
           <div class="cont__config">
             <div class="tire__config">
+
               <div class="tire__top {{color}}">
                 <span class="tire__data">{{llanta.presion_de_salida}}</span>
               </div>
+
+              <div class="tire__medium good">
+                <span class="tire__data">
+                    1L0
+                </span>
+              </div>
+
               <span class="icon-tire2"></span>
+              
               <div class="tire__bottom {{color_profundidad}}">
                 <span class="tire__data">{{llanta.ultima_inspeccion.min_profundidad}}</span>
               </div>
+
             </div>
           </div>
         </div>
@@ -213,9 +223,9 @@
             </div>
           </div>
           <div class="card__circle">
-            <h2>Desgaste</h2>
+            <h2>Desgaste Mensual</h2>
             <div class="circle1">
-              <span>3</span>
+              <span>{{desgaste_mensual}}</span>
             </div>
           </div>
           <div class="card__circle">
@@ -275,10 +285,10 @@
     const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);
 
     buttons.forEach( button => {
-        button.addEventListener('click', ({ target }) => {
+        button.addEventListener('click', (e) => {
         buttons.forEach(item => item.classList.remove('active'));
 
-        target.classList.add('active');
+        button.classList.add('active');
         });
     } );    
   };
@@ -513,11 +523,9 @@
   anychart.onDocumentReady(function () {
     // create data
     var data = [
-      { x: '0', value: 8 },
-      { x: '1', value: 4 },
-      { x: '2', value: 4 },
-      { x: '3', value: 2 },
-      { x: '4', value: 0 },
+    {% for desgaste, valores in desgastes.items %}
+      { x: '{{valores.0}}', value: {{valores.1}} },
+    {% endfor %}
     ];
 
     // create a chart

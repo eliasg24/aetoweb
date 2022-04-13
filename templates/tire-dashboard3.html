@@ -1202,7 +1202,7 @@
                             'Cantidad: <span style="font-size: 12px">' +
                             this.getData('size') + '</span></strong><br/>'   
                 });
-      
+
         // create scale for line series and extraYAxis
         // it force line series to not stuck values with over series
         var scale = anychart.scales.linear();
@@ -1607,6 +1607,9 @@ function training_filter_constructor(val) {
     UnoSeries.hovered().stroke("#0097fc", 2);
     UnoSeries.selected().stroke("#0097fc", 4);
 
+    //tooltip
+    UnoSeries.tooltip().format("{%seriesName}: {%value}{groupsSeparator:\\,, decimalsCount:3}");
+
     // set scale minimum
     chart.yScale().minimum(0);
 
@@ -1736,6 +1739,10 @@ function training_filter_constructor(val) {
     var chart = anychart.box(data);
     chart.isVertical(true)
     chart.yScale().ticks().interval();
+
+    // set function to format y axis labels
+    var yLabels = chart.yAxis(0).labels();
+    yLabels.format("{%value}{groupsSeparator:\\,, decimalsCount:3}");
 
     // set the chart title
     chart.title("Distribución de Datos");

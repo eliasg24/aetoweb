@@ -229,6 +229,7 @@ tbody tr:nth-child(even) {
 }
 
 .tire__top,
+.tire__medium,
 .tire__bottom {
   font-size: 0.75rem;
   position: absolute;
@@ -242,6 +243,14 @@ tbody tr:nth-child(even) {
 .tire__top {
   border-radius: 0.25rem 0.25rem 0 0;
   top: -1px;
+}
+
+.tire__medium {
+  border-radius: 50%;
+  bottom: 35%;
+  margin: auto;
+  padding: 0.75rem;
+  width: fit-content;
 }
 
 .tire__bottom {

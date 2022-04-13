@@ -83,7 +83,7 @@
                         {% endfor %}
                         {% for vehiculo in vehiculos_rojos %}
                         <a href="{% url 'dashboards:detail' vehiculo.id %}">
-                            <figure class="vehicle-card animate__animated animate__fadeInUp">
+                            <figure class="vehicle-card status__card-bad animate__animated animate__fadeInUp">
                         
                                 <div class="vehicle-card__img">
                                     <span class="icon-truck vehicle-card__icon"></span>

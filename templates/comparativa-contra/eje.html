@@ -86,6 +86,9 @@
   UnoSeries.hovered().stroke("#0097fc", 2);
   UnoSeries.selected().stroke("#0097fc", 4);
 
+  //tooltip
+  UnoSeries.tooltip().format("{%seriesName}: {%value}{groupsSeparator:\\,, decimalsCount:3}");
+
   // set scale minimum
   chart.yScale().minimum(0);
 

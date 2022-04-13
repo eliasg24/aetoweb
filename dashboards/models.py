@@ -202,6 +202,7 @@ class Vehiculo(models.Model):
     presion_de_entrada = models.IntegerField(blank=True, null=True)
     presion_de_salida = models.IntegerField(blank=True, null=True)
     presion_establecida = models.IntegerField(blank=True, null=True, default=100)
+    km = models.IntegerField(blank=True, null=True)
     ultima_bitacora_pro = models.ForeignKey("Bitacora_Pro", null=True, blank=True, on_delete=models.CASCADE, related_name="bitacoras_pro")
     ultima_inspeccion = models.ForeignKey("Inspeccion", null=True, blank=True, on_delete=models.CASCADE, related_name="inspecciones_vehiculo")
     tirecheck = models.BooleanField(default=False)
@@ -446,3 +447,20 @@ class Rechazo(models.Model):
     # Modelo del Rechazo
     llanta = models.ForeignKey(Llanta, on_delete=models.CASCADE)
     razon = models.CharField(max_length=200)
+
+
+class Bitacora_Edicion(models.Model):
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now=True)
+    tipo = models.CharField(max_length=500)
+    
+    def __str__(self):
+        # Retorna el número económico
+        return f"{self.tipo} |{self.id} | {self.vehiculo} | {self.fecha.strftime('%Y %m %d')}"
+
+class Registro_Bitacora(models.Model):
+    bitacora = models.ForeignKey(Bitacora_Edicion, on_delete=models.CASCADE)
+    evento = models.CharField(max_length=500)
+    def __str__(self):
+        # Retorna el número económico
+        return f"{self.id} | {self.bitacora.vehiculo} | {self.evento}"
