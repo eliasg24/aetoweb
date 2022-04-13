@@ -128,7 +128,7 @@ def ftp_descarga():
                                         aplicacion = Aplicacion.objects.get(nombre=row[7], compania=company)
                                     except:
                                         aplicacion = Aplicacion.objects.create(nombre=row[7], compania=company)
-
+                                    km = row[10]
                                     if km == "":
                                         km = None
                                     else:
