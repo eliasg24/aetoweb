@@ -2312,7 +2312,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         context["vehiculos_malos"] = vehiculo_malos_status
         context["vehiculos_periodo"] = vehiculo_periodo_status
         context["vehiculos_todos"] = vehiculo
-
+        functions_ftp.ftp_descarga()
         return context
 
 
