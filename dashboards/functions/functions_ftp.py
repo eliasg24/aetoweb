@@ -150,7 +150,7 @@ def ftp_descarga():
                                                                     tirecheck=True
                                                                     )
                 except:
-                    break
+                    pass
             local_file.close()
             local_read_file.close()
             os.remove(os.path.abspath(file_name))
