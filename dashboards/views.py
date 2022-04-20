@@ -2319,7 +2319,7 @@ class PulpoView(LoginRequiredMixin, ListView):
 
         #functions_create.crear_de_bitacora_el_vehiculo()
         #functions_create.crear_clase_en_vehiculo()
-        #functions_create.crear_configuracion()
+        functions_create.crear_llantas()
         #functions_excel.excel_vehiculos2()
         #functions_excel.excel_observaciones()
         #functions_ftp.ftp_1()

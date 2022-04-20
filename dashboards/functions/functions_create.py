@@ -130,7 +130,7 @@ def tirecheck_llanta():
         llanta.tirecheck = True
         llanta.save()
 
-def crear_configuracion():
+def crear_ultima_inspeccion():
     llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="AGA"))
     for llanta in llantas:
         if llanta.ultima_inspeccion:
@@ -152,20 +152,79 @@ def borrar_ultima_inspeccion_vehiculo():
             vehiculo.save()
 
 def crear_configuracion():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="New Pick"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="AGA"))
     for vehiculo in vehiculos:
-        if vehiculo.numero_economico[0:3] == "ANP":
+        if vehiculo.marca == "Freightliner":
             vehiculo.configuracion = "S2.D4.D4"
+            vehiculo.numero_de_llantas = 10
             vehiculo.save()
-        if vehiculo.numero_economico[0:1] == "N":
-            vehiculo.configuracion = "T4.T4"
+        if vehiculo.marca == "Honda":
+            vehiculo.configuracion = "S1.D1"
+            vehiculo.numero_de_llantas = 2
             vehiculo.save()
+        if vehiculo.marca == "Nissan":
+            vehiculo.configuracion = "S2.D2"
+            vehiculo.numero_de_llantas = 4
+            vehiculo.save()
+        if vehiculo.marca == "Toyota":
+            vehiculo.configuracion = "S2.D2"
+            vehiculo.numero_de_llantas = 4
+            vehiculo.save()
+        if vehiculo.marca == "Volkswagen":
+            vehiculo.configuracion = "S2.D2"
+            vehiculo.numero_de_llantas = 4
+            vehiculo.save()
+
+
 
 def crear_configuracion2():
     inspecciones = Inspeccion.objects.filter(id__in=range(1030, 1115))
     for inspeccion in inspecciones:
         inspeccion.fecha_hora = date(2022, 2, 2)
         inspeccion.save()
+
+def crear_llantas():
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="AGA"))
+    for vehiculo in vehiculos:
+        posiciones = []
+        ejes = vehiculo.configuracion.split(".")
+        if vehiculo.configuracion == "S2.D4.D4":
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("2LO")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("2RO")
+            posiciones.append("3LO")
+            posiciones.append("3LI")
+            posiciones.append("3RI")
+            posiciones.append("3RO")
+        if vehiculo.configuracion == "S2.D2":
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+        if vehiculo.configuracion == "S1.D1":
+            posiciones.append("1LI")
+            posiciones.append("2LI")
+        for i in range(vehiculo.numero_de_llantas):
+            posicion = posiciones[i]
+
+            if ejes[int(posicion[0]) - 1][0] == "S":
+                nombre_de_eje = "Dirección"
+            if ejes[int(posicion[0]) - 1][0] == "D":
+                nombre_de_eje = "Tracción"
+
+            Llanta.objects.create(numero_economico=f"{vehiculo}-{i}",
+                                compania=vehiculo.compania,
+                                vehiculo=vehiculo,
+                                tipo_de_eje=ejes[int(posicion[0]) - 1],
+                                eje=posicion[0],
+                                posicion=posicion,
+                                nombre_de_eje=nombre_de_eje,
+                                fecha_de_entrada_inventario=date.today()
+            )
+
 
 def crear_nombre_de_eje():
     """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))

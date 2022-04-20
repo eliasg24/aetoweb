@@ -197,7 +197,8 @@ class Vehiculo(models.Model):
                     ("YARD TRUCK", "Yard Truck")
                 )
     clase = models.CharField(max_length=200, choices=opciones_clase, null=True, blank=True)
-    opciones_configuracion = (("S2.D2", "S2.D2"),
+    opciones_configuracion = (("S1.D1", "S1.D1"),
+                            ("S2.D2", "S2.D2"),
                             ("S2.D2.D2", "S2.D2.D2"),
                             ("S2.D2.D2.T4.T4", "S2.D2.D2.T4.T4"),
                             ("S2.C4.D4", "S2.C4.D4"),
@@ -348,7 +349,7 @@ class Llanta(models.Model):
     nombre_de_eje = models.CharField(max_length=200, choices=opciones_de_eje, null=True, blank=True)
     presion_de_entrada = models.IntegerField(blank=True, null=True)
     presion_de_salida = models.IntegerField(blank=True, null=True)
-    presion_actual = models.IntegerField(blank=True, null=True, default=100)
+    presion_actual = models.IntegerField(blank=True, null=True)
     fecha_de_inflado = models.DateField(null=True, blank=True)
     ultima_inspeccion = models.ForeignKey(Inspeccion, null=True, blank=True, on_delete=models.CASCADE, related_name="inspecciones")
     profundidad_izquierda = models.FloatField(blank=True, null=True)
