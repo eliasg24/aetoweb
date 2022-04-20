@@ -1137,6 +1137,10 @@
         var yLabels = chart.yAxis().labels();
         yLabels.format("{%value}{scale: (1000)(1000)(1000)|(K)(M)(B)}");
 
+        // set function to format y axis labels
+        var xLabels = chart.xAxis(0).labels();
+        xLabels.format("${%value}{groupsSeparator:\\,, decimalsCount:3}");
+
         // turn on chart animation
         chart.animation(true);
 
@@ -1193,15 +1197,8 @@
         chart.tooltip()
                 .useHtml(true)
                 .fontColor('#fff')
-                .format(function () {
-                    return this.getData('data') +
-                            'Km Proyectado: <span style="font-size: 12px">' +
-                            this.getData('value') + '</span></strong><br/>' +
-                            'CPK: <span style="font-size: 12px">' +
-                            this.getData('x') + '</span></strong><br/>' +
-                            'Cantidad: <span style="font-size: 12px">' +
-                            this.getData('size') + '</span></strong><br/>'   
-                });
+                .positionMode("point")
+                .format("KM: {%value}{groupsSeparator:\\,, decimalsCount:3}<br>CPK: ${%x}{groupsSeparator:\\,, decimalsCount:3}<br>Cantidad: {%size}{groupsSeparator:\\,, decimalsCount:3}");
 
         // create scale for line series and extraYAxis
         // it force line series to not stuck values with over series
@@ -1609,6 +1606,7 @@ function training_filter_constructor(val) {
 
     //tooltip
     UnoSeries.tooltip().format("{%seriesName}: {%value}{groupsSeparator:\\,, decimalsCount:3}");
+    DosSeries.tooltip().format("{%seriesName}: ${%value}{groupsSeparator:\\,, decimalsCount:3}");
 
     // set scale minimum
     chart.yScale().minimum(0);
@@ -1643,9 +1641,9 @@ function training_filter_constructor(val) {
     ["{{mes_6}}", 0, 0],
     ["{{mes_5}}", 0, 0],
     ["{{mes_4}}", 0, 0],
-    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, {{tendencia_cpk_mes3.cantidad}}{% endif %}],
-    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, {{tendencia_cpk_mes2.cantidad}}{% endif %}],
-    ["{{mes_1}}", {{cpk}}, {{llantas_limpias}}]
+    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, {{tendencia_cpk_mes3.cantidad}} {% else %} 0, 0 {% endif %}],
+    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, {{tendencia_cpk_mes2.cantidad}} {% else %} 0, 0 {% endif %}],
+    ["{{mes_1}}", {% if cpk %}{{cpk}}{% else %}0{% endif %}, {% if llantas_limpias %}{{llantas_limpias}}{% else %}0{% endif %}]
     ]);
 
     // map the data
@@ -1743,6 +1741,9 @@ function training_filter_constructor(val) {
     // set function to format y axis labels
     var yLabels = chart.yAxis(0).labels();
     yLabels.format("{%value}{groupsSeparator:\\,, decimalsCount:3}");
+
+    //tooltip
+    chart.tooltip().format("{%low}{groupsSeparator:\\,, decimalsCount:3}");
 
     // set the chart title
     chart.title("Distribución de Datos");

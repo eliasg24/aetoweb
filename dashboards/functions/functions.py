@@ -3,12 +3,12 @@ from django.contrib import auth
 from django.core.files import File
 from django.db.models.aggregates import Min, Max, Count
 from django.db.models import FloatField, F, Q, Case, When, Value, IntegerField, CharField, ExpressionWrapper, Func
-from django.db.models.functions import Cast, ExtractMonth, ExtractDay, Now, Round, Substr, ExtractYear
+from django.db.models.functions import Cast, ExtractMonth, ExtractDay, Now, Round, Substr, ExtractYear, Least, Greatest
 from django.forms import DurationField
 from django.utils import timezone
 
 # Utilities
-from dashboards.models import Aplicacion, Bitacora, Compania, Inspeccion, Llanta, Perfil, Ubicacion, Vehiculo, Producto, FTP
+from dashboards.models import Aplicacion, Bitacora, Bitacora_Pro, Compania, Inspeccion, Llanta, Perfil, Ubicacion, Vehiculo, Producto, FTP
 from datetime import date, datetime, timedelta
 from heapq import nlargest
 from itertools import count
@@ -116,9 +116,9 @@ def comportamiento_de_desgaste(inspecciones):
         y = []
         x.append(llanta_completa.producto.profundidad_inicial)
         y.append(llanta_completa.km_montado)
-        km_llanta = regresion.filter(llanta=llanta[0]["llanta"]).values("km")
+        km_llanta = regresion.filter(llanta=llanta[0]["llanta"]).values("km_vehiculo")
         for r in km_llanta:
-            suma = abs(r["km"] + llanta_completa.km_montado)
+            suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
             y.append(suma)
         profundidades = regresion.filter(llanta=llanta[0]["llanta"]).values("min_profundidad")
         for p in profundidades:
@@ -146,19 +146,28 @@ def contar_doble_entrada(vehiculos):
 
 def contar_entrada_correcta(vehiculos):
     try:
-        entrada_correcta_contar = vehiculos.annotate(entrada=F("presion_de_entrada")/F("presion_de_salida")).filter(entrada__gte=0.9).count()
+        entrada_correcta_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__gte=0.9).count()
         return entrada_correcta_contar
     except:
         return None
 
+def contar_entrada_correcta_pro(vehiculos):
+    entrada_correcta_contar = (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_1"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_1"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_1"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_1"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_2"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_2"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_2"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_2"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_3"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_3"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_3"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_3"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_4"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_4"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_4"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_4"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_5"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_5"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_5"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_5"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_6"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_6"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_6"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_6"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_7"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_7"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_7"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_7"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_8"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_8"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_8"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_8"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_9"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_9"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_9"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_9"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_10"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_10"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_10"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_10"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_11"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_11"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_11"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_11"),FloatField())).filter(entrada=None)) & (vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_12"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_12"),FloatField())).filter(entrada__gte=0.9) | vehiculos.annotate(entrada=Cast(F("ultima_bitacora_pro__presion_de_entrada_12"),FloatField())/Cast(F("ultima_bitacora_pro__presion_de_salida_12"),FloatField())).filter(entrada=None))
+    return entrada_correcta_contar.count()
 
 def contar_mala_entrada(vehiculos):
     try:
-        mala_entrada_contar = vehiculos.annotate(entrada=F("presion_de_entrada")/F("presion_de_salida")).filter(entrada__lt=0.9).count()
+        mala_entrada_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9).count()
         return mala_entrada_contar
     except:
         return 0
 
+def contar_mala_entrada_pro(vehiculos):
+    try:
+        mala_entrada_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada_1"),FloatField())/Cast(F("presion_de_salida_1"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_2"),FloatField())/Cast(F("presion_de_salida_2"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_3"),FloatField())/Cast(F("presion_de_salida_3"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_4"),FloatField())/Cast(F("presion_de_salida_4"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_5"),FloatField())/Cast(F("presion_de_salida_5"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_6"),FloatField())/Cast(F("presion_de_salida_6"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_7"),FloatField())/Cast(F("presion_de_salida_7"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_8"),FloatField())/Cast(F("presion_de_salida_8"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_9"),FloatField())/Cast(F("presion_de_salida_9"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_10"),FloatField())/Cast(F("presion_de_salida_10"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_11"),FloatField())/Cast(F("presion_de_salida_11"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_12"),FloatField())/Cast(F("presion_de_salida_12"),FloatField())).filter(entrada__lt=0.9)
+        return mala_entrada_contar.count()
+    except:
+        return 0
 
 def convertir_fecha(fecha):
     try:
@@ -337,15 +346,15 @@ def desdualizacion(llantas, periodo):
 
 def desgaste_irregular(llantas, periodo):
     if periodo:
-        llantas_desgaste_irregular = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).values("numero_economico").filter(punto_de_retiro__lt=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad"))
+        llantas_desgaste_irregular = llantas.select_related("vehiculo__compania").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).values("numero_economico").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(punto_de_retiro__lt=F("max_profundidad")-F("min_profundidad"))
     else:
-        llantas_desgaste_irregular = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(punto_de_retiro__gt=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).annotate(nombre_eje=Case(When(llanta_eje="S", then=Value("direccion")),When(llanta_eje="D", then=Value("traccion")),When(llanta_eje="T", then=Value("arrastre")),When(llanta_eje="C", then=Value("loco")),When(llanta_eje="L", then=Value("retractil")), output_field=CharField())).values("nombre_eje").annotate(total=Count("nombre_eje")).values("nombre_eje", "total")
+        llantas_desgaste_irregular = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(punto_de_retiro__gt=F("max_profundidad")-F("min_profundidad")).annotate(nombre_eje=Case(When(llanta_eje="S", then=Value("direccion")),When(llanta_eje="D", then=Value("traccion")),When(llanta_eje="T", then=Value("arrastre")),When(llanta_eje="C", then=Value("loco")),When(llanta_eje="L", then=Value("retractil")), output_field=CharField())).values("nombre_eje").annotate(total=Count("nombre_eje")).values("nombre_eje", "total")
     llantas_desgaste_ejes = llantas_desgaste_irregular.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")), traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")), arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")), loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")), retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")))
     desgaste_ejes = {k: v for k, v in llantas_desgaste_ejes.items() if v != 0}
     return desgaste_ejes
 
 def desgaste_irregular_producto(llantas):
-    llantas_desgaste_irregular = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).values("numero_economico").filter(punto_de_retiro__lt=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).count()
+    llantas_desgaste_irregular = llantas.select_related("vehiculo__compania").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).values("numero_economico").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(punto_de_retiro__lt=F("max_profundidad")-F("min_profundidad")).count()
     resta = llantas.count() - llantas_desgaste_irregular
     try:
         porcentaje = round((resta / llantas.count()) * 100, 2)
@@ -385,36 +394,396 @@ def distribucion_cantidad(cpks):
 
 
 def doble_entrada(bitacoras):
-    bitacora = bitacoras.annotate(presiones_de_entrada=Cast(F("presion_de_entrada"), FloatField()) / Cast(F("presion_de_salida"), FloatField())).filter(presiones_de_entrada__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
+    bitacoras = bitacoras.order_by("id")
+    entradas = {}
+    dobles_entradas = []
+    for bitacora in bitacoras:
+        presion_de_entrada = bitacora.presion_de_entrada
+        presion_de_salida = bitacora.presion_de_salida
+        entrada_correcta = presion_de_entrada/presion_de_salida
+
+        if entrada_correcta < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+
+        if bitacora.numero_economico.id in entradas:
+            if entradas[bitacora.numero_economico.id] >= 2:
+                dobles_entradas.append(bitacora.id)
+
+    bitacora = bitacoras.filter(id__in=dobles_entradas).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
     meses = bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1),distinct=True), mes2=Count("mes",filter=Q(mes=2),distinct=True), mes3=Count("mes",filter=Q(mes=3),distinct=True), mes4=Count("mes",filter=Q(mes=4),distinct=True), mes5=Count("mes",filter=Q(mes=5),distinct=True), mes6=Count("mes",filter=Q(mes=6),distinct=True), mes7=Count("mes",filter=Q(mes=7),distinct=True), mes8=Count("mes",filter=Q(mes=8),distinct=True))
     bitacora = bitacora.values("numero_economico")
     return bitacora, meses
 
 def doble_entrada_pro(bitacoras):
-    bitacora = bitacoras.annotate(presiones_de_entrada1=Cast(F("presion_de_entrada_1"), FloatField()) / Cast(F("presion_de_salida_1"), FloatField())).filter(presiones_de_entrada1__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada2=Cast(F("presion_de_entrada_2"), FloatField()) / Cast(F("presion_de_salida_2"), FloatField())).filter(presiones_de_entrada2__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada3=Cast(F("presion_de_entrada_3"), FloatField()) / Cast(F("presion_de_salida_3"), FloatField())).filter(presiones_de_entrada3__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada4=Cast(F("presion_de_entrada_4"), FloatField()) / Cast(F("presion_de_salida_4"), FloatField())).filter(presiones_de_entrada4__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada5=Cast(F("presion_de_entrada_5"), FloatField()) / Cast(F("presion_de_salida_5"), FloatField())).filter(presiones_de_entrada5__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada6=Cast(F("presion_de_entrada_6"), FloatField()) / Cast(F("presion_de_salida_6"), FloatField())).filter(presiones_de_entrada6__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada7=Cast(F("presion_de_entrada_7"), FloatField()) / Cast(F("presion_de_salida_7"), FloatField())).filter(presiones_de_entrada7__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada8=Cast(F("presion_de_entrada_8"), FloatField()) / Cast(F("presion_de_salida_8"), FloatField())).filter(presiones_de_entrada8__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada9=Cast(F("presion_de_entrada_9"), FloatField()) / Cast(F("presion_de_salida_9"), FloatField())).filter(presiones_de_entrada9__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada10=Cast(F("presion_de_entrada_10"), FloatField()) / Cast(F("presion_de_salida_10"), FloatField())).filter(presiones_de_entrada10__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada11=Cast(F("presion_de_entrada_11"), FloatField()) / Cast(F("presion_de_salida_11"), FloatField())).filter(presiones_de_entrada11__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1) | bitacoras.annotate(presiones_de_entrada12=Cast(F("presion_de_entrada_12"), FloatField()) / Cast(F("presion_de_salida_12"), FloatField())).filter(presiones_de_entrada12__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
+    bitacoras = bitacoras.order_by("id")
+    entradas = {}
+    dobles_entradas = []
+    for bitacora in bitacoras:
+        presion_de_entrada_1 = bitacora.presion_de_entrada_1
+        presion_de_salida_1 = bitacora.presion_de_salida_1
+        try:
+            entrada_correcta_1 = presion_de_entrada_1/presion_de_salida_1
+        except:
+            entrada_correcta_1 = 0
+
+        presion_de_entrada_2 = bitacora.presion_de_entrada_2
+        presion_de_salida_2 = bitacora.presion_de_salida_2
+        try:
+            entrada_correcta_2 = presion_de_entrada_2/presion_de_salida_2
+        except:
+            entrada_correcta_2 = 0
+
+        presion_de_entrada_3 = bitacora.presion_de_entrada_3
+        presion_de_salida_3 = bitacora.presion_de_salida_3
+        try:
+            entrada_correcta_3 = presion_de_entrada_3/presion_de_salida_3
+        except:
+            entrada_correcta_3 = 0
+
+        presion_de_entrada_4 = bitacora.presion_de_entrada_4
+        presion_de_salida_4 = bitacora.presion_de_salida_4
+        try:
+            entrada_correcta_4 = presion_de_entrada_4/presion_de_salida_4
+        except:
+            entrada_correcta_4 = 0
+
+        presion_de_entrada_5 = bitacora.presion_de_entrada_5
+        presion_de_salida_5 = bitacora.presion_de_salida_5
+        try:
+            entrada_correcta_5 = presion_de_entrada_5/presion_de_salida_5
+        except:
+            entrada_correcta_5 = 0
+
+        presion_de_entrada_6 = bitacora.presion_de_entrada_6
+        presion_de_salida_6 = bitacora.presion_de_salida_6
+        try:
+            entrada_correcta_6 = presion_de_entrada_6/presion_de_salida_6
+        except:
+            entrada_correcta_6 = 0
+
+        presion_de_entrada_7 = bitacora.presion_de_entrada_7
+        presion_de_salida_7 = bitacora.presion_de_salida_7
+        try:
+            entrada_correcta_7 = presion_de_entrada_7/presion_de_salida_7
+        except:
+            entrada_correcta_7 = 0
+        
+        presion_de_entrada_8 = bitacora.presion_de_entrada_8
+        presion_de_salida_8 = bitacora.presion_de_salida_8
+        try:
+            entrada_correcta_8 = presion_de_entrada_8/presion_de_salida_8
+        except:
+            entrada_correcta_8 = 0
+
+        presion_de_entrada_9 = bitacora.presion_de_entrada_9
+        presion_de_salida_9 = bitacora.presion_de_salida_9
+        try:
+            entrada_correcta_9 = presion_de_entrada_9/presion_de_salida_9
+        except:
+            entrada_correcta_9 = 0
+
+        presion_de_entrada_10 = bitacora.presion_de_entrada_10
+        presion_de_salida_10 = bitacora.presion_de_salida_10
+        try:
+            entrada_correcta_10 = presion_de_entrada_10/presion_de_salida_10
+        except:
+            entrada_correcta_10 = 0
+
+        presion_de_entrada_11 = bitacora.presion_de_entrada_11
+        presion_de_salida_11 = bitacora.presion_de_salida_11
+        try:
+            entrada_correcta_11 = presion_de_entrada_11/presion_de_salida_11
+        except:
+            entrada_correcta_11 = 0
+
+        presion_de_entrada_12 = bitacora.presion_de_entrada_12
+        presion_de_salida_12 = bitacora.presion_de_salida_12
+        try:
+            entrada_correcta_12 = presion_de_entrada_12/presion_de_salida_12
+        except:
+            entrada_correcta_12 = 0
+
+
+        if entrada_correcta_1 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_2 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_3 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_4 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_5 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_6 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_7 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_8 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_9 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_10 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_11 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+        elif entrada_correcta_12 < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+
+        if bitacora.numero_economico.id in entradas:
+            if entradas[bitacora.numero_economico.id] >= 2:
+                dobles_entradas.append(bitacora.id)
+
+    bitacora = bitacoras.filter(id__in=dobles_entradas).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
     meses = bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1),distinct=True), mes2=Count("mes",filter=Q(mes=2),distinct=True), mes3=Count("mes",filter=Q(mes=3),distinct=True), mes4=Count("mes",filter=Q(mes=4),distinct=True), mes5=Count("mes",filter=Q(mes=5),distinct=True), mes6=Count("mes",filter=Q(mes=6),distinct=True), mes7=Count("mes",filter=Q(mes=7),distinct=True), mes8=Count("mes",filter=Q(mes=8),distinct=True))
     bitacora = bitacora.values("numero_economico")
     return bitacora, meses
 
 def doble_mala_entrada(bitacoras, vehiculos):
-    bitacora = bitacoras.annotate(presiones_de_entrada=Cast(F("presion_de_entrada"), FloatField()) / Cast(F("presion_de_salida"), FloatField())).filter(presiones_de_entrada__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico")
+    bitacoras = bitacoras.order_by("id")
+    entradas = {}
+    dobles_entradas = []
+    for bitacora in bitacoras:
+        presion_de_entrada = bitacora.presion_de_entrada
+        presion_de_salida = bitacora.presion_de_salida
+        entrada_correcta = presion_de_entrada/presion_de_salida
+
+        if entrada_correcta < 0.9:
+            if bitacora.numero_economico.id in entradas:
+                entradas[bitacora.numero_economico.id] += 1
+            else:
+                entradas[bitacora.numero_economico.id] = 1
+
+        if bitacora.numero_economico.id in entradas:
+            if entradas[bitacora.numero_economico.id] >= 2:
+                dobles_entradas.append(bitacora.id)
+
     try:
-        vehiculos = vehiculos.filter(id__in=bitacora)
+        vehiculos = vehiculos.filter(id__in=Bitacora.objects.filter(id__in=dobles_entradas).values("numero_economico"))
         return vehiculos
     except:
-        if bitacora.exists():
+        if len(entradas) >= 1:
             return vehiculos
-        return None
 
 def doble_mala_entrada_pro(bitacoras, vehiculos):
-    bitacora = bitacoras.annotate(presiones_de_entrada1=Cast(F("presion_de_entrada_1"), FloatField()) / Cast(F("presion_de_salida_1"), FloatField())).filter(presiones_de_entrada1__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada2=Cast(F("presion_de_entrada_2"), FloatField()) / Cast(F("presion_de_salida_2"), FloatField())).filter(presiones_de_entrada2__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada3=Cast(F("presion_de_entrada_3"), FloatField()) / Cast(F("presion_de_salida_3"), FloatField())).filter(presiones_de_entrada3__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada4=Cast(F("presion_de_entrada_4"), FloatField()) / Cast(F("presion_de_salida_4"), FloatField())).filter(presiones_de_entrada4__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada5=Cast(F("presion_de_entrada_5"), FloatField()) / Cast(F("presion_de_salida_5"), FloatField())).filter(presiones_de_entrada5__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada6=Cast(F("presion_de_entrada_6"), FloatField()) / Cast(F("presion_de_salida_6"), FloatField())).filter(presiones_de_entrada6__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada7=Cast(F("presion_de_entrada_7"), FloatField()) / Cast(F("presion_de_salida_7"), FloatField())).filter(presiones_de_entrada7__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada8=Cast(F("presion_de_entrada_8"), FloatField()) / Cast(F("presion_de_salida_8"), FloatField())).filter(presiones_de_entrada8__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada9=Cast(F("presion_de_entrada_9"), FloatField()) / Cast(F("presion_de_salida_9"), FloatField())).filter(presiones_de_entrada9__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada10=Cast(F("presion_de_entrada_10"), FloatField()) / Cast(F("presion_de_salida_10"), FloatField())).filter(presiones_de_entrada10__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada11=Cast(F("presion_de_entrada_11"), FloatField()) / Cast(F("presion_de_salida_11"), FloatField())).filter(presiones_de_entrada11__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico") | bitacoras.annotate(presiones_de_entrada12=Cast(F("presion_de_entrada_12"), FloatField()) / Cast(F("presion_de_salida_12"), FloatField())).filter(presiones_de_entrada12__lte=0.9).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(count=Count("numero_economico")).filter(count__gt=1).values("numero_economico")
+    bitacoras = bitacoras.order_by("id")
+    entradas = {}
+    dobles_entradas = []
+    for bitacora in bitacoras:
+        presion_de_entrada_1 = bitacora.presion_de_entrada_1
+        presion_de_salida_1 = bitacora.presion_de_salida_1
+        try:
+            entrada_correcta_1 = presion_de_entrada_1/presion_de_salida_1
+        except:
+            entrada_correcta_1 = 0
+
+        presion_de_entrada_2 = bitacora.presion_de_entrada_2
+        presion_de_salida_2 = bitacora.presion_de_salida_2
+        try:
+            entrada_correcta_2 = presion_de_entrada_2/presion_de_salida_2
+        except:
+            entrada_correcta_2 = 0
+
+        presion_de_entrada_3 = bitacora.presion_de_entrada_3
+        presion_de_salida_3 = bitacora.presion_de_salida_3
+        try:
+            entrada_correcta_3 = presion_de_entrada_3/presion_de_salida_3
+        except:
+            entrada_correcta_3 = 0
+
+        presion_de_entrada_4 = bitacora.presion_de_entrada_4
+        presion_de_salida_4 = bitacora.presion_de_salida_4
+        try:
+            entrada_correcta_4 = presion_de_entrada_4/presion_de_salida_4
+        except:
+            entrada_correcta_4 = 0
+
+        presion_de_entrada_5 = bitacora.presion_de_entrada_5
+        presion_de_salida_5 = bitacora.presion_de_salida_5
+        try:
+            entrada_correcta_5 = presion_de_entrada_5/presion_de_salida_5
+        except:
+            entrada_correcta_5 = 0
+
+        presion_de_entrada_6 = bitacora.presion_de_entrada_6
+        presion_de_salida_6 = bitacora.presion_de_salida_6
+        try:
+            entrada_correcta_6 = presion_de_entrada_6/presion_de_salida_6
+        except:
+            entrada_correcta_6 = 0
+
+        presion_de_entrada_7 = bitacora.presion_de_entrada_7
+        presion_de_salida_7 = bitacora.presion_de_salida_7
+        try:
+            entrada_correcta_7 = presion_de_entrada_7/presion_de_salida_7
+        except:
+            entrada_correcta_7 = 0
+        
+        presion_de_entrada_8 = bitacora.presion_de_entrada_8
+        presion_de_salida_8 = bitacora.presion_de_salida_8
+        try:
+            entrada_correcta_8 = presion_de_entrada_8/presion_de_salida_8
+        except:
+            entrada_correcta_8 = 0
+
+        presion_de_entrada_9 = bitacora.presion_de_entrada_9
+        presion_de_salida_9 = bitacora.presion_de_salida_9
+        try:
+            entrada_correcta_9 = presion_de_entrada_9/presion_de_salida_9
+        except:
+            entrada_correcta_9 = 0
+
+        presion_de_entrada_10 = bitacora.presion_de_entrada_10
+        presion_de_salida_10 = bitacora.presion_de_salida_10
+        try:
+            entrada_correcta_10 = presion_de_entrada_10/presion_de_salida_10
+        except:
+            entrada_correcta_10 = 0
+
+        presion_de_entrada_11 = bitacora.presion_de_entrada_11
+        presion_de_salida_11 = bitacora.presion_de_salida_11
+        try:
+            entrada_correcta_11 = presion_de_entrada_11/presion_de_salida_11
+        except:
+            entrada_correcta_11 = 0
+
+        presion_de_entrada_12 = bitacora.presion_de_entrada_12
+        presion_de_salida_12 = bitacora.presion_de_salida_12
+        try:
+            entrada_correcta_12 = presion_de_entrada_12/presion_de_salida_12
+        except:
+            entrada_correcta_12 = 0
+
+        if 0 < entrada_correcta_1 < 0.9:
+            if (bitacora.numero_economico.id, 1) in entradas:
+                entradas[bitacora.numero_economico.id, 1] += 1
+                if entradas[bitacora.numero_economico.id, 1] >= 2:
+                    dobles_entradas.append([bitacora.id, 1])
+            else:
+                entradas[(bitacora.numero_economico.id, 1)] = 1
+        if 0 < entrada_correcta_2 < 0.9:
+            if (bitacora.numero_economico.id, 2) in entradas:
+                entradas[bitacora.numero_economico.id, 2]+= 1
+                if entradas[bitacora.numero_economico.id, 2] >= 2:
+                    dobles_entradas.append([bitacora.id, 2])
+            else:
+                entradas[bitacora.numero_economico.id, 2]= 1
+        if 0 < entrada_correcta_3 < 0.9:
+            if (bitacora.numero_economico.id, 3) in entradas:
+                entradas[bitacora.numero_economico.id, 3]+= 1
+                if entradas[bitacora.numero_economico.id, 3] >= 2:
+                    dobles_entradas.append([bitacora.id, 3])
+            else:
+                entradas[bitacora.numero_economico.id, 3]= 1
+        if 0 < entrada_correcta_4 < 0.9:
+            if (bitacora.numero_economico.id, 4) in entradas:
+                entradas[bitacora.numero_economico.id, 4]+= 1
+                if entradas[bitacora.numero_economico.id, 4] >= 2:
+                    dobles_entradas.append([bitacora.id, 4])
+            else:
+                entradas[bitacora.numero_economico.id, 4]= 1
+        if 0 < entrada_correcta_5 < 0.9:
+            if (bitacora.numero_economico.id, 5) in entradas:
+                entradas[bitacora.numero_economico.id, 5]+= 1
+                if entradas[bitacora.numero_economico.id, 5] >= 2:
+                    dobles_entradas.append([bitacora.id, 5])
+            else:
+                entradas[bitacora.numero_economico.id, 5]= 1
+        if 0 < entrada_correcta_6 < 0.9:
+            if (bitacora.numero_economico.id, 6) in entradas:
+                entradas[bitacora.numero_economico.id, 6]+= 1
+                if entradas[bitacora.numero_economico.id, 6] >= 2:
+                    dobles_entradas.append([bitacora.id, 6])
+            else:
+                entradas[bitacora.numero_economico.id, 6]= 1
+        if 0 < entrada_correcta_7 < 0.9:
+            if (bitacora.numero_economico.id, 7) in entradas:
+                entradas[bitacora.numero_economico.id, 7]+= 1
+                if entradas[bitacora.numero_economico.id, 7] >= 2:
+                    dobles_entradas.append([bitacora.id, 7])
+            else:
+                entradas[bitacora.numero_economico.id, 7]= 1
+        if 0 < entrada_correcta_8 < 0.9:
+            if (bitacora.numero_economico.id, 8) in entradas:
+                entradas[bitacora.numero_economico.id, 8]+= 1
+                if entradas[bitacora.numero_economico.id, 8] >= 2:
+                    dobles_entradas.append([bitacora.id, 8])
+            else:
+                entradas[bitacora.numero_economico.id, 8]= 1
+        if 0 < entrada_correcta_9 < 0.9:
+            if (bitacora.numero_economico.id, 9) in entradas:
+                entradas[bitacora.numero_economico.id, 9]+= 1
+                if entradas[bitacora.numero_economico.id, 9] >= 2:
+                    dobles_entradas.append([bitacora.id, 9])
+            else:
+                entradas[bitacora.numero_economico.id, 9]= 1
+        if 0 < entrada_correcta_10 < 0.9:
+            if (bitacora.numero_economico.id, 10) in entradas:
+                entradas[bitacora.numero_economico.id, 10]+= 1
+                if entradas[bitacora.numero_economico.id, 10] >= 2:
+                    dobles_entradas.append([bitacora.id, 10])
+            else:
+                entradas[bitacora.numero_economico.id, 10]= 1
+        if 0 < entrada_correcta_11 < 0.9:
+            if (bitacora.numero_economico.id, 11) in entradas:
+                entradas[bitacora.numero_economico.id, 11] += 1
+                if entradas[bitacora.numero_economico.id, 11] >= 2:
+                    dobles_entradas.append([bitacora.id, 11])
+            else:
+                entradas[bitacora.numero_economico.id, 11] = 1
+        if 0 < entrada_correcta_12 < 0.9:
+            if (bitacora.numero_economico.id, 12) in entradas:
+                entradas[bitacora.numero_economico.id, 12] += 1
+                if entradas[bitacora.numero_economico.id, 12] >= 2:
+                    dobles_entradas.append([bitacora.id, 12])
+            else:
+                entradas[bitacora.numero_economico.id, 12] = 1
     try:
-        vehiculos = vehiculos.filter(id__in=bitacora)
+        vehiculos = vehiculos.filter(id__in=Bitacora_Pro.objects.filter(id__in=dobles_entradas[0]).values("numero_economico"))
         return vehiculos
     except:
-        if bitacora.exists():
+        if dobles_entradas:
+            return dobles_entradas
+        if len(entradas) >= 1:
             return vehiculos
-        return None
 
 def duales(llantas):
     dual = llantas.values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), llanta_1=Max("numero_economico"), llanta_2=Min("numero_economico")).filter(numero_economico__count=2)
@@ -427,7 +796,7 @@ def duales(llantas):
     return llantas_dual_1, llantas_dual_2, llantas_dictionary
 
 def embudo_vidas(llantas):
-    llantas_abajo_del_punto = llantas.select_related("vehiculo__compania", "vehiculo__ubicacion").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"))
+    llantas_abajo_del_punto = llantas.select_related("vehiculo__compania", "vehiculo__ubicacion").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro"))
     llantas_vida = llantas_abajo_del_punto.aggregate(nueva=Count("vida",filter=Q(vida="Nueva")), r1=Count("vida",filter=Q(vida="1R")), r2=Count("vida",filter=Q(vida="2R")), r3=Count("vida",filter=Q(vida="3R")), r4=Count("vida",filter=Q(vida="4R")), r5=Count("vida",filter=Q(vida="5R")), total=Count("vida"))
     renovado = llantas_abajo_del_punto.annotate(renovado1=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_nueva"),FloatField()) * Cast(llantas_vida["nueva"],FloatField()) / 100), renovado2=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_primera"),FloatField()) * Cast(llantas_vida["r1"],FloatField()) / 100), renovado3=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_segunda"),FloatField()) * Cast(llantas_vida["r2"],FloatField()) / 100), renovado4=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_tercera"),FloatField()) * Cast(llantas_vida["r3"],FloatField()) / 100), renovado5=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_cuarta"),FloatField()) * Cast(llantas_vida["r4"],FloatField()) / 100)).annotate(renovadonuevo=llantas_vida["total"]-F("renovado1")-F("renovado2")-F("renovado3")-F("renovado4")-F("renovado5")).values("renovadonuevo", "renovado1", "renovado2", "renovado3", "renovado4", "renovado5").distinct()
     if not(llantas_abajo_del_punto):
@@ -439,7 +808,7 @@ def embudo_vidas(llantas):
 
 def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
     vehiculos_sospechosos = []
-    """triplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=2)
+    triplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=2)
     regresion = inspecciones.select_related("llanta__vehiculo").annotate(poli=Case(When(llanta__in=triplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
     llantas = regresion.values("llanta").distinct()
     for llanta in llantas:
@@ -473,7 +842,7 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
             dias_60 = resta - diario * 60
             dias_90 = resta - diario * 90
             
-            #vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()"""
+            vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__lte=2, count__gt=0)
     sin_regresion = inspecciones.select_related("llanta__vehiculo__compania").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
     llantas = sin_regresion.values("llanta").distinct()
@@ -491,18 +860,20 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
         dias = abs(fechas["ultima_fecha"] - fechas["primera_fecha"]).days
         if dias == 0:
             dias = 1
-        #print(dias)
-        resta = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first().min_profundidad - sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad
-        #print(resta)
+
+        resta = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first()) - min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last())
         diario = resta/dias
         #print(diario)
-        dias_30 = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 30)
-        dias_60 = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 60)
-        dias_90 = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 90)
+        dias_30 = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last()) - (diario * 30)
+        dias_60 = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last()) - (diario * 60)
+        dias_90 = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last()) - (diario * 90)
+        print("llanta", l.numero_economico)
+        print("dias", dias)
+        print("diario", diario)
+        print("dias_30", dias_30)
+        print("dias_60", dias_60)
+        print("dias_90", dias_90)
 
-        #print("dias_30: ", dias_30)
-        #print("dias_60: ", dias_60)
-        #print("dias_90: ", dias_90)
         """print("llanta", llanta["llanta"])
         print("resta", resta)
         print("dias_30", dias_30)
@@ -569,15 +940,23 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
 def entrada_correcta(vehiculos):
     try:
         entradas = {}
-        for vehiculo in vehiculos:
-            presion_encontrada = vehiculo.presion_de_entrada
-            presion_establecida = vehiculo.presion_de_salida
-            entrada_correcta = presion_encontrada/presion_establecida
+        loop_entradas = 0
+        bitacoras = vehiculos.order_by("id")
+        for bitacora in bitacoras:
+            presion_de_entrada = bitacora.presion_de_entrada
+            presion_de_salida = bitacora.presion_de_salida
+            entrada_correcta = presion_de_entrada/presion_de_salida
 
             if entrada_correcta >= 0.9:
-                entradas[vehiculo.id] = True
+                loop_entradas = 0
+                entradas[bitacora.id] = True
             else:
-                entradas[vehiculo.id] = False
+                loop_entradas += 1
+                if loop_entradas == 2:
+                    entradas[bitacora.id] = "Doble"            
+                else:
+                    entradas[bitacora.id] = False
+
         return entradas
     except:
         try:
@@ -596,81 +975,108 @@ def entrada_correcta(vehiculos):
 def entrada_correcta_pro(vehiculos):
     try:
         entradas = {}
-        for vehiculo in vehiculos:
-            configuracion = vehiculo.numero_economico.configuracion
+        loop_entradas = 0
+        bitacoras = vehiculos.order_by("id")
+        for bitacora in bitacoras:
+            entradas[bitacora.id] = True
+            configuracion = bitacora.numero_economico.configuracion
             llantas = cantidad_llantas(configuracion)
             if llantas >= 2:                    
-                presion_encontrada_1 = vehiculo.presion_de_entrada_1
-                presion_establecida_1 = vehiculo.presion_de_salida_1
+                presion_encontrada_1 = bitacora.presion_de_entrada_1
+                presion_establecida_1 = bitacora.presion_de_salida_1
                 entrada_correcta_1 = presion_encontrada_1/presion_establecida_1
-                presion_encontrada_2 = vehiculo.presion_de_entrada_2
-                presion_establecida_2 = vehiculo.presion_de_salida_2
+                presion_encontrada_2 = bitacora.presion_de_entrada_2
+                presion_establecida_2 = bitacora.presion_de_salida_2
                 entrada_correcta_2 = presion_encontrada_2/presion_establecida_2
                 if llantas >= 4:                    
-                    presion_encontrada_3 = vehiculo.presion_de_entrada_3
-                    presion_establecida_3 = vehiculo.presion_de_salida_3
+                    presion_encontrada_3 = bitacora.presion_de_entrada_3
+                    presion_establecida_3 = bitacora.presion_de_salida_3
                     entrada_correcta_3 = presion_encontrada_3/presion_establecida_3
-                    presion_encontrada_4 = vehiculo.presion_de_entrada_4
-                    presion_establecida_4 = vehiculo.presion_de_salida_4
+                    presion_encontrada_4 = bitacora.presion_de_entrada_4
+                    presion_establecida_4 = bitacora.presion_de_salida_4
                     entrada_correcta_4 = presion_encontrada_4/presion_establecida_4
                     if llantas >= 6:      
-                        presion_encontrada_5 = vehiculo.presion_de_entrada_5
-                        presion_establecida_5 = vehiculo.presion_de_salida_5
+                        presion_encontrada_5 = bitacora.presion_de_entrada_5
+                        presion_establecida_5 = bitacora.presion_de_salida_5
                         entrada_correcta_5 = presion_encontrada_5/presion_establecida_5
-                        presion_encontrada_6 = vehiculo.presion_de_entrada_6
-                        presion_establecida_6 = vehiculo.presion_de_salida_6
+                        presion_encontrada_6 = bitacora.presion_de_entrada_6
+                        presion_establecida_6 = bitacora.presion_de_salida_6
                         entrada_correcta_6 = presion_encontrada_6/presion_establecida_6
                         if llantas >= 8:
-                            presion_encontrada_7 = vehiculo.presion_de_entrada_7
-                            presion_establecida_7 = vehiculo.presion_de_salida_7
+                            presion_encontrada_7 = bitacora.presion_de_entrada_7
+                            presion_establecida_7 = bitacora.presion_de_salida_7
                             entrada_correcta_7 = presion_encontrada_7/presion_establecida_7
-                            presion_encontrada_8 = vehiculo.presion_de_entrada_8
-                            presion_establecida_8 = vehiculo.presion_de_salida_8
+                            presion_encontrada_8 = bitacora.presion_de_entrada_8
+                            presion_establecida_8 = bitacora.presion_de_salida_8
                             entrada_correcta_8 = presion_encontrada_8/presion_establecida_8
                             if llantas >= 10:
-                                presion_encontrada_9 = vehiculo.presion_de_entrada_9
-                                presion_establecida_9 = vehiculo.presion_de_salida_9
+                                presion_encontrada_9 = bitacora.presion_de_entrada_9
+                                presion_establecida_9 = bitacora.presion_de_salida_9
                                 entrada_correcta_9 = presion_encontrada_9/presion_establecida_9
-                                presion_encontrada_10 = vehiculo.presion_de_entrada_10
-                                presion_establecida_10 = vehiculo.presion_de_salida_10
+                                presion_encontrada_10 = bitacora.presion_de_entrada_10
+                                presion_establecida_10 = bitacora.presion_de_salida_10
                                 entrada_correcta_10 = presion_encontrada_10/presion_establecida_10
                                 if llantas >= 12:
-                                    presion_encontrada_11 = vehiculo.presion_de_entrada_11
-                                    presion_establecida_11 = vehiculo.presion_de_salida_11
+                                    presion_encontrada_11 = bitacora.presion_de_entrada_11
+                                    presion_establecida_11 = bitacora.presion_de_salida_11
                                     entrada_correcta_11 = presion_encontrada_11/presion_establecida_11
-                                    presion_encontrada_12 = vehiculo.presion_de_entrada_12
-                                    presion_establecida_12 = vehiculo.presion_de_salida_12
+                                    presion_encontrada_12 = bitacora.presion_de_entrada_12
+                                    presion_establecida_12 = bitacora.presion_de_salida_12
                                     entrada_correcta_12 = presion_encontrada_12/presion_establecida_12
             if llantas >= 12:
                 if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9 or entrada_correcta_9 >= 0.9 or entrada_correcta_10 >= 0.9 or entrada_correcta_11 >= 0.9 or entrada_correcta_12 >= 0.9:
-                    entradas[vehiculo.id] = True
+                    loop_entradas = 0
                 else:
-                    entradas[vehiculo.id] = False
+                    loop_entradas += 1
+                    if loop_entradas == 2:
+                        entradas[bitacora.id] = "Doble"            
+                    else:
+                        entradas[bitacora.id] = False
             elif llantas >= 10:
                 if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9 or entrada_correcta_9 >= 0.9 or entrada_correcta_10 >= 0.9:
-                    entradas[vehiculo.id] = True
+                    loop_entradas = 0
                 else:
-                    entradas[vehiculo.id] = False
+                    loop_entradas += 1
+                    if loop_entradas == 2:
+                        entradas[bitacora.id] = "Doble"            
+                    else:
+                        entradas[bitacora.id] = False
             elif llantas >= 8:
                 if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9:
-                    entradas[vehiculo.id] = True
+                    loop_entradas = 0
                 else:
-                    entradas[vehiculo.id] = False
+                    loop_entradas += 1
+                    if loop_entradas == 2:
+                        entradas[bitacora.id] = "Doble"            
+                    else:
+                        entradas[bitacora.id] = False
             elif llantas >= 6:
                 if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9:
-                    entradas[vehiculo.id] = True
+                    loop_entradas = 0
                 else:
-                    entradas[vehiculo.id] = False
+                    loop_entradas += 1
+                    if loop_entradas == 2:
+                        entradas[bitacora.id] = "Doble"            
+                    else:
+                        entradas[bitacora.id] = False
             elif llantas >= 4:
                 if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9:
-                    entradas[vehiculo.id] = True
+                    loop_entradas = 0
                 else:
-                    entradas[vehiculo.id] = False
+                    loop_entradas += 1
+                    if loop_entradas == 2:
+                        entradas[bitacora.id] = "Doble"            
+                    else:
+                        entradas[bitacora.id] = False
             elif llantas >= 2:
                 if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9:
-                    entradas[vehiculo.id] = True
+                    loop_entradas = 0
                 else:
-                    entradas[vehiculo.id] = False
+                    loop_entradas += 1
+                    if loop_entradas == 2:
+                        entradas[bitacora.id] = "Doble"            
+                    else:
+                        entradas[bitacora.id] = False
         return entradas
     except:
         try:
@@ -688,15 +1094,83 @@ def entrada_correcta_pro(vehiculos):
 
 def entrada_correcta_actual(vehiculo):
     try:
-        presion_actual = vehiculo.presion_de_salida
-        presion_establecida = vehiculo.presion_establecida
-        entrada_correcta = presion_actual/presion_establecida
+        if vehiculo.ultima_bitacora_pro:
+            fecha_1 = vehiculo.fecha_de_inflado
+            fecha_2 = vehiculo.ultima_bitacora_pro.fecha_de_inflado
+            if fecha_1 > fecha_2:
+                presion_de_entrada = vehiculo.presion_de_entrada
+                presion_de_salida = vehiculo.presion_de_salida
+                entrada_correcta = presion_de_entrada/presion_de_salida
+                if entrada_correcta >= 0.9:
+                    entradas = "good"
+                else:
+                    entradas = "bad"
+                return entradas
+            else:
+                presion_de_entrada_1 = vehiculo.ultima_bitacora_pro.presion_de_entrada_1
+                presion_de_salida_1 = vehiculo.ultima_bitacora_pro.presion_de_salida_1
+                entrada_correcta_1 = presion_de_entrada_1/presion_de_salida_1
+                presion_de_entrada_2 = vehiculo.ultima_bitacora_pro.presion_de_entrada_2
+                presion_de_salida_2 = vehiculo.ultima_bitacora_pro.presion_de_salida_2
+                entrada_correcta_2 = presion_de_entrada_2/presion_de_salida_2
+                presion_de_entrada_3 = vehiculo.ultima_bitacora_pro.presion_de_entrada_3
+                presion_de_salida_3 = vehiculo.ultima_bitacora_pro.presion_de_salida_3
+                entrada_correcta_3 = presion_de_entrada_3/presion_de_salida_3
+                presion_de_entrada_4 = vehiculo.ultima_bitacora_pro.presion_de_entrada_4
+                presion_de_salida_4 = vehiculo.ultima_bitacora_pro.presion_de_salida_4
+                entrada_correcta_4 = presion_de_entrada_4/presion_de_salida_4
+                presion_de_entrada_5 = vehiculo.ultima_bitacora_pro.presion_de_entrada_5
+                presion_de_salida_5 = vehiculo.ultima_bitacora_pro.presion_de_salida_5
+                entrada_correcta_5 = presion_de_entrada_5/presion_de_salida_5
+                presion_de_entrada_6 = vehiculo.ultima_bitacora_pro.presion_de_entrada_6
+                presion_de_salida_6 = vehiculo.ultima_bitacora_pro.presion_de_salida_6
+                entrada_correcta_6 = presion_de_entrada_6/presion_de_salida_6
+                presion_de_entrada_7 = vehiculo.ultima_bitacora_pro.presion_de_entrada_7
+                presion_de_salida_7 = vehiculo.ultima_bitacora_pro.presion_de_salida_7
+                entrada_correcta_7 = presion_de_entrada_7/presion_de_salida_7
+                presion_de_entrada_8 = vehiculo.ultima_bitacora_pro.presion_de_entrada_8
+                presion_de_salida_8 = vehiculo.ultima_bitacora_pro.presion_de_salida_8
+                entrada_correcta_8 = presion_de_entrada_8/presion_de_salida_8
+                presion_de_entrada_9 = vehiculo.ultima_bitacora_pro.presion_de_entrada_9
+                presion_de_salida_9 = vehiculo.ultima_bitacora_pro.presion_de_salida_9
+                entrada_correcta_9 = presion_de_entrada_9/presion_de_salida_9
+                presion_de_entrada_10 = vehiculo.ultima_bitacora_pro.presion_de_entrada_10
+                presion_de_salida_10 = vehiculo.ultima_bitacora_pro.presion_de_salida_10
+                entrada_correcta_10 = presion_de_entrada_10/presion_de_salida_10
+                presion_de_entrada_11 = vehiculo.ultima_bitacora_pro.presion_de_entrada_11
+                presion_de_salida_11 = vehiculo.ultima_bitacora_pro.presion_de_salida_11
+                entrada_correcta_11 = presion_de_entrada_11/presion_de_salida_11
+                presion_de_entrada_12 = vehiculo.ultima_bitacora_pro.presion_de_entrada_12
+                presion_de_salida_12 = vehiculo.ultima_bitacora_pro.presion_de_salida_12
+                entrada_correcta_12 = presion_de_entrada_12/presion_de_salida_12
+                if entrada_correcta_1 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_2 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_3 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_4 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_5 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_6 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_7 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_8 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_9 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_10 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_11 < 0.9:
+                    entradas = "bad"
+                elif entrada_correcta_12 < 0.9:
+                    entradas = "bad"
+                else:
+                    entradas = "good"
+                return entradas
 
-        if entrada_correcta >= 0.9:
-            entradas = "good"
-        else:
-            entradas = "bad"
-        return entradas
     except:
         return None
 
@@ -708,9 +1182,26 @@ def estatus_profundidad(llantas):
 def inflado_promedio(vehiculo):
     tiempo_promedio = 0
     promedio_contar = 0
-    for tiempo in vehiculo:
+    try:
+        for tiempo in vehiculo:
+            try:
+                tiempo_promedio += tiempo.tiempo_de_inflado
+                promedio_contar +=1
+            except:
+                pass
+    except:
         try:
-            tiempo_promedio += tiempo.tiempo_de_inflado
+            tiempo_promedio += vehiculo.tiempo_de_inflado
+            promedio_contar +=1
+        except:
+            pass
+    try:
+        for tiempo in vehiculo:
+            tiempo_promedio += tiempo.ultima_bitacora_pro.tiempo_de_inflado
+            promedio_contar +=1
+    except:
+        try:
+            tiempo_promedio += vehiculo.ultima_bitacora_pro.tiempo_de_inflado
             promedio_contar +=1
         except:
             pass
@@ -747,6 +1238,15 @@ def juntar_bitacoras(vehiculos, bitacora, bitacora_pro):
         else:
             print(False)
 
+def km_actual_llanta(llantas):
+    for llanta in llantas:
+        if llanta.km_montado:
+            km_actual = llanta.vehiculo.km - llanta.km_montado
+            llanta.km_actual = km_actual
+            llanta.save()
+        else:
+            llanta.km_actual = None
+            llanta.save()
 
 def km_proyectado(inspecciones, mediana):
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
@@ -764,11 +1264,11 @@ def km_proyectado(inspecciones, mediana):
             y = []
             x.append(llanta_completa.km_montado)
             y.append(llanta_completa.producto.profundidad_inicial)
-            km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km")
+            km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km_vehiculo")
             for r in km_llanta:
-                suma = abs(r["km"] + llanta_completa.km_montado)
+                suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
                 y.append(suma)
-            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+            profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
             for p in profundidades:
                 x.append(p["min_profundidad"])
             
@@ -795,8 +1295,8 @@ def km_proyectado(inspecciones, mediana):
                 cpks.append(cpk)
                 min_profundidades.append(profundidades[1:][0]["min_profundidad"])
         else:
-            valores_llanta = regresion.filter(llanta=llanta["llanta"]).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km")-Min("km"), min_mm=Min("min_profundidad"))
-            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+            valores_llanta = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km_vehiculo")-Min("km_vehiculo"), min_mm=Min("min_profundidad"))
+            profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
             mm_desgastados = valores_llanta["max_mm"] - valores_llanta["min_mm"]
             if mm_desgastados == 0:
                 mm_desgastados = 1
@@ -878,9 +1378,9 @@ def km_proyectado_llanta(inspecciones):
             y = []
             x.append(llanta_completa.km_montado)
             y.append(llanta_completa.producto.profundidad_inicial)
-            km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km")
+            km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km_vehiculo")
             for r in km_llanta:
-                suma = abs(r["km"] + llanta_completa.km_montado)
+                suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
                 y.append(suma)
             profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
             for p in profundidades:
@@ -1000,9 +1500,50 @@ def mala_entrada_ejes(llantas, periodo):
     print(mala_entrada_ejes)
     return mala_entrada_ejes
 
+def max_profundidad(llanta):
+    profundidad_derecha = llanta.profundidad_derecha
+    profundidad_central = llanta.profundidad_central
+    profundidad_izquierda = llanta.profundidad_izquierda
+    profundidades = []
+    
+    if profundidad_izquierda != None:
+        profundidades.append(profundidad_izquierda)
+        
+    if profundidad_central != None:
+        profundidades.append(profundidad_central)
+    if profundidad_derecha != None:
+        
+        profundidades.append(profundidad_derecha)
+    
+    if len(profundidades) >= 1:
+        return(max(profundidades))
+    else:
+        return 0
+
 def mes_anterior(fecha):
     primer_dia = fecha.replace(day=1)
     return primer_dia - timedelta(days=1)
+
+def min_profundidad(llanta):
+    profundidad_derecha = llanta.profundidad_derecha
+    profundidad_central = llanta.profundidad_central
+    profundidad_izquierda = llanta.profundidad_izquierda
+    profundidades = []
+    
+    if profundidad_izquierda != None:
+        profundidades.append(profundidad_izquierda)
+        
+    if profundidad_central != None:
+        profundidades.append(profundidad_central)
+        
+    if profundidad_derecha != None:
+        profundidades.append(profundidad_derecha)
+    
+    if len(profundidades) >= 1:
+        return(min(profundidades))
+    else:
+        return 0
+
 
 def nunca_vistos(vehiculos):
     nunca_visto = vehiculos.filter(ultima_inspeccion__fecha_hora__isnull=True).count()
@@ -1089,14 +1630,12 @@ def reduce(func, items):
     return result
 
 def reemplazo_actual(llantas):
-    reemplazo_actual_llantas = llantas.select_related("ultima_inspeccion").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"))
-    print("reemplazo_actual_llantas", reemplazo_actual_llantas)
+    reemplazo_actual_llantas = llantas.annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro"))
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
-    print("reemplazo_actual_ejes", reemplazo_actual_ejes)
     return reemplazo_actual_llantas, reemplazo_actual_ejes
 
 def reemplazo_actual2(llantas):
-    reemplazo_actual_llantas = llantas.select_related("ultima_inspeccion").annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"))
+    reemplazo_actual_llantas = llantas.annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro"))
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")))
     return reemplazo_actual_ejes
 
@@ -1153,7 +1692,7 @@ def sacar_eje(posicion, vehiculo):
 def salida_correcta(vehiculos):
     try:
         presion_de_salida = vehiculos.presion_de_salida
-        presion_establecida = vehiculos.presion_establecida
+        presion_establecida = vehiculos.numero_economico.presion_establecida_1
         entrada_correcta = presion_de_salida/presion_establecida
 
         if entrada_correcta >= 0.9:
@@ -1174,14 +1713,14 @@ def vehiculo_amarillo(llantas):
     vehiculos_amarillos = []
     try:
         # Desgaste irregular
-        llantas_desgaste = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(resta=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).filter(resta__gt=3).values("vehiculo").distinct()
+        llantas_desgaste = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).annotate(resta=F("max_profundidad")-F("min_profundidad")).filter(resta__gt=3).values("vehiculo").distinct()
 
         # Arriba del punto de retiro
-        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") + 1).values("vehiculo").distinct()
+        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") + 1).values("vehiculo").distinct()
         vehiculos_amarillos = llantas_desgaste.union(llantas_retiro)
         
         # Desdualización
-        dual = llantas.select_related("ultima_inspeccion", "vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("vehiculo").distinct()
+        dual = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("min_profundidad") - Min("min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("vehiculo").distinct()
         vehiculos_amarillos = vehiculos_amarillos.union(dual)
         return vehiculos_amarillos
     except:
@@ -1191,14 +1730,14 @@ def vehiculo_amarillo_llanta(llantas):
     llantas_amarillas = []
     try:
         # Desgaste irregular
-        llantas_desgaste = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(resta=F("ultima_inspeccion__max_profundidad")-F("ultima_inspeccion__min_profundidad")).filter(resta__gt=3).values("numero_economico").distinct()
+        llantas_desgaste = llantas.select_related("vehiculo").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).annotate(resta=F("max_profundidad")-F("min_profundidad")).filter(resta__gt=3).values("numero_economico").distinct()
 
         # Arriba del punto de retiro
-        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") + 1).values("numero_economico").distinct()
+        llantas_retiro = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") + 1).values("numero_economico").distinct()
         llantas_amarillas = llantas_desgaste.union(llantas_retiro)
         
         # Desdualización
-        dual = llantas.select_related("ultima_inspeccion", "vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("numero_economico").distinct()
+        dual = llantas.select_related("vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("numero_economico").distinct()
         llantas_amarillas = llantas_amarillas.union(dual)
         return llantas_amarillas
     except:
@@ -1223,13 +1762,14 @@ def vehiculos_por_clase_sin_inspeccionar(vehiculos, hoy1, hoy2, hoy3):
     return vehiculos_clase
 
 def vehiculo_rojo(llantas, doble_entrada, vehiculo):
-    llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") - 1).values("vehiculo").distinct()
+    llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") - 1).values("min_profundidad").distinct()
     vehiculos = vehiculo.filter(id__in=llantas)
     union = vehiculos | doble_entrada
     return union
 
 def vehiculo_rojo_llanta(llantas):
-    llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).filter(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro") - 1).values("numero_economico").distinct()
+    llantas = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") - 1).values("numero_economico").distinct()
+    print(llantas)
     return llantas
 
 def vehiculo_sospechoso(inspecciones):
@@ -1245,7 +1785,7 @@ def vehiculo_sospechoso(inspecciones):
         for r in fecha_llanta:
             resta = abs(r["fecha_hora"] - primera_fecha["primera_fecha"]).days
             x.append(resta)
-        profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
         for p in profundidades:
             y.append(p["min_profundidad"])
         
@@ -1268,7 +1808,7 @@ def vehiculo_sospechoso(inspecciones):
             prediccion = diario*diferencia_dias
             desgaste_normal = prediccion*2.5
             try:
-                vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+                vehiculos_sospechosos = regresion.annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
             except:
                 pass
     # En un futuro poner el parámetro sospechoso para cuando es 1 inspección
@@ -1285,11 +1825,11 @@ def vehiculo_sospechoso(inspecciones):
         dias = abs(fechas["ultima_fecha"] - fechas["primera_fecha"]).days
         #print("llanta: ", Llanta.objects.get(id=llanta["llanta"]))
         #print("dias: ", dias)
-        primera_profundidad = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first().min_profundidad
-        ultima_profundidad = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad
+        primera_profundidad = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first())
+        ultima_profundidad = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last())
         #print("primera_profundidad: ", primera_profundidad)
         #print("ultima_profundidad: ", ultima_profundidad)
-        vehiculo = sin_regresion.filter(llanta=llanta["llanta"]).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta__vehiculo").distinct()
+        vehiculo = sin_regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta__vehiculo").distinct()
         if vehiculo:
             if not(vehiculo[0]["llanta__vehiculo"] in vehiculos_lista):
                 if vehiculos_sospechosos_iteracion:
@@ -1314,7 +1854,7 @@ def vehiculo_sospechoso_llanta(inspecciones):
         for r in fecha_llanta:
             resta = abs(r["fecha_hora"] - primera_fecha["primera_fecha"]).days
             x.append(resta)
-        profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
         for p in profundidades:
             y.append(p["min_profundidad"])
         
@@ -1336,7 +1876,10 @@ def vehiculo_sospechoso_llanta(inspecciones):
             diferencia_dias = dia-x[-2]
             prediccion = diario*diferencia_dias
             desgaste_normal = prediccion*2.5
-            llantas_sospechosas = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta").distinct()
+            try:
+                llantas_sospechosas = regresion.annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+            except:
+                pass
     # En un futuro poner el parámetro sospechoso para cuando es 1 inspección
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count=2)
     sin_regresion = inspecciones.select_related("llanta__vehiculo__compania").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
@@ -1351,11 +1894,11 @@ def vehiculo_sospechoso_llanta(inspecciones):
         dias = abs(fechas["ultima_fecha"] - fechas["primera_fecha"]).days
         #print("llanta: ", Llanta.objects.get(id=llanta["llanta"]))
         #print("dias: ", dias)
-        primera_profundidad = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first().min_profundidad
-        ultima_profundidad = sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last().min_profundidad
+        primera_profundidad = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").first())
+        ultima_profundidad = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last())
         #print("primera_profundidad: ", primera_profundidad)
         #print("ultima_profundidad: ", ultima_profundidad)
-        llanta_sospechosa = sin_regresion.filter(llanta=llanta["llanta"]).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta").distinct()
+        llanta_sospechosa = sin_regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta").distinct()
         if llanta_sospechosa:
             if not(llanta_sospechosa[0]["llanta"] in llantas_lista):
                 if llantas_sospechosas_iteracion:
@@ -1366,3 +1909,4 @@ def vehiculo_sospechoso_llanta(inspecciones):
                 llantas_lista.append(llanta_sospechosa[0]["llanta"])
     #print(vehiculos_sospechosos)
     return llantas_sospechosas
+

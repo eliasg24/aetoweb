@@ -21,7 +21,6 @@
     <title>AETO WEB</title>
 {% endblock head %}
 
-
 {% block content %}
 <div class="all-cont animate__animated animate__fadeIn">
     <header class="head-cont">
@@ -69,7 +68,6 @@
               </label>
             </div>
               
-    
             <div class="dropdown">
               <button class="drop-btn" id="d-clase">
                 Clase
@@ -105,7 +103,6 @@
                 {% endfor %}
               </ul>
             </div>
-            
             
             <div class="dropdown">
                 <button class="drop-btn" id="d-ubicacion">
@@ -596,7 +593,7 @@ const dropdown = (button = '', menu = '') => {
     } else {
       dropBtn.querySelector('.indicator').classList.remove('active');
     }
-});
+  });
 }
 
 const handleFullscreen = (button = '', element = '') => {

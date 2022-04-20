@@ -12,9 +12,9 @@
     ["{{mes_6}}", 0, 0],
     ["{{mes_5}}", 0, 0],
     ["{{mes_4}}", 0, 0],
-    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, 0{% endif %}],
-    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, 0{% endif %}],
-    ["{{mes_1}}", {{cpk}}, 0]
+    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, 0 {% else %} 0, 0 {% endif %}],
+    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, 0 {% else %} 0, 0 {% endif %}],
+    ["{{mes_1}}", {% if cpk %}{{cpk}}{% else %}0{% endif %}, 0]
     ]);
 
     // map the data

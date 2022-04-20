@@ -26,7 +26,7 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         # Configuración del Form
         model = Producto
-        fields = ["producto", 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'km_esperado']
+        fields = ['producto', 'compania', 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'aplicacion', 'vida', 'precio', 'km_esperado']
 
 class RenovadorForm(forms.ModelForm):
     # Model form del Renovador
@@ -154,4 +154,4 @@ class EdicionManual(forms.ModelForm):
 class InspeccionForm(forms.ModelForm):
     class Meta:
         model = Inspeccion
-        fields = ('llanta', 'km', 'presion', 'min_profundidad', 'observacion_1', 'observacion_2', 'observacion_3')
+        fields = ('llanta', 'km_vehiculo', 'presion', 'observaciones')

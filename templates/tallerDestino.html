@@ -1,52 +1,54 @@
-<html>
-  <head>
-    {%load static%}
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'css/tallerDestino.css' %}"
-    />
-    <meta charset="utf-8" />
-    <title></title>
-  </head>
-  <body>
-    {% include 'nav.html' %}
+{% extends 'base.html' %}
 
-    <div class="all-cont">
-      <form class="taller-form">
-        <legend>
-          <h2>Taller destino de la llanta</h2>
-        </legend>
-        <hr>
-        <label for="" class="form-label"> Fecha: 21 / 02 / 2022 </label>
-        <label for="" class="form-label">
-          Taller de origen:
-          <span>#</span>
-        </label>
-        <label for="" class="form-label">
-          Taller de destino:
-          <span>#</span>
-        </label>
-        <label for="" class="form-label">
-          Usuario:
-          <span>User</span>
-        </label>
+{% block head %}
 
-        <h3>Lista de # economicos</h3>
-        <ul>
-          <li>#123456789</li>
-          <li>#123456789</li>
-          <li>#123456789</li>
-        </ul>
-        <nav class="nav-form">
-          <button class="btn btn-danger">
-            <span class="icon-cross"></span>
-          </button>
-          <button class="btn btn-success">
-            <span class="icon-checkmark"></span>
-          </button>
-        </nav>
-      </form>
-    </div>
-  </body>
-</html>
+{%load static%}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'css/tallerDestino.css' %}"
+/>
+<title>Taller Destino</title>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="all-cont">
+  <form class="taller-form">
+    <legend>
+      <h2>TALLER DESTINO DE LA LLANTA</h2>
+    </legend>
+    <hr>
+    <label for="" class="form-label">
+      FECHA
+    </label>
+    <span class="fecha">21-02-2022</span>
+    <label for="" class="form-label">
+      TALLER DE ORIGEN
+    </label>
+    <span class="almohadilla">#</span>
+    <label for="" class="form-label">
+      TALLER DE DESTINO
+    </label>
+    <span class="almohadilla">#</span>
+    <label for="" class="form-label">
+      USUARIO
+    </label>
+    <span class="almohadilla">USER</span>
+    <h3>LISTA DE # ECONÓMICOS</h3>
+      <li class="list">#123456789</li>
+      <li class="list">#123456789</li>
+      <li class="list">#123456789</li>
+    <nav class="nav-form">
+      <button class="btn btn-success">
+        <span class="icon-checkmark"></span>
+      </button>
+      <button class="btn btn-danger">
+        <span class="icon-cross"></span>
+      </button>
+    </nav>
+  </form>
+</div>
+
+{% endblock %}

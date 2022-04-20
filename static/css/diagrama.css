@@ -1,5 +1,9 @@
 /* ? Colors */
 
+.btn-success {
+  margin-left: auto;
+}
+
 .good {
   background-color: var(--main-blue);
 }
@@ -14,6 +18,11 @@
 
 .purple {
   background-color: var(--purple-color);
+}
+
+.form__prof {
+  display: flex;
+  justify-content: space-between;
 }
 
 .tire {
@@ -34,9 +43,9 @@
   background-color: #202020;
   display: grid;
   gap: 1rem;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: auto 1fr;
   margin: 1rem;
-  padding: 1rem;
+  position: relative;
 }
 
 .config__container {
@@ -53,21 +62,25 @@
 }
 
 .forms__container {
-  display: flex;
+  display: grid;
   gap: 1rem;
-  flex-flow: column nowrap;
+  grid-template-rows: 1fr auto;
+  margin: 1rem;
+  overflow-y: auto;
 }
 
-.form__container {
+.form__container,
+.absolute.form__container {
   background-color: var(--main-background);
   display: flex;
   gap: 1rem;
   flex-flow: column nowrap;
   border-radius: 0.25rem;
-  height: fit-content;
+  height: 100%;
   padding: 1rem;
   gap: 1rem;
   position: relative;
+  max-height: 570px;
 }
 
 .form__wrapper {
@@ -114,6 +127,7 @@
 
 .relative {
   position: relative;
+  height: 100%;
 }
 
 .relative.absolute {
@@ -134,14 +148,24 @@
   font-size: 6rem;
 }
 
+.dropdown__form {
+  cursor: pointer;
+  padding: 1rem;
+  border: thin solid var(--main-blue);
+}
+
 @media screen and (min-width: 1024px) {
+  /* .forms__container {
+    max-height: 550px;
+  } */
+
   .tire__medium {
     bottom: 40%;
     padding: 0.75rem;
   }
 
-  .main__container {
-    grid-template-rows: auto;
+  .main__wrapper {
+    display: grid;
     grid-template-columns: 1fr 1fr;
   }
 

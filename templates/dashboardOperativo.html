@@ -1,0 +1,164 @@
+{% extends 'base.html' %} 
+
+{% block head %} 
+  {% load static %}
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="{% static 'css/dashboardOperativo.css' %}"
+  />
+  <title>DASHBOARD OPERATIVO</title>
+  {% endblock head %} 
+{% block content %}
+  <main class="main-cont animate__animated animate__fadeIn">
+    <header class="head-cont">
+      <h2 class="title__operativo">DASHBOARD OPERATIVO</h2>
+
+      <form action="">
+        <nav class="flex-row">
+
+          <div class="dropdown">
+            <button class="drop-btn" id="d-clase" type="button">
+              Clase
+              <span class="indicator">
+                <i class="bx bxs-right-arrow"></i>
+              </span>
+            </button>
+  
+            <ul class="drop-menu" id="menu-clase">
+              <li>
+                <div class="drop-search">
+                  <input type="search" id="search-clase" class="drop-input" autocomplete="off" />
+                  <i class="bx bx-search"></i>
+                </div>
+              </li>
+              <li>
+                <label for="all-clase" class="input-check select-all">
+                  Seleccionar todas
+                  <input type="checkbox" name="clase2" value="all" id="all-clase" />
+                  <span class="checkmark"></span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div class="dropdown">
+            <button class="drop-btn" id="d-ubicacion" type="button">
+              Sucursal
+              <span class="indicator">
+                <i class="bx bxs-right-arrow"></i>
+              </span>
+            </button>
+            
+            <ul class="drop-menu" id="menu-ubicacion">
+              <li>
+                <div class="drop-search">
+                  <input type="search" id="search-ubicacion" class="drop-input" autocomplete="off" />
+                  <i class="bx bx-search"></i>
+                </div>
+              </li>
+              <li>
+                <label for="all-ubicacion" class="input-check select-all">
+                  Seleccionar todas
+                  <input type="checkbox" name="ubicacion" value="all" id="all-ubicacion"/>
+                  <span class="checkmark"></span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div class="dropdown">
+            <button class="drop-btn" id="d-app" type="button">
+              Aplicacion
+              <span class="indicator">
+                <i class="bx bxs-right-arrow"></i>
+              </span>
+            </button>
+  
+            <ul class="drop-menu" id="menu-app">
+              <li>
+                <div class="drop-search">
+                  <input type="search" id="search-app" class="drop-input" autocomplete="off" />
+                  <i class="bx bx-search"></i>
+                </div>
+              </li>
+              <li>
+                <label for="all-app" class="input-check select-all">
+                  Seleccionar todas
+                  <input type="checkbox" name="aplicacion2" value="all" id="all-app"/>
+                  <span class="checkmark"></span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <a href="{% url 'dashboards:dashboardOperativo' %}" class="btn btn-trash">
+            <span class="icon-trash2"></span>
+          </a>
+        </nav>
+      </form>
+    </header>
+    <div class="horizontal">
+      <!-- <a href=""> -->
+        <div class="card active" id="inspeccion">
+          <h2 class="a__title">INSPECCIÓN</h2>
+          <h2 class="a__title">20%</h2>
+        </div>
+      <!-- </a> -->
+      <!-- <a href=""> -->
+        <div class="card" id="vida">
+          <h2 class="a__title">VIDA</h2>
+          <h2 class="a__title">20%</h2>
+        </div>
+      <!-- </a> -->
+      <!-- <a href=""> -->
+        <div class="card" id="desecho">
+          <h2 class="a__title">DESECHO</h2>
+          <h2 class="a__title">20%</h2>
+          <p>$1,000,000.00</p>
+        </div>
+      <!-- </a> -->
+      <!-- <a href=""> -->
+        <div class="card" id="cpk">
+          <h2 class="a__title">CPK</h2>
+          <h2 class="a__title">$0.025</h2>
+        </div>
+      <!-- </a> -->
+    </div>
+    <div class="view on" data-view="inspeccion">
+      <div class="cont-horizontal">
+        <div class="cont__charts">
+          <div class="column"></div>
+          <div class="column"></div>
+        </div>
+        <div class="column"></div>
+      </div>
+    </div>
+    <div class="view" data-view="vida">
+      <div class="grid-4">
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+      </div>
+    </div>
+    <div class="view" data-view="desecho">
+      <div class="grid-4">
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+      </div>
+    </div>
+    <div class="view" data-view="cpk">
+      <div class="grid-4">
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="{% static 'js/operativo/index.js' %}"></script>
+{% endblock content %}

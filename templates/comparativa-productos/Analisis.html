@@ -35,6 +35,10 @@
         var yLabels = chart.yAxis().labels();
         yLabels.format("{%value}{scale: (1000)(1000)(1000)|(K)(M)(B)}");
 
+        // set function to format y axis labels
+        var xLabels = chart.xAxis(0).labels();
+        xLabels.format("${%value}{groupsSeparator:\\,, decimalsCount:3}");
+
         // turn on chart animation
         chart.animation(true);
 
@@ -93,15 +97,9 @@
         chart.tooltip()
                 .useHtml(true)
                 .fontColor('#fff')
-                .format(function () {
-                    return this.getData('data') +
-                            'Km Proyectado: <span style="font-size: 12px">' +
-                            this.getData('value') + '</span></strong><br/>' +
-                            'CPK: <span style="font-size: 12px">' +
-                            this.getData('x') + '</span></strong><br/>' +
-                            'Analisis: <span style="font-size: 12px">' +
-                            this.getData('size') + '%</span></strong><br/>'   
-                });
+                .positionMode("point")
+                .format("KM: {%value}{groupsSeparator:\\,, decimalsCount:3}<br>CPK: ${%x}{groupsSeparator:\\,, decimalsCount:3}<br>Cantidad: {%size}{groupsSeparator:\\,, decimalsCount:3}%");
+              
       
         // create scale for line series and extraYAxis
         // it force line series to not stuck values with over series

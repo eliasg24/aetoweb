@@ -3,7 +3,7 @@ from ctypes import alignment
 from operator import or_
 from http.client import HTTPResponse
 import re
-from tkinter import CENTER
+from tkinter import CENTER, N
 import matplotlib.pyplot as plt
 import numpy as np
 from django import forms
@@ -31,7 +31,7 @@ from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, Lla
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Edicion, Bitacora_Pro, Inspeccion, Llanta, Producto, Registro_Bitacora, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, TendenciaCPK
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, Llanta, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User
 
 # Utilities
 from multi_form_view import MultiModelFormView
@@ -313,10 +313,6 @@ class TireDB2View(LoginRequiredMixin, TemplateView):
         reemplazo_actual_llantas = reemplazo_actual[0]
         reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual[1].items() if v != 0}
 
-
-        print(reemplazo_actual_llantas)
-        print(reemplazo_actual_ejes)
-
         reemplazo_dual = functions.reemplazo_dual(llantas, reemplazo_actual_llantas)
         reemplazo_total = functions.reemplazo_total(reemplazo_actual_ejes, reemplazo_dual)
 
@@ -341,6 +337,10 @@ class TireDB2View(LoginRequiredMixin, TemplateView):
         presupuesto3 = functions.presupuesto(pronostico_de_consumo3, ubicacion)
         presupuesto4 = functions.presupuesto(pronostico_de_consumo4, ubicacion)
 
+        print(pronostico_de_consumo)
+        print(pronostico_de_consumo2)
+        print(pronostico_de_consumo3)
+        print(pronostico_de_consumo4)
 
         context["p1"] = 50500
         context["p2"] = 11700
@@ -657,7 +657,7 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         km_aplicaciones = functions.distribucion_cantidad(km_aplicaciones)
         km_productos = functions.distribucion_cantidad(km_productos)
 
-        try:
+        """try:
             tendencia_cpk_mes2 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=2)
         except:
             tendencia_cpk_mes2 = 0
@@ -684,7 +684,7 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         try:
             tendencia_cpk_mes8 = TendenciaCPK.objects.get(compania=Compania.objects.get(compania=self.request.user.perfil.compania), mes=8)
         except:
-            tendencia_cpk_mes8 = 0
+            tendencia_cpk_mes8 = 0"""
 
         print(comparativa_de_productos)
         print(cpk_productos)
@@ -741,19 +741,17 @@ class TireDB3View(LoginRequiredMixin, TemplateView):
         context["producto1"] = producto1
         context["producto2"] = producto2
         context["productos"] = productos
-        context["tendencia_cpk_mes2"] = tendencia_cpk_mes2
+        """context["tendencia_cpk_mes2"] = tendencia_cpk_mes2
         context["tendencia_cpk_mes3"] = tendencia_cpk_mes3
         context["tendencia_cpk_mes4"] = tendencia_cpk_mes4
         context["tendencia_cpk_mes5"] = tendencia_cpk_mes5
         context["tendencia_cpk_mes6"] = tendencia_cpk_mes6
         context["tendencia_cpk_mes7"] = tendencia_cpk_mes7
-        context["tendencia_cpk_mes8"] = tendencia_cpk_mes8
+        context["tendencia_cpk_mes8"] = tendencia_cpk_mes8"""
         context["vehiculo1"] = vehiculo1
         context["vehiculo2"] = vehiculo2
         context["vehiculos"] = vehiculos
         return context
-
-
 
 class hubView(LoginRequiredMixin, TemplateView):
     # Vista de hubView
@@ -815,7 +813,7 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 if llanta.ultima_inspeccion == None:
                     color_profundidad = 'bad'
                 objetivo = llanta.vehiculo.compania.objetivo / 100
-                presion_act = llanta.presion_de_salida
+                presion_act = llanta.presion_actual
                 presion_minima = 100 - (100 * objetivo)
                 presion_maxima = 100 + (100 * objetivo)
                 #print(f'{objetivo}'.center(50, "-"))
@@ -831,12 +829,14 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 else:
                     color_presion = 'bad'
                     
-                inspecciones_llanta = Inspeccion.objects.filter(llanta = llanta)
-                total_inspecciones = len(inspecciones_llanta)
-                
+                min_produndidad = functions.min_profundidad(llanta)
+                if llanta.ultima_inspeccion == None:
+                    con_inspeccion = False
+                else:
+                    con_inspeccion = True
                 if llanta.eje == eje:
                     eForm = EdicionManual(instance = llanta)
-                    list_temp.append([llanta, color_profundidad, eForm, color_presion, total_inspecciones])
+                    list_temp.append([llanta, color_profundidad, eForm, color_presion, min_produndidad, con_inspeccion])
             eje += 1
             ejes_no_ordenados.append(list_temp)
         
@@ -889,163 +889,134 @@ class diagramaView(LoginRequiredMixin, TemplateView):
         context['ejes'] = ejes
         context['style'] = style
         context['cant_ejes'] = cant_ejes
+        context['llantas_actuales'] = llantas_actuales
+        context['vehiculo_actual'] = vehiculo_actual
 
         return context
-    
+    #DiagramaPost
     def post(self, request, *args, **kwargs):
-        #print(request.POST)
+        print(request.POST)
         #print(self.kwargs['pk'])
         print('---------------------')
         print('---------------------')
+        #Vehiclo
+        km_vehiculo = request.POST.getlist('km_vehiculo')
+        #Llanta
         ids = request.POST.getlist('ids')
-        economico = request.POST.getlist('economico')
+        llanta = request.POST.getlist('economico')
         producto = request.POST.getlist('producto')
         vida = request.POST.getlist('vida')
-        montado = request.POST.getlist('montado')
+        profundidad_derecha = request.POST.getlist('profundidad_derecha')
+        profundidad_central = request.POST.getlist('profundidad_central')
+        profundidad_izquierda = request.POST.getlist('profundidad_izquierda')
+        presion = request.POST.getlist('presion')
+        observaciones = request.POST.getlist('observaciones')
         reemplazar = request.POST.getlist('reemplazar')
-        profundidad = request.POST.getlist('profundidad')
-        #print(ids)
-        #print(reemplazar)
-        #print(economico)
-        #print(producto)
-        #print(vida)
-        #print(montado)
-        #print(profundidad)
+        print(ids)
+        print(llanta)
+        print(producto)
+        print(vida)
+        print(profundidad_derecha)
+        print(profundidad_central)
+        print(profundidad_izquierda)
+        print(presion)
+        print(observaciones)
+        print(reemplazar)
+
         estado_vida = ['Nueva', '1R', '2R', '3R', '4R', '5R']
         elementos = 0
         diferencias = []
         id_bitacora = None
+        
+        vehiculo = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        vehiculo_ref = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        
+        if vehiculo.km != km_vehiculo[0]:
+            vehiculo.km = km_vehiculo[0]
+            vehiculo.save()      
         for id_actual in ids:
+            cambios = []
+            ids_post  = ids[elementos]
+            llanta_post  = llanta[elementos]
+            producto_post  = producto[elementos]
+            vida_post  = vida[elementos]
+            profundidad_derecha_post  = profundidad_derecha[elementos]
+            profundidad_central_post  = profundidad_central[elementos]
+            profundidad_izquierda_post  = profundidad_izquierda[elementos]
+            presion_post  = presion[elementos]
+            observaciones_post  = observaciones[elementos]
+                        
             if id_actual in reemplazar:
                 print(f"Remplazando: {id_actual}".center(50, '-'))
-                llanta_por_archivar = Llanta.objects.get(pk = ids[elementos])
-                nueva_llanta = Llanta.objects.get(pk = ids[elementos])
-                llanta_referencia = Llanta.objects.get(pk = ids[elementos])
-                if profundidad[elementos] != '':
-                    min_profundidad_referencia = llanta_referencia.ultima_inspeccion.min_profundidad
-                #Crear la nueva llanta
-                nueva_llanta.id = None
-                nueva_llanta.numero_economico = str(economico[elementos])
-                
-                #Condiciones para que el producto se agrege
-                producto_existe = True
-                try:
-                    producto_act = Producto.objects.get(producto=producto[elementos])
-                except:
-                    producto_existe = False
-                if producto_existe:
-                    nueva_llanta.producto = producto_act
-                    
-                #Condiciones para que la vida se agrege
-                if vida[elementos] in estado_vida:
-                    nueva_llanta.vida = vida[elementos]
-                
-                #Condicione para que el km se agrege
-                try:
-                    if montado[elementos] == '':
-                        nueva_llanta.km_montado = None
-                    else:
-                        nueva_llanta.km_montado = int(float(montado[elementos]))
-                except:
-                    pass
-                
-                if nueva_llanta.ultima_inspeccion == None:
-                    nueva_llanta.save()
-                    llanta_por_archivar.numero_economico = f"{llanta_por_archivar.numero_economico} - Archivado - {llanta_por_archivar.id}"
-                    llanta_por_archivar.vehiculo = None
-                    llanta_por_archivar.archivado = True
-                    llanta_por_archivar.save()
-                else:
-                    #Cambio de la profundidad
-                    #nueva_llanta.ultima_inspeccion.min_profundidad = int(float(profundidad[elementos]))
-                    nueva_inspeccion = nueva_llanta.ultima_inspeccion
-                    nueva_inspeccion.id = None
-                    nueva_inspeccion.min_profundidad = int(float(profundidad[elementos]))
-                    nueva_inspeccion.save()
-                    nueva_llanta.ultima_inspeccion = nueva_inspeccion
-                    nueva_llanta.save()
-                    nueva_inspeccion.llanta = nueva_llanta
-                    nueva_inspeccion.save()
-                    nueva_llanta.ultima_inspeccion = nueva_inspeccion
-                    nueva_llanta.save()
-                    #Archivar la llanta antigua
-                    llanta_por_archivar.numero_economico = f"{llanta_por_archivar.numero_economico} - Archivado - {llanta_por_archivar.id}"
-                    llanta_por_archivar.vehiculo = None
-                    llanta_por_archivar.archivado = True
-                    llanta_por_archivar.save()
-                
-                #Bitacora
-                diferencias = []
-                if nueva_llanta.numero_economico != llanta_referencia.numero_economico:
-                    diferencias.append(f'Llanta: {nueva_llanta.posicion} se modifico su numero economico de {llanta_referencia.numero_economico} a {nueva_llanta.numero_economico}')
-                if nueva_llanta.producto != llanta_referencia.producto:
-                    diferencias.append(f'Llanta: {nueva_llanta.posicion} se modifico el producto de {llanta_referencia.producto} a {nueva_llanta.producto}')
-                if nueva_llanta.km_montado != llanta_referencia.km_montado:
-                    diferencias.append(f'Llanta: {nueva_llanta.posicion} se modifico su km de montado de {llanta_referencia.km_montado} a {nueva_llanta.km_montado}')
-                if profundidad[elementos] != '':
-                    if nueva_llanta.ultima_inspeccion.min_profundidad != min_profundidad_referencia:
-                        diferencias.append(f'Llanta: {nueva_llanta.posicion} se modifico su minima profundidad de {min_profundidad_referencia} a {nueva_llanta.ultima_inspeccion.min_profundidad}')    
-                
-                print(diferencias)
-                
-                bitacora_cambios = Bitacora_Edicion(pk=nueva_llanta)
-                
+                llanta_actual_referencia = Llanta.objects.get(pk = ids_post)
+                llanta_actual = Llanta.objects.get(pk = ids_post)
             else:
-                #print(f"Actualizando: {id_actual}".center(50, '-'))
-                llanta = Llanta.objects.get(pk = ids[elementos])
-                llanta_referencia = Llanta.objects.get(pk = ids[elementos])
-                if profundidad[elementos] != '':
-                    min_profundidad_referencia = llanta_referencia.ultima_inspeccion.min_profundidad
-                
-                #Cambio del numero economico
-                llanta.numero_economico = str(economico[elementos])
-                #Condiciones para que el producto se agrege
-                producto_existe = True
-                try:
-                    producto_act = Producto.objects.get(producto=producto[elementos])
-                except:
-                    producto_existe = False
-                if producto_existe:
-                    llanta.producto = producto_act
-                    
-                #Condiciones para que la vida se agrege
-                if vida[elementos] in estado_vida:
-                    llanta.vida = vida[elementos]
-                
-                #Condicione para que el km se agrege
-                try:
-                    if montado[elementos] == '':
-                        llanta.km_montado = None
-                    else:
-                        llanta.km_montado = int(float(montado[elementos]))
-                except:
-                    pass
-                
-                #Cambio de la profundidad
-                if profundidad[elementos] == '':
-                    llanta.save()
+                print(f"Actualizando: {id_actual}".center(50, '-'))
+                llanta_actual_referencia = Llanta.objects.get(pk = ids_post)
+                llanta_actual = Llanta.objects.get(pk = ids_post)
+                print(llanta_actual)
+                if llanta_actual.ultima_inspeccion != None:
+                    inspeccion_actual = llanta_actual.ultima_inspeccion
+                    if llanta_actual.vida != vida_post:
+                        inspeccion_actual.vida = vida_post
+                        llanta_actual.vida = vida_post
+                        cambios.append('vida')
+                    if float(llanta_actual.profundidad_derecha) != float(profundidad_derecha_post):
+                        inspeccion_actual.profundidad_derecha = profundidad_derecha_post
+                        llanta_actual.profundidad_derecha = profundidad_derecha_post
+                        cambios.append('profundidad_derecha')
+                    if float(llanta_actual.profundidad_central) != float(profundidad_central_post):
+                        inspeccion_actual.profundidad_central = profundidad_central_post
+                        llanta_actual.profundidad_central = profundidad_central_post
+                        cambios.append('profundidad_central')
+                    if float(llanta_actual.profundidad_izquierda) != float(profundidad_izquierda_post):
+                        inspeccion_actual.profundidad_izquierda = profundidad_izquierda_post
+                        llanta_actual.profundidad_izquierda = profundidad_izquierda_post
+                        cambios.append('profundidad_izquierda')
+                    if float(llanta_actual.presion_actual) != float(presion_post):
+                        inspeccion_actual.presion = presion_post
+                        llanta_actual.presion_actual = presion_post
+                        cambios.append('presion_actual')
+                    inspeccion_actual.save()
+                    llanta_actual.save()
+                    print(cambios)
+                    if len(cambios) > 0:
+                        if inspeccion_actual.evento != None:
+                            #print(inspeccion_actual.evento)
+                            evento_raw =inspeccion_actual.evento
+                            evento_raw = evento_raw.replace("\'", "\"")
+                            evento_act = json.loads(evento_raw)
+                            if 'vida' in cambios:
+                                print('vida')
+                                evento_act["vida_mod"] = vida_post
+                                
+                            if 'profundidad_derecha' in cambios:
+                                print('profundidad_derecha')
+                                evento_act["profundidad_derecha_mod"] = profundidad_derecha_post
+                            
+                            if 'profundidad_central' in cambios:
+                                print('profundidad_central')
+                                print(evento_act["profundidad_central_mod"])
+                                evento_act["profundidad_central_mod"] = profundidad_central_post
+                                print(evento_act["profundidad_central_mod"])
+                            
+                            if 'profundidad_izquierda' in cambios:
+                                print('profundidad_izquierda')
+                                evento_act["profundidad_izquierda_mod"] = profundidad_central_post
+                            
+                            if 'presion_actual' in cambios:
+                                print('presion_mod')
+                                evento_act["presion_mod"] = presion_post
+                            evento_str = str(evento_act)
+                            inspeccion_actual.edicion_manual = True
+                            inspeccion_actual.evento = evento_str
+                            inspeccion_actual.save()
                 else:
-                    llanta.ultima_inspeccion.min_profundidad = int(float(profundidad[elementos]))
-                    
-                    llanta.save()
-                    llanta.ultima_inspeccion.save()
-                
-                #Bitacora
-                #diferencias = []
-                if llanta.numero_economico != llanta_referencia.numero_economico:
-                    diferencias.append(f'Llanta: {llanta.posicion} se modifico su numero economico de {llanta_referencia.numero_economico} a {llanta.numero_economico}')
-                if llanta.producto != llanta_referencia.producto:
-                    diferencias.append(f'Llanta: {llanta.posicion} se modifico el producto de {llanta_referencia.producto} a {llanta.producto}')
-                if llanta.km_montado != llanta_referencia.km_montado:
-                    diferencias.append(f'Llanta: {llanta.posicion} se modifico su km de montado de {llanta_referencia.km_montado} a {llanta.km_montado}')
-                if profundidad[elementos] != '':
-                    if llanta.ultima_inspeccion.min_profundidad != min_profundidad_referencia:
-                        diferencias.append(f'Llanta: {llanta.posicion} se modifico su minima profundidad de {min_profundidad_referencia} a {llanta.ultima_inspeccion.min_profundidad}')    
-                        
+                    print('No paso na')
             elementos += 1
             
         #CREACION DE BITACORA
-        print(diferencias)
+        """print(diferencias)
         if len(diferencias) > 0:
             if id_bitacora == None:
                 bitacora_cambios = Bitacora_Edicion.objects.create(
@@ -1066,9 +1037,9 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                     bitacora = bitacora_cambios,
                     evento = diferencia
                 )
-                registro.save()
+                registro.save()"""
                         
-            
+        #return redirect('dashboards:detail', self.kwargs['pk'])
         return redirect('dashboards:diagrama', self.kwargs['pk'])
 class tireDiagramaView(LoginRequiredMixin, TemplateView):
     # Vista de tireDiagramaView
@@ -1086,17 +1057,37 @@ class SiteMenuView(LoginRequiredMixin, TemplateView):
     template_name = "siteMenu.html"
 
 
-class catalogoProductoView(LoginRequiredMixin, CreateView):
+class catalogoProductoView(LoginRequiredMixin, MultiModelFormView):
     # Vista de catalogoProductosView
 
     template_name = "catalogoProducto.html"
-    form_class = ProductoForm
+    form_classes = {"productoForm": ProductoForm}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        productos = Producto.objects.all()[::-1]
+        productos = Producto.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[::-1]
+        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
+        context["compania"] = compania
         context["productos"] = productos
+
+        print(self.request.POST)
+        if self.request.method =='POST':
+            print("hola")
+            print("hola2")
+            Producto.objects.create(producto=self.request.POST.get("producto"),
+                                    compania=self.request.user.perfil.compania,
+                                    marca=self.request.POST.get("marca"),
+                                    dibujo=self.request.POST.get("dibujo"),
+                                    rango=self.request.POST.get("rango"),
+                                    dimension=self.request.POST.get("dimension"),
+                                    profundidad_inicial=self.request.POST.get("profundidad_inicial"),
+                                    aplicacion=self.request.POST.get("aplicacion"),
+                                    vida=self.request.POST.get("vida"),
+                                    precio=self.request.POST.get("precio"),
+                                    km_esperado=self.request.POST.get("km_esperado"),
+            )
+            print("hola3")
 
         return context
     
@@ -1494,7 +1485,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                     color_profundidad = 'bad'
                     
                 objetivo = llanta.vehiculo.compania.objetivo / 100
-                presion_act = llanta.presion_de_salida
+                presion_act = llanta.presion_actual
                 presion_minima = 100 - (100 * objetivo)
                 presion_maxima = 100 + (100 * objetivo)
                 #print(f'{objetivo}'.center(50, "-"))
@@ -1509,10 +1500,15 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                     color_presion = 'good'
                 else:
                     color_presion = 'bad'
-                                    
+                    
+                inspecciones_llanta = Inspeccion.objects.filter(llanta = llanta)
+                total_inspecciones = len(inspecciones_llanta)
+                
+                min_produndidad = functions.min_profundidad(llanta)
+                                   
                 if llanta.eje == eje:
                     eForm = InspeccionForm(instance = llanta.ultima_inspeccion) 
-                    list_temp.append([llanta, color_profundidad, eForm, color_presion])
+                    list_temp.append([llanta, color_profundidad, eForm, color_presion, total_inspecciones, min_produndidad])
             eje += 1
             ejes_no_ordenados.append(list_temp)
         
@@ -1565,70 +1561,170 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
         context['ejes'] = ejes
         context['style'] = style
         context['cant_ejes'] = cant_ejes
-
+        context['llantas_actuales'] = llantas_actuales
+        #Generacion de productos
+        productos = Producto.objects.all()
+        context['productos'] = productos
+        context['vehiculo_actual'] = vehiculo_actual
+        
         return context
     
     def post(self, request, *args, **kwargs):
         #print(request.POST)
-        print(self.kwargs['pk'])
+        #print(self.kwargs['pk'])
         print('---------------------')
         print('---------------------')
+        #Vehiculo
+        id_vehiculo = request.POST.getlist('vehiculo_id')
+        kilometraje = request.POST.getlist('kilometraje')
+        observacion_vehiculo = request.POST.getlist('observacion_vehiculo')
+        print(f'id_vehiculo: {id_vehiculo}')
+        print(f'kilometraje: {kilometraje}')
+        print(f'observacion_vehiculo: {observacion_vehiculo}')
+        #Llantas
         ids = request.POST.getlist('ids')
         llanta = request.POST.getlist('llanta')
-        km = request.POST.getlist('km')
-        min_profundidad = request.POST.getlist('min_profundidad')
-        observacion_1 = request.POST.getlist('observacion_1')
-        observacion_2 = request.POST.getlist('observacion_2')
-        observacion_3 = request.POST.getlist('observacion_3')
+        producto = request.POST.getlist('producto')
+        vida = request.POST.getlist('vida')
+        profundidad_derecha = request.POST.getlist('profundidad_derecha')
+        profundidad_central = request.POST.getlist('profundidad_central')
+        profundidad_izquierda = request.POST.getlist('profundidad_izquierda')
+        presion = request.POST.getlist('presion')
+        observaciones = request.POST.getlist('observaciones')
         reemplazar = request.POST.getlist('reemplazar')
-        print(ids)
-        print(reemplazar)
-        print(llanta)
-        print(km)
-        print(min_profundidad)
-        print(observacion_1)
-        print(observacion_2)
-        print(observacion_3)
+        print(f'ids: {ids}')
+        print(f'llanta: {llanta}')
+        print(f'producto: {producto}')
+        print(f'vida: {vida}')
+        print(f'profundidad_derecha: {profundidad_derecha}')
+        print(f'profundidad_central: {profundidad_central}')
+        print(f'profundidad_izquierda: {profundidad_izquierda}')
+        print(f'presion: {presion}')
+        print(f'observaciones: {observaciones}')
+        print(f'reemplazar: {reemplazar}')
+        cambios = []
         elementos = 0
+        #Cambio al vehiculo
+        vehiculo_referencia = Vehiculo.objects.get(pk = self.kwargs['pk'])
+        vehiculo = Vehiculo.objects.get(pk = self.kwargs['pk'])
+            #Km del vehiculo
+        if kilometraje[0] != vehiculo_referencia.km:
+            if kilometraje[0] == "":
+                vehiculo.km = None
+            else:
+                vehiculo.km = kilometraje[0]
+            #Observaciones del vehiculo
+        if observacion_vehiculo[0] == "":
+            vehiculo.observaciones.clear()
+        else:
+            vehiculo.observaciones = observacion_vehiculo[0]
+        vehiculo.save()
+        
+        #Cambio de llantas
         for id_actual in ids:
+            cambios = []
             if id_actual in reemplazar:
                 print(f"Remplazando: {id_actual}".center(50, '-'))                
             else:
                 print(f"Actualizando: {id_actual}".center(50, '-'))
-                llanta_act = Llanta.objects.get(pk = ids[elementos])
-                print(llanta_act.ultima_inspeccion)
-                inspeccion_act = llanta_act.ultima_inspeccion
-                inspeccion_act.km = int(float(km[elementos]))
-                inspeccion_act.min_profundidad = int(float(min_profundidad[elementos]))
-                if observacion_1[elementos] == "":
-                    inspeccion_act.observacion_1 = None
-                else:
-                    inspeccion_act.observacion_1 = observacion_1[elementos]
-                    
-                if observacion_2[elementos] == "":
-                    inspeccion_act.observacion_2 = None
-                else:
-                    inspeccion_act.observacion_2 = observacion_2[elementos]
-                    
-                if observacion_3[elementos] == "":
-                    inspeccion_act.observacion_3 = None
-                else:
-                    inspeccion_act.observacion_3 = observacion_3[elementos]
-                print(str(inspeccion_act.llanta))
-                print(str(llanta[elementos]))
-                print(str(inspeccion_act.llanta) != str(llanta[elementos]))
-                if str(inspeccion_act.llanta) != str(llanta[elementos]):
-                    try:
-                        llanta_asignada = Llanta.objects.get(numero_economico = str(llanta[elementos]))
-                        inspeccion_act.llanta = llanta_asignada
-                        llanta_act.ultima_inspeccion = None
-                        llanta_act.save()
-                    except:
-                        pass
                 
-                inspeccion_act.save()
-                #llanta.ultima_inspeccion.save()
+                llanta_referencia = Llanta.objects.get(pk = ids[elementos])
+                llanta_actual = Llanta.objects.get(pk = ids[elementos])
+                #Creando Nueva Inspeccion
+                producto_post = Producto.objects.get(producto=producto[elementos])
+                vida_post = vida[elementos]
+                profundidad_izquierda_post = profundidad_izquierda[elementos]
+                profundidad_central_post = profundidad_central[elementos]
+                profundidad_derecha_post = profundidad_derecha[elementos]
+                presion_post = presion[elementos]
+                if vida_post != llanta_referencia.vida:
+                    cambios.append('1')
+                if str(profundidad_izquierda_post) != str(llanta_referencia.profundidad_izquierda):
+                    cambios.append('2')
+                if str(profundidad_central_post) != str(llanta_referencia.profundidad_central):
+                    cambios.append('3')
+                if str(profundidad_derecha_post) != str(llanta_referencia.profundidad_derecha):
+                    cambios.append('4')
+                if str(presion_post) != str(llanta_referencia.presion_actual):
+                    cambios.append('5')
+                print(cambios)
+                print(len(cambios))
+                print(len(cambios) > 0)
+                
+                if llanta_actual.km_actual == None:
+                    km_act = 0
+                else:
+                    km_act = llanta_actual.km_actual
+                    
+                if len(cambios) > 0:
+                    inspeccion_nueva = Inspeccion.objects.create(
+                        tipo_de_evento = 'Inspeccion',
+                        llanta = llanta_actual,
+                        vehiculo = vehiculo,
+                        fecha_hora = datetime.now(),
+                        vida = vida_post,
+                        km_vehiculo = km_act,
+                        presion = presion_post,
+                        presion_establecida = 100,
+                        profundidad_izquierda = profundidad_izquierda_post,
+                        profundidad_central = profundidad_central_post,
+                        profundidad_derecha = profundidad_derecha_post,
+                        evento = str({\
+                        "llanta_inicial" : llanta_actual.id, "llanta_mod" : "",\
+                        "producto_inicial" : str(producto_post), "producto_mod" : "",\
+                        "vida_inicial" : vida_post, "vida_mod" : "",\
+                        "km_inicial" : llanta_actual.km_actual, "km_mod" : "",\
+                        "presion_inicial" : presion_post, "presion_mod" : "",\
+                        "profundidad_izquierda_inicial" : profundidad_izquierda_post, "profundidad_izquierda_mod" : "",\
+                        "profundidad_central_inicial" : profundidad_central_post, "profundidad_central_mod" : "",\
+                        "profundidad_derecha_inicial" : profundidad_derecha_post, "profundidad_derecha_mod" : ""\
+                        })
+                    )
+                    inspeccion_nueva.save()
+                    llanta_actual.ultima_inspeccion = inspeccion_nueva
+                    llanta_actual.save()
+                    #Actualizacion de los datos de la llante
+                    llanta_actual.vida = vida_post
+                    llanta_actual.presion_actual = presion_post
+                    llanta_actual.profundidad_izquierda = float(profundidad_izquierda_post)
+                    llanta_actual.profundidad_central = float(profundidad_central_post)
+                    llanta_actual.profundidad_derecha = float(profundidad_derecha_post)
+                    llanta_actual.save()
+                    print('Si paso to')
+                else:
+                    print('No paso na')
+                #print(llanta_act.ultima_inspeccion)
+                if llanta_actual.ultima_inspeccion != None:
+                    pass
+                else:
+                    pass
+                    
             elementos += 1
+            
+        #CREACION DE BITACORA
+        """print(diferencias)
+        if len(diferencias) > 0:
+            if id_bitacora == None:
+                ""bitacora_cambios = Bitacora_Edicion.objects.create(
+                    vehiculo = llanta_ref.vehiculo,
+                    tipo = 'inspeccion'
+                    )
+                bitacora_cambios.save()
+                id_bitacora = bitacora_cambios.id
+                
+            else:
+                try:
+                    bitacora_cambios = Bitacora_Edicion.objects.get(pk = id_bitacora)
+                except:
+                    pass""
+            
+            for diferencia in diferencias:
+                registro = Registro_Bitacora.objects.create(
+                    bitacora = bitacora_cambios,
+                    evento = diferencia
+                )
+                registro.save()"""
+        #return redirect('dashboards:detail', self.kwargs['pk'])
         return redirect('dashboards:inspeccionVehiculo', self.kwargs['pk'])
 
 class CuatroUmbralesView(LoginRequiredMixin, TemplateView):
@@ -1789,7 +1885,7 @@ class configuracionVehiculoView(LoginRequiredMixin, TemplateView):
                     color_profundidad = 'bad'
                 
                 objetivo = llanta.vehiculo.compania.objetivo / 100
-                presion_act = llanta.presion_de_salida
+                presion_act = llanta.presion_actual
                 presion_minima = 100 - (100 * objetivo)
                 presion_maxima = 100 + (100 * objetivo)
                 #print(f'{objetivo}'.center(50, "-"))
@@ -2033,6 +2129,11 @@ class planTrabajoView(LoginRequiredMixin, TemplateView):
 
     template_name = "planTrabajo.html"
 
+class dashboardOperativoView(LoginRequiredMixin, TemplateView):
+# Vista de dashboardOperativoView
+
+    template_name = "dashboardOperativo.html"
+
 class LogoutView(LoginRequiredMixin, auth_views.LogoutView):
     # Vista de Logout
     pass
@@ -2058,6 +2159,13 @@ class VehiculoAPI(View):
                 presion_de_entrada=jd['presion_de_entrada'],
                 presion_de_salida=jd['presion_de_salida']
                 )
+        llantas = Llanta.objects.filter(vehiculo=vehiculo)
+        for llanta in llantas:
+            llanta.fecha_de_inflado=date.today()
+            llanta.presion_de_entrada=jd['presion_de_entrada']
+            llanta.presion_de_salida=jd['presion_de_salida']
+            llanta.presion_actual=jd['presion_de_salida']
+            llanta.save()
         return JsonResponse(jd)
 
 
@@ -2070,59 +2178,113 @@ class PulpoProAPI(View):
     def post(self, request):
         jd = json.loads(request.body)
         vehiculo = Vehiculo.objects.get(numero_economico=jd['numero_economico'], compania=Compania.objects.get(compania=jd['compania']))
-        bi = Bitacora_Pro.objects.create(numero_economico=vehiculo,
-                                compania=Compania.objects.get(compania=jd['compania']),
-                                fecha_de_inflado=date.today(),
-                                tiempo_de_inflado=jd['tiempo_de_inflado'],
-        )
-        print("jd['presiones_de_entrada']", jd['presiones_de_entrada'])
+        llantas = Llanta.objects.filter(vehiculo=vehiculo)
         presiones_de_entrada = eval(jd['presiones_de_entrada'])
         presiones_de_salida = eval(jd['presiones_de_salida'])
-        print("presiones_de_entrada", presiones_de_entrada)
         numero_de_llantas = vehiculo.numero_de_llantas
         if numero_de_llantas == len(presiones_de_entrada):
+            num_ejes = vehiculo.configuracion.split('.')
+            ejes_no_ordenados = []
+            ejes = []
+            eje = 1
+            for num in num_ejes:
+                list_temp = []
+                for llanta in llantas:
+                        
+                    if llanta.eje == eje:
+                        list_temp.append([llanta])
+                eje += 1
+                ejes_no_ordenados.append(list_temp)
+            
+            for eje in ejes_no_ordenados:
+                if len(eje) == 2:
+                    lista_temp = ['', '']
+                    for llanta_act in eje:
+                        if 'LI' in llanta_act[0].posicion:
+                            lista_temp[0] = llanta_act
+                            
+                        elif 'RI' in llanta_act[0].posicion:
+                            lista_temp[1] = llanta_act
+                    ejes.append(lista_temp)
+                    print(' 0---0')
+                
+                else:
+                    lista_temp = ['', '', '', '']
+                    for llanta_act in eje:
+                        if 'LO' in llanta_act[0].posicion:
+                            lista_temp[0] = llanta_act
+                        elif 'LI' in llanta_act[0].posicion:
+                            lista_temp[1] = llanta_act
+                        elif 'RI' in llanta_act[0].posicion:
+                            lista_temp[2] = llanta_act
+                        elif 'RO' in llanta_act[0].posicion:
+                            lista_temp[3] = llanta_act
+                    ejes.append(lista_temp)
+                    print('00---00')
+            
+            print(ejes)
+            loop_llantas = 0
+            for eje in ejes:
+                print("eje", eje)
+                for llanta in eje:
+                    print("llanta", llanta)
+                    llanta[0].presion_de_entrada = presiones_de_entrada[loop_llantas]
+                    llanta[0].presion_de_salida = presiones_de_salida[loop_llantas]
+                    llanta[0].presion_actual = presiones_de_salida[loop_llantas]
+                    llanta[0].save()
+                    loop_llantas += 1
+                    
+            bi = Bitacora_Pro.objects.create(numero_economico=vehiculo,
+                                    compania=Compania.objects.get(compania=jd['compania']),
+                                    fecha_de_inflado=date.today(),
+                                    tiempo_de_inflado=jd['tiempo_de_inflado'],
+            )
+            print("jd['presiones_de_entrada']", jd['presiones_de_entrada'])
 
-            if len(presiones_de_entrada) >= 1:
-                bi.presion_de_entrada_1 = presiones_de_entrada[0]
-                bi.presion_de_salida_1 = presiones_de_salida[0]
-                if len(presiones_de_entrada) >= 2:
-                    bi.presion_de_entrada_2 = presiones_de_entrada[1]
-                    bi.presion_de_salida_2 = presiones_de_salida[1]
-                    if len(presiones_de_entrada) >= 3:
-                        bi.presion_de_entrada_3 = presiones_de_entrada[2]
-                        bi.presion_de_salida_3 = presiones_de_salida[2]
-                        if len(presiones_de_entrada) >= 4:
-                            bi.presion_de_entrada_4 = presiones_de_entrada[3]
-                            bi.presion_de_salida_4 = presiones_de_salida[3]
-                            if len(presiones_de_entrada) >= 5:
-                                bi.presion_de_entrada_5 = presiones_de_entrada[4]
-                                bi.presion_de_salida_5 = presiones_de_salida[4]
-                                if len(presiones_de_entrada) >= 6:
-                                    bi.presion_de_entrada_6 = presiones_de_entrada[5]
-                                    bi.presion_de_salida_6 = presiones_de_salida[5]
-                                    if len(presiones_de_entrada) >= 7:
-                                        bi.presion_de_entrada_7 = presiones_de_entrada[6]
-                                        bi.presion_de_salida_7 = presiones_de_salida[6]
-                                        if len(presiones_de_entrada) >= 8:
-                                            bi.presion_de_entrada_8 = presiones_de_entrada[7]
-                                            bi.presion_de_salida_8 = presiones_de_salida[7]
-                                            if len(presiones_de_entrada) >= 9:
-                                                bi.presion_de_entrada_9 = presiones_de_entrada[8]
-                                                bi.presion_de_salida_9 = presiones_de_salida[8]
-                                                if len(presiones_de_entrada) >= 10:
-                                                    bi.presion_de_entrada_10 = presiones_de_entrada[9]
-                                                    bi.presion_de_salida_10 = presiones_de_salida[9]
-                                                    if len(presiones_de_entrada) >= 11:
-                                                        bi.presion_de_entrada_11 = presiones_de_entrada[10]
-                                                        bi.presion_de_salida_11 = presiones_de_salida[10]
-                                                        if len(presiones_de_entrada) >= 12:
-                                                            bi.presion_de_entrada_12 = presiones_de_entrada[11]
-                                                            bi.presion_de_salida_12 = presiones_de_salida[11]
-            bi.save()
-    
-            vehiculo.ultima_bitacora_pro= bi
-            vehiculo.save()
-            return JsonResponse(jd)
+            print("presiones_de_entrada", presiones_de_entrada)
+            if numero_de_llantas == len(presiones_de_entrada):
+
+                if len(presiones_de_entrada) >= 1:
+                    bi.presion_de_entrada_1 = presiones_de_entrada[0]
+                    bi.presion_de_salida_1 = presiones_de_salida[0]
+                    if len(presiones_de_entrada) >= 2:
+                        bi.presion_de_entrada_2 = presiones_de_entrada[1]
+                        bi.presion_de_salida_2 = presiones_de_salida[1]
+                        if len(presiones_de_entrada) >= 3:
+                            bi.presion_de_entrada_3 = presiones_de_entrada[2]
+                            bi.presion_de_salida_3 = presiones_de_salida[2]
+                            if len(presiones_de_entrada) >= 4:
+                                bi.presion_de_entrada_4 = presiones_de_entrada[3]
+                                bi.presion_de_salida_4 = presiones_de_salida[3]
+                                if len(presiones_de_entrada) >= 5:
+                                    bi.presion_de_entrada_5 = presiones_de_entrada[4]
+                                    bi.presion_de_salida_5 = presiones_de_salida[4]
+                                    if len(presiones_de_entrada) >= 6:
+                                        bi.presion_de_entrada_6 = presiones_de_entrada[5]
+                                        bi.presion_de_salida_6 = presiones_de_salida[5]
+                                        if len(presiones_de_entrada) >= 7:
+                                            bi.presion_de_entrada_7 = presiones_de_entrada[6]
+                                            bi.presion_de_salida_7 = presiones_de_salida[6]
+                                            if len(presiones_de_entrada) >= 8:
+                                                bi.presion_de_entrada_8 = presiones_de_entrada[7]
+                                                bi.presion_de_salida_8 = presiones_de_salida[7]
+                                                if len(presiones_de_entrada) >= 9:
+                                                    bi.presion_de_entrada_9 = presiones_de_entrada[8]
+                                                    bi.presion_de_salida_9 = presiones_de_salida[8]
+                                                    if len(presiones_de_entrada) >= 10:
+                                                        bi.presion_de_entrada_10 = presiones_de_entrada[9]
+                                                        bi.presion_de_salida_10 = presiones_de_salida[9]
+                                                        if len(presiones_de_entrada) >= 11:
+                                                            bi.presion_de_entrada_11 = presiones_de_entrada[10]
+                                                            bi.presion_de_salida_11 = presiones_de_salida[10]
+                                                            if len(presiones_de_entrada) >= 12:
+                                                                bi.presion_de_entrada_12 = presiones_de_entrada[11]
+                                                                bi.presion_de_salida_12 = presiones_de_salida[11]
+                bi.save()
+        
+                vehiculo.ultima_bitacora_pro= bi
+                vehiculo.save()
+                return JsonResponse(jd)
 
 class TireEyeAPI(View):
 
@@ -2159,7 +2321,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions_create.crear_clase_en_vehiculo()
         #functions_create.crear_configuracion()
         #functions_excel.excel_vehiculos2()
-        #functions_ftp.ftp()
+        #functions_excel.excel_observaciones()
         #functions_ftp.ftp_1()
         #functions_ftp.ftp2(self.request.user.perfil)
         ultimo_mes = hoy - timedelta(days=31)
@@ -2182,7 +2344,9 @@ class PulpoView(LoginRequiredMixin, ListView):
         hoy4 = mes_4.strftime("%m")
         hoy5 = mes_5.strftime("%m")
 
-        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_pro = vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_total = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
         vehiculo_fecha_barras_1 = vehiculo.filter(fecha_de_inflado__month=hoy1) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy1)
         vehiculo_fecha_barras_2 = vehiculo.filter(fecha_de_inflado__month=hoy2) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy2)
         vehiculo_fecha_barras_3 = vehiculo.filter(fecha_de_inflado__month=hoy3) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy3)
@@ -2200,16 +2364,16 @@ class PulpoView(LoginRequiredMixin, ListView):
         vehiculo_pro_mes4 = bitacora_pro.filter(fecha_de_inflado__month=hoy4)
 
         entrada_correcta_contar = functions.contar_entrada_correcta(vehiculo_fecha)
+        entrada_correcta_contar += functions.contar_entrada_correcta_pro(vehiculo_fecha_pro)
         mala_entrada_contar_mes1 = functions.contar_mala_entrada(vehiculo_mes1)
         mala_entrada_contar_mes2 = functions.contar_mala_entrada(vehiculo_mes2)
         mala_entrada_contar_mes3 = functions.contar_mala_entrada(vehiculo_mes3)
         mala_entrada_contar_mes4 = functions.contar_mala_entrada(vehiculo_mes4)
 
-        mala_entrada_contar_mes1 += functions.contar_mala_entrada(vehiculo_pro_mes1)
-        mala_entrada_contar_mes2 += functions.contar_mala_entrada(vehiculo_pro_mes2)
-        mala_entrada_contar_mes3 += functions.contar_mala_entrada(vehiculo_pro_mes3)
-        mala_entrada_contar_mes4 += functions.contar_mala_entrada(vehiculo_pro_mes4)
-
+        mala_entrada_contar_mes1 += functions.contar_mala_entrada_pro(vehiculo_pro_mes1)
+        mala_entrada_contar_mes2 += functions.contar_mala_entrada_pro(vehiculo_pro_mes2)
+        mala_entrada_contar_mes3 += functions.contar_mala_entrada_pro(vehiculo_pro_mes3)
+        mala_entrada_contar_mes4 += functions.contar_mala_entrada_pro(vehiculo_pro_mes4)
 
         entrada_correcta_contar_barras_mes1 = functions.contar_entrada_correcta(vehiculo_fecha_barras_1)
         entrada_correcta_contar_barras_mes2 = functions.contar_entrada_correcta(vehiculo_fecha_barras_2)
@@ -2224,32 +2388,35 @@ class PulpoView(LoginRequiredMixin, ListView):
         doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro) 
         doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
-        print(doble_entrada)
-        print(doble_mala_entrada)
-
-        vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
+        vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
         vehiculo_periodo_status = {}
         mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo) | functions.mala_entrada_pro(vehiculo_periodo)
         for v in vehiculo_periodo:
-            if v in doble_mala_entrada or v in doble_mala_entrada_pro:
-                vehiculo_periodo_status[v] = "Doble Entrada"
-            elif v in mala_entrada_periodo:
-                vehiculo_periodo_status[v] = "Mala Entrada"
-            else:
-                vehiculo_periodo_status[v] = "Entrada Correctas"
+            try:
+                if v in doble_mala_entrada or v in doble_mala_entrada_pro:
+                    vehiculo_periodo_status[v] = "Doble Entrada"
+                elif v in mala_entrada_periodo:
+                    vehiculo_periodo_status[v] = "Mala Entrada"
+                else:
+                    vehiculo_periodo_status[v] = "Entrada Correctas"
+            except:
+                pass
 
         vehiculo_malos_status = {}
         mala_entrada = functions.mala_entrada(vehiculo) | functions.mala_entrada_pro(vehiculo)
         for v in vehiculo:
-            if v in doble_mala_entrada or v in doble_mala_entrada_pro:
-                vehiculo_malos_status[v] = "Doble Entrada"
-            elif v in mala_entrada:
-                vehiculo_malos_status[v] = "Mala Entrada"
+            try:
+                if v in doble_mala_entrada or v in doble_mala_entrada_pro:
+                    vehiculo_malos_status[v] = "Doble Entrada"
+                elif v in mala_entrada:
+                    vehiculo_malos_status[v] = "Mala Entrada"
+            except:
+                pass
 
         my_profile = Perfil.objects.get(user=self.request.user)
 
-        radar_min = functions.radar_min(vehiculo_fecha, self.request.user.perfil.compania)
-        radar_max = functions.radar_max(vehiculo_fecha, self.request.user.perfil.compania)
+        radar_min = functions.radar_min(vehiculo_fecha_total, self.request.user.perfil.compania)
+        radar_max = functions.radar_max(vehiculo_fecha_total, self.request.user.perfil.compania)
         radar_min_resta = functions.radar_min_resta(radar_min, radar_max)
 
         """functions.crear_1(numero_economico="P5",
@@ -2266,11 +2433,11 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions.crear_3(Vehiculo.objects.get(numero_economico="P5"))
 
         context["aplicaciones"] = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        context["aplicaciones_mas_frecuentes_infladas"] = functions.aplicaciones_mas_frecuentes(vehiculo_fecha, vehiculo, self.request.user.perfil.compania)
+        context["aplicaciones_mas_frecuentes_infladas"] = functions.aplicaciones_mas_frecuentes(vehiculo_fecha_total, vehiculo, self.request.user.perfil.compania)
         context["bitacoras"] = bitacora
         context["bitacoras_pro"] = bitacora_pro
         context["boton_intuitivo"] = "Vehículos Vencidos"
-        context["cantidad_inflado"] = vehiculo_fecha.count()
+        context["cantidad_inflado"] = vehiculo_fecha_total.count()
         context["cantidad_inflado_1"] = vehiculo_fecha_barras_1.count()
         context["cantidad_inflado_2"] = vehiculo_fecha_barras_2.count()
         context["cantidad_inflado_3"] = vehiculo_fecha_barras_3.count()
@@ -2288,7 +2455,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         context["cantidad_entrada_mes4"] = mala_entrada_contar_mes4
         context["cantidad_total"] = vehiculo.count()
         context["clases_compania"] = functions.clases_mas_frecuentes(vehiculo, self.request.user.perfil.compania)
-        context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo_fecha, self.request.user.perfil.compania)
+        context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo_fecha_total, self.request.user.perfil.compania)
         context["compania"] = self.request.user.perfil.compania
         context["doble_entrada"] = doble_entrada
         context["doble_entrada_pro"] = doble_entrada_pro
@@ -2299,20 +2466,19 @@ class PulpoView(LoginRequiredMixin, ListView):
         context["mes_3"] = mes_3.strftime("%b")
         context["mes_4"] = mes_4.strftime("%b")
         context["mes_5"] = mes_5.strftime("%b")
-        context["porcentaje_inflado"] = functions.porcentaje(vehiculo_fecha.count(), vehiculo.count())
-        context["porcentaje_entrada_correcta"] = functions.porcentaje(entrada_correcta_contar, vehiculo_fecha.count())
+        context["porcentaje_inflado"] = functions.porcentaje(vehiculo_fecha_total.count(), vehiculo.count())
+        context["porcentaje_entrada_correcta"] = functions.porcentaje(entrada_correcta_contar, vehiculo_fecha_total.count())
         context["radar_min"] = radar_min_resta
         context["radar_max"] = radar_max
         context["rango_1"] = my_profile.compania.periodo1_inflado
         context["rango_2"] = my_profile.compania.periodo2_inflado
         context["rango_3"] = my_profile.compania.periodo1_inflado + 1
         context["rango_4"] = my_profile.compania.periodo2_inflado + 1
-        context["tiempo_promedio"] = functions.inflado_promedio(vehiculo_fecha)
-        context["vehiculos"] = vehiculo_fecha
+        context["tiempo_promedio"] = functions.inflado_promedio(vehiculo_fecha_total)
+        context["vehiculos"] = vehiculo_fecha_total
         context["vehiculos_malos"] = vehiculo_malos_status
         context["vehiculos_periodo"] = vehiculo_periodo_status
         context["vehiculos_todos"] = vehiculo
-        functions_ftp.ftp_descarga()
         return context
 
 
@@ -2330,8 +2496,6 @@ def buscar(request):
     flota1 = request.GET.getlist("flota")
     fecha1 = request.GET.get("fechaInicio")
     fecha2 = request.GET.get("fechaFin")
-    boton_intuitivo = request.GET.get("boton_intuitivo")
-
 
     # Buscar por fecha
 
@@ -2367,10 +2531,17 @@ def buscar(request):
         fecha_con_formato1 = functions.convertir_fecha(fecha1)
         fecha_con_formato2 = functions.convertir_fecha(fecha2)
 
-        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[primera_fecha, segunda_fecha]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[primera_fecha, segunda_fecha])
+        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[primera_fecha, segunda_fecha])
+        vehiculo_fecha_pro = vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[primera_fecha, segunda_fecha])
     else:
-        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_pro = vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_total = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
     
+    bitacora = bitacora.filter(numero_economico__in=vehiculo)
+    bitacora_pro = bitacora_pro.filter(numero_economico__in=vehiculo)
+
+
     mes_1 = hoy.strftime("%b")
     mes_2 = functions.mes_anterior(hoy)
     mes_3 = functions.mes_anterior(mes_2)
@@ -2401,15 +2572,16 @@ def buscar(request):
 
 
     entrada_correcta_contar = functions.contar_entrada_correcta(vehiculo_fecha)
+    entrada_correcta_contar += functions.contar_entrada_correcta_pro(vehiculo_fecha_pro)
     mala_entrada_contar_mes1 = functions.contar_mala_entrada(vehiculo_mes1)
     mala_entrada_contar_mes2 = functions.contar_mala_entrada(vehiculo_mes2)
     mala_entrada_contar_mes3 = functions.contar_mala_entrada(vehiculo_mes3)
     mala_entrada_contar_mes4 = functions.contar_mala_entrada(vehiculo_mes4)
 
-    mala_entrada_contar_mes1 += functions.contar_mala_entrada(vehiculo_pro_mes1)
-    mala_entrada_contar_mes2 += functions.contar_mala_entrada(vehiculo_pro_mes2)
-    mala_entrada_contar_mes3 += functions.contar_mala_entrada(vehiculo_pro_mes3)
-    mala_entrada_contar_mes4 += functions.contar_mala_entrada(vehiculo_pro_mes4)
+    mala_entrada_contar_mes1 += functions.contar_mala_entrada_pro(vehiculo_pro_mes1)
+    mala_entrada_contar_mes2 += functions.contar_mala_entrada_pro(vehiculo_pro_mes2)
+    mala_entrada_contar_mes3 += functions.contar_mala_entrada_pro(vehiculo_pro_mes3)
+    mala_entrada_contar_mes4 += functions.contar_mala_entrada_pro(vehiculo_pro_mes4)
 
 
     entrada_correcta_contar_barras_mes1 = functions.contar_entrada_correcta(vehiculo_fecha_barras_1)
@@ -2425,34 +2597,42 @@ def buscar(request):
     doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro) 
     doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
-    vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
+    vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
     vehiculo_periodo_status = {}
     mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo) | functions.mala_entrada_pro(vehiculo_periodo)
     for v in vehiculo_periodo:
-        if v in doble_mala_entrada or v in doble_mala_entrada_pro:
-            vehiculo_periodo_status[v] = "Doble Entrada"
-        elif v in mala_entrada_periodo:
-            vehiculo_periodo_status[v] = "Mala Entrada"
-        else:
-            vehiculo_periodo_status[v] = "Entrada Correctas"
+        try:
+            if v in doble_mala_entrada or v in doble_mala_entrada_pro:
+                vehiculo_periodo_status[v] = "Doble Entrada"
+            elif v in mala_entrada_periodo:
+                vehiculo_periodo_status[v] = "Mala Entrada"
+            else:
+                vehiculo_periodo_status[v] = "Entrada Correctas"
+        except:
+            pass
 
     vehiculo_malos_status = {}
     mala_entrada = functions.mala_entrada(vehiculo) | functions.mala_entrada_pro(vehiculo)
+    print(doble_entrada_pro)
+    print(doble_mala_entrada_pro)
     for v in vehiculo:
-        if v in doble_mala_entrada:
-            vehiculo_malos_status[v] = "Doble Entrada"
-        elif v in mala_entrada:
-            vehiculo_malos_status[v] = "Mala Entrada"
+        try:
+            if v in doble_mala_entrada or v in doble_mala_entrada_pro:
+                vehiculo_malos_status[v] = "Doble Entrada"
+            elif v in mala_entrada:
+                vehiculo_malos_status[v] = "Mala Entrada"
+        except:
+            pass
 
     my_profile = Perfil.objects.get(user=request.user)
 
-    radar_min = functions.radar_min(vehiculo_fecha, request.user.perfil.compania)
-    radar_max = functions.radar_max(vehiculo_fecha, request.user.perfil.compania)
+    radar_min = functions.radar_min(vehiculo_fecha_total, request.user.perfil.compania)
+    radar_max = functions.radar_max(vehiculo_fecha_total, request.user.perfil.compania)
     radar_min_resta = functions.radar_min_resta(radar_min, radar_max)
 
     return render(request, "pulpo.html", {
                                         "aplicaciones": Aplicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania)),
-                                        "aplicaciones_mas_frecuentes_infladas": functions.aplicaciones_mas_frecuentes(vehiculo_fecha, vehiculo, request.user.perfil.compania),
+                                        "aplicaciones_mas_frecuentes_infladas": functions.aplicaciones_mas_frecuentes(vehiculo_fecha_total, vehiculo, request.user.perfil.compania),
                                         "bitacoras": bitacora,
                                         "bitacoras_pro": bitacora_pro,
                                         "boton_intuitivo": "Vehículos Vencidos",
@@ -2466,7 +2646,7 @@ def buscar(request):
                                         "cantidad_entrada_mes2": mala_entrada_contar_mes2,
                                         "cantidad_entrada_mes3": mala_entrada_contar_mes3,
                                         "cantidad_entrada_mes4": mala_entrada_contar_mes4,
-                                        "cantidad_inflado": vehiculo_fecha.count(),
+                                        "cantidad_inflado": vehiculo_fecha_total.count(),
                                         "cantidad_inflado_1": vehiculo_fecha_barras_1.count(),
                                         "cantidad_inflado_2": vehiculo_fecha_barras_2.count(),
                                         "cantidad_inflado_3": vehiculo_fecha_barras_3.count(),
@@ -2476,7 +2656,7 @@ def buscar(request):
                                         "clase": clase,
                                         "clase1": clase1,
                                         "clases_compania": clases,
-                                        "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha, request.user.perfil.compania),
+                                        "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha_total, request.user.perfil.compania),
                                         "compania": request.user.perfil.compania,
                                         "doble_entrada": doble_entrada,
                                         "doble_entrada_pro": doble_entrada_pro,
@@ -2493,16 +2673,16 @@ def buscar(request):
                                         "mes_3": mes_3.strftime("%b"),
                                         "mes_4": mes_4.strftime("%b"),
                                         "mes_5": mes_5.strftime("%b"),
-                                        "porcentaje_inflado": functions.porcentaje(vehiculo_fecha.count(), vehiculo.count()),
-                                        "porcentaje_entrada_correcta": functions.porcentaje(entrada_correcta_contar, vehiculo_fecha.count()),
+                                        "porcentaje_inflado": functions.porcentaje(vehiculo_fecha_total.count(), vehiculo.count()),
+                                        "porcentaje_entrada_correcta": functions.porcentaje(entrada_correcta_contar, vehiculo_fecha_total.count()),
                                         "radar_min": radar_min_resta,
                                         "radar_max": radar_max,
                                         "rango_1": my_profile.compania.periodo1_inflado,
                                         "rango_2": my_profile.compania.periodo2_inflado,
                                         "rango_3": my_profile.compania.periodo1_inflado + 1,
                                         "rango_4": my_profile.compania.periodo2_inflado + 1,
-                                        "tiempo_promedio": functions.inflado_promedio(vehiculo_fecha),
-                                        "vehiculos": vehiculo_fecha,
+                                        "tiempo_promedio": functions.inflado_promedio(vehiculo_fecha_total),
+                                        "vehiculos": vehiculo_fecha_total,
                                         "vehiculos_malos": vehiculo_malos_status,
                                         "vehiculos_periodo": vehiculo_periodo_status,
                                         "vehiculos_todos": vehiculo
@@ -2561,13 +2741,16 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
             user.save()
         elif self.request.method=='POST' and self.request.FILES.get("file"):
             file = self.request.FILES.get("file")
+            print("hola")
             archivo = os.path.abspath(os.getcwd()) + r"\files.xlsx"
             fp = open(archivo,'wb')
             for chunk in file.chunks():
                 fp.write(chunk)
+            print("hola2")
   
             wb_obj = openpyxl.load_workbook(archivo)
             sheet_obj = wb_obj.active
+            print("hola3")
             
             for i in range(sheet_obj.max_row):
                 numero_economico = sheet_obj.cell(row=i + 2, column=1).value
@@ -2581,7 +2764,63 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
                         aplicacion = sheet_obj.cell(row=i + 2, column=5).value
                         clase = sheet_obj.cell(row=i + 2, column=6).value
                         configuracion = sheet_obj.cell(row=i + 2, column=7).value
-                        presion_establecida = sheet_obj.cell(row=i + 2, column=8).value
+                        presion_establecida_1 = sheet_obj.cell(row=i + 2, column=8).value
+                        presion_establecida_2 = sheet_obj.cell(row=i + 2, column=9).value
+                        presion_establecida_3 = sheet_obj.cell(row=i + 2, column=10).value
+                        presion_establecida_4 = sheet_obj.cell(row=i + 2, column=11).value
+                        presion_establecida_5 = sheet_obj.cell(row=i + 2, column=12).value
+                        presion_establecida_6 = sheet_obj.cell(row=i + 2, column=13).value
+                        presion_establecida_7 = sheet_obj.cell(row=i + 2, column=14).value
+                        km_diario_maximo = sheet_obj.cell(row=i + 2, column=15).value
+                        estatus_activo = sheet_obj.cell(row=i + 2, column=16).value
+                        nuevo = sheet_obj.cell(row=i + 2, column=17).value
+
+                        if estatus_activo.lower() == "activo":
+                            estatus_activo = True
+                        else:
+                            estatus_activo = False
+
+                        if nuevo.lower() == "nuevo":
+                            nuevo = True
+                        else:
+                            nuevo = False
+
+                        try:
+                            presion_establecida_1 = int(presion_establecida_1)
+                        except:
+                            presion_establecida_1 = None
+
+                        try:
+                            presion_establecida_2 = int(presion_establecida_2)
+                        except:
+                            presion_establecida_2 = None
+
+                        try:
+                            presion_establecida_3 = int(presion_establecida_3)
+                        except:
+                            presion_establecida_3 = None
+
+                        try:
+                            presion_establecida_4 = int(presion_establecida_4)
+                        except:
+                            presion_establecida_4 = None
+
+                        try:
+                            presion_establecida_5 = int(presion_establecida_5)
+                        except:
+                            presion_establecida_5 = None
+
+                        try:
+                            presion_establecida_6 = int(presion_establecida_6)
+                        except:
+                            presion_establecida_6 = None
+
+                        try:
+                            presion_establecida_7 = int(presion_establecida_7)
+                        except:
+                            presion_establecida_7 = None
+
+
                         numero_de_llantas = functions.cantidad_llantas(configuracion)
 
                         ubicacion = Ubicacion.objects.get(nombre=ubicacion, compania=compania)
@@ -2597,7 +2836,16 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
                                             numero_de_llantas=numero_de_llantas,
                                             clase=clase.upper(),
                                             configuracion=configuracion,
-                                            presion_establecida=presion_establecida
+                                            presion_establecida_1=presion_establecida_1,
+                                            presion_establecida_2=presion_establecida_2,
+                                            presion_establecida_3=presion_establecida_3,
+                                            presion_establecida_4=presion_establecida_4,
+                                            presion_establecida_5=presion_establecida_5,
+                                            presion_establecida_6=presion_establecida_6,
+                                            presion_establecida_7=presion_establecida_7,
+                                            km_diario_maximo=int(km_diario_maximo),
+                                            estatus_activo=estatus_activo,
+                                            nuevo=nuevo
                                             )
                 except:
                     pass
@@ -2615,19 +2863,28 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
             sheet_obj = wb_obj.active
             
             for i in range(sheet_obj.max_row):
-                numero_economico = str(sheet_obj.cell(row=i + 2, column=1).value)
                 try:
+                    numero_economico = str(sheet_obj.cell(row=i + 2, column=1).value)
                     try:
                         llanta = Llanta.objects.get(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
                     except:
                         vehiculo = str(sheet_obj.cell(row=i + 2, column=2).value)
                         ubicacion = str(sheet_obj.cell(row=i + 2, column=3).value)
-                        vida = str(sheet_obj.cell(row=i + 2, column=4).value)
-                        posicion = str(sheet_obj.cell(row=i + 2, column=5).value)
-                        producto = str(sheet_obj.cell(row=i + 2, column=6).value)
+                        aplicacion = str(sheet_obj.cell(row=i + 2, column=4).value)
+                        vida = str(sheet_obj.cell(row=i + 2, column=5).value)
+                        posicion = str(sheet_obj.cell(row=i + 2, column=6).value)
+                        presion_actual = str(sheet_obj.cell(row=i + 2, column=7).value)
+                        profundidad_izquierda = str(sheet_obj.cell(row=i + 2, column=8).value)
+                        profundidad_central = str(sheet_obj.cell(row=i + 2, column=9).value)
+                        profundidad_derecha = str(sheet_obj.cell(row=i + 2, column=10).value)
+                        km_actual = str(sheet_obj.cell(row=i + 2, column=11).value)
+                        producto = str(sheet_obj.cell(row=i + 2, column=12).value)
+                        inventario = str(sheet_obj.cell(row=i + 2, column=13).value)
+                        km_montado = str(sheet_obj.cell(row=i + 2, column=14).value)
 
                         vehiculo = Vehiculo.objects.get(numero_economico=vehiculo)
                         ubicacion = Ubicacion.objects.get(nombre=ubicacion, compania=compania)
+                        aplicacion = Aplicacion.objects.get(nombre=aplicacion, compania=compania)
                         tipo_de_eje = vehiculo.configuracion.split(".")[int(posicion[0]) - 1]
                         eje = posicion[0]
                         if tipo_de_eje[0] == "S":
@@ -2643,23 +2900,58 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
                         producto = Producto.objects.get(producto=producto)
                         inventario = "Rodante"
 
+                        try:
+                            presion_actual = int(presion_actual)
+                        except:
+                            presion_actual = None
+
+                        try:
+                            profundidad_izquierda = int(profundidad_izquierda)
+                        except:
+                            profundidad_izquierda = producto.profundidad_inicial
+
+                        try:
+                            profundidad_central = int(profundidad_central)
+                        except:
+                            profundidad_central = producto.profundidad_inicial
+
+                        try:
+                            profundidad_derecha = int(profundidad_derecha)
+                        except:
+                            profundidad_derecha = producto.profundidad_inicial
+
+                        try:
+                            km_actual = int(km_actual)
+                        except:
+                            km_actual = None
+
+                        try:
+                            km_montado = int(km_montado)
+                        except:
+                            km_montado = None
+
                         Llanta.objects.create(numero_economico=numero_economico,
-                                            usuario=user.perfil,
                                             compania=compania,
                                             vehiculo=vehiculo,
                                             ubicacion=ubicacion,
+                                            aplicacion=aplicacion,
                                             vida=vida,
                                             tipo_de_eje=tipo_de_eje,
                                             eje=int(eje),
                                             posicion=posicion,
-                                            presion_establecida=vehiculo.presion_establecida,
+                                            presion_actual=presion_actual,
+                                            profundidad_izquierda=profundidad_izquierda,
+                                            profundidad_central=profundidad_central,
+                                            profundidad_derecha=profundidad_derecha,
+                                            km_actual=km_actual,
                                             nombre_de_eje=nombre_de_eje,
                                             producto=producto,
-                                            inventario=inventario
+                                            inventario=inventario,
+                                            fecha_de_entrada_inventario=date.today(),
+                                            km_montado=km_montado
                                             )
                 except:
                     pass
-
 
         context["user"] = user
         context["groups_names"] = groups_names
@@ -2689,7 +2981,6 @@ class SearchView(LoginRequiredMixin, ListView):
         doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculos)
         filtro_rojo_pro = functions.vehiculo_rojo(llantas, doble_mala_entrada_pro, vehiculos)
         vehiculos_rojos = vehiculos.filter(id__in=filtro_rojo).exclude(id__in=vehiculos_sospechosos) | vehiculos.filter(id__in=filtro_rojo_pro).exclude(id__in=vehiculos_sospechosos)
-
 
         filtro_amarillo = functions.vehiculo_amarillo(llantas)
         vehiculos_amarillos = vehiculos.filter(id__in=filtro_amarillo).exclude(id__in=vehiculos_rojos).exclude(id__in=vehiculos_sospechosos)
@@ -2748,7 +3039,7 @@ def search(request):
         primera_fecha = datetime.strptime(dividir_fecha[0], "%m/%d/%Y").date()
         segunda_fecha = datetime.strptime(dividir_fecha[1], "%m/%d/%Y").date()
 
-        vehiculos = Vehiculo.objects.filter(fecha_de_inflado__range=[primera_fecha, segunda_fecha], compania=Compania.objects.get(compania=request.user.perfil.compania), tirecheck=False)
+        vehiculos = Vehiculo.objects.filter(fecha_de_inflado__range=[primera_fecha, segunda_fecha], compania=Compania.objects.get(compania=request.user.perfil.compania), tirecheck=False) | Vehiculo.objects.filter(ultima_bitacora_pro__fecha_de_inflado__range=[primera_fecha, segunda_fecha], compania=Compania.objects.get(compania=request.user.perfil.compania), tirecheck=False)
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
         bitacora_pro = Bitacora_Pro.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
         llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=request.user.perfil.compania), tirecheck=False)
@@ -2992,13 +3283,23 @@ class DetailView(LoginRequiredMixin, DetailView):
         vehiculo = Vehiculo.objects.get(pk=self.kwargs['pk'])
         llantas = Llanta.objects.filter(vehiculo=vehiculo, tirecheck=False)
         inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
-        bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+        bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         entradas_correctas = functions.entrada_correcta(bitacora)
+        entradas_correctas_pro = functions.entrada_correcta_pro(bitacora_pro)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
         if vehiculo.fecha_de_inflado:
             inflado = 1
         else:
             inflado = 0
+
+        eventos = []
+        for bit in bitacora:
+            eventos.append([bit.fecha_de_inflado, bit])
+        for bit in bitacora_pro:
+            eventos.append([bit.fecha_de_inflado, bit])
+        
+        eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
 
         hoy = date.today()
 
@@ -3011,8 +3312,6 @@ class DetailView(LoginRequiredMixin, DetailView):
         mes_7 = functions.mes_anterior(mes_6)
         mes_8 = functions.mes_anterior(mes_7)
 
-
-
         hoy1 = hoy.strftime("%m")
         hoy2 = mes_2.strftime("%m")
         hoy3 = mes_3.strftime("%m")
@@ -3022,11 +3321,11 @@ class DetailView(LoginRequiredMixin, DetailView):
         hoy7 = mes_7.strftime("%m")
         hoy8 = mes_8.strftime("%m")
 
-
-
         color = functions.entrada_correcta_actual(vehiculo)
+        message = None
+        message_pro = {}
 
-        if bitacora:
+        if bitacora or bitacora_pro:
             vehiculo_mes1 = bitacora.filter(fecha_de_inflado__month=hoy1)
             vehiculo_mes2 = bitacora.filter(fecha_de_inflado__month=hoy2)
             vehiculo_mes3 = bitacora.filter(fecha_de_inflado__month=hoy3)
@@ -3035,6 +3334,15 @@ class DetailView(LoginRequiredMixin, DetailView):
             vehiculo_mes6 = bitacora.filter(fecha_de_inflado__month=hoy6)
             vehiculo_mes7 = bitacora.filter(fecha_de_inflado__month=hoy7)
             vehiculo_mes8 = bitacora.filter(fecha_de_inflado__month=hoy8)
+
+            vehiculo_pro_mes1 = bitacora_pro.filter(fecha_de_inflado__month=hoy1)
+            vehiculo_pro_mes2 = bitacora_pro.filter(fecha_de_inflado__month=hoy2)
+            vehiculo_pro_mes3 = bitacora_pro.filter(fecha_de_inflado__month=hoy3)
+            vehiculo_pro_mes4 = bitacora_pro.filter(fecha_de_inflado__month=hoy4)
+            vehiculo_pro_mes5 = bitacora_pro.filter(fecha_de_inflado__month=hoy5)
+            vehiculo_pro_mes6 = bitacora_pro.filter(fecha_de_inflado__month=hoy6)
+            vehiculo_pro_mes7 = bitacora_pro.filter(fecha_de_inflado__month=hoy7)
+            vehiculo_pro_mes8 = bitacora_pro.filter(fecha_de_inflado__month=hoy8)
 
             mala_entrada_contar_mes1 = functions.contar_mala_entrada(vehiculo_mes1)
             mala_entrada_contar_mes2 = functions.contar_mala_entrada(vehiculo_mes2)
@@ -3045,16 +3353,35 @@ class DetailView(LoginRequiredMixin, DetailView):
             mala_entrada_contar_mes7 = functions.contar_mala_entrada(vehiculo_mes7)
             mala_entrada_contar_mes8 = functions.contar_mala_entrada(vehiculo_mes8)
 
+            mala_entrada_contar_mes1 += functions.contar_mala_entrada_pro(vehiculo_pro_mes1)
+            mala_entrada_contar_mes2 += functions.contar_mala_entrada_pro(vehiculo_pro_mes2)
+            mala_entrada_contar_mes3 += functions.contar_mala_entrada_pro(vehiculo_pro_mes3)
+            mala_entrada_contar_mes4 += functions.contar_mala_entrada_pro(vehiculo_pro_mes4)
+            mala_entrada_contar_mes5 += functions.contar_mala_entrada_pro(vehiculo_pro_mes5)
+            mala_entrada_contar_mes6 += functions.contar_mala_entrada_pro(vehiculo_pro_mes6)
+            mala_entrada_contar_mes7 += functions.contar_mala_entrada_pro(vehiculo_pro_mes7)
+            mala_entrada_contar_mes8 += functions.contar_mala_entrada_pro(vehiculo_pro_mes8)
+
             doble_entrada = functions.doble_entrada(bitacora)
             doble_mala_entrada = functions.doble_mala_entrada(bitacora, vehiculo)
 
-            if doble_mala_entrada:
-                message = "Doble mala entrada"
-                color = "bad"
-            elif color == "bad":
-                message = "Baja presión"
-            else:
-                message = None
+            doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro)
+            doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
+
+            try:
+                if doble_mala_entrada:
+                    message = "Doble mala entrada"
+                    color = "bad"
+
+                elif doble_mala_entrada_pro:
+                    for entrada in doble_mala_entrada_pro:
+                        message_pro[entrada[-1]] = "Doble mala entrada"
+                    color = "bad"
+                elif color == "bad":
+                    message = "Baja presión"
+            except:
+                pass
+
 
             configuracion = vehiculo.configuracion
             cantidad_llantas = functions.cantidad_llantas(configuracion)
@@ -3100,14 +3427,14 @@ class DetailView(LoginRequiredMixin, DetailView):
             reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual.items() if v != 0}
 
             context["bitacoras"] = bitacora
-            context["cantidad_doble_entrada_mes1"] = doble_entrada[1]["mes1"]
-            context["cantidad_doble_entrada_mes2"] = doble_entrada[1]["mes2"]
-            context["cantidad_doble_entrada_mes3"] = doble_entrada[1]["mes3"]
-            context["cantidad_doble_entrada_mes4"] = doble_entrada[1]["mes4"]
-            context["cantidad_doble_entrada_mes5"] = doble_entrada[1]["mes5"]
-            context["cantidad_doble_entrada_mes6"] = doble_entrada[1]["mes6"]
-            context["cantidad_doble_entrada_mes7"] = doble_entrada[1]["mes7"]
-            context["cantidad_doble_entrada_mes8"] = doble_entrada[1]["mes8"]
+            context["cantidad_doble_entrada_mes1"] = doble_entrada[1]["mes1"] + doble_entrada_pro[1]["mes1"]
+            context["cantidad_doble_entrada_mes2"] = doble_entrada[1]["mes2"] + doble_entrada_pro[1]["mes2"]
+            context["cantidad_doble_entrada_mes3"] = doble_entrada[1]["mes3"] + doble_entrada_pro[1]["mes3"]
+            context["cantidad_doble_entrada_mes4"] = doble_entrada[1]["mes4"] + doble_entrada_pro[1]["mes4"]
+            context["cantidad_doble_entrada_mes5"] = doble_entrada[1]["mes5"] + doble_entrada_pro[1]["mes5"]
+            context["cantidad_doble_entrada_mes6"] = doble_entrada[1]["mes6"] + doble_entrada_pro[1]["mes6"]
+            context["cantidad_doble_entrada_mes7"] = doble_entrada[1]["mes7"] + doble_entrada_pro[1]["mes7"]
+            context["cantidad_doble_entrada_mes8"] = doble_entrada[1]["mes8"] + doble_entrada_pro[1]["mes8"]
             context["cantidad_entrada_mes1"] = mala_entrada_contar_mes1
             context["cantidad_entrada_mes2"] = mala_entrada_contar_mes2
             context["cantidad_entrada_mes3"] = mala_entrada_contar_mes3
@@ -3125,6 +3452,8 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["cpk_vehiculo"] = cpk_vehiculo
             context["doble_entrada"] = doble_entrada
             context["entradas"] = entradas_correctas
+            context["entradas_pro"] = entradas_correctas_pro
+            context["eventos"] = eventos
             context["fecha"] = fecha
             context["hoy"] = hoy
             context["mes_1"] = mes_1
@@ -3137,20 +3466,21 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["mes_8"] = mes_8.strftime("%b")
             context["message"] = message
             context["reemplazo_actual_ejes"] = reemplazo_actual_ejes
-            context["vehiculo_mes1"] = vehiculo_mes1.count()
-            context["vehiculo_mes2"] = vehiculo_mes2.count()
-            context["vehiculo_mes3"] = vehiculo_mes3.count()
-            context["vehiculo_mes4"] = vehiculo_mes4.count()
-            context["vehiculo_mes5"] = vehiculo_mes5.count()
-            context["vehiculo_mes6"] = vehiculo_mes6.count()
-            context["vehiculo_mes7"] = vehiculo_mes7.count()
-            context["vehiculo_mes8"] = vehiculo_mes8.count()
+            context["tiempo_promedio"] = functions.inflado_promedio(vehiculo)
+            context["vehiculo_mes1"] = vehiculo_mes1.count() + vehiculo_pro_mes1.count()
+            context["vehiculo_mes2"] = vehiculo_mes2.count() + vehiculo_pro_mes2.count()
+            context["vehiculo_mes3"] = vehiculo_mes3.count() + vehiculo_pro_mes3.count()
+            context["vehiculo_mes4"] = vehiculo_mes4.count() + vehiculo_pro_mes4.count()
+            context["vehiculo_mes5"] = vehiculo_mes5.count() + vehiculo_pro_mes5.count()
+            context["vehiculo_mes6"] = vehiculo_mes6.count() + vehiculo_pro_mes6.count()
+            context["vehiculo_mes7"] = vehiculo_mes7.count() + vehiculo_pro_mes7.count()
+            context["vehiculo_mes8"] = vehiculo_mes8.count() + vehiculo_pro_mes8.count()
             
         #Generacion de ejes dinamico
         vehiculo_actual = Vehiculo.objects.get(pk = self.kwargs['pk'])
         llantas_actuales = Llanta.objects.filter(vehiculo = self.kwargs['pk'], tirecheck=False)
         inspecciones_actuales = Inspeccion.objects.filter(llanta__in=llantas_actuales)
-        
+
         #Obtencion de la lista de las llantas
         
         filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones_actuales)
@@ -3181,10 +3511,10 @@ class DetailView(LoginRequiredMixin, DetailView):
                     color_profundidad = 'yellow'
                 elif llanta in llantas_azules:
                     color_profundidad = 'good'
-                if llanta.ultima_inspeccion == None:
+                else:
                     color_profundidad = 'bad'
                 objetivo = llanta.vehiculo.compania.objetivo / 100
-                presion_act = llanta.presion_de_salida
+                presion_act = llanta.presion_actual
                 presion_minima = 100 - (100 * objetivo)
                 presion_maxima = 100 + (100 * objetivo)
                 #print(f'{objetivo}'.center(50, "-"))
@@ -3194,13 +3524,27 @@ class DetailView(LoginRequiredMixin, DetailView):
                 #print(presion_act > presion_minima)
                 #print(presion_act < presion_maxima)
                 #print('***********************************')
-                if presion_act > presion_minima and presion_act < presion_maxima:
+                min_produndidad = functions.min_profundidad(llanta)
+                try:
+                    if presion_act < presion_minima:
+                        color_presion = 'bad'
+                        problema = 'Baja presión'
+                    if presion_act > presion_maxima:
+                        color_presion = 'bad'
+                        problema = 'Alta presión'
+                    else:
+                        color_presion = 'good'
+                        problema = None
+                except:
                     color_presion = 'good'
-                else:
-                    color_presion = 'bad'
                 
+                if message or problema:
+                    color_llanta = "bad"
+                else:
+                    color_llanta = "good"
+
                 if llanta.eje == eje:
-                    list_temp.append([llanta, color_profundidad, color_presion])
+                    list_temp.append([llanta, color_profundidad, color_presion, min_produndidad, color_llanta, problema])
             eje += 1
             ejes_no_ordenados.append(list_temp)
         
@@ -3257,41 +3601,80 @@ class DetailView(LoginRequiredMixin, DetailView):
         
         problemas_abiertos = []
         try:
+            num_llanta = 0
             for eje in ejes:
+                print(message)
                 if len(eje) == 2:
-                    if message:
+                    num_llanta += 1
+                    if num_llanta in message_pro:
+                        problemas_abiertos.append([eje[0][0], message_pro[num_llanta]])
+                        eje[0][4] = "bad" 
+                    elif message:
+                        print(message)
                         problemas_abiertos.append([eje[0][0], message])
+                    if eje[0][5]:
+                        problemas_abiertos.append([eje[0][0], eje[0][5]])
                     if eje[0][1] == "bad":
                         problemas_abiertos.append([eje[0][0], "Profundidad abajo del punto de retiro"])
                     if eje[0][1] == "yellow":
                         problemas_abiertos.append([eje[0][0], "Profundidad en el punto de retiro"])
-                    if message:
+                    num_llanta += 1
+                    if num_llanta in message_pro:
+                        problemas_abiertos.append([eje[1][0], message_pro[num_llanta]])
+                        eje[1][4] = "bad"
+                    elif message:
                         problemas_abiertos.append([eje[1][0], message])
+                    if eje[1][5]:
+                        problemas_abiertos.append([eje[1][0], eje[1][5]])
                     if eje[1][1] == "bad":
                         problemas_abiertos.append([eje[1][0], "Profundidad abajo del punto de retiro"])
                     if eje[1][1] == "yellow":
                         problemas_abiertos.append([eje[1][0], "Profundidad en el punto de retiro"])
                 else:
-                    if message:
+                    num_llanta += 1
+                    if num_llanta in message_pro:
+                        problemas_abiertos.append([eje[0][0], message_pro[num_llanta]])
+                        eje[0][4] = "bad" 
+                    elif message:
                         problemas_abiertos.append([eje[0][0], message])
+                    if eje[0][5]:
+                        problemas_abiertos.append([eje[0][0], eje[0][5]])
                     if eje[0][1] == "bad":
                         problemas_abiertos.append([eje[0][0], "Profundidad abajo del punto de retiro"])
                     if eje[0][1] == "yellow":
                         problemas_abiertos.append([eje[0][0], "Profundidad en el punto de retiro"])
-                    if message:
+                    num_llanta += 1
+                    if num_llanta in message_pro:
+                        problemas_abiertos.append([eje[1][0], message_pro[num_llanta]])
+                        eje[1][4] = "bad"
+                    elif message:
                         problemas_abiertos.append([eje[1][0], message])
+                    if eje[1][5]:
+                        problemas_abiertos.append([eje[1][0], eje[1][5]])
                     if eje[1][1] == "bad":
                         problemas_abiertos.append([eje[1][0], "Profundidad abajo del punto de retiro"])
                     if eje[1][1] == "yellow":
                         problemas_abiertos.append([eje[1][0], "Profundidad en el punto de retiro"])
-                    if message:
+                    num_llanta += 1
+                    if num_llanta in message_pro:
+                        problemas_abiertos.append([eje[2][0], message_pro[num_llanta]])
+                        eje[2][4] = "bad"
+                    elif message:
                         problemas_abiertos.append([eje[2][0], message])
+                    if eje[2][5]:
+                        problemas_abiertos.append([eje[2][0], eje[2][5]])
                     if eje[2][1] == "bad":
                         problemas_abiertos.append([eje[2][0], "Profundidad abajo del punto de retiro"])
                     if eje[2][1] == "yellow":
                         problemas_abiertos.append([eje[2][0], "Profundidad en el punto de retiro"])
-                    if message:
+                    num_llanta += 1
+                    if num_llanta in message_pro:
+                        problemas_abiertos.append([eje[3][0], message_pro[num_llanta]])
+                        eje[3][4] = "bad"
+                    elif message:
                         problemas_abiertos.append([eje[3][0], message])
+                    if eje[3][5]:
+                        problemas_abiertos.append([eje[3][0], eje[3][5]])
                     if eje[3][1] == "bad":
                         problemas_abiertos.append([eje[3][0], "Profundidad abajo del punto de retiro"])
                     if eje[3][1] == "yellow":
@@ -3299,42 +3682,55 @@ class DetailView(LoginRequiredMixin, DetailView):
         except:
             pass
 
+        print(problemas_abiertos)
         #print(len(llantas_actuales))
         #print(sin_llantas)
         #print(problemas_abiertos)
         #print(vehiculo.configuracion)
         #print(ejes)
         #print(f'style: {style}')
-        #print(f'llantas_sospechosas: {llantas_sospechosas}')
-        #print(f'llantas_rojas: {llantas_rojas}')
-        #print(f'llantas_amarillas: {llantas_amarillas}')
-        #print(f'llantas_azules: {llantas_azules}')
+        print(f'llantas_sospechosas: {llantas_sospechosas}')
+        print(f'llantas_rojas: {llantas_rojas}')
+        print(f'llantas_amarillas: {llantas_amarillas}')
+        print(f'llantas_azules: {llantas_azules}')
         context['ejes'] = ejes
         context['style'] = style
         context['cant_ejes'] = cant_ejes
         context['problemas_abiertos'] = problemas_abiertos
         context['sin_llantas'] = sin_llantas
-        context['presion_maxima'] = int(float(presion_maxima))
-        context['presion_minima'] = int(float(presion_minima))
-        
+        try:
+            context['presion_maxima'] = int(float(presion_maxima))
+            context['presion_minima'] = int(float(presion_minima))
+        except:
+            pass
         #Generacion de las bitacoras
-        bitacora_edicion = Bitacora_Edicion.objects.filter(vehiculo = vehiculo_actual)
-        context['bitacora_edicion'] = bitacora_edicion
+        """bitacora_edicion = Bitacora_Edicion.objects.filter(vehiculo = vehiculo_actual)
+        context['bitacora_edicion'] = bitacora_edicion"""
+        
+        #Generacion de la dimencion
+        dimension = 'Desconocido'
+        for llanta in llantas_actuales:
+            print(llanta.producto.dimension)
+            if llanta.producto.dimension != "" and llanta.producto.dimension != None:
+                dimension = llanta.producto.dimension
+                break
+        #print(dimension)
+        context['dimension'] = dimension
         return context
 
 
 class ReporteDeCambios(ListView):
     template_name= 'reporteDeCambios.html'
-    model = Bitacora_Edicion
+    """model = Bitacora_Edicion"""
     
     def get_queryset(self):
-        return Bitacora_Edicion.objects.filter(pk = self.kwargs['pk'])
+        """return Bitacora_Edicion.objects.filter(pk = self.kwargs['pk'])"""
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        bitacora = Bitacora_Edicion.objects.get(pk = self.kwargs['pk'])
+        """bitacora = Bitacora_Edicion.objects.get(pk = self.kwargs['pk'])
         context['bitacora'] = bitacora
-        context['registros'] = Registro_Bitacora.objects.filter(bitacora = bitacora)
+        context['registros'] = Registro_Bitacora.objects.filter(bitacora = bitacora)"""
         return context
 
 
@@ -3368,7 +3764,7 @@ def download_rendimiento_de_llanta(request):
     font_style.font.bold = True
 
 	#column header names, you can use your own headers here
-    columns = ['Llanta', 'Vehiculo', 'Posición', 'Km actual', 'Km proyectado', 'CPK', 'Sucursal', 'Aplicación', 'Clase', 'Nombre de eje', 'Producto', 'Min profundidad']
+    columns = ['Llanta', 'Vehiculo', 'Posición', 'Km actual', 'Km proyectado', 'CPK', 'Sucursal', 'Aplicación', 'Clase', 'Nombre de eje', 'Producto', 'Min profundidad', "Eje"]
 
     #write column headers in sheet
     for col_num in range(len(columns)):
@@ -3382,7 +3778,7 @@ def download_rendimiento_de_llanta(request):
         ws.write(my_row + 1, 0, str(llantas_analizadas[my_row]), font_style)
         ws.write(my_row + 1, 1, str(llantas_analizadas.values("vehiculo__numero_economico")[my_row]["vehiculo__numero_economico"]), font_style)
         ws.write(my_row + 1, 2, str(llantas_analizadas.values("posicion")[my_row]["posicion"]), font_style)
-        ws.write(my_row + 1, 3, str(llantas_analizadas.values("ultima_inspeccion__km")[my_row]["ultima_inspeccion__km"]), font_style)
+        ws.write(my_row + 1, 3, str(llantas_analizadas.values("km")[my_row]["km"]), font_style)
         ws.write(my_row + 1, 4, str(regresion[5][my_row]), font_style)
         ws.write(my_row + 1, 5, str(regresion[3][my_row]), font_style)
         ws.write(my_row + 1, 6, str(llantas_analizadas.values("vehiculo__ubicacion__nombre")[my_row]["vehiculo__ubicacion__nombre"]), font_style)
@@ -3390,7 +3786,8 @@ def download_rendimiento_de_llanta(request):
         ws.write(my_row + 1, 8, str(llantas_analizadas.values("vehiculo__clase")[my_row]["vehiculo__clase"]), font_style)
         ws.write(my_row + 1, 9, str(llantas_analizadas.values("nombre_de_eje")[my_row]["nombre_de_eje"]), font_style)
         ws.write(my_row + 1, 10, str(llantas_analizadas.values("producto__producto")[my_row]["producto__producto"]), font_style)
-        ws.write(my_row + 1, 11, str(llantas_analizadas.values("ultima_inspeccion__min_profundidad")[my_row]["ultima_inspeccion__min_profundidad"]), font_style)
+        ws.write(my_row + 1, 11, str(llantas_analizadas.values("min_profundidad")[my_row]["min_profundidad"]), font_style)
+        ws.write(my_row + 1, 12, str(llantas_analizadas.values("nombre_de_eje")[my_row]["nombre_de_eje"]), font_style)
 
 
     wb.save(response)
@@ -4012,6 +4409,173 @@ def informe_de_perdida_y_rendimiento(request):
 
         wb.save(response)
         return response
+
+def download_todo(request):
+    # Define Django project base directory
+    # content-type of response
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="pruebacal"))
+    llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="pruebacal"))
+    productos = Producto.objects.filter(compania=Compania.objects.get(compania="pruebacal"))
+    inspecciones = Inspeccion.objects.filter(llanta__compania=Compania.objects.get(compania="pruebacal"))
+
+    functions.km_actual_llanta(llantas)
+
+    response = HttpResponse(content_type='application/ms-excel')
+
+	#decide file name
+    response['Content-Disposition'] = 'attachment; filename="Info.xls"'
+
+	#creating workbook
+    wb = xlwt.Workbook(encoding='utf-8')
+
+	#adding sheet
+    ws = wb.add_sheet("Vehiculos")
+
+	# Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+	# headers are bold
+    font_style.font.bold = True
+
+	#column header names, you can use your own headers here
+    columns = ['Número Económico', 'Modelo', 'Marca', 'Compania', 'Sucursal', 'Aplicacion', 'Clase', 'Configuracion', 'Presion establecida 1', 'Presion establecida 2', 'Presion establecida 3', 'Presion establecida 4', 'Presion establecida 5', 'Presion establecida 6', 'Presion establecida 7', "Km", "Km diario máximo"]
+
+    #write column headers in sheet
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    #get your data, from database or from a text file...
+    for my_row in range(len(vehiculos)):
+        ws.write(my_row + 1, 0, str(vehiculos[my_row]), font_style)
+        ws.write(my_row + 1, 1, str(vehiculos.values("modelo")[my_row]["modelo"]), font_style)
+        ws.write(my_row + 1, 2, str(vehiculos.values("marca")[my_row]["marca"]), font_style)
+        ws.write(my_row + 1, 3, str(vehiculos.values("compania__compania")[my_row]["compania__compania"]), font_style)
+        ws.write(my_row + 1, 4, str(vehiculos.values("ubicacion__nombre")[my_row]["ubicacion__nombre"]), font_style)
+        ws.write(my_row + 1, 5, str(vehiculos.values("aplicacion__nombre")[my_row]["aplicacion__nombre"]), font_style)
+        ws.write(my_row + 1, 6, str(vehiculos.values("clase")[my_row]["clase"]), font_style)
+        ws.write(my_row + 1, 7, str(vehiculos.values("configuracion")[my_row]["configuracion"]), font_style)
+        ws.write(my_row + 1, 8, str(vehiculos.values("presion_establecida_1")[my_row]["presion_establecida_1"]), font_style)
+        ws.write(my_row + 1, 9, str(vehiculos.values("presion_establecida_2")[my_row]["presion_establecida_2"]), font_style)
+        ws.write(my_row + 1, 10, str(vehiculos.values("presion_establecida_3")[my_row]["presion_establecida_3"]), font_style)
+        ws.write(my_row + 1, 11, str(vehiculos.values("presion_establecida_4")[my_row]["presion_establecida_4"]), font_style)
+        ws.write(my_row + 1, 12, str(vehiculos.values("presion_establecida_5")[my_row]["presion_establecida_5"]), font_style)
+        ws.write(my_row + 1, 13, str(vehiculos.values("presion_establecida_6")[my_row]["presion_establecida_6"]), font_style)
+        ws.write(my_row + 1, 14, str(vehiculos.values("presion_establecida_7")[my_row]["presion_establecida_7"]), font_style)
+        ws.write(my_row + 1, 15, str(vehiculos.values("km")[my_row]["km"]), font_style)
+        ws.write(my_row + 1, 16, str(vehiculos.values("km_diario_maximo")[my_row]["km_diario_maximo"]), font_style)
+
+	#adding sheet
+    ws2 = wb.add_sheet("Llantas")
+
+	# Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+	# headers are bold
+    font_style.font.bold = True
+
+	#column header names, you can use your own headers here
+    columns = ['Número Económico', 'Compania', 'Vehiculo', 'Ubicacion', 'Aplicacion', 'Taller', 'Vida', 'Tipo de Eje', 'Nombre de Eje', 'Posición', 'Presion actual', 'Profundidad izquierda', 'Profundidad central', "Profundidad derecha", "Km actual", "Km montado", "Producto", "Inventario", "Fecha de entrada inventario"]
+
+    #write column headers in sheet
+    for col_num in range(len(columns)):
+        ws2.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    #get your data, from database or from a text file...
+    for my_row in range(len(llantas)):
+        ws2.write(my_row + 1, 0, str(llantas[my_row]), font_style)
+        ws2.write(my_row + 1, 1, str(llantas.values("vehiculo__compania__compania")[my_row]["vehiculo__compania__compania"]), font_style)
+        ws2.write(my_row + 1, 2, str(llantas.values("vehiculo__numero_economico")[my_row]["vehiculo__numero_economico"]), font_style)
+        ws2.write(my_row + 1, 3, str(llantas.values("ubicacion__nombre")[my_row]["ubicacion__nombre"]), font_style)
+        ws2.write(my_row + 1, 4, str(llantas.values("aplicacion__nombre")[my_row]["aplicacion__nombre"]), font_style)
+        ws2.write(my_row + 1, 5, str(llantas.values("taller")[my_row]["taller"]), font_style)
+        ws2.write(my_row + 1, 6, str(llantas.values("vida")[my_row]["vida"]), font_style)
+        ws2.write(my_row + 1, 7, str(llantas.values("tipo_de_eje")[my_row]["tipo_de_eje"]), font_style)
+        ws2.write(my_row + 1, 8, str(llantas.values("nombre_de_eje")[my_row]["nombre_de_eje"]), font_style)
+        ws2.write(my_row + 1, 9, str(llantas.values("posicion")[my_row]["posicion"]), font_style)
+        ws2.write(my_row + 1, 10, str(llantas.values("presion_actual")[my_row]["presion_actual"]), font_style)
+        ws2.write(my_row + 1, 11, str(llantas.values("profundidad_izquierda")[my_row]["profundidad_izquierda"]), font_style)
+        ws2.write(my_row + 1, 12, str(llantas.values("profundidad_central")[my_row]["profundidad_central"]), font_style)
+        ws2.write(my_row + 1, 13, str(llantas.values("profundidad_derecha")[my_row]["profundidad_derecha"]), font_style)
+        ws2.write(my_row + 1, 14, str(llantas.values("km_actual")[my_row]["km_actual"]), font_style)
+        ws2.write(my_row + 1, 15, str(llantas.values("km_montado")[my_row]["km_montado"]), font_style)
+        ws2.write(my_row + 1, 16, str(llantas.values("producto__producto")[my_row]["producto__producto"]), font_style)
+        ws2.write(my_row + 1, 17, str(llantas.values("inventario")[my_row]["inventario"]), font_style)
+        ws2.write(my_row + 1, 18, str(llantas.values("fecha_de_entrada_inventario")[my_row]["fecha_de_entrada_inventario"]), font_style)
+
+	#adding sheet
+    ws3 = wb.add_sheet("Productos")
+
+	# Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+	# headers are bold
+    font_style.font.bold = True
+
+	#column header names, you can use your own headers here
+    columns = ['Producto', 'Marca', 'Dibujo', 'Rango', 'Dimensión', 'Profundidad inicial', 'Vida', 'Precio']
+
+    #write column headers in sheet
+    for col_num in range(len(columns)):
+        ws3.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    #get your data, from database or from a text file...
+    for my_row in range(len(productos)):
+        ws3.write(my_row + 1, 0, str(productos[my_row]), font_style)
+        ws3.write(my_row + 1, 1, str(productos.values("marca")[my_row]["marca"]), font_style)
+        ws3.write(my_row + 1, 2, str(productos.values("dibujo")[my_row]["dibujo"]), font_style)
+        ws3.write(my_row + 1, 3, str(productos.values("rango")[my_row]["rango"]), font_style)
+        ws3.write(my_row + 1, 4, str(productos.values("dimension")[my_row]["dimension"]), font_style)
+        ws3.write(my_row + 1, 5, str(productos.values("profundidad_inicial")[my_row]["profundidad_inicial"]), font_style)
+        ws3.write(my_row + 1, 6, str(productos.values("vida")[my_row]["vida"]), font_style)
+        ws3.write(my_row + 1, 7, str(productos.values("precio")[my_row]["precio"]), font_style)
+
+
+	#adding sheet
+    ws4 = wb.add_sheet("Inspecciones")
+
+	# Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+	# headers are bold
+    font_style.font.bold = True
+
+	#column header names, you can use your own headers here
+    columns = ['Llanta', 'Usuario', 'Vehículo', 'Fecha', 'Vida', 'Km', 'Profundidad izquierda', 'Profundidad central', 'Profundidad derecha']
+
+    #write column headers in sheet
+    for col_num in range(len(columns)):
+        ws4.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    #get your data, from database or from a text file...
+    for my_row in range(len(inspecciones)):
+        ws4.write(my_row + 1, 0, str(inspecciones.values("llanta__numero_economico")[my_row]["llanta__numero_economico"]), font_style)
+        ws4.write(my_row + 1, 1, str(inspecciones.values("usuario__user__username")[my_row]["usuario__user__username"]), font_style)
+        ws4.write(my_row + 1, 2, str(inspecciones.values("vehiculo__numero_economico")[my_row]["vehiculo__numero_economico"]), font_style)
+        ws4.write(my_row + 1, 3, str(inspecciones.values("fecha_hora")[my_row]["fecha_hora"]), font_style)
+        ws4.write(my_row + 1, 4, str(inspecciones.values("vida")[my_row]["vida"]), font_style)
+        ws4.write(my_row + 1, 5, str(inspecciones.values("km_vehiculo")[my_row]["km_vehiculo"]), font_style)
+        ws4.write(my_row + 1, 6, str(inspecciones.values("profundidad_izquierda")[my_row]["profundidad_izquierda"]), font_style)
+        ws4.write(my_row + 1, 7, str(inspecciones.values("profundidad_central")[my_row]["profundidad_central"]), font_style)
+        ws4.write(my_row + 1, 8, str(inspecciones.values("profundidad_derecha")[my_row]["profundidad_derecha"]), font_style)
+
+    wb.save(response)
+    return response
 
 def ftp_newpick(request):
 

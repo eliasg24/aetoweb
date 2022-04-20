@@ -21,6 +21,13 @@
   chart.isVertical(true)
   chart.yScale().ticks().interval();
 
+  // set function to format y axis labels
+  var yLabels = chart.yAxis(0).labels();
+  yLabels.format("${%value}{groupsSeparator:\\,, decimalsCount:3}");
+
+  //tooltip
+  chart.tooltip().format("CPK: ${%low}{groupsSeparator:\\,, decimalsCount:3}");
+
   // set the chart title
   chart.title("Distribución de Datos");
   var title = chart.title();

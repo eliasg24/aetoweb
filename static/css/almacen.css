@@ -1,18 +1,14 @@
-html {
-  color: white;
-  box-sizing: border-box;
+.head-cont {
+  flex-flow: row wrap;
+  gap: 1rem;
 }
 
-body {
-  margin: 0;
-  font-family: Arial;
-  font-family: 'Montserrat', sans-serif;
-  background-color: #363636;
+.drop-search i {
+  font-size: 1.25rem;
 }
 
-h2 {
-  margin: 0;
-  font-size: 2vw;
+.drop-input {
+  font-size: 1rem;
 }
 
 .all-cont {
@@ -23,8 +19,8 @@ h2 {
   gap: 20px;
 }
 
-.title {
-  font-size: 60px;
+.main__title {
+  font-size: 4.2rem;
   margin: 0;
 }
 
@@ -172,22 +168,21 @@ h2 {
 }
 
 .card {
-  background: #171717;
-  border: 2px solid seagreen;
   border-radius: 0.25rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  gap: 1rem;
 }
 
 .card_title {
   display: flex;
+  background: #1f1f1f;
+  padding: 1rem;
   align-items: center;
-  gap: 1rem;
-  flex-flow: row wrap;
+  border-radius: 0.25rem;
   text-transform: uppercase;
-  flex-direction: column-reverse;
+  justify-content: center;
 }
 
 .card_title_icon {
@@ -198,15 +193,21 @@ h2 {
   display: flex;
   justify-content: center;
   font-size: 3vw;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  background: #4d4d4d;
+}
+
+.op__title {
+  margin: auto;
+  font-size: 4vw;
+  color: #0071bc;
 }
 
 .operaciones {
-  background: #171717;
-  background-color: #00558f;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
   padding: 1vh 1vw;
-  gap: 20px;
 }
 
 .operacion {
@@ -220,6 +221,8 @@ h2 {
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  background: #0071bc;
+  border-radius: 2.25rem;
   margin: 0;
 }
 
@@ -229,28 +232,30 @@ h2 {
   font-size: 1.5rem;
 }
 
-.icon-filter {
-  font-size: calc(1rem + 2vh);
-  margin-left: 1vw;
-}
-
 .icon-clipboard4,
 .icon-history2 {
-  font-size: 11vh;
+  font-size: 10vmin;
 }
 
 .icon-library,
 .icon-loop-alt4 {
-  font-size: 6vh;
+  font-size: 6vmin;
 }
 
-.icon-new_releases,
-.icon-reply2,
-.icon-spin1,
-.icon-loop,
-.icon-published_with_changes,
-.icon-flag,
-.icon-tools1,
-.icon-tire {
-  font-size: 2.5vw;
+.card_title h2 {
+  font-size: 1.5rem;
+}
+
+@media screen and (min-width: 768px) {
+  .flex-row {
+    justify-content: flex-end;
+  }
+
+  .head-cont {
+    flex-flow: row nowrap;
+  }
+
+  .head-cont > * {
+    flex: 1 1 auto;
+  }
 }

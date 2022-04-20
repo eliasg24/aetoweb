@@ -12,9 +12,9 @@
     ["{{mes_6}}", 0, 0],
     ["{{mes_5}}", 0, 0],
     ["{{mes_4}}", 0, 0],
-    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, {{tendencia_cpk_mes3.calificacion}}{% endif %}],
-    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, {{tendencia_cpk_mes2.calificacion}}{% endif %}],
-    ["{{mes_1}}", {{cpk}}, 80]
+    ["{{mes_3}}", {% if tendencia_cpk_mes3 %} {{tendencia_cpk_mes3.cpk}}, {{tendencia_cpk_mes3.calificacion}} {% else %} 0, 0 {% endif %}],
+    ["{{mes_2}}", {% if tendencia_cpk_mes2 %} {{tendencia_cpk_mes2.cpk}}, {{tendencia_cpk_mes2.calificacion}} {% else %} 0, 0 {% endif %}],
+    ["{{mes_1}}", {% if cpk %}{{cpk}}{% else %}0{% endif %}, 80]
     ]);
 
 

@@ -1,5 +1,5 @@
 # Utilities
-from dashboards.models import Aplicacion, Bitacora, Compania, Inspeccion, Llanta, Perfil, Producto, Ubicacion, Vehiculo
+from dashboards.models import Aplicacion, Bitacora, Compania, Inspeccion, Llanta, Perfil, Producto, Ubicacion, Vehiculo, Observacion
 from datetime import date, datetime
 from openpyxl import load_workbook
 import csv
@@ -439,3 +439,39 @@ def excel_vehiculos2():
                                 clase=clase.upper(),
                                 presion_establecida=presion_establecida
                                 )
+
+def excel_observaciones():
+    FILE_PATH = "D:/aeto/Tablas AETO Tire - Catalogo de observacion.csv"
+    file = open(FILE_PATH, "r", encoding="utf-8-sig", newline='')
+    next(file, None)
+    reader = csv.reader(file, delimiter=",")
+
+    for row in reader:
+    
+        observacion = row[1]
+        color = row[2]
+        nivel = row[3]
+        activacion = row[4]
+
+        if color == "roja":
+            color = "Rojo"
+        elif color == "amarilla":
+            color = "Amarillo"
+        elif color == "sin color":
+            color = "NA"
+
+        if nivel == "llanta":
+            nivel = "Llanta"
+        if nivel == "vehiculo":
+            nivel = "Vehiculo"
+
+        if activacion == "Automatica":
+            automatico = True
+        else:
+            automatico = False
+
+        Observacion.objects.create(observacion=observacion,
+                            color=color,
+                            nivel=nivel,
+                            automatico=automatico
+                            )

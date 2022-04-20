@@ -28,6 +28,7 @@ h3 {
 
 h2 {
   font-size: 2rem;
+  text-align: center;
 }
 
 h3 {
@@ -59,7 +60,7 @@ hr {
 .btn-success,
 .btn-danger {
   font-size: 2vw;
-  border-radius: 50%;
+  border-radius: 10%;
 }
 
 .btn-success {
@@ -82,16 +83,15 @@ hr {
 .taller-form {
   background-color: #171717;
   border-radius: 0.25rem;
-  border: thin solid #fff;
   display: flex;
   flex-flow: column nowrap;
-  gap: 1rem;
-  min-width: 600px;
+  gap: 0.5rem;
+  min-width: 90%;
   padding: 1rem;
 }
 
 .form-label {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
@@ -101,4 +101,25 @@ hr {
   flex-flow: row nowrap;
   gap: 1rem;
   justify-content: end;
+}
+
+.fecha{
+  background: #383838;
+  font-size: 1.5rem;
+  text-align: center;
+  color: #DCDCDC;
+  width: 50%;
+}
+
+.almohadilla{
+  font-size: 1.5rem;
+  color: #DCDCDC;
+  width: 50%;
+}
+
+.list{
+  list-style: disc;
+  margin-left: 1rem;
+  font-size: 1.5rem;
+  color: #DCDCDC
 }

@@ -3,168 +3,70 @@
 {% block head %}
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/nueva.css' %}" />
-  <title>AETO WEB</title>
+  <title>Antes de desechar</title>
 {% endblock %}
 
 {% block content %}
-<div class="all-cont">
-  <div class="top-nav">
-    <a href="{% url 'dashboards:almacen' %}">
-      <span class="icon-arrow-left2"></span>
-    </a>
+<main class="main__container animate__animated animate__fadeIn">
+  <header class="head-cont">
+    <h1>Antes de desechar</h1>
 
-    <h2>Antes de desechar</h2>
-    <input class="buscar" type="search" name="" placeholder="Buscar..." />
+    <div class="drop-search">
+      <input type="search" name="" id="" placeholder="Buscar llanta..." class="drop-input">
+      <i class="bx bx-search"></i>
+    </div>
 
-    <div class="icons">
-      <button class="btn btn-wh">
-        <a href="{% url 'dashboards:procesoDesecho' %}">
-          <span class="icon-trash2"></span>
-        </a>
-      </button>
-      <button class="btn btn-wh">
-        <a href="{% url 'dashboards:stockDestino' %}">
-          <span class="icon-money"></span>
-        </a>
-      </button>
-      <button class="btn btn-wh">
-        <a href="{% url 'dashboards:tallerDestino' %}">
-          <span class="icon-truck"></span>
-        </a>
-      </button>
-
-      <button class="btn filter btn-wh">
+    <nav class="flex-row">
+      <a href="{% url 'dashboards:procesoDesecho' %}" class="btn btn-download">
+        <span class="icon-trash2"></span>
+      </a>
+      <a href="{% url 'dashboards:stockDestino' %}" class="btn btn-download">
+        <span class="icon-money"></span>
+      </a>
+      <a href="{% url 'dashboards:tallerDestino' %}" class="btn btn-download">
+        <span class="icon-truck"></span>
+      </a>
+      <button class="btn btn-download" type="button" id="filter-btn">
         <span class="icon-filter"></span>
       </button>
-    </div>
-  </div>
+    </nav>
+  </header>
 
-  <!-- Filtro -->
-  {% include 'Filter.html' %}
-  <!--  -->
-
-  <div class="container" id="tire-card"></div>
-</div>
-
-<script>
-  // Cargar la información a la carga del contenido
-  document.addEventListener('DOMContentLoaded', (e) => {
-    tiresCards();
-    selectCard();
-    filterMenu();
-    priceRange();
-  });
-
-  const priceRange = () => {
-    const rangeInput = document.querySelectorAll('.range-input input');
-    const priceInput = document.querySelectorAll('.input-group input');
-    const range = document.querySelector('.slider .progress');
-    let gap = 10;
-
-    priceInput.forEach((input) => {
-      input.addEventListener('input', (e) => {
-        let minPrice = parseInt(priceInput[0].value),
-          maxPrice = parseInt(priceInput[1].value);
-
-        if (maxPrice - minPrice >= gap && maxPrice <= rangeInput[1].max) {
-          if (e.target.className === 'input-value') {
-            rangeInput[0].value = minPrice;
-            range.style.left = (minPrice / rangeInput[0].max) * 100 + '%';
-          } else {
-            rangeInput[1].value = maxPrice;
-            range.style.right =
-              100 - (maxPrice / rangeInput[1].max) * 100 + '%';
-          }
-        }
-      });
-    });
-
-    rangeInput.forEach((input) => {
-      input.addEventListener('input', (e) => {
-        let minVal = parseInt(rangeInput[0].value),
-          maxVal = parseInt(rangeInput[1].value);
-        if (maxVal - minVal < gap) {
-          if (e.target.className === 'range-min') {
-            rangeInput[0].value = maxVal - gap;
-          } else {
-            rangeInput[1].value = minVal + gap;
-          }
-        } else {
-          priceInput[0].value = minVal;
-          priceInput[1].value = maxVal;
-          range.style.left = (minVal / rangeInput[0].max) * 100 + '%';
-          range.style.right =
-            100 - (maxVal / rangeInput[1].max) * 100 + '%';
-        }
-      });
-    });
-  };
-
-  // <!-- !Esta función solo es para demostración rapida, favor de hacer el ciclo en el <body> :) --> 
-  const tiresCards = () => {
-    const container = document.getElementById('tire-card');
-
-    for (let i = 1; i <= 20; i++) {
-      const randomNumber = Math.floor(Math.random() * 100);
-      container.innerHTML += `
-      <div class="card cursor-pointer">
-
-        <div class="card_img">
-          <a class="tireDecoration" href="{% url 'dashboards:tireDetail' 17330 %}">
-          <span class="icon-tire"></span>
+  
+  <div class="relative">
+    <div class="absolute cards__container">
+      <!-- {% for llanta in llantas_nuevas %} -->
+      <div class="card__wrapper">
+        
+        <div class="card__img">
+          <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta.id %}">
+            <span class="icon-tire2"></span>
           </a>
-          <span class="card-title"><i>#${randomNumber * 248596}</i></span>
+          <h3 id="tire-name">#{{llanta.numero_economico}}</h3>
+          </div>
+          
+          <div class="card__body">
+            <div class="card__body-label">
+              <h4 class="card-title">Profunidad:</h4>
+              <p><i>{{ llanta.ultima_inspeccion.min_profundidad }}</i></p>
+            </div>
+            <div class="card__body-label">
+              <h4 class="card-title">Producto:</h4>
+              <p><i>{{ llanta.producto }}</i></p>
+            </div>
+            <div class="card__body-label">
+              <h4 class="card-title">Fecha:</h4>
+              <p>{{ llanta.ultima_inspeccion.fecha_hora }}</p>
+            </div>
+          </div>
+          
         </div>
-
-        <div class="card_group">
-          <div class="card_group-label">
-            <span class="card-title"><i>Profunidad:</i></span>
-            <p><i>${Math.floor(randomNumber / 2)}</i></p>
-          </div>
-          <div class="card_group-label">
-            <span class="card-title"><i>Producto:</i></span>
-            <p><i>${randomNumber}</i></p>
-          </div>
-          <div class="card_group-label">
-            <span class="card-title"><i>Fecha:</i></span>
-            <p><i>02/09/2022</i></p>
-          </div>
-        </div>
-
-        <div class="brand good"><div>
-
+        <!-- {% endfor %} -->
       </div>
-    `;
-    }
-  };
+  </div>    
+</main>
 
-  const selectCard = () => {
-    const cards = document.querySelectorAll('.card');
+{% include 'filter.html' %}
 
-    cards.forEach((card) => {
-      card.addEventListener('click', (e) => {
-        card.classList.toggle('active');
-      });
-    });
-  };
-
-  const filterMenu = () => {
-    const menu = document.querySelector('.filter-menu');
-    const close = document.querySelector('.btn-close');
-
-    document.addEventListener('click', ({ target }) => {
-      if (target.matches('.filter *')) {
-        menu.classList.add('active');
-      }
-    });
-
-    close.addEventListener('click', (e) => menu.classList.remove('active'));
-
-    document.addEventListener('submit', (e) => {
-      if (e.target.matches('.filter-form')) {
-        e.preventDefault();
-      }
-    });
-  };
-</script>
+<script src="{% static './js/almacen/index.js' %}"></script>
 {% endblock %}

@@ -72,6 +72,11 @@ urlpatterns = [
         name="tireDB3"
     ),
     path(
+        route="dashboardOperativo",
+        view=views.dashboardOperativoView.as_view(),
+        name="dashboardOperativo"
+    ),
+    path(
         route="login/",
         view=views.LoginView.as_view(),
         name="login"
@@ -370,5 +375,10 @@ urlpatterns = [
         route="reporteDeCambios/<int:pk>/",
         view=views.ReporteDeCambios.as_view(),
         name="reporteDeCambios"
+    ),
+    path(
+        route="download_todo",
+        view=views.download_todo,
+        name="download_todo"
     ),
 ]

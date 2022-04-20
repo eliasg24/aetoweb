@@ -74,12 +74,55 @@ def crear_clase(clase):
     path = os.path.abspath(os.getcwd()) + "\dashboards\models.py"
     with open(path) as file:
         lines = file.readlines()
-        lines.insert(125, f'                    ("{clase_mayuscula}", "{clase}"),\n')
+        lines.insert(135, f'                    ("{clase_mayuscula}", "{clase}"),\n')
         file.close()
 
     archivo_nuevo = open(path, "w")
     archivo_nuevo.writelines(lines)
     archivo_nuevo.close()
+
+def crear_km():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="pruebacal"))
+    for llanta in llantas:
+        llanta.km_actual = 9000
+        llanta.save()
+
+def crear_profundidad(user):
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="pruebacal"))
+    for llanta in llantas:
+        p1 = llanta.profundidad_izquierda
+        p2 = llanta.profundidad_central
+        p3 = llanta.profundidad_derecha
+        random1 = round(uniform(0,2), 1)
+        llanta.profundidad_izquierda = round(p1 - random1, 1)
+        random2 = round(uniform(0,2), 1)
+        llanta.profundidad_central = round(p2 - random2, 1)
+        random3 = round(uniform(0,2), 1)
+        llanta.profundidad_derecha = round(p3 - random3, 1)
+        llanta.save()
+        inspeccion = Inspeccion.objects.create(tipo_de_evento="Inspección",
+                                llanta=llanta,
+                                usuario=user,
+                                vehiculo=llanta.vehiculo,
+                                fecha_hora=date(2022, 4, 18),
+                                vida="Nueva",
+                                km=9000,
+                                profundidad_izquierda=round(p1 - random1, 1),
+                                profundidad_central=round(p2 - random2, 1),
+                                profundidad_derecha=round(p3 - random3, 1),
+                                evento=str({\
+                                    "llanta_inicial" : llanta, "llanta_mod" : "",\
+                                    "producto_inicial" : llanta.producto, "producto_mod" : "",\
+                                    "vida_inicial" : llanta.vida, "vida_mod" : "",\
+                                    "km_inicial" : 9000, "km_mod" : "",\
+                                    "presion_inicial" : "", "presion_mod" : "",\
+                                    "profundidad_izquierda_inicial" : round(p1 - random1, 1), "profundidad_izquierda_mod" : "",\
+                                    "profundidad_central_inicial" : round(p2 - random2, 1), "profundidad_central_mod" : "",\
+                                    "profundidad_derecha_inicial" : round(p3 - random3, 1), "profundidad_derecha_mod" : ""\
+                                    })
+        )
+        llanta.ultima_inspeccion = inspeccion
+        llanta.save()
 
 def tirecheck_llanta():
     llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="New Pick"))
@@ -118,6 +161,11 @@ def crear_configuracion():
             vehiculo.configuracion = "T4.T4"
             vehiculo.save()
 
+def crear_configuracion2():
+    inspecciones = Inspeccion.objects.filter(id__in=range(1030, 1115))
+    for inspeccion in inspecciones:
+        inspeccion.fecha_hora = date(2022, 2, 2)
+        inspeccion.save()
 
 def crear_nombre_de_eje():
     """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))

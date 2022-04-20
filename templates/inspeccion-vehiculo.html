@@ -5,6 +5,8 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/detail2.css' %}">
   <link rel="stylesheet" href="{% static 'css/diagrama.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
   <title>Inspección de vehículo</title>
 
 {% endblock %}
@@ -20,88 +22,29 @@
     <h1>Inspección de vehículo</h1>
   </header>
 
-  <main class="main__container">
-    <div class="config__container">
-      <div class="relative">
-        <div class="absolute">
+  <form class="main__container" method="POST" id="tire-form">
 
-          {% for eje in ejes %}
+    <header class="config__header">
+      <h1>VEHÍCULO {{vehiculo_actual}}</h1>
+    </header>
 
-                {% if eje|length == 2 %}
-
-                  <div class="par-llantas ejes__{{cant_ejes|safe}}">
-                    <div class="tire" data-tire-id="{{eje.0.0.id}}">
-                      <div class="tire__top {{eje.0.3}}">
-                        <span class="tire__data">
-                          {{eje.0.0.presion_de_salida}}
-                        </span>
-                      </div>
-
-                      <div class="tire__medium {{eje.0.3}}">
-                        <span class="tire__data">
-                          {{eje.0.0.posicion}}
-                        </span>
-                      </div>
-                      
-                      <span class="icon-tire2"></span>
-                      
-                      <div class="tire__bottom {{eje.0.1}}">
-                          <span class="tire__data">
-
-                            {% if eje.0.0.ultima_inspeccion == None %}
-                              N/A
-                            {% else %}
-                              {{eje.0.0.ultima_inspeccion.min_profundidad}}
-                            {% endif %}
-
-                          </span>
-                      </div>
-                    </div>
-            
-                    <div class="axle">
-                      <span class="axle-white"></span>
-                    </div>
-            
-                    <div class="tire" data-tire-id="{{eje.1.0.id}}">
-                      <div class="tire__top {{eje.1.3}}">
-                        <span class="tire__data">
-                          {{eje.1.0.presion_de_salida}}
-                        </span>
-                      </div>
-
-                      <div class="tire__medium {{eje.1.3}}">
-                        <span class="tire__data">
-                          {{eje.1.0.posicion}}
-                        </span>
-                      </div>
-                      
-                      <span class="icon-tire2"></span>
-                      
-                      <div class="tire__bottom {{eje.1.1}}">
-                          <span class="tire__data">
-                            
-                            {% if eje.1.0.ultima_inspeccion == None %}
-                              N/A
-                            {% else %}
-                              {{eje.1.0.ultima_inspeccion.min_profundidad}}
-                            {% endif %}
-                            
-                          </span>
-                      </div>
-                    </div>
-                  </div>
-
-                {% else %}
-
-                  <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
-                    <div class="double-tire">
+    <section class="main__wrapper">
+      <div class="config__container">
+        <div class="relative">
+          <div class="absolute">
+  
+            {% for eje in ejes %}
+  
+                  {% if eje|length == 2 %}
+  
+                    <div class="par-llantas ejes__{{cant_ejes|safe}}">
                       <div class="tire" data-tire-id="{{eje.0.0.id}}">
                         <div class="tire__top {{eje.0.3}}">
                           <span class="tire__data">
-                            {{eje.0.0.presion_de_salida}}
+                            {{eje.0.0.presion_actual}}
                           </span>
                         </div>
-
+  
                         <div class="tire__medium {{eje.0.3}}">
                           <span class="tire__data">
                             {{eje.0.0.posicion}}
@@ -112,21 +55,28 @@
                         
                         <div class="tire__bottom {{eje.0.1}}">
                             <span class="tire__data">
-                              {% if eje.0.0.ultima_inspeccion == None %}
+  
+                              {% if eje.0.5 == None %}
                                 N/A
                               {% else %}
-                                {{eje.0.0.ultima_inspeccion.min_profundidad}}
+                                {{eje.0.5}}
                               {% endif %}
+  
                             </span>
                         </div>
                       </div>
+              
+                      <div class="axle">
+                        <span class="axle-white"></span>
+                      </div>
+              
                       <div class="tire" data-tire-id="{{eje.1.0.id}}">
                         <div class="tire__top {{eje.1.3}}">
                           <span class="tire__data">
-                            {{eje.1.0.presion_de_salida}}
+                            {{eje.1.0.presion_actual}}
                           </span>
                         </div>
-
+  
                         <div class="tire__medium {{eje.1.3}}">
                           <span class="tire__data">
                             {{eje.1.0.posicion}}
@@ -138,287 +88,488 @@
                         <div class="tire__bottom {{eje.1.1}}">
                             <span class="tire__data">
                               
-                            {% if eje.1.0.ultima_inspeccion == None %}
-                              N/A
-                            {% else %}
-                              {{eje.1.0.ultima_inspeccion.min_profundidad}}
-                            {% endif %}
+                              {% if eje.1.5 == None %}
+                                N/A
+                              {% else %}
+                                {{eje.1.5}}
+                              {% endif %}
+                              
+                            </span>
+                        </div>
+                      </div>
+                    </div>
+  
+                  {% else %}
+  
+                    <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
+                      <div class="double-tire">
+                        <div class="tire" data-tire-id="{{eje.0.0.id}}">
+                          <div class="tire__top {{eje.0.3}}">
+                            <span class="tire__data">
+                              {{eje.0.0.presion_actual}}
+                            </span>
+                          </div>
+  
+                          <div class="tire__medium {{eje.0.3}}">
+                            <span class="tire__data">
+                              {{eje.0.0.posicion}}
+                            </span>
+                          </div>
                           
+                          <span class="icon-tire2"></span>
+                          
+                          <div class="tire__bottom {{eje.0.1}}">
+                              <span class="tire__data">
+                                {% if eje.0.5 == None %}
+                                  N/A
+                                {% else %}
+                                  {{eje.0.5}}
+                                {% endif %}
+                              </span>
+                          </div>
+                        </div>
+                        <div class="tire" data-tire-id="{{eje.1.0.id}}">
+                          <div class="tire__top {{eje.1.3}}">
+                            <span class="tire__data">
+                              {{eje.1.0.presion_actual}}
                             </span>
+                          </div>
+  
+                          <div class="tire__medium {{eje.1.3}}">
+                            <span class="tire__data">
+                              {{eje.1.0.posicion}}
+                            </span>
+                          </div>
+                          
+                          <span class="icon-tire2"></span>
+                          
+                          <div class="tire__bottom {{eje.1.1}}">
+                              <span class="tire__data">
+                                
+                                {% if eje.1.5 == None %}
+                                  N/A
+                                {% else %}
+                                  {{eje.1.5}}
+                                {% endif %}
+                            
+                              </span>
+                          </div>
+                        </div>
+                      </div>
+              
+                      <div class="axle"></div>
+              
+                      <div class="double-tire">
+                        <div class="tire" data-tire-id="{{eje.2.0.id}}">
+                          <div class="tire__top {{eje.2.3}}">
+                            <span class="tire__data">
+                              {{eje.2.0.presion_actual}}
+                            </span>
+                          </div>
+  
+                          <div class="tire__medium {{eje.2.3}}">
+                            <span class="tire__data">
+                              {{eje.2.0.posicion}}
+                            </span>
+                          </div>
+                          
+                          <span class="icon-tire2"></span>
+                          
+                          <div class="tire__bottom {{eje.2.1}}">
+                              <span class="tire__data">
+                                                              
+                                {% if eje.2.5 == None %}
+                                  N/A
+                                {% else %}
+                                  {{eje.2.5}}
+                                {% endif %}
+                          
+                              </span>
+                          </div>
+                        </div>
+                        <div class="tire" data-tire-id="{{eje.3.0.id}}">
+                          <div class="tire__top {{eje.3.3}}">
+                            <span class="tire__data">
+                              {{eje.3.0.presion_actual}}
+                            </span>
+                          </div>
+  
+                          <div class="tire__medium {{eje.3.3}}">
+                            <span class="tire__data">
+                              {{eje.3.0.posicion}}
+                            </span>
+                          </div>
+                          
+                          <span class="icon-tire2"></span>
+                          
+                          <div class="tire__bottom {{eje.3.1}}">
+                              <span class="tire__data">
+                                                                                            
+                                {% if eje.3.5 == None %}
+                                  N/A
+                                {% else %}
+                                  {{eje.3.5}}
+                                {% endif %}
+                        
+                              </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-            
-                    <div class="axle"></div>
-            
-                    <div class="double-tire">
-                      <div class="tire" data-tire-id="{{eje.2.0.id}}">
-                        <div class="tire__top {{eje.2.3}}">
-                          <span class="tire__data">
-                            {{eje.2.0.presion_de_salida}}
-                          </span>
-                        </div>
-
-                        <div class="tire__medium {{eje.2.3}}">
-                          <span class="tire__data">
-                            {{eje.2.0.posicion}}
-                          </span>
-                        </div>
-                        
-                        <span class="icon-tire2"></span>
-                        
-                        <div class="tire__bottom {{eje.2.1}}">
-                            <span class="tire__data">
-                                                            
-                            {% if eje.2.0.ultima_inspeccion == None %}
-                              N/A
-                            {% else %}
-                              {{eje.2.0.ultima_inspeccion.min_profundidad}}
-                            {% endif %}
-                        
-                            </span>
-                        </div>
-                      </div>
-                      <div class="tire" data-tire-id="{{eje.3.0.id}}">
-                        <div class="tire__top {{eje.3.3}}">
-                          <span class="tire__data">
-                            {{eje.3.0.presion_de_salida}}
-                          </span>
-                        </div>
-
-                        <div class="tire__medium {{eje.3.3}}">
-                          <span class="tire__data">
-                            {{eje.3.0.posicion}}
-                          </span>
-                        </div>
-                        
-                        <span class="icon-tire2"></span>
-                        
-                        <div class="tire__bottom {{eje.3.1}}">
-                            <span class="tire__data">
-                                                                                          
-                            {% if eje.3.0.ultima_inspeccion == None %}
-                              N/A
-                            {% else %}
-                              {{eje.3.0.ultima_inspeccion.min_profundidad}}
-                            {% endif %}
-                      
-                            </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                {% endif %}
-
-              {% endfor %}
-
+  
+                  {% endif %}
+  
+                {% endfor %}
+  
+          </div>
         </div>
       </div>
-    </div>
+  
+      <div class="forms__container">
+        <div class="relative">
+          <div class="absolute form__container">
+            <details>
+              <summary>Opciones del vehículo</summary>
 
-    <div class="forms__container">
-      <div class="form__container">
-        <details>
-          <summary>
-            Vehículo
-          </summary>
-          <form action="" class="form__wrapper">
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="producto"
+                  required
+                  name="vehiculo"
+                  autocomplete="off"
+                  value = "{{vehiculo_actual}}"
+                  required
+                  readonly
+                />
+                <label for="vehiculo" class="form__label">
+                  Vehiculo
+                </label>
+              </div>
+              <input type="text" name="vehiculo_id" value="{{vehiculo_actual.id}}" style="display:None">
+              <!-- End input -->
+  
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  required
+                  placeholder="producto"
+                  name="kilometraje"
+                  autocomplete="off"
+                  {% if vehiculo_actual.km == None %}
+                    value = ""
+                  {% else %}
+                    value = "{{vehiculo_actual.km}}"
+                  {% endif %}
+                  
+                />
+                <label for="kilometraje" class="form__label">
+                  Kilometraje
+                </label>
+              </div>
+              <!-- End input -->
+  
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="producto"
+                  name="observacion_vehiculo"
+                  autocomplete="off"
+                  {% if vehiculo_actual.observacion == None %}
+                    value = ""
+                  {% else %}
+                    value = "{{vehiculo_actual.observacion}}"
+                  {% endif %}
+                  
+                />
+                <label for="observacion_vehiculo" class="form__label">
+                  Observacion del vehiculo
+                </label>
+              </div>
+              <!-- End input -->
+            </details>
+            
+            <div class="form__container">
+              {% for eje in ejes %}
+                {% for ej in eje %}
+                  <div class="form__wrapper" data-item-id="{{ej.0.id}}">
+                    <!-- Start input -->
+                    {% if ej.0.ultima_inspeccion == None %}
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="text"
+                          placeholder="llanta"
+                          name="llanta"
+                          autocomplete="off"
+                          list="llanta"
+                          required
+                          value = "{{ej.0.numero_economico}}"
+                          required
+                          
+                        />
+                        <label for="llanta" class="form__label">
+                          Llanta
+                        </label>
 
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="text"
-                placeholder="vehiculo"
-                name="vehiculo"
-                autocomplete="off"
-                value="100"
-              />
-              <label for="vehiculo" class="form__label">
-                KM de vehículo
-              </label>
-            </div>
-            <!-- End input -->
-
-            <nav class="flex-row">
-              <button type="submit" class="btn btn-success disabled">
-                <span class="icon-checkmark"></span>
-              </button>
-            </nav>
-          </form>
-        </details>
-      </div>
-
-      <div class="form__container">
-
-        <form class="form__container" method="POST">
-          {% for eje in ejes %}
-            {% for ej in eje %}
-              <div class="form__wrapper" id="tire-form" data-item-id="{{ej.0.id}}">
-                <!-- Start input -->
-                {% if ej.0.ultima_inspeccion == None %}
-                  Sin inspecciones.
-                {% else %}
+                        <div class="alert__error">
+                          El valor no se encuentra en la lista de productos, por favor seleccione una opción valida.
+                        </div>
+                        <div class="alert__warn">
+                          El campo no puede estar vacio 
+                        </div>
                         
-                  <div class="form__group field">
-                    <input
+                        <datalist id="llanta">
+                          
+                          {% for i in llantas_actuales %}
+                        
+                              <option value="{{i}}">{{i}}</option>
+
+                          {% endfor %}
+                  
+                        </datalist>
+                        
+                      </div>
+                    {% else %}
+                      <input
                       class="form__field"
                       type="text"
                       placeholder="llanta"
                       name="llanta"
                       autocomplete="off"
                       list="llanta"
+                      required
                       value = "{{ej.0.numero_economico}}"
                       readonly
-                      
-                    />
-                    <label for="llanta" class="form__label">
-                      Llanta
-                    </label>
-                    <!--
-                      <datalist id="llanta">
+                      />
+  
+                      <label for="llanta" class="form__label">
+                        Llanta
+                      </label>
+  
+                    {% endif %}
+                    <!-- End input -->
+        
+  
+                    {% if ej.0.ultima_inspeccion == None %}
+  
+                      <!-- Start input -->
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="text"
+                          placeholder="producto"
+                          name="producto"
+                          autocomplete="off"
+                          list="producto"
+                          value = "{{ej.0.producto}}"
+                          required
+                        />
+                        <label for="producto" class="form__label">
+                          Producto
+                        </label>
+
+                        <div class="alert__error">
+                          El valor no se encuentra en la lista de productos, por favor seleccione una opción valida.
+                        </div>
+                        <div class="alert__warn">
+                          El campo no puede estar vacio 
+                        </div>
+                        <datalist id="producto">
+                          
+                          {% for producto in productos %}
                         
-                        {% for i in ej.2.llanta %}
+                              <option value="{{producto}}">{{producto}}</option>
+      
+                          {% endfor %}
+                  
+                        </datalist>
+                      </div>
+                      <!-- End input -->
+  
+                    {% else %}
+  
+                      <!-- Start input -->
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="text"
+                          placeholder="producto"
+                          name="producto"
+                          autocomplete="off"
+                          value = "{{ej.0.producto}}"
+                          required
+                          readonly
+                        />
+                        <label for="producto" class="form__label">
+                          Producto
+                        </label>
+                      </div>
+                      <!-- End input -->
+  
+                    {% endif %}
+
+                    <!-- Start input -->
+                    <div class="form__group field">
+                      <input
+                        class="form__field"
+                        type="text"
+                        placeholder="vida"
+                        required
+                        name="vida"
+                        autocomplete="off"
+                        list="vida"
+                        value = {{ej.0.vida}}
+                      />
+                      <label for="vida" class="form__label">
+                        Vida
+                      </label>
+
+                      <datalist id="vida">
                       
-                            <option value="{{i.data.label}}">{{i.data.label}}</option>
-
-                        {% endfor %}
-                
+                        <option value="Nueva">Nueva</option>
+                        <option value="1R">1R</option>
+                        <option value="2R">2R</option>
+                        <option value="3R">3R</option>
+                        <option value="4R">4R</option>
+                        <option value="5R">5R</option>
+  
                       </datalist>
+                    </div>
+                    <!-- End input -->
+
+                    <!-- Start input -->
+                    <div class="form__prof">
+
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="number"
+                          max = {{ej.0.producto.profundidad_inicial}}
+                          step="any"
+                          placeholder="Profundidad izquierda"
+                          name="profundidad_izquierda"
+                          autocomplete="off"
+                          value = "{{ej.0.profundidad_izquierda}}"
+                          
+                        />
+                        <label for="min_profundidad" class="form__label">
+                          Profundidad izquierda
+                        </label>
+                      </div>
+
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="number"
+                          max = {{ej.0.producto.profundidad_inicial}}
+                          step="any"
+                          placeholder="Profundidad central"
+                          name="profundidad_central"
+                          autocomplete="off"
+                          value = "{{ej.0.profundidad_central}}"
+                          
+                        />
+                        <label for="min_profundidad" class="form__label">
+                          Profundidad central
+                        </label>
+                      </div>
+                    
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="number"
+                          max = {{ej.0.producto.profundidad_inicial}}
+                          step="any"
+                          placeholder="Profundidad derecha"
+                          name="profundidad_derecha"
+                          autocomplete="off"
+                          value = "{{ej.0.profundidad_derecha}}"
+                          
+                        />
+                        <label for="min_profundidad" class="form__label">
+                          Profundidad derecha
+                        </label>
+                      </div>
+                      
+                    </div>
+                    <!-- End input -->
+  
+                    <!-- Start input -->
+                    
+                    <div class="form__group field">
+                      <input
+                        class="form__field"
+                        type="text"
+                        placeholder="observacion_1"
+                        name="presion"
+                        autocomplete="off"
+                        {% if ej.0.presion_actual == None %}
+                          value = ""
+                        {% else %}
+                          value = "{{ej.0.presion_actual}}"
+                        {% endif %}
+    
+                      />
+                      <label for="presion" class="form__label">
+                        Presión
+                      </label>
+                    </div>
+                    <!-- End input -->
+  
+                    <!-- Start input -->
+                    
+                    <div class="form__group field">
+                      <input
+                        class="form__field"
+                        type="text"
+                        placeholder="Observaciones"
+                        name="observaciones"
+                        autocomplete="off"
+                        {% if ej.2.observacion_1.value == None %}
+                          value = ""
+                        {% else %}
+                          value = "{{ej.2.observacion_1.value}}"
+                        {% endif %}
+    
+                      />
+                      <label for="observaciones" class="form__label">
+                        Observaciones
+                      </label>
+                    </div>
+                    <!-- End input -->    
+                    <input id="ids" name="ids" type="text" value={{ej.0.id}} style="display: None">
+                    <!--
+                    <div>
+                      <label for="reemplazar-{{ej.0.id}}" class="input-check">
+                        Remplazar
+                        <input type="checkbox" value="{{ej.0.id}}" name="reemplazar" id="reemplazar-{{ej.0.id}}"/>
+                        <span class="checkmark"></span>
+                      </label>
+                    </div>
                     -->
+                    <input type="hidden" name="id" value="">
+                    
                   </div>
-
-                
-                <!-- End input -->
-    
-                <!-- Start input -->
-                
-                <div class="form__group field">
-                  <input
-                    class="form__field"
-                    type="number"
-                    placeholder="km"
-                    name="km"
-                    autocomplete="off"
-                    value = "{{ej.2.km.value}}"
-                    
-                  />
-                  <label for="km" class="form__label">
-                    Km
-                  </label>
-                </div>
-                <!-- End input -->
-    
-                <!-- Start input -->
-                
-                <div class="form__group field">
-                  <input
-                    class="form__field"
-                    type="number"
-                    placeholder="min_profundidad"
-                    name="min_profundidad"
-                    autocomplete="off"
-                    value = "{{ej.2.min_profundidad.value}}"
-                    
-                  />
-                  <label for="min_profundidad" class="form__label">
-                    Profundidad
-                  </label>
-                </div>
-                <!-- End input -->
-    
-                <!-- Start input -->
-                
-                <div class="form__group field">
-                  <input
-                    class="form__field"
-                    type="text"
-                    placeholder="observacion_1"
-                    name="observacion_1"
-                    autocomplete="off"
-                    {% if ej.2.observacion_1.value == None %}
-                      value = ""
-                    {% else %}
-                      value = "{{ej.2.observacion_1.value}}"
-                    {% endif %}
-
-                  />
-                  <label for="observacion_1" class="form__label">
-                    Observacion 1
-                  </label>
-                </div>
-                <!-- End input -->
-
-                <!-- Start input -->
-                
-                <div class="form__group field">
-                  <input
-                    class="form__field"
-                    type="text"
-                    placeholder="observacion_2"
-                    name="observacion_2"
-                    autocomplete="off"
-                    {% if ej.2.observacion_2.value == None %}
-                      value = ""
-                    {% else %}
-                      value = "{{ej.2.observacion_2.value}}"
-                    {% endif %}
-                    
-                  />
-                  <label for="observacion_2" class="form__label">
-                    Observacion 2
-                  </label>
-                </div>
-                <!-- End input -->
-
-                <!-- Start input -->
-                
-                <div class="form__group field">
-                  <input
-                    class="form__field"
-                    type="text"
-                    placeholder="observacion_3"
-                    name="observacion_3"
-                    autocomplete="off"
-                    {% if ej.2.observacion_3.value == None %}
-                      value = ""
-                    {% else %}
-                      value = "{{ej.2.observacion_3.value}}"
-                    {% endif %}
-                    
-                  />
-                  <label for="observacion_3" class="form__label">
-                    Observacion 3
-                  </label>
-                </div>
-                <!-- End input -->
-
-                <input id="ids" name="ids" type="text" value={{ej.0.id}} style="display: None">
-                <!--
-                <div>
-                  <label for="reemplazar-{{ej.0.id}}" class="input-check">
-                    Remplazar
-                    <input type="checkbox" value="{{ej.0.id}}" name="reemplazar" id="reemplazar-{{ej.0.id}}"/>
-                    <span class="checkmark"></span>
-                  </label>
-                </div>
-                -->
-                <input type="hidden" name="id" value="">
-                {% endif %}
-              </div>
-            {% endfor %}
-          {% endfor %}
-          {% csrf_token %}
-              <nav class="flex-row">
-                <button type="submit" class="btn btn-success" title="Enviar">
-                  <span class="icon-checkmark"></span>
-                </button>
-              </nav>
-        </form>
+                {% endfor %}
+              {% endfor %}
+              {% csrf_token %}
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success" style="margin-top: 1rem;" title="Enviar">
+          <span class="icon-checkmark"></span>
+        </button>
       </div>
-    </div>
-  </main>
+  
+    </section>
+  </form>
 </div>
 
 <script>
@@ -428,7 +579,92 @@
     confirmAlert();
     handleForms();
     handleTire();
+
+    validateInputList('#llanta', 'llanta');
+    validateInputList('#producto', 'producto');
+    noDoubleValues()
   });
+
+  const validateInputList = (listItem = '', inputName = '') => {
+    const list = document.querySelector(listItem)?.options;
+
+    // Si ya se inspecciono
+    if (!list) return;
+
+    let listValues = [];
+
+    console.log(list)
+
+    for (let i = 0; i < list.length; i++) {
+      listValues.push(list[i].value)
+    }
+
+    // Traemos todos los inputs para modificar el numero econimico
+    const inputs = document.querySelectorAll(`input[name="${inputName}"]`);
+
+    // Le asignamos el evento al escribir 
+    inputs.forEach(input => {
+      let isValid = false;
+
+      input.addEventListener('keyup', (e) => {
+        if (listValues.indexOf(input.value) > -1) {
+          input.parentNode.querySelector('.alert__error').classList.remove('active');    
+          input.parentNode.querySelector('.alert__warn').classList.remove('active');  
+          document.querySelector('.btn-success').classList.remove('disabled');
+          isValid = true;
+        } else {
+          input.parentNode.querySelector('.alert__error').classList.add('active');  
+          input.focus();
+          document.querySelector('.btn-success').classList.add('disabled');
+          isValid = false;
+        }
+
+        if (input.value === '') {
+          input.parentNode.querySelector('.alert__warn').classList.add('active');  
+          document.querySelector('.btn-success').classList.add('disabled');
+          isValid = false;
+        }
+      });
+      
+      input.addEventListener('keypress', (e) => {
+        if (!isValid) {
+          if (e.key === 'Enter') e.preventDefault();
+        }
+      });
+    });
+  }
+
+  const noDoubleValues = (inputName = '') => {
+    const elements = document.querySelectorAll(`input[name="${inputName}"]`);
+    let values = [];
+
+    elements.forEach(value => {
+      values.push(value.value)
+    });
+
+    const tempArray = [...values].sort();
+    let duplicate = [];
+
+    for (let i = 0; i < tempArray.length; i++) {
+      if (tempArray[i + 1] === tempArray[i]) {
+        duplicate.push(tempArray[i]);
+      }
+    }
+
+    if (duplicate.length > 0) {
+      const alert = Swal.fire({
+        title: 'Error',
+        text: 'No puede haber elementos duplicados',
+        icon: 'error',
+        backdrop: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      })
+      return true; // Si hay elementos duplicados retorna true para la validación con sweetalert
+    }
+
+    return false; // Si no hay elementos duplicados
+  }
 
   const handleTire = () => {
     const buttons = document.querySelectorAll('.tire');
@@ -468,6 +704,10 @@
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+
+      const duplicate = noDoubleValues('llanta');
+
+      if (duplicate) return;
 
       const alert = Swal.fire({
         title: 'Confirmación',

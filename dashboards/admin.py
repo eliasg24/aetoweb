@@ -6,7 +6,7 @@ from django.contrib import admin
 # Models
 from django.contrib.auth.models import User
 from django.db.models.fields.related import RelatedField
-from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, TendenciaCPK, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
+from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
 
 @admin.register(Bitacora)
 class BitacorasAdmin(admin.ModelAdmin):
@@ -49,12 +49,10 @@ class AplicacionesAdmin(admin.ModelAdmin):
     search_fields= ('nombre',)
     list_filter = ('compania',)
 
-@admin.register(TendenciaCPK)
-class TendenciaCPKAdmin(admin.ModelAdmin):
+@admin.register(Tendencias)
+class TendenciasAdmin(admin.ModelAdmin):
     # Admin de las Tendencias CPK
-    list_display = ('compania', 'cpk', 'mes', 'cantidad', 'vida', 'calificacion')
-    search_fields= ('compania',)
-    list_filter = ('compania',)
+    list_display = ('cpk', 'mes', 'vida', 'calificacion')
 
 
 @admin.register(Vehiculo)
@@ -67,20 +65,15 @@ class VehiculosAdmin(admin.ModelAdmin):
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('id', 'numero_economico', 'tirecheck', 'archivado', "km_montado", "vehiculo", 'posicion', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'min_profundidad', 'vida', 'tipo_de_eje', 'eje')
+    list_display = ('id', 'numero_economico', "presion_de_entrada", "presion_de_salida", 'tirecheck', "km_montado", "vehiculo", 'posicion', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'vida', 'tipo_de_eje', 'eje')
     search_fields= ('numero_economico',)
     list_filter = ('compania', "vehiculo", 'tipo_de_eje')
-    def min_profundidad(self, obj):
-        if obj.ultima_inspeccion:
-            return obj.ultima_inspeccion.min_profundidad
-    def max_profundidad(self, obj):
-        if obj.ultima_inspeccion:
-            return obj.ultima_inspeccion.max_profundidad
+    
 
 @admin.register(Inspeccion)
 class InspeccionesAdmin(admin.ModelAdmin):
     # Admin de las Inspecciones
-    list_display = ('id', 'llanta', 'fecha_hora', "km", 'min_profundidad', 'max_profundidad')
+    list_display = ('id', 'llanta', "profundidad_izquierda", "profundidad_central", "profundidad_derecha", 'fecha_hora', "km_vehiculo")
     search_fields= ('llanta__numero_economico',)
     list_filter = ('llanta__compania', 'llanta')
     def get_view_count(self, obj):
@@ -125,16 +118,12 @@ class RenovadorAdmin(admin.ModelAdmin):
 @admin.register(Desecho)
 class DesechoAdmin(admin.ModelAdmin):
     #Admin de desechos
-    list_display = ('llanta', 'zona_de_llanta', 'condicion', 'razon')
-    search_fields = ('llanta',)
-    list_filter = ('llanta',)
+    list_display = ('zona_de_llanta', 'condicion', 'razon')
 
 @admin.register(Observacion)
 class ObservacionAdmin(admin.ModelAdmin):
     #Admin de observaciones
-    list_display = ('llanta', 'observacion', 'color')
-    search_fields = ('llanta',)
-    list_filter = ('llanta',)
+    list_display = ( 'observacion', 'color', "nivel", "automatico")
 
 @admin.register(Rechazo)
 class RechazoAdmin(admin.ModelAdmin):
