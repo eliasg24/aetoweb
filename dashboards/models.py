@@ -133,26 +133,11 @@ class Vehiculo(models.Model):
                     ("TRUCK - BOX", "Truck - Box"),
                     ("VAN", "Van"),
                     ("TRAILER - FLAT BED", "Trailer - Flat Bed"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
-                    ("GONDOLA", "Gondola"),
+                    ("CÁMARA FRIGORÍFICA", "Cámara Frigorífica"),
+                    ("COACH", "Coach"),
+                    ("TRAILER - DUMP", "Trailer - Dump"),
+                    ("RAMPLA PLANA", "Rampla Plana"),
+                    ("TRAILER - DUMP", "Trailer - Dump"),
                     ("GONDOLA", "Gondola"),
                     ("TRACTOR - SLEEPER", "Tractor - Sleeper"),
                     ("TRUCK - DUMP", "Truck - Dump"),
@@ -225,7 +210,9 @@ class Vehiculo(models.Model):
                             ("S2.L4.D4.D4", "S2.L4.D4.D4"),
                             ("T4.T4", "T4.T4"),
                             ("T4.T4.T4", "T4.T4.T4"),
-                            ("T4.T4.SP1", "T4.T4.SP1")
+                            ("T4.T4.SP1", "T4.T4.SP1"),
+                            ("T4.T4.SP2", "T4.T4.SP2"),
+                            ("T4.T4.T4.SP2", "T4.T4.T4.SP2")
                 )
     configuracion = models.CharField(max_length=200, choices=opciones_configuracion, null=True, blank=True)
     fecha_de_inflado = models.DateField(null=True, blank=True)
@@ -271,7 +258,7 @@ class Inspeccion(models.Model):
                             ("5R", "5R"),
                 )
     vida = models.CharField(max_length=200, choices=opciones_vida, null=True, blank=True, default="Nueva")
-    km_vehiculo = models.IntegerField(default=1000)
+    km_vehiculo = models.IntegerField(null=True, blank=True)
     presion = models.IntegerField(null=True, blank=True)
     presion_establecida = models.IntegerField(blank=True, null=True, default=100)
     profundidad_izquierda = models.FloatField(blank=True, null=True)

@@ -10,6 +10,51 @@ import os
 import openpyxl
 import pandas as pd
 
+def borrar_ubicaciones():
+    ubicaciones = Ubicacion.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    while ubicaciones.count():
+        ids = ubicaciones.values_list('pk', flat=True)[:100]
+        Ubicacion.objects.filter(pk__in = ids, compania=Compania.objects.get(compania="Tramo")).delete()
+
+def borrar_llantas():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    while llantas.count():
+        ids = llantas.values_list('pk', flat=True)[:100]
+        Llanta.objects.filter(pk__in = ids, compania=Compania.objects.get(compania="Tramo")).delete()
+
+def borrar_km_actuales():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    for llanta in llantas:
+        llanta.km_actual = None
+        llanta.save()
+
+def convertir_vehiculos():
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    for vehiculo in vehiculos:
+        vehiculo.tirecheck = False
+        vehiculo.save()
+
+
+
+def borrar_productos():
+    productos = Producto.objects.filter(compania=None)
+    while productos.count():
+        ids = productos.values_list('pk', flat=True)[:100]
+        Producto.objects.filter(pk__in = ids, compania=None).delete()
+
+
+def borrar_inspecciones():
+    inspecciones = Inspeccion.objects.filter(llanta__compania=Compania.objects.get(compania="Tramo"))
+    while inspecciones.count():
+        ids = inspecciones.values_list('pk', flat=True)[:100]
+        Inspeccion.objects.filter(pk__in = ids, llanta__compania=Compania.objects.get(compania="Tramo")).delete()
+
+def borrar_vehiculos():
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    while vehiculos.count():
+        ids = vehiculos.values_list('pk', flat=True)[:100]
+        Vehiculo.objects.filter(pk__in = ids, compania=Compania.objects.get(compania="Tramo")).delete()
+
 def configurar_producto():
     productos = Producto.objects.all()
     for producto in productos:
@@ -87,6 +132,108 @@ def crear_km():
         llanta.km_actual = 9000
         llanta.save()
 
+def crear_km_montado():
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="pruebacarlos"))
+    for llanta in llantas:
+        llanta.km_montado = None
+        llanta.save()        
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="pruebacarlos"), vehiculo__numero_economico="C1")
+    i = 0
+    for llanta in llantas:
+        if i < 2:
+            llanta.km_montado = 50000
+            llanta.save()
+        else:
+            llanta.km_montado = 0
+            llanta.save()
+        i += 1
+
+def crear_inspecciones(user):
+    llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="pruebacarlos"), vehiculo__numero_economico="C3")
+    loop = 0
+    for llanta in llantas:
+        """if llanta.profundidad_izquierda:
+            profundidad_izquierda= llanta.profundidad_izquierda - 0.5
+            profundidad_central= llanta.profundidad_central - 0.5
+            profundidad_derecha= llanta.profundidad_derecha - 0.5
+        else:
+            profundidad_izquierda=round(uniform(4,6), 1)
+            profundidad_central=round(uniform(4,6), 1)
+            profundidad_derecha=round(uniform(4,6), 1)"""
+        loop += 1
+        if loop <= 1:
+            profundidad_izquierda=4
+        elif loop <= 2:
+            profundidad_izquierda=4.8
+        elif loop <= 3:
+            profundidad_izquierda=4.9
+        elif loop <= 4:
+            profundidad_izquierda=4.6
+        elif loop <= 5:
+            profundidad_izquierda=5.5
+        elif loop <= 6:
+            profundidad_izquierda=5.4
+        elif loop <= 7:
+            profundidad_izquierda=5.6
+        elif loop <= 8:
+            profundidad_izquierda=6
+
+        #profundidad_central=round(uniform(1,3), 1)
+        #profundidad_derecha=round(uniform(1,3), 1)
+        km_vehiculo = 120000
+        if llanta == "1" or llanta == "2":
+            inspeccion_creada = Inspeccion.objects.create(tipo_de_evento="Inspección",
+                                    llanta=llanta,
+                                    usuario=user,
+                                    vehiculo=llanta.vehiculo,
+                                    fecha_hora=date.today(),
+                                    vida=llanta.vida,
+                                    km_vehiculo=km_vehiculo,
+                                    profundidad_izquierda=profundidad_izquierda,
+                                    #profundidad_central=profundidad_central,
+                                    #profundidad_derecha=profundidad_derecha,
+                                    evento=str({\
+                        "llanta_inicial" : llanta.id, "llanta_mod" : "",\
+                        "producto_inicial" : str(llanta.producto), "producto_mod" : "",\
+                        "vida_inicial" : llanta.vida, "vida_mod" : "",\
+                        "km_inicial" : km_vehiculo, "km_mod" : "",\
+                        "presion_inicial" : "", "presion_mod" : "",\
+                        "profundidad_izquierda_inicial" : profundidad_izquierda, "profundidad_izquierda_mod" : "",\
+                        "profundidad_central_inicial" : "", "profundidad_central_mod" : "",\
+                        "profundidad_derecha_inicial" : "", "profundidad_derecha_mod" : ""\
+                        })
+            )
+        else:
+            inspeccion_creada = Inspeccion.objects.create(tipo_de_evento="Inspección",
+                                    llanta=llanta,
+                                    usuario=user,
+                                    vehiculo=llanta.vehiculo,
+                                    fecha_hora=date.today(),
+                                    vida=llanta.vida,
+                                    km_vehiculo=km_vehiculo,
+                                    profundidad_izquierda=profundidad_izquierda,
+                                    #profundidad_central=profundidad_central,
+                                    #profundidad_derecha=profundidad_derecha,
+                                    evento=str({\
+                        "llanta_inicial" : llanta.id, "llanta_mod" : "",\
+                        "producto_inicial" : str(llanta.producto), "producto_mod" : "",\
+                        "vida_inicial" : llanta.vida, "vida_mod" : "",\
+                        "km_inicial" : km_vehiculo, "km_mod" : "",\
+                        "presion_inicial" : "", "presion_mod" : "",\
+                        "profundidad_izquierda_inicial" : profundidad_izquierda, "profundidad_izquierda_mod" : "",\
+                        "profundidad_central_inicial" : "", "profundidad_central_mod" : "",\
+                        "profundidad_derecha_inicial" : "", "profundidad_derecha_mod" : ""\
+                        })
+            )
+        llanta.profundidad_izquierda = profundidad_izquierda
+        #llanta.profundidad_central = profundidad_central
+        #llanta.profundidad_derecha = profundidad_derecha
+        #llanta.km_actual = km_vehiculo - llanta.km_montado
+        llanta.save()
+        vehiculo = Vehiculo.objects.get(numero_economico=llanta.vehiculo.numero_economico)
+        vehiculo.ultima_inspeccion = inspeccion_creada
+        vehiculo.save()
+
 def crear_profundidad(user):
     llantas = Llanta.objects.filter(compania=Compania.objects.get(compania="pruebacal"))
     for llanta in llantas:
@@ -145,36 +292,35 @@ def borrar_ultima_inspeccion_llanta():
             llanta.save()
 
 def borrar_ultima_inspeccion_vehiculo():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="New Pick"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
     for vehiculo in vehiculos:
         if vehiculo.ultima_inspeccion:
             vehiculo.ultima_inspeccion = None
             vehiculo.save()
 
 def crear_configuracion():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="AGA"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Bisonte"))
     for vehiculo in vehiculos:
-        if vehiculo.marca == "Freightliner":
+        if vehiculo.clase == "UTILITARIO TALLER" or vehiculo.clase == "UTILITARIO ADMINISTRATIVO" or vehiculo.clase == "CAMIONETA" or vehiculo.clase == "MONTACARGAS":
+            vehiculo.configuracion = "S2.D2"
+            vehiculo.numero_de_llantas = 4
+            vehiculo.save()
+        if vehiculo.clase == "AUTOTANQUE QUIMICOS" or vehiculo.clase == "AUTOTANQUE ALIMENTICIO" or vehiculo.clase == "AUTOTANQUE COMBUSTIBLE" or vehiculo.clase == "TORTHON SECO" or vehiculo.clase == "TORTHON REFRIGERADO" or vehiculo.clase == "TRACTOCAMION" or vehiculo.clase == "YARD TRUCK":
             vehiculo.configuracion = "S2.D4.D4"
             vehiculo.numero_de_llantas = 10
             vehiculo.save()
-        if vehiculo.marca == "Honda":
-            vehiculo.configuracion = "S1.D1"
-            vehiculo.numero_de_llantas = 2
+        if vehiculo.clase == "CAJA SECA 40" or vehiculo.clase == "CAJA SECA 48" or vehiculo.clase == "CAJA SECA 53" or vehiculo.clase == "PLATAFORMA 53" or vehiculo.clase == "CAJA SECA 53 (3 EJES)" or vehiculo.clase == "CAJA REFRIGERADO 48" or vehiculo.clase == "CAJA REFRIGERADO 53" or vehiculo.clase == "CAJA REFRIGERADO 40" or vehiculo.clase == "THERMOKING THORTON CAJA 25" or vehiculo.clase == "DOLLY" or vehiculo.clase == "PLATAFORMA 40" or vehiculo.clase == "CORTINA" or vehiculo.clase == "PLATAFORMA 35" or vehiculo.clase == "CORTINA 38" or vehiculo.clase == "TOLVA" or vehiculo.clase == "PORTACONTENEDOR":
+            vehiculo.configuracion = "T4.T4"
+            vehiculo.numero_de_llantas = 8
             vehiculo.save()
-        if vehiculo.marca == "Nissan":
-            vehiculo.configuracion = "S2.D2"
-            vehiculo.numero_de_llantas = 4
+        if vehiculo.clase == "PLATAFORMA 53 (3 EJES)":
+            vehiculo.configuracion = "T4.T4.T4"
+            vehiculo.numero_de_llantas = 12
             vehiculo.save()
-        if vehiculo.marca == "Toyota":
-            vehiculo.configuracion = "S2.D2"
-            vehiculo.numero_de_llantas = 4
+        if vehiculo.clase == "RABON":
+            vehiculo.configuracion = "S2.D4"
+            vehiculo.numero_de_llantas = 6
             vehiculo.save()
-        if vehiculo.marca == "Volkswagen":
-            vehiculo.configuracion = "S2.D2"
-            vehiculo.numero_de_llantas = 4
-            vehiculo.save()
-
 
 
 def crear_configuracion2():
@@ -182,13 +328,35 @@ def crear_configuracion2():
     for inspeccion in inspecciones:
         inspeccion.fecha_hora = date(2022, 2, 2)
         inspeccion.save()
+    
 
 def crear_llantas():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="AGA"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
     for vehiculo in vehiculos:
         posiciones = []
         ejes = vehiculo.configuracion.split(".")
-        if vehiculo.configuracion == "S2.D4.D4":
+        if vehiculo.configuracion == "T4.T4.SP1":
+            posiciones.append("1LO")
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("1RO")
+            posiciones.append("2LO")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("2RO")
+            posiciones.append("3LI")
+        if vehiculo.configuracion == "T4.T4.SP2":
+            posiciones.append("1LO")
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("1RO")
+            posiciones.append("2LO")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("2RO")
+            posiciones.append("3LI")
+            posiciones.append("3RI")
+        if vehiculo.configuracion == "S2.C4.D4":
             posiciones.append("1LI")
             posiciones.append("1RI")
             posiciones.append("2LO")
@@ -199,14 +367,55 @@ def crear_llantas():
             posiciones.append("3LI")
             posiciones.append("3RI")
             posiciones.append("3RO")
-        if vehiculo.configuracion == "S2.D2":
+        if vehiculo.configuracion == "S2.D4.D4.SP1":
             posiciones.append("1LI")
             posiciones.append("1RI")
+            posiciones.append("2LO")
             posiciones.append("2LI")
             posiciones.append("2RI")
-        if vehiculo.configuracion == "S1.D1":
+            posiciones.append("2RO")
+            posiciones.append("3LO")
+            posiciones.append("3LI")
+            posiciones.append("3RI")
+            posiciones.append("3RO")
+            posiciones.append("4LI")
+        if vehiculo.configuracion == "T4.T4.T4.SP2":
+            posiciones.append("1LO")
             posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("1RO")
+            posiciones.append("2LO")
             posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("2RO")
+            posiciones.append("3LO")
+            posiciones.append("3LI")
+            posiciones.append("3RI")
+            posiciones.append("3RO")
+            posiciones.append("4LI")
+            posiciones.append("4RI")
+        if vehiculo.configuracion == "T4.T4":
+            posiciones.append("1LO")
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("1RO")
+            posiciones.append("2LO")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("2RO")
+        if vehiculo.configuracion == "T4.T4.T4":
+            posiciones.append("1LO")
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("1RO")
+            posiciones.append("2LO")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("2RO")
+            posiciones.append("3LO")
+            posiciones.append("3LI")
+            posiciones.append("3RI")
+            posiciones.append("3RO")
         for i in range(vehiculo.numero_de_llantas):
             posicion = posiciones[i]
 
@@ -214,6 +423,12 @@ def crear_llantas():
                 nombre_de_eje = "Dirección"
             if ejes[int(posicion[0]) - 1][0] == "D":
                 nombre_de_eje = "Tracción"
+            if ejes[int(posicion[0]) - 1][0] == "T":
+                nombre_de_eje = "Arrastre"
+            if ejes[int(posicion[0]) - 1][0] == "C":
+                nombre_de_eje = "Loco"
+            if ejes[int(posicion[0]) - 1][0] == "L":
+                nombre_de_eje = "Retractil"
 
             Llanta.objects.create(numero_economico=f"{vehiculo}-{i}",
                                 compania=vehiculo.compania,

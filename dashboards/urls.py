@@ -237,12 +237,12 @@ urlpatterns = [
         name="inspeccionVehiculo"
     ),
     path(
-        route="reporteVehiculo/<int:pk>/",
+        route="reporteVehiculo/<int:pk>/<str:tipo>",
         view=views.reporteVehiculoView.as_view(),
         name="reporteVehiculo"
     ),
     path(
-        route="reporteLlanta/<int:pk>/<int:llanta>/",
+        route="reporteLlanta/<int:pk>/<int:llanta>/<int:eje>/<int:num_llanta>/<str:pulpo>",
         view=views.reporteLlantaView.as_view(),
         name="reporteLlanta"
     ),

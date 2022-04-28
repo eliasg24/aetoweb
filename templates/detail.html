@@ -81,7 +81,6 @@
                                 {% for eje in ejes %}
 
                                     {% if eje|length == 2 %}
-
                                         <div class="par-llantas ejes__{{cant_ejes|safe}}">
                                             <a href="{% url 'dashboards:tireDetail' eje.0.0.id %}" class="tire">
                                                 <div class="tire__top {{eje.0.2}}">
@@ -111,7 +110,7 @@
                                                 </div>
                                             </a>
                                             <div class="eje">
-                                                <h2>{{presion_minima}} - {{presion_maxima}}</h2>
+                                                <h2>{{eje.0.6}} - {{eje.0.7}}</h2>
                                                     <div class="axle"></div>
                                                 <h2 class="axle__prof">{{dimension}}</h2>
                                             </div>
@@ -207,7 +206,7 @@
                                             </div>
                                     
                                             <div class="eje">
-                                                <h2>{{presion_minima}} - {{presion_maxima}}</h2>
+                                                <h2>{{eje.0.6}} - {{eje.0.7}}</h2>
                                                     <div class="axle"></div>
                                                 <h2 class="axle__prof">{{dimension}}</h2>
                                             </div>
@@ -379,7 +378,7 @@
                                             <td class="td-table4"><span id="icon {{evento.1.id}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
                                             <td class="td-table4">{{evento.1.id}}</td>
                                             <td class="td-table4">
-                                                <a href="{% url 'dashboards:reporteVehiculo' evento.1.id %}" rel="noopener" target="_blank">
+                                                <a href="{% url 'dashboards:reporteVehiculo' evento.1.id evento.2 %}" rel="noopener" target="_blank">
                                                     <span class="icon-file-pdf" ></span>
                                                 </a>
                                             </td>

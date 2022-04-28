@@ -58,16 +58,16 @@ class TendenciasAdmin(admin.ModelAdmin):
 @admin.register(Vehiculo)
 class VehiculosAdmin(admin.ModelAdmin):
     # Admin de los Vehículos
-    list_display = ('numero_economico', 'tirecheck', 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'ultima_inspeccion', 'fecha_de_creacion')
+    list_display = ('numero_economico', 'tirecheck', "compania", "km", "presion_establecida_1", 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'ultima_inspeccion', 'fecha_de_creacion')
     search_fields= ('numero_economico',)
-    list_filter = ('compania', 'tirecheck', 'fecha_de_creacion', 'clase')
+    list_filter = ('compania', 'tirecheck', 'fecha_de_creacion', 'clase', "configuracion")
 
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('id', 'numero_economico', "presion_de_entrada", "presion_de_salida", 'tirecheck', "km_montado", "vehiculo", 'posicion', 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'vida', 'tipo_de_eje', 'eje')
+    list_display = ('numero_economico', "compania", "km_actual", "km_montado", "vehiculo", "producto", 'posicion', "profundidad_izquierda", "profundidad_central", "profundidad_derecha", "km_montado", "presion_de_entrada", "presion_de_salida", 'tirecheck', "km_montado", "vehiculo", 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'vida', 'tipo_de_eje', 'eje')
     search_fields= ('numero_economico',)
-    list_filter = ('compania', "vehiculo", 'tipo_de_eje')
+    list_filter = ('compania', "km_actual", "km_montado", "inventario", "vehiculo", 'tipo_de_eje')
     
 
 @admin.register(Inspeccion)
@@ -106,7 +106,7 @@ class ProductoAdmin(admin.ModelAdmin):
     #Admin de productos
     list_display = ('producto', 'marca', 'dibujo', 'rango', 'dimension', 'profundidad_inicial', 'vida', 'precio')
     search_fields = ('producto',)
-    list_filter = ('marca','aplicacion', 'vida',)
+    list_filter = ("compania", 'marca','aplicacion', 'vida',)
 
 @admin.register(Renovador)
 class RenovadorAdmin(admin.ModelAdmin):

@@ -475,3 +475,45 @@ def excel_observaciones():
                             nivel=nivel,
                             automatico=automatico
                             )
+
+def excel_productos():
+    FILE_PATH = "C:/Users/elias/Downloads/Productos_de_neumáticos_20220426_135532.xlsx"
+    wb_obj = openpyxl.load_workbook(FILE_PATH)
+    sheet_obj = wb_obj.active
+
+    for i in range(sheet_obj.max_row):
+    
+        producto = str(sheet_obj.cell(row=i + 2, column=1).value)
+        marca = str(sheet_obj.cell(row=i + 2, column=4).value)
+        dibujo = str(sheet_obj.cell(row=i + 2, column=5).value)
+        dimension = str(sheet_obj.cell(row=i + 2, column=2).value)
+        vida = str(sheet_obj.cell(row=i + 2, column=6).value)
+        precio = str(sheet_obj.cell(row=i + 2, column=8).value)
+        if vida == "Nuevo":
+            vida = "Nueva"
+        elif vida == "Renovado":
+            vida = "Renovada"
+        
+        try:
+            profundidad_inicial = float(str(sheet_obj.cell(row=i + 2, column=23).value))
+        except:
+            profundidad_inicial = None
+
+        try:
+            producto = Producto.objects.get(producto=producto)
+            producto.delete()
+        except:
+            pass
+
+        try:
+            Producto.objects.create(producto=producto,
+                                compania=Compania.objects.get(compania="Tramo"),
+                                marca=marca,
+                                dibujo=dibujo,
+                                dimension=dimension,
+                                vida=vida,
+                                precio=int(precio),
+                                profundidad_inicial=profundidad_inicial
+                                )
+        except:
+            pass

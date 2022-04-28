@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -6,62 +7,88 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
     <link rel="stylesheet" href="{% static 'css/reporteVehiculo.css' %}" />
     <link rel="stylesheet" href="{% static 'css/reporteLlanta.css' %}" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       type="text/css"
       href="{% static 'css/icomoon/style.css' %}"
     />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
-      rel="stylesheet"
-    />
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title></title>
+    <title>Reporte llanta X</title>
   </head>
-  <body>
-    <aside>
-      <button type="button" class="btn btn-download" id="btn-print">
-        <span class="icon-printer8"></span>
-      </button>
-    </aside>
-    <main class="all-cont" id="reporte">
-      <div class="title">
-        <img class="img-pulpo" src="{% static 'images/pulpo.png' %}" alt="" />
-        <h1 class="main-title">Pulpo Report</h1>
-      </div>
-      <div class="header">
-        <img
-          class="img-logo"
-          src="{% static 'images/pulpo.png' %}"
-          alt="pulpo"
-        />
-        <h4 class="user">Numero economico: {{llanta}}</h4>
-        <h4>Fecha Reporte: {{hoy}}</h4>
-      </div>
-      <div class="container">
-        <div class="leftcolumn">
-          <h2>ENTRADA</h2>
-          <h3>Presión: {{bitacora.presion_de_entrada}}</h3>
-          <div id="llanta" class="{{color1}}"></div>
-          <span class="{{signo1}}"></span>
+  <body id="report">
+    <header class="report__head">
+      <div class="flex-row space-between">
+        <h1 class="report__title">Reporte {{pulpo}}: Llanta {{bitacora}}</h1>
+        <div class="logo">
+          <img src="{% static 'images/aeto-logo.svg' %}" alt="logo aeto reporte">
         </div>
+      </div>
+  
+      <nav class="report__details">
+        <div class="report__card">
+          <div class="report__card-title">Fecha</div>
+          <div class="report__card-body">{{hoy}}</div>
+        </div>
+  
+        <div class="report__card">
+          <div class="report__card-title">Numero economico</div>
+          <div class="report__card-body">{{bitacora}}</div>
+        </div>
+  
+        <div class="report__card">
+          <div class="report__card-title">Tiempo de inflado</div>
+          <div class="report__card-body">{{bitacora.tiempo_de_inflado}}</div>
+        </div>
+  
+        <div class="report__card">
+          <div class="report__card-title">Usuario</div>
+          <div class="report__card-body">{{user}}</div>
+        </div>
+      </nav>
+    </header>
+    <main class="main__container">
+      <section class="content__wrapper">
+        <h2>Entrada</h2>
+
+        <div class="tire__container">
+          <div class="tire">
+            <div class="tire__tag pos {{color_entrada}}">
+              {{llanta.posicion}}
+            </div>
+            <div class="tire__tag up {{color_entrada}}">
+              {{entrada}}
+            </div>
+            <span class="icon-tire2"></span>
+            <div class="tire__tag down {{color_entrada}}">
+              <span class="{{signo_entrada}}"></span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <section class="content__wrapper center">
         <span class="icon-arrow-right2"></span>
-        <div class="rightcolumn">
-          <h2>SALIDA</h2>
-          <h3>Presión: {{bitacora.presion_de_salida}}</h3>
-          <div id="llanta" class="{{color2}}"></div>
-          <span class="{{signo2}}"></span>
+      </section>
+      <section class="content__wrapper">
+        <h2>Salida</h2>
+
+        <div class="tire__container">
+          <div class="tire">
+            <div class="tire__tag pos {{color_salida}}">
+              {{llanta.posicion}}
+            </div>
+            <div class="tire__tag up {{color_salida}}">
+              {{salida}}
+            </div>
+            <span class="icon-tire2"></span>
+            <div class="tire__tag down {{color_salida}}">
+              <span class="{{signo_salida}}"></span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="text">
-        <h3>Tiempo de Inflado: {{bitacora.tiempo_de_inflado}}</h3>
-        <h3 class="text-center">
-          Usuario: {{user}}
-        </h3>
-      </div>
+
+      </section>
     </main>
 
     <script
@@ -71,17 +98,12 @@
       referrerpolicy="no-referrer"
     ></script>
     <script>
-
-    document.addEventListener('DOMContentLoaded', (e) => {
-      printBtn();
-    })
-
-    const print = () => {
-        const $elementoParaConvertir = document.getElementById('reporte'); // <-- Aquí puedes elegir cualquier elemento del DOM
+      (() => {
+        const $elementoParaConvertir = document.getElementById('report'); // <-- Aquí puedes elegir cualquier elemento del DOM
         html2pdf()
           .set({
-            margin: .25,
-            filename: 'reporte-llanta-{{llanta}}.pdf',
+            margin: .5,
+            filename: 'reporte_vehiculo_{{bitacora}}.pdf',
             image: {
               type: 'jpeg',
               quality: 0.98,
@@ -99,28 +121,7 @@
           .from($elementoParaConvertir)
           .save()
           .catch((err) => console.log(err));
-      };
-
-      const printBtn = () => {
-        const button = document.getElementById('btn-print');
-
-        button.addEventListener('click', print);
-      };
-
-      const Llanta = () => {
-        //Creando un web component
-        const llantas = document.querySelectorAll('#llanta');
-
-        llantas.forEach((llanta) => {
-          llanta.innerHTML = `
-                {% include 'tireSvg.html' %}
-
-                <div class="pop-out-llanta"></div>
-                `;
-        });
-      };
-
-      Llanta();
+      })()
     </script>
   </body>
 </html>

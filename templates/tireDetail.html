@@ -26,7 +26,7 @@
     <div class="logo">
       <img src="{% static 'images/aeto.svg' %}">
     </div>
-    <a href="">
+    <a href="{% url 'dashboards:detail' vehiculo.id %}">
       <h1>{{vehiculo.numero_economico}}</h1>
     </a>
     <nav class="flex-row" id="nav-dash">
@@ -62,20 +62,20 @@
           <div class="cont__config">
             <div class="tire__config">
 
-              <div class="tire__top {{color}}">
-                <span class="tire__data">{{llanta.presion_de_salida}}</span>
+              <div class="tire__top {{llanta_info.2}}">
+                <span class="tire__data">{{llanta_info.0.presion_actual}}</span>
               </div>
 
-              <div class="tire__medium good">
+              <div class="tire__medium {{llanta_info.4}}">
                 <span class="tire__data">
-                    1L0
+                    {{llanta_info.0.posicion}}
                 </span>
               </div>
 
               <span class="icon-tire2"></span>
               
-              <div class="tire__bottom {{color_profundidad}}">
-                <span class="tire__data">{{llanta.ultima_inspeccion.min_profundidad}}</span>
+              <div class="tire__bottom {{llanta_info.1}}">
+                <span class="tire__data">{{llanta_info.3}}</span>
               </div>
 
             </div>
@@ -158,20 +158,20 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for bitacora in bitacoras %}
-                    <tr id="paragraph {{bitacora.id}}">
+                  {% for evento in eventos %}
+                    <tr id="paragraph {{evento.0.id}}">
                       <td class="td-table3">
                         <span class="icon-pulpo"></span>
                       </td>
                       <td class="td-table3">
-                        {{bitacora.fecha_de_inflado.day}}/{{bitacora.fecha_de_inflado.month}}/{{bitacora.fecha_de_inflado.year}}
+                        {{evento.0.fecha_de_inflado.day}}/{{evento.0.fecha_de_inflado.month}}/{{evento.0.fecha_de_inflado.year}}
                       </td>
                       <td class="td-table3">
-                        <span id="icon {{bitacora.id}}"></span>
+                        <span id="icon {{evento.0.id}}"></span>
                       </td>
-                      <td class="td-table3">{{bitacora.tiempo_de_inflado}}</td>
+                      <td class="td-table3">{{evento.0.tiempo_de_inflado}}</td>
                       <td class="td-table3">
-                        <a href="{% url 'dashboards:reporteLlanta' bitacora.id llanta.id %}" rel="noopener" target="_blank">
+                        <a href="{% url 'dashboards:reporteLlanta' evento.0.id llanta.id numero_eje_check numero_llanta_check evento.1 %}" rel="noopener" target="_blank">
                           <span class="icon-file-pdf" ></span>
                         </a>
                       </td>

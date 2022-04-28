@@ -796,7 +796,7 @@ def duales(llantas):
     return llantas_dual_1, llantas_dual_2, llantas_dictionary
 
 def embudo_vidas(llantas):
-    llantas_abajo_del_punto = llantas.select_related("vehiculo__compania", "vehiculo__ubicacion").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro"))
+    llantas_abajo_del_punto = llantas.select_related("vehiculo__compania", "vehiculo__ubicacion").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro"))
     llantas_vida = llantas_abajo_del_punto.aggregate(nueva=Count("vida",filter=Q(vida="Nueva")), r1=Count("vida",filter=Q(vida="1R")), r2=Count("vida",filter=Q(vida="2R")), r3=Count("vida",filter=Q(vida="3R")), r4=Count("vida",filter=Q(vida="4R")), r5=Count("vida",filter=Q(vida="5R")), total=Count("vida"))
     renovado = llantas_abajo_del_punto.annotate(renovado1=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_nueva"),FloatField()) * Cast(llantas_vida["nueva"],FloatField()) / 100), renovado2=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_primera"),FloatField()) * Cast(llantas_vida["r1"],FloatField()) / 100), renovado3=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_segunda"),FloatField()) * Cast(llantas_vida["r2"],FloatField()) / 100), renovado4=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_tercera"),FloatField()) * Cast(llantas_vida["r3"],FloatField()) / 100), renovado5=Round(Cast(F("vehiculo__ubicacion__rendimiento_de_cuarta"),FloatField()) * Cast(llantas_vida["r4"],FloatField()) / 100)).annotate(renovadonuevo=llantas_vida["total"]-F("renovado1")-F("renovado2")-F("renovado3")-F("renovado4")-F("renovado5")).values("renovadonuevo", "renovado1", "renovado2", "renovado3", "renovado4", "renovado5").distinct()
     if not(llantas_abajo_del_punto):
@@ -867,12 +867,12 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
         dias_30 = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last()) - (diario * 30)
         dias_60 = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last()) - (diario * 60)
         dias_90 = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last()) - (diario * 90)
-        print("llanta", l.numero_economico)
+        """print("llanta", l.numero_economico)
         print("dias", dias)
         print("diario", diario)
         print("dias_30", dias_30)
         print("dias_60", dias_60)
-        print("dias_90", dias_90)
+        print("dias_90", dias_90)"""
 
         """print("llanta", llanta["llanta"])
         print("resta", resta)
@@ -1238,15 +1238,34 @@ def juntar_bitacoras(vehiculos, bitacora, bitacora_pro):
         else:
             print(False)
 
-def km_actual_llanta(llantas):
-    for llanta in llantas:
-        if llanta.km_montado:
-            km_actual = llanta.vehiculo.km - llanta.km_montado
-            llanta.km_actual = km_actual
-            llanta.save()
-        else:
-            llanta.km_actual = None
-            llanta.save()
+def km_actual(inspecciones):
+    try:
+        duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
+        regresion = inspecciones.select_related("llanta__vehiculo").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
+        llantas = regresion.values("llanta").distinct()
+        for llanta in llantas:
+            llanta_completa = Llanta.objects.get(id=llanta["llanta"])
+            valores_llanta = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField()))
+            min_mm = valores_llanta.last().min_profundidad
+            max_mm = valores_llanta.first().min_profundidad
+            min_km = valores_llanta.first().km_vehiculo
+            max_km = valores_llanta.last().km_vehiculo
+            if min_mm <= max_mm:
+                if min_km <= max_km:
+                    km_recorrido = abs(max_km - min_km)
+                    mm_desgastados = abs(max_mm - min_mm)
+                    if mm_desgastados == 0:
+                        mm_desgastados = 1
+                    km_x_mm = km_recorrido / mm_desgastados
+                    profundidad_inicial = llanta_completa.producto.profundidad_inicial
+                    km_teorico_actual = int((profundidad_inicial - min_mm) * km_x_mm)
+                    return km_teorico_actual
+                else:
+                    return None
+            else:
+                return None
+    except:
+        return None
 
 def km_proyectado(inspecciones, mediana):
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
@@ -1254,79 +1273,126 @@ def km_proyectado(inspecciones, mediana):
     llantas = regresion.values("llanta").distinct()
     llantas_limpias = []
     kms_proyectados = []
+    llanta_kms_proyectados = {}
     kms_x_mm = []
-    cpks = []
+    cpks = []   
     min_profundidades = []
     for llanta in llantas:
         llanta_completa = Llanta.objects.get(id=llanta["llanta"])
-        if llanta_completa.km_montado:
-            x = []
-            y = []
-            x.append(llanta_completa.km_montado)
-            y.append(llanta_completa.producto.profundidad_inicial)
-            km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km_vehiculo")
-            for r in km_llanta:
-                suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
-                y.append(suma)
-            profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
-            for p in profundidades:
-                x.append(p["min_profundidad"])
-            
-            x = np.array(x)
-            y = np.array(y)
-
-            f = np.polyfit(x, y, 2)
-            p = np.poly1d(f)
-            termino = []
-            for numero in p:
-                numero = round(numero, 4)
-                termino.append(numero)
-            km_actual = y[-1]
-            km_proyectado = (termino[0]*(3**2))+(termino[1]*3)+termino[2]
-            km_x_mm = km_proyectado / (llanta_completa.producto.profundidad_inicial - 3)
-            precio = llanta_completa.producto.precio
-            cpk = round((precio / km_proyectado), 3)
-
-            if km_actual >= 20000:
-
-                llantas_limpias.append(llanta_completa)
-                kms_proyectados.append(km_proyectado)
-                kms_x_mm.append(km_x_mm)
-                cpks.append(cpk)
-                min_profundidades.append(profundidades[1:][0]["min_profundidad"])
-        else:
-            valores_llanta = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km_vehiculo")-Min("km_vehiculo"), min_mm=Min("min_profundidad"))
-            profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
-            mm_desgastados = valores_llanta["max_mm"] - valores_llanta["min_mm"]
-            if mm_desgastados == 0:
-                mm_desgastados = 1
+        print(llanta_completa)
+        print(llanta_completa)
+        if llanta_completa.km_montado or llanta_completa.km_montado == 0:
+            print("si", llanta_completa)
             try:
-                km_recorrido = valores_llanta["km_recorrido"]
-                km_x_mm = km_recorrido / mm_desgastados
-                profundidad_inicial = llanta_completa.producto.profundidad_inicial
-                km_teorico_actual = int((profundidad_inicial - valores_llanta["min_mm"]) * km_x_mm)
-                km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
+                x = []
+                y = []
+                x.append(llanta_completa.km_montado)
+                print("si", llanta_completa)
+                y.append(llanta_completa.producto.profundidad_inicial)
+                print("si", llanta_completa)
+                km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km_vehiculo")
+                print("si", llanta_completa)
+                for r in km_llanta:
+                    suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
+                    y.append(suma)
+                print("si", llanta_completa)
+                profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
+                for p in profundidades:
+                    x.append(p["min_profundidad"])
                 
+                x = np.array(x)
+                y = np.array(y)
 
+                f = np.polyfit(x, y, 2)
+                p = np.poly1d(f)
+                termino = []
+                for numero in p:
+                    numero = round(numero, 4)
+                    termino.append(numero)
+                km_actual = y[-1]
+                km_proyectado = (termino[0]*(3**2))+(termino[1]*3)+termino[2]
+                km_x_mm = km_proyectado / (llanta_completa.producto.profundidad_inicial - 3)
                 precio = llanta_completa.producto.precio
-                cpk = round((precio / km_teorico_proyectado), 3)
+                cpk = round((precio / km_proyectado), 3)
 
-                """print("llanta", llanta)
-                print("mm_desgastados", mm_desgastados)
-                print("km_recorrido", km_recorrido)
-                print("km_x_mm", km_x_mm)
-                print("profundidad_inicial", profundidad_inicial)
-                print("km_teorico_actual", km_teorico_actual)
-                print("km_proyectado", km_teorico_proyectado)
-                print("cpk", cpk)"""
+                if profundidades.last()["min_profundidad"] <= 3:
+                    km_proyectado = km_actual
 
-                if km_teorico_actual >= 20000:
+                print("llanta", llanta_completa)
+                print("km_proyectado", km_proyectado)
+                if km_actual >= 20000:
+
+                    #print("llanta", llanta_completa)
+                    #print("km_x_mm", km_x_mm)
+                    #print("profundidad_inicial", llanta_completa.producto.profundidad_inicial)
+                    #print("km_actual", km_actual)
+                    #print("km_proyectado", km_proyectado)
+                    #print("cpk", cpk)
 
                     llantas_limpias.append(llanta_completa)
-                    kms_proyectados.append(km_teorico_proyectado)
+                    kms_proyectados.append(km_proyectado)
+                    llanta_kms_proyectados[llanta_completa] = km_proyectado
                     kms_x_mm.append(km_x_mm)
                     cpks.append(cpk)
                     min_profundidades.append(profundidades[1:][0]["min_profundidad"])
+            except:
+                pass
+        else:
+            print("no", llanta_completa)
+            try:
+                valores_llanta = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField()))
+                print("no", llanta_completa)
+                profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
+                print("no", llanta_completa)
+                min_mm = valores_llanta.last().min_profundidad
+                print("no", llanta_completa)
+                max_mm = valores_llanta.first().min_profundidad
+                print("no", llanta_completa)
+                min_km = valores_llanta.first().km_vehiculo
+                print("no", llanta_completa)
+                max_km = valores_llanta.last().km_vehiculo
+                km_recorrido = abs(max_km - min_km)
+                mm_desgastados = abs(max_mm - min_mm)
+                print("no", llanta_completa)
+                if mm_desgastados == 0:
+                    mm_desgastados = 0.01
+                print("no", llanta_completa)
+                km_x_mm = km_recorrido / mm_desgastados
+                print("no", llanta_completa)
+                profundidad_inicial = llanta_completa.producto.profundidad_inicial
+                print("no", llanta_completa)
+                km_teorico_actual = int((profundidad_inicial - min_mm) * km_x_mm)
+                print("no", llanta_completa)
+                km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
+                print("no", llanta_completa)
+
+                precio = llanta_completa.producto.precio
+                try:
+                    cpk = round((precio / km_teorico_proyectado), 3)
+                except:
+                    cpk = None
+
+                #print("min_km", min_km)
+                #print("max_km", max_km)
+                #print("mm_desgastados", mm_desgastados)
+                #print("km_recorrido", km_recorrido)
+                #print("km_x_mm", km_x_mm)
+                #print("profundidad_inicial", profundidad_inicial)
+                #print("cpk", cpk)
+                print("llanta", llanta_completa, "vehiculo", llanta_completa.vehiculo)
+                print("km_proyectado", km_teorico_proyectado)
+
+                if km_teorico_actual >= 20000:
+                    #print("llanta", llanta_completa, "vehiculo", llanta_completa.vehiculo)
+                    #print("km_teorico_actual", km_teorico_actual)
+                    #print("km_proyectado", km_teorico_proyectado)
+                
+                    llantas_limpias.append(llanta_completa)
+                    kms_proyectados.append(km_teorico_proyectado)
+                    llanta_kms_proyectados[llanta_completa] = km_teorico_proyectado
+                    kms_x_mm.append(km_x_mm)
+                    cpks.append(cpk)
+                    min_profundidades.append(profundidades.last()["min_profundidad"])
             except:
                 pass
 
@@ -1335,9 +1401,14 @@ def km_proyectado(inspecciones, mediana):
     if inspecciones:
         if mediana:
             try:
-                mediana_km_proyectado = km_proyectado_mediana(kms_proyectados)
+                mediana_km_proyectado = km_proyectado_mediana(llanta_kms_proyectados)
+                llantas_limpias = list(mediana_km_proyectado[0].keys())
+                mediana_km_proyectado = mediana_km_proyectado[1]
             except:
-                mediana_km_proyectado = int(statistics.median(kms_proyectados))
+                try:
+                    mediana_km_proyectado = int(statistics.median(kms_proyectados))
+                except:
+                    mediana_km_proyectado = 0            
         else:
             try:
                 mediana_km_proyectado = int(statistics.median(kms_proyectados))
@@ -1411,8 +1482,8 @@ def km_proyectado_llanta(inspecciones):
             return km_proyectado, km_x_mm, cpk
 
         else:
-            valores_llanta = regresion.filter(llanta=llanta["llanta"]).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km")-Min("km"), min_mm=Min("min_profundidad"))
-            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+            valores_llanta = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).aggregate(max_mm=Max("min_profundidad"), km_recorrido=Max("km_vehiculo")-Min("km_vehiculo"), min_mm=Min("min_profundidad"))
+            profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
             mm_desgastados = valores_llanta["max_mm"] - valores_llanta["min_mm"]
             if mm_desgastados == 0:
                 mm_desgastados = 1
@@ -1422,7 +1493,6 @@ def km_proyectado_llanta(inspecciones):
                 profundidad_inicial = llanta_completa.producto.profundidad_inicial
                 km_teorico_actual = int((profundidad_inicial - valores_llanta["min_mm"]) * km_x_mm)
                 km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
-    
                 precio = llanta_completa.producto.precio
                 cpk = round((precio / km_teorico_proyectado), 3)
     
@@ -1440,27 +1510,27 @@ def km_proyectado_llanta(inspecciones):
                 return 0, 0, 0
 
 def km_proyectado_mediana(kms_proyectados):
-    q1 =  np.quantile(kms_proyectados, 0.25)
-    primer_mediana = round(statistics.median(kms_proyectados), 2)
-    q3 =  np.quantile(kms_proyectados, 0.75)
-    sigma = round(statistics.pstdev(kms_proyectados), 2)
+    q1 =  np.quantile(list(kms_proyectados.values()), 0.25)
+    primer_mediana = round(statistics.median(list(kms_proyectados.values())), 2)
+    q3 =  np.quantile(list(kms_proyectados.values()), 0.75)
+    sigma = round(statistics.pstdev(list(kms_proyectados.values())), 2)
     
-    nuevos_kms_proyectados = []
+    nuevos_kms_proyectados = {}
     for km in kms_proyectados:
-        if q1 <= km <= q3:
-            nuevos_kms_proyectados.append(km)
+        if q1 <= kms_proyectados[km] <= q3:
+            nuevos_kms_proyectados[km] = kms_proyectados[km]
 
-    segunda_mediana = round(statistics.median(nuevos_kms_proyectados), 2)
-    desvest = round(statistics.pstdev(nuevos_kms_proyectados), 2)
-    limite_inferior = round(segunda_mediana - (1.5 * desvest), 2)
-    limite_superior = round(segunda_mediana + (1.5 * desvest), 2)
+    segunda_mediana = round(statistics.median(list(nuevos_kms_proyectados.values())), 2)
+    desvest = round(statistics.pstdev(list(nuevos_kms_proyectados.values())), 2)
+    limite_inferior = round(segunda_mediana - (3 * desvest), 2)
+    limite_superior = round(segunda_mediana + (3 * desvest), 2)
 
-    kms_proyectados_final = []
+    kms_proyectados_final = {}
     for km in nuevos_kms_proyectados:
-        if limite_inferior <= km <= limite_superior:
-            kms_proyectados_final.append(km)
+        if limite_inferior <= nuevos_kms_proyectados[km] <= limite_superior:
+            kms_proyectados_final[km] = nuevos_kms_proyectados[km]
 
-    mediana_final = int(statistics.median(kms_proyectados_final))
+    mediana_final = int(statistics.median(list(kms_proyectados_final.values())))
 
     """print("kms_proyectados", kms_proyectados)
     print()
@@ -1479,7 +1549,7 @@ def km_proyectado_mediana(kms_proyectados):
     print("kms_proyectados_final", kms_proyectados_final)
     print("mediana_final", mediana_final)"""
 
-    return mediana_final
+    return kms_proyectados_final, mediana_final
 
 def mala_entrada(vehiculos):
     vehiculos_fallidos = {}
@@ -1630,12 +1700,12 @@ def reduce(func, items):
     return result
 
 def reemplazo_actual(llantas):
-    reemplazo_actual_llantas = llantas.annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro"))
+    reemplazo_actual_llantas = llantas.annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro"))
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")),total=Count("nombre_de_eje"))
     return reemplazo_actual_llantas, reemplazo_actual_ejes
 
 def reemplazo_actual2(llantas):
-    reemplazo_actual_llantas = llantas.annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro"))
+    reemplazo_actual_llantas = llantas.annotate(punto_de_retiro=Case(When(nombre_de_eje="Dirección", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(nombre_de_eje="Tracción", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(nombre_de_eje="Arrastre", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(nombre_de_eje="Loco", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(nombre_de_eje="Retractil", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro"))
     reemplazo_actual_ejes = reemplazo_actual_llantas.aggregate(direccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Dirección")),traccion=Count("nombre_de_eje",filter=Q(nombre_de_eje="Tracción")),arrastre=Count("nombre_de_eje",filter=Q(nombre_de_eje="Arrastre")),loco=Count("nombre_de_eje",filter=Q(nombre_de_eje="Loco")),retractil=Count("nombre_de_eje",filter=Q(nombre_de_eje="Retractil")))
     return reemplazo_actual_ejes
 
@@ -1716,11 +1786,11 @@ def vehiculo_amarillo(llantas):
         llantas_desgaste = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).annotate(resta=F("max_profundidad")-F("min_profundidad")).filter(resta__gt=3).values("vehiculo").distinct()
 
         # Arriba del punto de retiro
-        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") + 1).values("vehiculo").distinct()
+        llantas_retiro = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro") + 1).values("vehiculo").distinct()
         vehiculos_amarillos = llantas_desgaste.union(llantas_retiro)
         
         # Desdualización
-        dual = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("min_profundidad") - Min("min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("vehiculo").distinct()
+        dual = llantas.select_related("ultima_inspeccion", "vehiculo").annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), diferencia=Max("min_profundidad") - Min("min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("vehiculo").distinct()
         vehiculos_amarillos = vehiculos_amarillos.union(dual)
         return vehiculos_amarillos
     except:
@@ -1733,11 +1803,11 @@ def vehiculo_amarillo_llanta(llantas):
         llantas_desgaste = llantas.select_related("vehiculo").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).annotate(resta=F("max_profundidad")-F("min_profundidad")).filter(resta__gt=3).values("numero_economico").distinct()
 
         # Arriba del punto de retiro
-        llantas_retiro = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") + 1).values("numero_economico").distinct()
+        llantas_retiro = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro") + 1).values("numero_economico").distinct()
         llantas_amarillas = llantas_desgaste.union(llantas_retiro)
         
         # Desdualización
-        dual = llantas.select_related("vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("numero_economico").distinct()
+        dual = llantas.select_related("vehiculo").values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).order_by().annotate(Count("numero_economico"), diferencia=Max("ultima_inspeccion__min_profundidad") - Min("ultima_inspeccion__min_profundidad")).filter(numero_economico__count=2).filter(diferencia__gt=3).values("numero_economico").distinct()
         llantas_amarillas = llantas_amarillas.union(dual)
         return llantas_amarillas
     except:
@@ -1762,14 +1832,16 @@ def vehiculos_por_clase_sin_inspeccionar(vehiculos, hoy1, hoy2, hoy3):
     return vehiculos_clase
 
 def vehiculo_rojo(llantas, doble_entrada, vehiculo):
-    llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") - 1).values("min_profundidad").distinct()
+    llantas = llantas.select_related("ultima_inspeccion","vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro") - 1).values("min_profundidad").distinct()
     vehiculos = vehiculo.filter(id__in=llantas)
-    union = vehiculos | doble_entrada
+    try:
+        union = vehiculos | doble_entrada
+    except:
+        union = vehiculos
     return union
 
 def vehiculo_rojo_llanta(llantas):
-    llantas = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lte=F("punto_de_retiro") - 1).values("numero_economico").distinct()
-    print(llantas)
+    llantas = llantas.select_related("vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil")))).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lte=F("punto_de_retiro") - 1).values("numero_economico").distinct()
     return llantas
 
 def vehiculo_sospechoso(inspecciones):
@@ -1785,30 +1857,36 @@ def vehiculo_sospechoso(inspecciones):
         for r in fecha_llanta:
             resta = abs(r["fecha_hora"] - primera_fecha["primera_fecha"]).days
             x.append(resta)
-        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
+        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
         for p in profundidades:
             y.append(p["min_profundidad"])
         
         x = np.array(x)
         y = np.array(y)
 
+        print(x)
+        print(y)
+
         if len(x) > 2:
             dia = x[-1]
 
-            f = np.polyfit(x, y, 2)
-            p = np.poly1d(f)
-            termino = []
-            for numero in p:
-                numero = round(numero, 4)
-                termino.append(numero)
-            regresion_resultado = (termino[0]*(dia**2))+(termino[1]*dia)+termino[2]
-            resta = y[0]-regresion_resultado
-            diario = resta/dia
-            diferencia_dias = dia-x[-2]
-            prediccion = diario*diferencia_dias
-            desgaste_normal = prediccion*2.5
             try:
-                vehiculos_sospechosos = regresion.annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+                f = np.polyfit(x, y, 2)
+                p = np.poly1d(f)
+                termino = []
+                for numero in p:
+                    numero = round(numero, 4)
+                    termino.append(numero)
+                regresion_resultado = (termino[0]*(dia**2))+(termino[1]*dia)+termino[2]
+                resta = y[0]-regresion_resultado
+                diario = resta/dia
+                diferencia_dias = dia-x[-2]
+                prediccion = diario*diferencia_dias
+                desgaste_normal = prediccion*2.5
+                try:
+                    vehiculos_sospechosos = regresion.annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+                except:
+                    pass
             except:
                 pass
     # En un futuro poner el parámetro sospechoso para cuando es 1 inspección
@@ -1829,7 +1907,7 @@ def vehiculo_sospechoso(inspecciones):
         ultima_profundidad = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last())
         #print("primera_profundidad: ", primera_profundidad)
         #print("ultima_profundidad: ", ultima_profundidad)
-        vehiculo = sin_regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta__vehiculo").distinct()
+        vehiculo = sin_regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta__vehiculo").distinct()
         if vehiculo:
             if not(vehiculo[0]["llanta__vehiculo"] in vehiculos_lista):
                 if vehiculos_sospechosos_iteracion:
@@ -1854,7 +1932,7 @@ def vehiculo_sospechoso_llanta(inspecciones):
         for r in fecha_llanta:
             resta = abs(r["fecha_hora"] - primera_fecha["primera_fecha"]).days
             x.append(resta)
-        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).values("min_profundidad")
+        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
         for p in profundidades:
             y.append(p["min_profundidad"])
         
@@ -1877,7 +1955,7 @@ def vehiculo_sospechoso_llanta(inspecciones):
             prediccion = diario*diferencia_dias
             desgaste_normal = prediccion*2.5
             try:
-                llantas_sospechosas = regresion.annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+                llantas_sospechosas = regresion.annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
             except:
                 pass
     # En un futuro poner el parámetro sospechoso para cuando es 1 inspección
@@ -1898,7 +1976,7 @@ def vehiculo_sospechoso_llanta(inspecciones):
         ultima_profundidad = min_profundidad(sin_regresion.filter(llanta=llanta["llanta"]).order_by("fecha_hora").last())
         #print("primera_profundidad: ", primera_profundidad)
         #print("ultima_profundidad: ", ultima_profundidad)
-        llanta_sospechosa = sin_regresion.filter(llanta=llanta["llanta"]).annotate(min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta").distinct()
+        llanta_sospechosa = sin_regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__lt = primera_profundidad - (F("llanta__vehiculo__compania__mm_parametro_sospechoso") * dias)).values("llanta").distinct()
         if llanta_sospechosa:
             if not(llanta_sospechosa[0]["llanta"] in llantas_lista):
                 if llantas_sospechosas_iteracion:
