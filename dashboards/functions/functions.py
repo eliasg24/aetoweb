@@ -601,7 +601,7 @@ def doble_mala_entrada(bitacoras, vehiculos):
         return vehiculos
     except:
         if len(entradas) >= 1:
-            return vehiculos
+            return []
 
 def doble_mala_entrada_pro(bitacoras, vehiculos):
     bitacoras = bitacoras.order_by("id")
@@ -783,7 +783,7 @@ def doble_mala_entrada_pro(bitacoras, vehiculos):
         if dobles_entradas:
             return dobles_entradas
         if len(entradas) >= 1:
-            return vehiculos
+            return []
 
 def duales(llantas):
     dual = llantas.values("numero_economico", "vehiculo", "posicion").annotate(eje_dual=Substr(F("posicion"),1,2)).values("vehiculo", "eje_dual").order_by().annotate(Count("numero_economico"), llanta_1=Max("numero_economico"), llanta_2=Min("numero_economico")).filter(numero_economico__count=2)
@@ -1024,7 +1024,7 @@ def entrada_correcta_pro(vehiculos):
                                     presion_establecida_12 = bitacora.presion_de_salida_12
                                     entrada_correcta_12 = presion_encontrada_12/presion_establecida_12
             if llantas >= 12:
-                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9 or entrada_correcta_9 >= 0.9 or entrada_correcta_10 >= 0.9 or entrada_correcta_11 >= 0.9 or entrada_correcta_12 >= 0.9:
+                if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9 and entrada_correcta_3 >= 0.9 and entrada_correcta_4 >= 0.9 and entrada_correcta_5 >= 0.9 and entrada_correcta_6 >= 0.9 and entrada_correcta_7 >= 0.9 and entrada_correcta_8 >= 0.9 and entrada_correcta_9 >= 0.9 and entrada_correcta_10 >= 0.9 and entrada_correcta_11 >= 0.9 and entrada_correcta_12 >= 0.9:
                     loop_entradas = 0
                 else:
                     loop_entradas += 1
@@ -1033,7 +1033,7 @@ def entrada_correcta_pro(vehiculos):
                     else:
                         entradas[bitacora.id] = False
             elif llantas >= 10:
-                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9 or entrada_correcta_9 >= 0.9 or entrada_correcta_10 >= 0.9:
+                if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9 and entrada_correcta_3 >= 0.9 and entrada_correcta_4 >= 0.9 and entrada_correcta_5 >= 0.9 and entrada_correcta_6 >= 0.9 and entrada_correcta_7 >= 0.9 and entrada_correcta_8 >= 0.9 and entrada_correcta_9 >= 0.9 and entrada_correcta_10 >= 0.9:
                     loop_entradas = 0
                 else:
                     loop_entradas += 1
@@ -1042,16 +1042,19 @@ def entrada_correcta_pro(vehiculos):
                     else:
                         entradas[bitacora.id] = False
             elif llantas >= 8:
-                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9 or entrada_correcta_7 >= 0.9 or entrada_correcta_8 >= 0.9:
+                print(entrada_correcta_1)
+                if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9 and entrada_correcta_3 >= 0.9 and entrada_correcta_4 >= 0.9 and entrada_correcta_5 >= 0.9 and entrada_correcta_6 >= 0.9 and entrada_correcta_7 >= 0.9 and entrada_correcta_8 >= 0.9:
+                    print("hola")
                     loop_entradas = 0
                 else:
+                    print("hola2")
                     loop_entradas += 1
                     if loop_entradas == 2:
                         entradas[bitacora.id] = "Doble"            
                     else:
                         entradas[bitacora.id] = False
             elif llantas >= 6:
-                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9 or entrada_correcta_5 >= 0.9 or entrada_correcta_6 >= 0.9:
+                if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9 and entrada_correcta_3 >= 0.9 and entrada_correcta_4 >= 0.9 and entrada_correcta_5 >= 0.9 and entrada_correcta_6 >= 0.9:
                     loop_entradas = 0
                 else:
                     loop_entradas += 1
@@ -1060,7 +1063,7 @@ def entrada_correcta_pro(vehiculos):
                     else:
                         entradas[bitacora.id] = False
             elif llantas >= 4:
-                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9 or entrada_correcta_3 >= 0.9 or entrada_correcta_4 >= 0.9:
+                if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9 and entrada_correcta_3 >= 0.9 and entrada_correcta_4 >= 0.9:
                     loop_entradas = 0
                 else:
                     loop_entradas += 1
@@ -1069,7 +1072,7 @@ def entrada_correcta_pro(vehiculos):
                     else:
                         entradas[bitacora.id] = False
             elif llantas >= 2:
-                if entrada_correcta_1 >= 0.9 or entrada_correcta_2 >= 0.9:
+                if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9:
                     loop_entradas = 0
                 else:
                     loop_entradas += 1

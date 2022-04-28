@@ -2627,7 +2627,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro) 
         doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
-        vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
+        vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
         vehiculo_periodo_status = {}
         mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo) | functions.mala_entrada_pro(vehiculo_periodo)
         for v in vehiculo_periodo:
@@ -3676,6 +3676,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         entradas_correctas = functions.entrada_correcta(bitacora)
         entradas_correctas_pro = functions.entrada_correcta_pro(bitacora_pro)
+        print(entradas_correctas_pro)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
         if vehiculo.fecha_de_inflado:
             inflado = 1

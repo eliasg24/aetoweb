@@ -771,7 +771,20 @@
 
         window.onload = function dias_sin_inflado(){
             hoy = new Date("{{hoy.month}}/{{hoy.day}}/{{hoy.year}}")
-            vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+            {% if vehiculo.ultima_bitacora_pro and vehiculo.fecha_de_inflado %}
+                fecha1 = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+                fecha2 = new Date("{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.month}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.day}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.year}}")
+                if (fecha1 > fecha2){
+                    vehiculo_fecha{{vehiculo.id}} = fecha1
+                }
+                else {
+                    vehiculo_fecha{{vehiculo.id}} = fecha2
+                }
+            {% elif vehiculo.ultima_bitacora_pro %}
+                vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.month}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.day}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.year}}")
+            {% elif vehiculo.fecha_de_inflado %}
+                vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+            {% endif %}
             var mes_1 = 0;
             var mes_2 = 0;
             var mes_3 = 0;
@@ -825,6 +838,7 @@
                 {% endif %}
             {% endfor %}
             {% for id, entrada in entradas_pro.items %}
+                console.log("{{entrada}}")
                 {% if entrada %}                    
                     {% if entrada == "Doble" %}    
                         document.getElementById("icon {{id}}").className = "icon-cross";
