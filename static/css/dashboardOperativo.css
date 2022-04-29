@@ -45,8 +45,34 @@ p {
   align-items: center;
 }
 
+.column.row {
+  grid-template-columns: repeat(2, 1fr);
+  padding: 1rem;
+}
+
+/* ? CHART */
+
+.chart-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.chart-container .chart {
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+
+/* ??? */
+
 .card {
+  align-items: center;
   cursor: pointer;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  text-align: center;
   transition: all 0.3s ease;
 }
 

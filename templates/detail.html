@@ -110,9 +110,9 @@
                                                 </div>
                                             </a>
                                             <div class="eje">
-                                                <h2>{{eje.0.6}} - {{eje.0.7}}</h2>
+                                                <span>{{eje.0.6}} - {{eje.0.7}}</span>
                                                     <div class="axle"></div>
-                                                <h2 class="axle__prof">{{dimension}}</h2>
+                                                <span class="axle__prof">{{dimension}}</span>
                                             </div>
                                     
                                             <a href="{% url 'dashboards:tireDetail' eje.1.0.id %}" class="tire">
@@ -206,9 +206,9 @@
                                             </div>
                                     
                                             <div class="eje">
-                                                <h2>{{eje.0.6}} - {{eje.0.7}}</h2>
+                                                <span>{{eje.0.6}} - {{eje.0.7}}</span>
                                                     <div class="axle"></div>
-                                                <h2 class="axle__prof">{{dimension}}</h2>
+                                                <span class="axle__prof">{{dimension}}</span>
                                             </div>
                                             
                                             <div class="double-tire">
@@ -286,7 +286,7 @@
                 <div class="config__data">
                     <nav class="config__nav">
                         <div id="nav-table" class="flex-row">
-                            <button class="btn btn-aeto-crunch alt active" id="btn-general">
+                            <button class="btn btn-aeto-crunch alt" id="btn-general">
                                 General
                             </button>
                             <button class="btn btn-aeto-crunch alt" id="btn-problemas">
@@ -295,14 +295,14 @@
                             <button class="btn btn-aeto-crunch alt" id="btn-llantas">
                                 Info Llantas
                             </button>
-                            <button class="btn btn-aeto-crunch alt" id="btn-bitacora">
+                            <button class="btn btn-aeto-crunch alt active" id="btn-bitacora">
                                 Bitacora
                             </button>
                         </div>            
                     </nav>
 
                     <div class="config__container-table">
-                        <div class="tables__table on-table" id="general">
+                        <div class="tables__table" id="general">
                             <table class="config__table active">
                                 <thead>
                                     <tr>
@@ -358,7 +358,7 @@
                             </table>
                         </div>
 
-                        <div class="tables__table" id="bitacora">
+                        <div class="tables__table on-table" id="bitacora">
                             <div class="column" id="col-table">
                                 <table class="config__table">
                                     <thead class="thead-dark">
@@ -372,17 +372,36 @@
                                     </thead>
                                     <tbody>
                                         {% for evento in eventos %}
-                                        <tr id="paragraph {{evento.1.id}}">
-                                            <td class="td-table4"><span class="icon-pulpo"></span></td>
-                                            <td class="td-table4">{{evento.1.fecha_de_inflado.day}}/{{evento.1.fecha_de_inflado.month}}/{{evento.1.fecha_de_inflado.year}}</td>
-                                            <td class="td-table4"><span id="icon {{evento.1.id}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
-                                            <td class="td-table4">{{evento.1.id}}</td>
-                                            <td class="td-table4">
-                                                <a href="{% url 'dashboards:reporteVehiculo' evento.1.id evento.2 %}" rel="noopener" target="_blank">
-                                                    <span class="icon-file-pdf" ></span>
-                                                </a>
-                                            </td>
-                                        </tr>
+                                            {% if evento.2 == 'pulpo' or evento.2 == 'pulpopro'%}
+                                            
+                                            
+                                                <tr id="paragraph {{evento.1.id}}">
+                                                    <td class="td-table4"><span class="icon-pulpo"></span></td>
+                                                    <td class="td-table4">{{evento.1.fecha_de_inflado.day}}/{{evento.1.fecha_de_inflado.month}}/{{evento.1.fecha_de_inflado.year}}</td>
+                                                    <td class="td-table4"><span id="icon {{evento.1.id}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
+                                                    <td class="td-table4">{{evento.1.id}}</td>
+                                                    <td class="td-table4">
+                                                        <a href="{% url 'dashboards:reporteVehiculo' evento.1.id evento.2 %}" rel="noopener" target="_blank">
+                                                            <span class="icon-file-pdf" ></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% elif evento.2 == 'inspeccion'%}  
+                                            
+                                                <tr id="paragraph {{evento.1.id}}">
+                                                    <td class="td-table4"><span class="icon-magnifier"></span></td>
+                                                    <td class="td-table4">{{evento.1.fecha_hora.day}}/{{evento.1.fecha_hora.month}}/{{evento.1.fecha_hora.year}}</td>
+                                                    <td class="td-table4"><span id="icon {{evento.1.id}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
+                                                    <td class="td-table4">{{evento.1.id}}</td>
+                                                    <td class="td-table4">
+                                                        <a href="{% url 'dashboards:reporteInspeccion' evento.1.id evento.2 %}" rel="noopener" target="_blank">
+                                                            <span class="icon-file-pdf" ></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+
+                                            {% else %}
+                                            {% endif %}
                                         {% endfor %}
 
                                         {% for bitacora in bitacora_edicion %}

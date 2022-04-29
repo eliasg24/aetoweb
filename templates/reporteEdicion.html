@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="inspeccion" lang="en">
+<head>
+  {% load static %}
+    <link rel="stylesheet" href="{% static 'css/reporteVehiculo.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="shortcut icon" href="{% static 'images/logo-border.png' %}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/icomoon/style.css' %}"
+    />
+    <title></title>
+</head>
+<body>
+  <aside>
+    <button class="btn btn-download" id="btn-print">
+      <span class="icon-printer8"></span>
+    </button>
+  </aside>
+  <header class="report__inspeccion">
+
+    <div class="flex-row space-between">
+      <h1 class="report__title">Reporte Inspeccion</h1>
+      <div class="logo">
+        <img src="{% static 'images/aeto-logo.svg' %}" alt="logo aeto reporte">
+      </div>
+    </div>
+
+    <nav class="report__details">
+      <div class="report__card">
+        <div class="report__card-title">Datos Iniciales</div>
+        <div class="report__card-body">828272</div>
+        <div class="report__card-body">827272</div>
+        <div class="report__card-body">2828282</div>
+        <div class="report__card-body">8272728</div>
+        <div class="report__card-body">827272</div>
+        <div class="report__card-body">2828282</div>
+        <div class="report__card-body">8272728</div>
+      </div>
+
+      <section class="content__wrapper center">
+        <span class="icon-arrow-right2"></span>
+      </section>
+
+      <div class="report__card">
+        <div class="report__card-title">Datos modificados</div>
+        <div class="report__card-body">827272</div>
+        <div class="report__card-body">2828282</div>
+        <div class="report__card-body">8272728</div>
+        <div class="report__card-body">827272</div>
+        <div class="report__card-body">2828282</div>
+        <div class="report__card-body">8272728</div>
+        <div class="report__card-body">8272728</div>
+      </div>
+    </nav>
+
+  </header>
+</body>
+</html>

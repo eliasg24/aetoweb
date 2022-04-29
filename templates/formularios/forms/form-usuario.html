@@ -104,11 +104,11 @@
     </li>
     {% for sucursal in sucursales %}
     <li class="search-item">
-        <label for="{{sucursal}}" class="input-check">
-          {{sucursal}}
-          <input type="checkbox" name="ubicacion" value="{{sucursal}}" id="{{sucursal}}" />
-          <span class="checkmark"></span>
-        </label>
+      <!-- <label for="{{sucursal}}" class="input-check">
+        {{sucursal}}
+        <input type="checkbox" name="ubicacion" value="{{sucursal}}" id="{{sucursal}}" />
+        <span class="checkmark"></span>
+      </label> -->
     </li>
     {% endfor %}
   </ul>
@@ -138,16 +138,15 @@
     </li>
     {% for aplicacion in aplicaciones %}
     <li class="search-item">
-        <label for="{{aplicacion}}" class="input-check">
-          {{aplicacion}}
-          <input type="checkbox" name="aplicacion" value="{{aplicacion}}" id="{{aplicacion}}" />
-          <span class="checkmark"></span>
-        </label>
+      <!-- <label for="{{aplicacion}}" class="input-check">
+        {{aplicacion}}
+        <input type="checkbox" name="aplicacion" value="{{aplicacion}}" id="{{aplicacion}}" />
+        <span class="checkmark"></span>
+      </label> -->
     </li>
     {% endfor %}
     </ul>
-</div>
-
+</div> 
 <!-- Start input -->
 <div class="form__group field">
   <input

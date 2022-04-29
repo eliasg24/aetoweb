@@ -54,6 +54,7 @@ class Ubicacion(models.Model):
     # Modelo de la SUCURSAL o FLOTA
 
     nombre = models.CharField(max_length=200, null=True)
+    email = models.EmailField(null=True, blank=True)
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
     rendimiento_de_nueva = models.IntegerField(default=80)
     rendimiento_de_primera = models.IntegerField(default=70)
@@ -249,7 +250,7 @@ class Inspeccion(models.Model):
     llanta = models.ForeignKey("Llanta", on_delete=models.CASCADE, related_name="related_llanta")
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE, null=True, blank=True)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, null=True, blank=True)
-    fecha_hora = models.DateTimeField(null=True, blank=True)
+    fecha_hora = models.DateTimeField(auto_now=True, null=True, blank=True)
     opciones_vida = (("Nueva", "Nueva"),
                             ("1R", "1R"),
                             ("2R", "2R"),
@@ -504,7 +505,7 @@ class Desecho(models.Model):
 
 class Observacion(models.Model):
     # Modelo de la Observación
-    icono = models.ImageField(upload_to="iconos", null=True, blank=True)
+    icono = models.CharField(max_length=200, null=True)
     observacion = models.CharField(max_length=200)
     opciones_de_color = (("Amarillo", "Amarillo"),
                 ("Rojo", "Rojo"),
@@ -532,19 +533,19 @@ class Rechazo(models.Model):
 
 class HistoricoLlanta(models.Model):
     num_eco = models.ForeignKey(Llanta, on_delete=models.CASCADE)
-    casco_nuevo	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="casco_nuevo")
-    km_recorrido_nuevo = models.IntegerField()
-    renovado_1 = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_1")
-    km_recorrido_1 = models.IntegerField()
-    renovado_2	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_2")
-    km_recorrido_2 = models.IntegerField()
-    renovado_3 = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_3")
-    km_recorrido_3 = models.IntegerField()
-    renovado_4 = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_4")
-    km_recorrido_4 = models.IntegerField()
-    renovado_5	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_5")
-    km_recorrido_5 = models.IntegerField()
-    km_total = models.IntegerField()
+    casco_nuevo	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="casco_nuevo", null=True)
+    km_recorrido_nuevo = models.IntegerField(null=True)
+    renovado_1 = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_1", null=True)
+    km_recorrido_1 = models.IntegerField(null=True)
+    renovado_2	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_2", null=True)
+    km_recorrido_2 = models.IntegerField(null=True)
+    renovado_3 = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_3", null=True)
+    km_recorrido_3 = models.IntegerField(null=True)
+    renovado_4 = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_4", null=True)
+    km_recorrido_4 = models.IntegerField(null=True)
+    renovado_5	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="renovado_5", null=True)
+    km_recorrido_5 = models.IntegerField(null=True)
+    km_total = models.IntegerField(null=True)
 
 class Servicio(models.Model):
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)

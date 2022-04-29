@@ -372,9 +372,14 @@ urlpatterns = [
         name="ftp_newpick"
     ),
     path(
-        route="reporteDeCambios/<int:pk>/",
-        view=views.ReporteDeCambios.as_view(),
-        name="reporteDeCambios"
+        route="reporteInspeccion/<int:pk>/<str:tipo>",
+        view=views.ReporteInspeccion.as_view(),
+        name="reporteInspeccion"
+    ),
+    path(
+        route="reporteEdicion/<int:pk>/<str:tipo>",
+        view=views.ReporteEdicion.as_view(),
+        name="reporteEdicion"
     ),
     path(
         route="download_todo",

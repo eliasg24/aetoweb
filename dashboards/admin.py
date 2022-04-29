@@ -6,7 +6,7 @@ from django.contrib import admin
 # Models
 from django.contrib.auth.models import User
 from django.db.models.fields.related import RelatedField
-from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
+from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, HistoricoLlanta, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
 
 @admin.register(Bitacora)
 class BitacorasAdmin(admin.ModelAdmin):
@@ -123,7 +123,12 @@ class DesechoAdmin(admin.ModelAdmin):
 @admin.register(Observacion)
 class ObservacionAdmin(admin.ModelAdmin):
     #Admin de observaciones
-    list_display = ( 'observacion', 'color', "nivel", "automatico")
+    list_display = ( 'observacion', 'icono', 'color', "nivel", "automatico")
+    
+@admin.register(HistoricoLlanta)
+class HistoricoLlantaAdmin(admin.ModelAdmin):
+    #Admin de observaciones
+    list_display = ( 'num_eco', 'km_recorrido_nuevo', 'km_recorrido_1', "km_recorrido_2", "km_recorrido_3", "km_recorrido_4", "km_recorrido_5")
 
 @admin.register(Rechazo)
 class RechazoAdmin(admin.ModelAdmin):

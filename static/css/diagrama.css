@@ -1,5 +1,10 @@
 /* ? Colors */
 
+.tire__top,
+.tire__bottom {
+  background-color: gray;
+}
+
 .btn-success {
   margin-left: auto;
 }
@@ -20,9 +25,34 @@
   background-color: var(--purple-color);
 }
 
+.config__container::-webkit-scrollbar,
+.absolute::-webkit-scrollbar,
+.form__container:nth-child(1)::-webkit-scrollbar {
+  width: 10px;
+}
+
+.config__container::-webkit-scrollbar-thumb,
+.absolute::-webkit-scrollbar-thumb,
+.form__container:nth-child(1)::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: black;
+}
+
+.config__container::-webkit-scrollbar-track,
+.absolute::-webkit-scrollbar-track,
+.form__container:nth-child(1)::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background-color: gray;
+}
+
 .form__prof {
   display: flex;
-  justify-content: space-between;
+  gap: 0.25rem;
+  flex-flow: row nowrap;
+}
+
+.form__prof > * {
+  flex: 1 1 auto;
 }
 
 .tire {
@@ -40,21 +70,17 @@
 
 .main__container {
   align-items: center;
-  background-color: #202020;
+  /* background-color: #202020; */
   display: grid;
   gap: 1rem;
-  grid-template-rows: auto 1fr;
   margin: 1rem;
   position: relative;
 }
 
 .config__container {
-  align-items: center;
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
-  margin: auto;
-  width: 80%;
 }
 
 .config__container > * {
@@ -64,23 +90,26 @@
 .forms__container {
   display: grid;
   gap: 1rem;
-  grid-template-rows: 1fr auto;
-  margin: 1rem;
   overflow-y: auto;
+  height: 100%;
 }
 
 .form__container,
 .absolute.form__container {
-  background-color: var(--main-background);
+  background-color: #202020;
   display: flex;
   gap: 1rem;
   flex-flow: column nowrap;
   border-radius: 0.25rem;
+  justify-content: flex-start;
   height: 100%;
   padding: 1rem;
   gap: 1rem;
+}
+
+.form__container:nth-child(1) {
   position: relative;
-  max-height: 570px;
+  overflow-y: auto;
 }
 
 .form__wrapper {
@@ -111,12 +140,30 @@
   opacity: 1;
 }
 
-.absolute {
-  display: grid;
+.block {
+  display: block;
   height: 100%;
-  position: absolute;
-  overflow-y: auto;
+}
+
+.absolute {
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  position: relative;
   width: 100%;
+}
+
+.head__form {
+  padding: 1rem;
+}
+
+.config__wrapper {
+  max-width: 650px;
+  margin: auto;
+}
+
+.config__wrapper .absolute {
+  justify-content: center;
 }
 
 .config__container > .relative {
@@ -154,13 +201,86 @@
   border: thin solid var(--main-blue);
 }
 
+.drop__list {
+  position: relative;
+}
+
+.drop__btn {
+  background-color: transparent;
+  border-bottom: thin solid #fff;
+  color: #fff;
+  font-size: inherit;
+  padding: 0.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.drop__content {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.input-check > i {
+  font-size: 3rem;
+  border: thin solid #fff;
+}
+
+.observations__container {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
+}
+
+.observations__container div {
+  display: none;
+}
+
+.observations__container div i {
+  border: thin solid #fff;
+  font-size: 3rem;
+  padding: 0.5rem;
+}
+
+.observations__container div.visible {
+  display: block;
+}
+
+.input-check {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.checkmark {
+  top: auto;
+}
+
+.drop-input {
+  width: fit-content;
+}
+
+.text-center {
+  text-align: center;
+}
+
 @media screen and (min-width: 1024px) {
-  /* .forms__container {
-    max-height: 550px;
-  } */
+  .main__container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .absolute {
+    position: absolute;
+  }
+
+  .forms__container {
+    grid-template-rows: 30% 1fr auto;
+  }
 
   .tire__medium {
-    bottom: 40%;
+    bottom: 35%;
     padding: 0.75rem;
   }
 

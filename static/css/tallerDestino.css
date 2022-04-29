@@ -86,7 +86,7 @@ hr {
   display: flex;
   flex-flow: column nowrap;
   gap: 0.5rem;
-  min-width: 90%;
+  min-width: 700px;
   padding: 1rem;
 }
 

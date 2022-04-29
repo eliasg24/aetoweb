@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?n0a5xi');
-  src:  url('fonts/icomoon.eot?n0a5xi#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?n0a5xi') format('truetype'),
-    url('fonts/icomoon.woff?n0a5xi') format('woff'),
-    url('fonts/icomoon.svg?n0a5xi#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?r0k0v3');
+  src:  url('fonts/icomoon.eot?r0k0v3#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?r0k0v3') format('truetype'),
+    url('fonts/icomoon.woff?r0k0v3') format('woff'),
+    url('fonts/icomoon.svg?r0k0v3#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +25,54 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-fuga-de-valvula:before {
+  content: "\e931";
+}
+.icon-alta-presion:before {
+  content: "\e927";
+}
+.icon-valvula-inaccesible:before {
+  content: "\e92f";
+}
+.icon-autoinflado-danado:before {
+  content: "\e930";
+}
+.icon-desgaste-alta-presion:before {
+  content: "\e92d";
+}
+.icon-desgaste-costilla-exterior:before {
+  content: "\e92e";
+}
+.icon-desgaste-derecho:before {
+  content: "\e92b";
+}
+.icon-desgaste-izquierdo:before {
+  content: "\e92c";
+}
+.icon-baja-presion:before {
+  content: "\e928";
+}
+.icon-llanta-boluda:before {
+  content: "\e929";
+}
+.icon-ruptura-de-costado:before {
+  content: "\e92a";
+}
+.icon-km:before {
+  content: "\e922";
+}
+.icon-vehiculo-desalineado:before {
+  content: "\e923";
+}
+.icon-ruptura-por-impacto:before {
+  content: "\e924";
+}
+.icon-objeto-penetrado:before {
+  content: "\e925";
+}
+.icon-falla-de-mangera:before {
+  content: "\e926";
+}
 .icon-brain:before {
   content: "\e900";
 }

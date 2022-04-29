@@ -1,4 +1,4 @@
-html {
+.inspeccion {
   background-color: #fff;
 }
 
@@ -44,6 +44,15 @@ img {
   flex-flow: column wrap;
   gap: 2rem;
   justify-content: space-between;
+}
+
+.report__inspeccion{
+  align-items: center;
+  display: flex;
+  flex-flow: column wrap;
+  gap: 2rem;
+  justify-content: flex-start;
+  margin-top: 1rem;
 }
 
 .report__details {

@@ -2,7 +2,7 @@
   background-color: var(--border-button);
 }
 
-.eje{
+.eje {
   text-align: center;
 }
 
@@ -15,7 +15,7 @@
 .tire__top,
 .tire__medium,
 .tire__bottom {
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: bold;
   position: absolute;
   left: 0;
@@ -34,7 +34,7 @@
   border-radius: 50%;
   bottom: 35%;
   margin: auto;
-  padding: 0.75rem;
+  padding: 0.25rem;
   width: fit-content;
 }
 
@@ -62,7 +62,7 @@
 }
 
 .icon-tire2 {
-  font-size: 8rem;
+  font-size: 6rem;
 }
 
 .flex-row {
@@ -231,7 +231,7 @@
 
 .config__header {
   background-color: var(--main-blue);
-  border-bottom: thin solid #00f0ff;
+  /* border-bottom: thin solid #00f0ff; */
   text-align: center;
   padding: 0.25rem;
 }
@@ -464,13 +464,22 @@
   height: 1rem;
 }
 
+.eje span {
+  font-weight: bold;
+}
+
 .config__container.none {
   grid-template-rows: auto 1fr;
 }
 
 @media screen and (min-width: 1024px) {
+  .eje span {
+    font-size: 1.5rem;
+  }
+
   .tire__medium {
     bottom: 37%;
+    padding: 0.75rem;
   }
 
   .col-2 {
