@@ -1786,7 +1786,6 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                     observaciones_list[id] = request.POST.getlist(cadena)
             except:
                 pass
-        print(observaciones_list)
         #print(f'ids: {ids}')
         #print(f'llanta: {llanta}')
         #print(f'producto: {producto}')
@@ -4368,7 +4367,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                         problemas_abiertos.append([eje[0][0], message])
                     if eje[0][5]:
                         problemas_abiertos.append([eje[0][0], eje[0][5]])
-                    if eje[0][1] == "bad":
+                    if eje[0][1] == "bad" and eje[0][3] != None:
                         problemas_abiertos.append([eje[0][0], "Profundidad abajo del punto de retiro"])
                     if eje[0][1] == "yellow":
                         problemas_abiertos.append([eje[0][0], "Profundidad en el punto de retiro"])
@@ -4380,7 +4379,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                         problemas_abiertos.append([eje[1][0], message])
                     if eje[1][5]:
                         problemas_abiertos.append([eje[1][0], eje[1][5]])
-                    if eje[1][1] == "bad":
+                    if eje[1][1] == "bad" and eje[0][3] != None:
                         problemas_abiertos.append([eje[1][0], "Profundidad abajo del punto de retiro"])
                     if eje[1][1] == "yellow":
                         problemas_abiertos.append([eje[1][0], "Profundidad en el punto de retiro"])
@@ -4393,7 +4392,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                         problemas_abiertos.append([eje[0][0], message])
                     if eje[0][5]:
                         problemas_abiertos.append([eje[0][0], eje[0][5]])
-                    if eje[0][1] == "bad":
+                    if eje[0][1] == "bad" and eje[0][3] != None:
                         problemas_abiertos.append([eje[0][0], "Profundidad abajo del punto de retiro"])
                     if eje[0][1] == "yellow":
                         problemas_abiertos.append([eje[0][0], "Profundidad en el punto de retiro"])
@@ -4405,7 +4404,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                         problemas_abiertos.append([eje[1][0], message])
                     if eje[1][5]:
                         problemas_abiertos.append([eje[1][0], eje[1][5]])
-                    if eje[1][1] == "bad":
+                    if eje[1][1] == "bad" and eje[0][3] != None:
                         problemas_abiertos.append([eje[1][0], "Profundidad abajo del punto de retiro"])
                     if eje[1][1] == "yellow":
                         problemas_abiertos.append([eje[1][0], "Profundidad en el punto de retiro"])
@@ -4417,7 +4416,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                         problemas_abiertos.append([eje[2][0], message])
                     if eje[2][5]:
                         problemas_abiertos.append([eje[2][0], eje[2][5]])
-                    if eje[2][1] == "bad":
+                    if eje[2][1] == "bad" and eje[0][3] != None:
                         problemas_abiertos.append([eje[2][0], "Profundidad abajo del punto de retiro"])
                     if eje[2][1] == "yellow":
                         problemas_abiertos.append([eje[2][0], "Profundidad en el punto de retiro"])
@@ -4429,7 +4428,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                         problemas_abiertos.append([eje[3][0], message])
                     if eje[3][5]:
                         problemas_abiertos.append([eje[3][0], eje[3][5]])
-                    if eje[3][1] == "bad":
+                    if eje[3][1] == "bad" and eje[0][3] != None:
                         problemas_abiertos.append([eje[3][0], "Profundidad abajo del punto de retiro"])
                     if eje[3][1] == "yellow":
                         problemas_abiertos.append([eje[3][0], "Profundidad en el punto de retiro"])

@@ -223,13 +223,16 @@ def comportamiento_de_desgaste(inspecciones):
         return None
 
 def color_profundiddad(profundidad, punto_de_retiro):
-    if profundidad <=  punto_de_retiro:
-        color = 'bad'
-    elif profundidad >= (punto_de_retiro + .01) and profundidad <= (punto_de_retiro + 1):
-        color = 'yellow'
+    if profundidad != None:
+        if profundidad <=  punto_de_retiro:
+            color = 'bad'
+        elif profundidad >= (punto_de_retiro + .01) and profundidad <= (punto_de_retiro + 1):
+            color = 'yellow'
+        else:
+            color = 'good'
+        return color
     else:
-        color = 'good'
-    return color
+        return "bad"
 
 def contar_dias(fecha):
     fecha_date = datetime.strptime(fecha, "%Y-%m-%d").date()
@@ -1715,7 +1718,7 @@ def min_profundidad(llanta):
     if len(profundidades) >= 1:
         return(min(profundidades))
     else:
-        return 0
+        return None
 
 
 def nunca_vistos(vehiculos):
