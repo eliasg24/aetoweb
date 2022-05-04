@@ -2,7 +2,7 @@
   <div class="forms__container">
     <div class="form__container">
       <h3>Vehículo</h3>
-   <!-- Start input -->
+   <!-- Start input  -->
       <div class="form__group field">
         <input
           class="form__field"
@@ -11,9 +11,9 @@
           required
           name="vehiculo"
           autocomplete="off"
-          value = "{{vehiculo_actual}}"
+          value="{{vehiculo_actual}}"
           required
-          readonly
+          C
         />
         <label for="vehiculo" class="form__label">
           Vehiculo
@@ -43,26 +43,43 @@
       </div>
       <!-- End input -->
 
-      <!-- Start input -->
-      <div class="form__group field">
-        <input
-          class="form__field"
-          type="text"
-          placeholder="producto"
-          name="observacion_vehiculo"
-          autocomplete="off"
-          {% if vehiculo_actual.observacion == None %}
-            value = ""
-          {% else %}
-            value = "{{vehiculo_actual.observacion}}"
-          {% endif %}
-          
-        />
-        <label for="observacion_vehiculo" class="form__label">
-          Observacion del vehiculo
-        </label>
+      <!-- OBSERVACIONES VEHICULO -->
+
+      <div class="drop-form">
+        <input type="search" class="drop-input" placeholder="Observación de vehículo" id="vehiculo-search">
+        <ul class="drop-options" id="vehiculo-observaciones">
+          {% for observacion in observaciones_vehiculo %}
+            <li class="search-item">
+              <label for="{{observacion.observacion}}" class="input-check">
+                <i class="{{observacion.icono}}"></i>
+                {{observacion.observacion}}
+                <input 
+                  type="checkbox" 
+                  name="observation-vehiculo" 
+                  value="{{observacion.observacion}}" 
+                  id="{{observacion.observacion}}" 
+                  data-vehiculo-item="{{observacion.observacion}}"
+                />
+                <span class="checkmark"></span>
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
-      <!-- End input -->
+
+      <h3 class="text-center">
+        Observaciones
+      </h3>
+
+      <div class="observations__container">
+        {% for observacion in observaciones_vehiculo %}
+          <div data-icon-type="{{observacion.observacion}}">
+            <i class="{{observacion.icono}}"></i>
+            {{observacion.observacion}}
+          </div>
+        {% endfor %}
+      </div>
+
     </div>
     
     <div class="form__container">
@@ -110,21 +127,23 @@
                 
               </div>
             {% else %}
-              <input
-              class="form__field"
-              type="text"
-              placeholder="llanta"
-              name="llanta"
-              autocomplete="off"
-              list="llanta"
-              required
-              value = "{{ej.0.numero_economico}}"
-              readonly
-              />
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="llanta"
+                  name="llanta"
+                  autocomplete="off"
+                  list="llanta"
+                  required
+                  value = "{{ej.0.numero_economico}}"
+                  readonly
+                />
 
-              <label for="llanta" class="form__label">
-                Llanta
-              </label>
+                <label for="llanta" class="form__label">
+                  Llanta
+                </label>
+              </div>
 
             {% endif %}
             <!-- End input -->
@@ -220,13 +239,6 @@
             <h3>Profundidades</h3>
 
             <div class="form__prof" data-punto-retiro="{{ ej.6.punto_retiro }}" data-profundidad-id="{{ ej.0.id }}">
-            <!-- 
-              if min_profundidad <=  punto_retiro = bad
-
-              elif min_profundidad >= (punto_retiro + .01) and min_profundidad <= (punto_retiro + 1) = Yellow
-              
-              else mas de eso = god
-            -->
 
               <div class="form__group field">
                 <input
@@ -238,11 +250,9 @@
                   placeholder="Profundidad izquierda"
                   name="profundidad_izquierda"
                   autocomplete="off"
-                  value = "{{ej.0.profundidad_izquierda}}"
-                  
                 />
                 <label for="min_profundidad" class="form__label">
-                  Izquierda
+                  {{ej.0.profundidad_izquierda}}(Izquierda)
                 </label>
               </div>
 
@@ -250,16 +260,15 @@
                 <input
                   class="form__field"
                   type="number"
+                  min="0"
                   max = {{ej.0.producto.profundidad_inicial}}
                   step="any"
                   placeholder="Profundidad central"
                   name="profundidad_central"
-                  autocomplete="off"
-                  value = "{{ej.0.profundidad_central}}"
-                  
+                  autocomplete="off" 
                 />
                 <label for="min_profundidad" class="form__label">
-                  Central
+                  {{ej.0.profundidad_central}}(Central)
                 </label>
               </div>
             
@@ -267,16 +276,15 @@
                 <input
                   class="form__field"
                   type="number"
+                  min="0"
                   max = {{ej.0.producto.profundidad_inicial}}
                   step="any"
                   placeholder="Profundidad derecha"
                   name="profundidad_derecha"
-                  autocomplete="off"
-                  value = "{{ej.0.profundidad_derecha}}"
-                  
+                  autocomplete="off"                  
                 />
                 <label for="min_profundidad" class="form__label">
-                  Derecha
+                  {{ej.0.profundidad_derecha}} (Derecha)
                 </label>
               </div>
               
@@ -292,31 +300,24 @@
                 name="presion"
                 autocomplete="off"
                 min="0"
-                {% if ej.0.presion_actual == None %}
-                  value = ""
-                {% else %}
-                  value = "{{ej.0.presion_actual}}"
-                {% endif %}
                 data-input-id="{{ ej.0.id }}"
                 data-presion-min="{{ ej.6.presion_minima}}" 
                 data-presion-max="{{ ej.6.presion_maxima}}" 
               />
               <label for="presion" class="form__label">
-                Presión
+                Presión({{ej.0.presion_actual}})
               </label>
             </div>
             <!-- End input -->
 
-            <!-- Start input -->
-      
             <details>
               <summary class="drop__btn">Observaciones manuales</summary>
 
               <ul class="drop__content">
 
-                <li>
+                <!-- <li>
                   <input type="search" class="drop-input" placeholder="Buscar...">
-                </li>
+                </li> -->
 
                 <!-- FOR DJANGO -->
                 {% for observacion in observaciones_manuales %}

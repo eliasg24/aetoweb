@@ -6,7 +6,7 @@ from django.contrib import admin
 # Models
 from django.contrib.auth.models import User
 from django.db.models.fields.related import RelatedField
-from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, HistoricoLlanta, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
+from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, HistoricoLlanta, InspeccionVehiculo, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller
 
 @admin.register(Bitacora)
 class BitacorasAdmin(admin.ModelAdmin):
@@ -78,6 +78,11 @@ class InspeccionesAdmin(admin.ModelAdmin):
     list_filter = ('llanta__compania', 'llanta')
     def get_view_count(self, obj):
         return obj.llanta.producto
+    
+@admin.register(InspeccionVehiculo)
+class InspeccionVehiculoAdmin(admin.ModelAdmin):
+    #Admin de observaciones
+    list_display = ( 'id', 'vehiculo', 'fecha')
 
 @admin.register(Excel)
 class ExcelAdmin(admin.ModelAdmin):

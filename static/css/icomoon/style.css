@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?r0k0v3');
-  src:  url('fonts/icomoon.eot?r0k0v3#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?r0k0v3') format('truetype'),
-    url('fonts/icomoon.woff?r0k0v3') format('woff'),
-    url('fonts/icomoon.svg?r0k0v3#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?6bp2gd');
+  src:  url('fonts/icomoon.eot?6bp2gd#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?6bp2gd') format('truetype'),
+    url('fonts/icomoon.woff?6bp2gd') format('woff'),
+    url('fonts/icomoon.svg?6bp2gd#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +25,27 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-baja-profundidad:before {
+  content: "\e936";
+}
+.icon-en-punto-de-retiro:before {
+  content: "\e937";
+}
+.icon-mala-entrada:before {
+  content: "\e938";
+}
+.icon-corte-profundo:before {
+  content: "\e932";
+}
+.icon-dano-en-la-ceja:before {
+  content: "\e933";
+}
+.icon-diferencia-de-presion-de-aire-en-duales:before {
+  content: "\e934";
+}
+.icon-ponchado-seguro:before {
+  content: "\e935";
+}
 .icon-fuga-de-valvula:before {
   content: "\e931";
 }

@@ -62,8 +62,10 @@
                             class="btn btn-download relative">
                             <span class="icon-magnifier"></span>
                             <div class="pop-out">Inspección</div>
-                        </a>  
+                        </a> 
                     </div>
+
+                    <h2 id="km-vehiculo">KM: 12343</h2> 
                 {% endif %}
                 <div class="{% if sin_llantas %} alert__container {% else %} config__config {% endif %}">
 
@@ -321,6 +323,16 @@
                                         <th class="th-table1">Km</th>
                                     </tr>
                                 </thead>
+                                <tbody>
+                                    {% for llanta in llantas %}
+                                        <tr>
+                                            <td class="td-table1">{{llanta.posicion}}</td>
+                                            <td class="td-table1">{{llanta.numero_economico}}</td>
+                                            <td class="td-table1">{{llanta.producto}}</span>
+                                            <td class="td-table1">{{llanta.km_actual}}</span>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
                             </table>
                         </div>
 
@@ -356,9 +368,9 @@
                                             
                                                 <tr id="paragraph {{evento.1.id}}">
                                                     <td class="td-table4"><span class="icon-magnifier"></span></td>
-                                                    <td class="td-table4">{{evento.1.fecha_hora.day}}/{{evento.1.fecha_hora.month}}/{{evento.1.fecha_hora.year}}</td>
+                                                    <td class="td-table4">{{evento.1.fecha.day}}/{{evento.1.fecha.month}}/{{evento.1.fecha.year}}</td>
                                                     <td class="td-table4"><span id="icon {{evento.1.id}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
-                                                    <td class="td-table4">{{evento.1.id}}</td>
+                                                    <td class="td-table4">{{evento.1.llanta}} {{evento.1.fecha_hora}}</td>
                                                     <td class="td-table4">
                                                         <a href="{% url 'dashboards:reporteInspeccion' evento.1.id evento.2 %}" rel="noopener" target="_blank">
                                                             <span class="icon-file-pdf" ></span>
@@ -559,6 +571,22 @@
         dbFullscreen('km-mm');
         dbFullscreen('tire-axle');
     });
+
+    const separator = (numb) => {
+        let str = numb.toString().split(".");
+        str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return str.join(".");
+    }
+
+    const decimalConverter = () => {
+        const numbers = document.querySelectorAll('#km-vehiculo');
+
+        numbers.forEach( (number) => {
+            number.textContent = separator(number.textContent);
+        } );
+    }
+
+    decimalConverter();
 
     const dbFullscreen = (container = '') => {
         const element = document.getElementById(container);
@@ -770,32 +798,7 @@
             {% elif vehiculo.fecha_de_inflado %}
                 vehiculo_fecha{{vehiculo.id}} = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
             {% endif %}
-            var mes_1 = 0;
-            var mes_2 = 0;
-            var mes_3 = 0;
-            var mes_4 = 0;
-
-            {% for vehiculo_bitacora in bitacora %}
-                vehiculo_fecha{{vehiculo_bitacora.id}} = new Date("{{vehiculo_bitacora.fecha_de_inflado.month}}/{{vehiculo_bitacora.fecha_de_inflado.day}}/{{vehiculo_bitacora.fecha_de_inflado.year}}")
-                fecha{{vehiculo_bitacora.id}} = vehiculo_fecha{{vehiculo_bitacora.id}}.getMonth() + 1;
-
-                switch (fecha{{vehiculo_bitacora.id}}){
-                    case (hoy.getMonth() + 1):
-                        mes_1++;
-                        break;
-                    case (hoy.getMonth()):
-                        mes_2++;
-                        break;
-                    case (hoy.getMonth() - 1):
-                        mes_3++;
-                        break;
-                    case (hoy.getMonth() - 2):
-                        mes_4++;
-                        break;
-                }
-                
-            {% endfor %}
-
+            
             var difference= Math.abs(hoy-vehiculo_fecha{{vehiculo.id}});
             days = Math.round(difference/(1000 * 3600 * 24));
 
@@ -825,7 +828,7 @@
             {% for id, entrada in entradas_pro.items %}
                 console.log("{{entrada}}")
                 {% if entrada %}                    
-                    {% if entrada == "Doble" %}    
+                    {% if entrada == "Doble" %}
                         document.getElementById("icon {{id}}").className = "icon-cross";
                         document.getElementById("icon2 {{id}}").className = "icon-cross";
                     {% else %}

@@ -187,6 +187,16 @@ urlpatterns = [
         name="sucursalFormulario"
     ),
     path(
+        route="sucursalUpdate/<str:nombre>",
+        view=views.sucursalEditView.as_view(),
+        name="sucursalUpdate"
+    ),
+    path(
+        route="sucursalView/<str:nombre>",
+        view=views.sucursalView,
+        name="sucursalView"
+    ),
+    path(
         route="tallerFormulario",
         view=views.tallerFormularioView.as_view(),
         name="tallerFormulario"

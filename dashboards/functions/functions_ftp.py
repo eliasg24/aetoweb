@@ -960,11 +960,12 @@ def ftp_descarga2():
 
 def ftp1():
 
-    DIR = "D:/Aetoweb/aeto/"
+    DIR = "D:/aetoweb/"
     DIR_PATH = os.listdir(DIR)
     ftp2 = fileTP("208.109.20.121")
     ftp2.login(user="tdr@aeto.com", passwd="486dbintegracion!")
     for FILE_PATH in DIR_PATH:
+        print(FILE_PATH)
         file_type1 = FILE_PATH[0:10]
         file_type2 = FILE_PATH[0:7]
         file_type3 = FILE_PATH[0:10]
@@ -972,7 +973,8 @@ def ftp1():
         file_type5 = FILE_PATH[0:14]
         file_type6 = FILE_PATH[0:13]
         file_type7 = FILE_PATH[0:8]
-        if file_type1 == "Vehicles20" or file_type2 == "Stock20" or file_type3 == "Services20" or file_type4 == "ScrappedTires20" or file_type5 == "RollingStock20" or file_type6 == "Inspections20" or file_type7 == "Casing20":
+        #if file_type1 == "Vehicles20" or file_type2 == "Stock20" or file_type3 == "Services20" or file_type4 == "ScrappedTires20" or file_type5 == "RollingStock20" or file_type6 == "Inspections20" or file_type7 == "Casing20":
+        if file_type4 == "ScrappedTires20" or file_type6 == "Inspections20":
             file = open(DIR + FILE_PATH, "r", encoding="utf-8-sig", newline='')
             reader = csv.reader(file, delimiter=",")
             file_write = open("TDR_" + FILE_PATH, "w", encoding="utf-8-sig", newline='')

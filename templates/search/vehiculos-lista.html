@@ -1,14 +1,14 @@
-<a href="{% url 'dashboards:detail' vehiculo.id %}">
+<a href="{% url 'dashboards:detail' vehiculo.id %}" class="transition">
     {% if vehiculo in vehiculos_verdes %}
-        <figure class="vehicle-card animate__animated status__card-ok animate__fadeInUp">
+        <figure class="vehicle-card status__card-ok">
     {% elif vehiculo in vehiculos_amarillos %}
-        <figure class="vehicle-card animate__animated status__card-yellow animate__fadeInUp">
+        <figure class="vehicle-card status__card-yellow">
     {% elif vehiculo in vehiculos_rojos %}
-        <figure class="vehicle-card animate__animated status__card-bad animate__fadeInUp">
+        <figure class="vehicle-card status__card-bad">
     {% elif vehiculo in vehiculos_sospechosos %}
-        <figure class="vehicle-card animate__animated status__card-suspicious animate__fadeInUp">
+        <figure class="vehicle-card status__card-suspicious">
     {% else %}
-        <figure class="vehicle-card animate__animated status__card-bad animate__fadeInUp">
+        <figure class="vehicle-card status__card-bad">
     {% endif %}
     
 

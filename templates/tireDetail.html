@@ -107,7 +107,7 @@
                     <tr>
                       <td>{{llanta.numero_economico}}</td>
                       <td>{{llanta.producto}}</td>
-                      <td>{{llanta.ultima_inspeccion.km}}</td>
+                      <td>{{llanta.km_actual}}</td>
                       <td>{{llanta.producto.precio}}</td>
                       <td>{{llanta.vida}}</td>
                     </tr>
@@ -297,7 +297,20 @@
 
   //variables
   hoy = new Date("{{hoy.month}}/{{hoy.day}}/{{hoy.year}}")
-  llanta_fecha{{llanta.id}} = new Date("{{llanta.fecha_de_inflado.month}}/{{llanta.fecha_de_inflado.day}}/{{llanta.fecha_de_inflado.year}}")
+  {% if vehiculo.ultima_bitacora_pro and vehiculo.fecha_de_inflado %}
+    fecha1 = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+    fecha2 = new Date("{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.month}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.day}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.year}}")
+    if (fecha1 > fecha2){
+        llanta_fecha{{llanta.id}} = fecha1
+    }
+    else {
+        llanta_fecha{{llanta.id}} = fecha2
+    }
+  {% elif vehiculo.ultima_bitacora_pro %}
+    llanta_fecha{{llanta.id}} = new Date("{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.month}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.day}}/{{vehiculo.ultima_bitacora_pro.fecha_de_inflado.year}}")
+  {% elif vehiculo.fecha_de_inflado %}
+    llanta_fecha{{llanta.id}} = new Date("{{vehiculo.fecha_de_inflado.month}}/{{vehiculo.fecha_de_inflado.day}}/{{vehiculo.fecha_de_inflado.year}}")
+  {% endif %}
 
   var difference= Math.abs(hoy-llanta_fecha{{llanta.id}});
   days = Math.round(difference/(1000 * 3600 * 24));
@@ -309,11 +322,35 @@
   }
 
   {% for id, entrada in entradas.items %}
-      {% if entrada %}                    
-          document.getElementById("icon {{id}}").className = "icon-checkmark";
-      {% else %}
-          document.getElementById("icon {{id}}").className = "icon-cross";
-      {% endif %}
+    {% if entrada %}                    
+        {% if entrada == "Doble" %}    
+            document.getElementById("icon {{id}}").className = "icon-cross";
+            document.getElementById("icon2 {{id}}").className = "icon-cross";
+        {% else %}
+            document.getElementById("icon {{id}}").className = "icon-checkmark";
+        {% endif %}
+    {% else %}
+        document.getElementById("icon {{id}}").className = "icon-cross";
+        {% if id in .0 %}
+            document.getElementById("icon2 {{id}}").className = "icon-cross";
+        {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% for id, entrada in entradas_pro.items %}
+    console.log("{{entrada}}")
+    {% if entrada %}
+        {% if entrada == "Doble" %}    
+            document.getElementById("icon {{id}}").className = "icon-cross";
+            document.getElementById("icon2 {{id}}").className = "icon-cross";
+        {% else %}
+            document.getElementById("icon {{id}}").className = "icon-checkmark";
+        {% endif %}
+    {% else %}
+        document.getElementById("icon {{id}}").className = "icon-cross";
+        {% if id in .0 %}
+            document.getElementById("icon2 {{id}}").className = "icon-cross";
+        {% endif %}
+    {% endif %}
   {% endfor %}
 
   //licencia de anyChart
@@ -523,8 +560,8 @@
   anychart.onDocumentReady(function () {
     // create data
     var data = [
-    {% for desgaste, valores in desgastes.items %}
-      { x: '{{valores.0}}', value: {{valores.1}} },
+    {% for i in inspecciones %}
+      { x: '{{i.km_vehiculo}}', value: {{i.profundidad_izquierda}} },
     {% endfor %}
     ];
 

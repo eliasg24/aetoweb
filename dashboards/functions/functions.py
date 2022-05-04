@@ -11,7 +11,7 @@ from django.forms import DurationField
 from django.utils import timezone
 
 # Utilities
-from dashboards.models import Aplicacion, Bitacora, Bitacora_Pro, Compania, HistoricoLlanta, Inspeccion, Llanta, Perfil, Ubicacion, Vehiculo, Producto, FTP
+from dashboards.models import Aplicacion, Bitacora, Bitacora_Pro, Compania, HistoricoLlanta, Inspeccion, Llanta, Observacion, Perfil, Ubicacion, Vehiculo, Producto, FTP
 from datetime import date, datetime, timedelta
 from heapq import nlargest
 from itertools import count
@@ -33,6 +33,35 @@ class DiffDays(Func):
 class CastDate(Func):
     function = 'date_trunc'
     template = "%(function)s('day', %(expressions)s)"    
+
+def acomodo_ejes(ejes_no_ordenados):
+    ejes = []
+    for eje in ejes_no_ordenados:
+        if len(eje) == 2:
+            lista_temp = ['', '']
+            for llanta_act in eje:
+                if 'LI' in llanta_act[0].posicion:
+                    lista_temp[0] = llanta_act
+                    
+                elif 'RI' in llanta_act[0].posicion:
+                    lista_temp[1] = llanta_act
+            ejes.append(lista_temp)
+            print(' 0---0')
+        
+        else:
+            lista_temp = ['', '', '', '']
+            for llanta_act in eje:
+                if 'LO' in llanta_act[0].posicion:
+                    lista_temp[0] = llanta_act
+                elif 'LI' in llanta_act[0].posicion:
+                    lista_temp[1] = llanta_act
+                elif 'RI' in llanta_act[0].posicion:
+                    lista_temp[2] = llanta_act
+                elif 'RO' in llanta_act[0].posicion:
+                    lista_temp[3] = llanta_act
+            ejes.append(lista_temp)
+            print('00---00')
+    return ejes
 
 def actualizar_km_actual(llanta_actual, llanta_referencia, vehiculo, vehiculo_referencia):
     if vehiculo_referencia.km != None:
@@ -232,7 +261,24 @@ def color_profundiddad(profundidad, punto_de_retiro):
             color = 'good'
         return color
     else:
-        return "bad"
+        return 'bad'
+
+def color_observaciones(observaciones):
+    rojo = 0
+    amarillo = 0
+    for obs in observaciones:
+        if obs.color == 'Rojo':
+             rojo += 1
+        elif obs.color == 'Amarillo':
+            amarillo += 1
+    if rojo > 0:
+        color = 'bad'
+    elif amarillo > 0:
+        color = 'yellow'
+    else:
+        color = 'good'
+    return color
+        
 
 def contar_dias(fecha):
     fecha_date = datetime.strptime(fecha, "%Y-%m-%d").date()
@@ -260,14 +306,14 @@ def contar_entrada_correcta_pro(vehiculos):
 
 def contar_mala_entrada(vehiculos):
     try:
-        mala_entrada_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9).count()
-        return mala_entrada_contar
+        mala_entrada_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida=0)
+        return mala_entrada_contar.count()
     except:
         return 0
 
 def contar_mala_entrada_pro(vehiculos):
     try:
-        mala_entrada_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada_1"),FloatField())/Cast(F("presion_de_salida_1"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_2"),FloatField())/Cast(F("presion_de_salida_2"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_3"),FloatField())/Cast(F("presion_de_salida_3"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_4"),FloatField())/Cast(F("presion_de_salida_4"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_5"),FloatField())/Cast(F("presion_de_salida_5"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_6"),FloatField())/Cast(F("presion_de_salida_6"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_7"),FloatField())/Cast(F("presion_de_salida_7"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_8"),FloatField())/Cast(F("presion_de_salida_8"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_9"),FloatField())/Cast(F("presion_de_salida_9"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_10"),FloatField())/Cast(F("presion_de_salida_10"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_11"),FloatField())/Cast(F("presion_de_salida_11"),FloatField())).filter(entrada__lt=0.9) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_12"),FloatField())/Cast(F("presion_de_salida_12"),FloatField())).filter(entrada__lt=0.9)
+        mala_entrada_contar = vehiculos.annotate(entrada=Cast(F("presion_de_entrada_1"),FloatField())/Cast(F("presion_de_salida_1"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_1=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_2"),FloatField())/Cast(F("presion_de_salida_2"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_2=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_3"),FloatField())/Cast(F("presion_de_salida_3"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_3=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_4"),FloatField())/Cast(F("presion_de_salida_4"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_4=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_5"),FloatField())/Cast(F("presion_de_salida_5"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_5=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_6"),FloatField())/Cast(F("presion_de_salida_6"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_6=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_7"),FloatField())/Cast(F("presion_de_salida_7"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_7=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_8"),FloatField())/Cast(F("presion_de_salida_8"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_8=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_9"),FloatField())/Cast(F("presion_de_salida_9"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_9=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_10"),FloatField())/Cast(F("presion_de_salida_10"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_10=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_11"),FloatField())/Cast(F("presion_de_salida_11"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_11=0) | vehiculos.annotate(entrada=Cast(F("presion_de_entrada_12"),FloatField())/Cast(F("presion_de_salida_12"),FloatField())).filter(entrada__lt=0.9) | vehiculos.filter(presion_de_salida_12=0)
         return mala_entrada_contar.count()
     except:
         return 0
@@ -446,6 +492,64 @@ def desdualizacion(llantas, periodo):
 
     return eje
 
+def desgaste_profundidad(izquierda, central , derecha, llanta_actual):
+    if (izquierda != None and central != None and derecha != None):
+        if not(izquierda == central == derecha):
+            print('izq centr der')
+            if izquierda == min(izquierda, central, derecha):
+                desgaste_inclinado_izquierda = Observacion.objects.get(observacion = 'Desgaste inclinado a la izquierda')
+                llanta_actual.observaciones.add(desgaste_inclinado_izquierda)
+                print(desgaste_inclinado_izquierda)
+
+            if derecha == min(izquierda, central, derecha):
+                desgaste_inclinado_derecha = Observacion.objects.get(observacion = 'Desgaste inclinado a la derecha')
+                llanta_actual.observaciones.add(desgaste_inclinado_derecha)
+                print(desgaste_inclinado_derecha)
+
+            if izquierda < central > derecha:
+                desgaste_costilla_interna = Observacion.objects.get(observacion = 'Desgaste  costilla interna')
+                llanta_actual.observaciones.add(desgaste_costilla_interna)
+                print(desgaste_costilla_interna)
+
+            if izquierda > central < derecha:
+                desgaste_alta_presión = Observacion.objects.get(observacion = 'Desgaste alta presión')
+                llanta_actual.observaciones.add(desgaste_alta_presión)
+                print(desgaste_alta_presión)
+            
+    elif izquierda != None and central != None:
+        print('izq central')
+        if izquierda > central:
+            desgaste_inclinado_izquierda = Observacion.objects.get(observacion = 'Desgaste inclinado a la izquierda')
+            llanta_actual.observaciones.add(desgaste_inclinado_izquierda)
+            print(desgaste_inclinado_izquierda)
+        elif izquierda < central:
+            desgaste_costilla_interna = Observacion.objects.get(observacion = 'Desgaste  costilla interna')
+            llanta_actual.observaciones.add(desgaste_costilla_interna)
+            print(desgaste_costilla_interna)
+            
+    elif central != None and derecha != None:
+        print('central derecha')
+        if central < derecha:
+            desgaste_inclinado_derecha = Observacion.objects.get(observacion = 'Desgaste inclinado a la derecha')
+            llanta_actual.observaciones.add(desgaste_inclinado_derecha)
+            print(desgaste_inclinado_derecha)
+        elif central > derecha:
+            desgaste_costilla_interna = Observacion.objects.get(observacion = 'Desgaste  costilla interna')
+            llanta_actual.observaciones.add(desgaste_costilla_interna)
+            print(desgaste_costilla_interna)
+    
+    elif izquierda != None and derecha != None:
+        print('izq der')
+        if izquierda > derecha:
+            desgaste_inclinado_derecha = Observacion.objects.get(observacion = 'Desgaste inclinado a la derecha')
+            llanta_actual.observaciones.add(desgaste_inclinado_derecha)
+            print(desgaste_inclinado_derecha)
+        elif izquierda < derecha:
+            desgaste_inclinado_izquierda = Observacion.objects.get(observacion = 'Desgaste inclinado a la izquierda')
+            llanta_actual.observaciones.add(desgaste_inclinado_izquierda)
+            print(desgaste_inclinado_izquierda)
+    else:
+        print('Ningun caso')
 
 def desgaste_irregular(llantas, periodo):
     if periodo:
@@ -1048,7 +1152,10 @@ def entrada_correcta(vehiculos):
         for bitacora in bitacoras:
             presion_de_entrada = bitacora.presion_de_entrada
             presion_de_salida = bitacora.presion_de_salida
-            entrada_correcta = presion_de_entrada/presion_de_salida
+            if presion_de_entrada == 0 or presion_de_salida == 0:
+                entrada_correcta = 0
+            else:
+                entrada_correcta = presion_de_entrada/presion_de_salida
 
             if entrada_correcta >= 0.9:
                 loop_entradas = 0
@@ -1087,45 +1194,81 @@ def entrada_correcta_pro(vehiculos):
             if llantas >= 2:                    
                 presion_encontrada_1 = bitacora.presion_de_entrada_1
                 presion_establecida_1 = bitacora.presion_de_salida_1
-                entrada_correcta_1 = presion_encontrada_1/presion_establecida_1
+                if presion_encontrada_1 == 0 or presion_establecida_1 == 0:
+                    entrada_correcta_1 = 0
+                else:
+                    entrada_correcta_1 = presion_encontrada_1/presion_establecida_1
                 presion_encontrada_2 = bitacora.presion_de_entrada_2
                 presion_establecida_2 = bitacora.presion_de_salida_2
-                entrada_correcta_2 = presion_encontrada_2/presion_establecida_2
+                if presion_encontrada_2 == 0 or presion_establecida_2 == 0:
+                    entrada_correcta_2 = 0
+                else:
+                    entrada_correcta_2 = presion_encontrada_2/presion_establecida_2
                 if llantas >= 4:                    
                     presion_encontrada_3 = bitacora.presion_de_entrada_3
                     presion_establecida_3 = bitacora.presion_de_salida_3
-                    entrada_correcta_3 = presion_encontrada_3/presion_establecida_3
+                    if presion_encontrada_3 == 0 or presion_establecida_3 == 0:
+                        entrada_correcta_3 = 0
+                    else:
+                        entrada_correcta_3 = presion_encontrada_3/presion_establecida_3
                     presion_encontrada_4 = bitacora.presion_de_entrada_4
                     presion_establecida_4 = bitacora.presion_de_salida_4
-                    entrada_correcta_4 = presion_encontrada_4/presion_establecida_4
+                    if presion_encontrada_4 == 0 or presion_establecida_4 == 0:
+                        entrada_correcta_4 = 0
+                    else:
+                        entrada_correcta_4 = presion_encontrada_4/presion_establecida_4
                     if llantas >= 6:      
                         presion_encontrada_5 = bitacora.presion_de_entrada_5
                         presion_establecida_5 = bitacora.presion_de_salida_5
-                        entrada_correcta_5 = presion_encontrada_5/presion_establecida_5
+                        if presion_encontrada_5 == 0 or presion_establecida_5 == 0:
+                            entrada_correcta_5 = 0
+                        else:
+                            entrada_correcta_5 = presion_encontrada_5/presion_establecida_5
                         presion_encontrada_6 = bitacora.presion_de_entrada_6
                         presion_establecida_6 = bitacora.presion_de_salida_6
-                        entrada_correcta_6 = presion_encontrada_6/presion_establecida_6
+                        if presion_encontrada_6 == 0 or presion_establecida_6 == 0:
+                            entrada_correcta_6 = 0
+                        else:
+                            entrada_correcta_6 = presion_encontrada_6/presion_establecida_6
                         if llantas >= 8:
                             presion_encontrada_7 = bitacora.presion_de_entrada_7
                             presion_establecida_7 = bitacora.presion_de_salida_7
-                            entrada_correcta_7 = presion_encontrada_7/presion_establecida_7
+                            if presion_encontrada_7 == 0 or presion_establecida_7 == 0:
+                                entrada_correcta_7 = 0
+                            else:
+                                entrada_correcta_7 = presion_encontrada_7/presion_establecida_7
                             presion_encontrada_8 = bitacora.presion_de_entrada_8
                             presion_establecida_8 = bitacora.presion_de_salida_8
-                            entrada_correcta_8 = presion_encontrada_8/presion_establecida_8
+                            if presion_encontrada_8 == 0 or presion_establecida_8 == 0:
+                                entrada_correcta_8 = 0
+                            else:
+                                entrada_correcta_8 = presion_encontrada_8/presion_establecida_8
                             if llantas >= 10:
                                 presion_encontrada_9 = bitacora.presion_de_entrada_9
                                 presion_establecida_9 = bitacora.presion_de_salida_9
-                                entrada_correcta_9 = presion_encontrada_9/presion_establecida_9
+                                if presion_encontrada_9 == 0 or presion_establecida_9 == 0:
+                                    entrada_correcta_9 = 0
+                                else:
+                                    entrada_correcta_9 = presion_encontrada_9/presion_establecida_9
                                 presion_encontrada_10 = bitacora.presion_de_entrada_10
                                 presion_establecida_10 = bitacora.presion_de_salida_10
-                                entrada_correcta_10 = presion_encontrada_10/presion_establecida_10
+                                if presion_encontrada_10 == 0 or presion_establecida_10 == 0:
+                                    entrada_correcta_10 = 0
+                                else:
+                                    entrada_correcta_10 = presion_encontrada_10/presion_establecida_10
                                 if llantas >= 12:
                                     presion_encontrada_11 = bitacora.presion_de_entrada_11
                                     presion_establecida_11 = bitacora.presion_de_salida_11
-                                    entrada_correcta_11 = presion_encontrada_11/presion_establecida_11
+                                    if presion_encontrada_11 == 0 or presion_establecida_11 == 0:
+                                        entrada_correcta_11 = 0
+                                    else:
+                                        entrada_correcta_11 = presion_encontrada_11/presion_establecida_11
                                     presion_encontrada_12 = bitacora.presion_de_entrada_12
                                     presion_establecida_12 = bitacora.presion_de_salida_12
-                                    entrada_correcta_12 = presion_encontrada_12/presion_establecida_12
+                                    if presion_encontrada_12 == 0 or presion_establecida_12 == 0:
+                                        entrada_correcta_12 = 0
+                                    else:
+                                        entrada_correcta_12 = presion_encontrada_12/presion_establecida_12
             if llantas >= 12:
                 if entrada_correcta_1 >= 0.9 and entrada_correcta_2 >= 0.9 and entrada_correcta_3 >= 0.9 and entrada_correcta_4 >= 0.9 and entrada_correcta_5 >= 0.9 and entrada_correcta_6 >= 0.9 and entrada_correcta_7 >= 0.9 and entrada_correcta_8 >= 0.9 and entrada_correcta_9 >= 0.9 and entrada_correcta_10 >= 0.9 and entrada_correcta_11 >= 0.9 and entrada_correcta_12 >= 0.9:
                     loop_entradas = 0
@@ -1385,23 +1528,16 @@ def km_proyectado(inspecciones, mediana):
     min_profundidades = []
     for llanta in llantas:
         llanta_completa = Llanta.objects.get(id=llanta["llanta"])
-        print(llanta_completa)
-        print(llanta_completa)
         if llanta_completa.km_montado or llanta_completa.km_montado == 0:
-            print("si", llanta_completa)
             try:
                 x = []
                 y = []
                 x.append(llanta_completa.km_montado)
-                print("si", llanta_completa)
                 y.append(llanta_completa.producto.profundidad_inicial)
-                print("si", llanta_completa)
                 km_llanta = regresion.filter(llanta=llanta["llanta"]).values("km_vehiculo")
-                print("si", llanta_completa)
                 for r in km_llanta:
                     suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
                     y.append(suma)
-                print("si", llanta_completa)
                 profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
                 for p in profundidades:
                     x.append(p["min_profundidad"])
@@ -1417,22 +1553,21 @@ def km_proyectado(inspecciones, mediana):
                     termino.append(numero)
                 km_actual = y[-1]
                 km_proyectado = (termino[0]*(3**2))+(termino[1]*3)+termino[2]
+
+                if profundidades.last()["min_profundidad"] <= 3:
+                    km_proyectado = km_actual
+                
                 km_x_mm = km_proyectado / (llanta_completa.producto.profundidad_inicial - 3)
                 precio = llanta_completa.producto.precio
                 cpk = round((precio / km_proyectado), 3)
 
-                if profundidades.last()["min_profundidad"] <= 3:
-                    km_proyectado = km_actual
-
-                print("llanta", llanta_completa)
-                print("km_proyectado", km_proyectado)
                 if km_actual >= 20000:
 
-                    #print("llanta", llanta_completa)
-                    #print("km_x_mm", km_x_mm)
-                    #print("profundidad_inicial", llanta_completa.producto.profundidad_inicial)
-                    #print("km_actual", km_actual)
-                    #print("km_proyectado", km_proyectado)
+                    print("llanta", llanta_completa)
+                    print("km_x_mm", km_x_mm)
+                    print("profundidad_inicial", llanta_completa.producto.profundidad_inicial)
+                    print("km_actual", km_actual)
+                    print("km_proyectado", km_proyectado)
                     #print("cpk", cpk)
 
                     llantas_limpias.append(llanta_completa)
@@ -1440,37 +1575,28 @@ def km_proyectado(inspecciones, mediana):
                     llanta_kms_proyectados[llanta_completa] = km_proyectado
                     kms_x_mm.append(km_x_mm)
                     cpks.append(cpk)
-                    min_profundidades.append(profundidades[1:][0]["min_profundidad"])
+                    min_profundidades.append(profundidades.last()["min_profundidad"])
             except:
                 pass
         else:
-            print("no", llanta_completa)
             try:
                 valores_llanta = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField()))
-                print("no", llanta_completa)
                 profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
-                print("no", llanta_completa)
                 min_mm = valores_llanta.last().min_profundidad
-                print("no", llanta_completa)
                 max_mm = valores_llanta.first().min_profundidad
-                print("no", llanta_completa)
                 min_km = valores_llanta.first().km_vehiculo
-                print("no", llanta_completa)
                 max_km = valores_llanta.last().km_vehiculo
                 km_recorrido = abs(max_km - min_km)
                 mm_desgastados = abs(max_mm - min_mm)
-                print("no", llanta_completa)
                 if mm_desgastados == 0:
                     mm_desgastados = 0.01
-                print("no", llanta_completa)
                 km_x_mm = km_recorrido / mm_desgastados
-                print("no", llanta_completa)
                 profundidad_inicial = llanta_completa.producto.profundidad_inicial
-                print("no", llanta_completa)
                 km_teorico_actual = int((profundidad_inicial - min_mm) * km_x_mm)
-                print("no", llanta_completa)
                 km_teorico_proyectado = int((profundidad_inicial - 3) * km_x_mm)
-                print("no", llanta_completa)
+
+                if profundidades.last()["min_profundidad"] <= 3:
+                    km_teorico_proyectado = km_teorico_actual
 
                 precio = llanta_completa.producto.precio
                 try:
@@ -1485,8 +1611,6 @@ def km_proyectado(inspecciones, mediana):
                 #print("km_x_mm", km_x_mm)
                 #print("profundidad_inicial", profundidad_inicial)
                 #print("cpk", cpk)
-                print("llanta", llanta_completa, "vehiculo", llanta_completa.vehiculo)
-                print("km_proyectado", km_teorico_proyectado)
 
                 if km_teorico_actual >= 20000:
                     #print("llanta", llanta_completa, "vehiculo", llanta_completa.vehiculo)
@@ -1536,9 +1660,6 @@ def km_proyectado(inspecciones, mediana):
     except:
         mediana_mms = 0
     return mediana_km_proyectado, mediana_kms_x_mm, mediana_cpks, cpks, llantas_limpias, kms_proyectados, mediana_mms
-        
-    """print("km proyectados: ", kms_proyectados)
-    print("cpks: ", cpks)"""
 
 def km_proyectado_llanta(inspecciones):
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__gt=1)
@@ -1559,7 +1680,7 @@ def km_proyectado_llanta(inspecciones):
             for r in km_llanta:
                 suma = abs(r["km_vehiculo"] - llanta_completa.km_montado)
                 y.append(suma)
-            profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+            profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
             for p in profundidades:
                 x.append(p["min_profundidad"])
             
@@ -1574,6 +1695,10 @@ def km_proyectado_llanta(inspecciones):
                 termino.append(numero)
             km_actual = y[-1]
             km_proyectado = (termino[0]*(3**2))+(termino[1]*3)+termino[2]
+
+            if profundidades.last()["min_profundidad"] <= 3:
+                km_proyectado = km_actual
+
             km_x_mm = km_proyectado / (llanta_completa.producto.profundidad_inicial - 3)
             precio = llanta_completa.producto.precio
             cpk = round((precio / km_proyectado), 3)
@@ -1707,16 +1832,16 @@ def min_profundidad(llanta):
     profundidades = []
     
     if profundidad_izquierda != None:
-        profundidades.append(profundidad_izquierda)
+        profundidades.append(float(profundidad_izquierda))
         
     if profundidad_central != None:
-        profundidades.append(profundidad_central)
+        profundidades.append(float(profundidad_central))
         
     if profundidad_derecha != None:
-        profundidades.append(profundidad_derecha)
+        profundidades.append(float(profundidad_derecha))
     
     if len(profundidades) >= 1:
-        return(min(profundidades))
+        return(float(min(profundidades)))
     else:
         return None
 
@@ -1731,6 +1856,20 @@ def porcentaje(divisor, dividendo):
         return int((divisor/dividendo)*100)
     except:
         return "Nada"
+
+def presion_establecida(llanta):
+    vehiculo = llanta.vehiculo
+    presiones_establecidas = [
+        vehiculo.presion_establecida_1,
+        vehiculo.presion_establecida_2,
+        vehiculo.presion_establecida_3,
+        vehiculo.presion_establecida_4,
+        vehiculo.presion_establecida_5,
+        vehiculo.presion_establecida_6,
+        vehiculo.presion_establecida_7,
+    ]
+    eje = (llanta.eje - 1)
+    return presiones_establecidas[eje]
 
 def presion_llantas(llantas, periodo):
     if periodo:
@@ -2142,10 +2281,6 @@ def vehiculo_sospechoso(inspecciones):
         x = np.array(x)
         y = np.array(y)
 
-
-        print(x)
-        print(y)
-
         if len(x) > 2:
             dia = x[-1]
 
@@ -2266,4 +2401,3 @@ def vehiculo_sospechoso_llanta(inspecciones):
                 llantas_lista.append(llanta_sospechosa[0]["llanta"])
     #print(vehiculos_sospechosos)
     return llantas_sospechosas
-

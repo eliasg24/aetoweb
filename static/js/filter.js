@@ -11,6 +11,14 @@ document.addEventListener('DOMContentLoaded', (e) => {
   searchFilters('#search-producto', '#menu-producto', '.search-item');
 });
 
+/**
+ * It takes an input, a container, and a selector, and then adds an event listener to the input that
+ * filters the selector based on the input's value.
+ * @param [input] - The input field that will be used to search.
+ * @param [container] - the parent element of the elements you want to filter
+ * @param [selector] - The input element that will be used to filter the list.
+ */
+
 const searchFilters = (input = '', container = '', selector = '') => {
   document.addEventListener('keyup', (e) => {
     if (e.target.matches(input)) {

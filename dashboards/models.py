@@ -48,6 +48,8 @@ class Compania(models.Model):
     def __str__(self):
         # Retorna el nombre de la compañía
         return f"{self.compania}"
+    def natural_key(self):
+        return f"{self.compania}"
 
 class Ubicacion(models.Model):
     # Modelo de la Ubicación
@@ -241,13 +243,23 @@ class Vehiculo(models.Model):
         # Retorna el número económico
         return f"{self.numero_economico}"
 
+class InspeccionVehiculo(models.Model):
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, null=True, blank=True)
+    km = models.IntegerField(blank=True, null=True)
+    observaciones = models.ManyToManyField("Observacion", null=True, blank=True, limit_choices_to={'nivel': "Vehiculo"})
+    fecha = models.DateTimeField(auto_now=True, null=True, blank=True)
+    
 class Inspeccion(models.Model):
     # Modelo de la Inspección
     opciones_evento = (("Inspección", "Inspección"),
                        ("Inspección Galgo", "Inspección Galgo")
                 )
     tipo_de_evento = models.CharField(max_length=1000, choices=opciones_evento)
+    inspeccion_vehiculo = models.ForeignKey(InspeccionVehiculo, on_delete=models.CASCADE, null=True, blank=True)
     llanta = models.ForeignKey("Llanta", on_delete=models.CASCADE, related_name="related_llanta")
+    posicion = models.CharField(max_length=4, null=True, blank=True)
+    tipo_de_eje = models.CharField(max_length=4, null=True, blank=True)
+    eje = models.IntegerField(blank=True, null=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE, null=True, blank=True)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, null=True, blank=True)
     fecha_hora = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -339,7 +351,7 @@ class Llanta(models.Model):
     presion_de_salida = models.IntegerField(blank=True, null=True)
     presion_actual = models.IntegerField(blank=True, null=True)
     fecha_de_inflado = models.DateField(null=True, blank=True)
-    ultima_inspeccion = models.ForeignKey(Inspeccion, null=True, blank=True, on_delete=models.CASCADE, related_name="inspecciones")
+    ultima_inspeccion = models.ForeignKey(Inspeccion, null=True, blank=True, on_delete=models.SET_NULL, related_name="inspecciones")
     profundidad_izquierda = models.FloatField(blank=True, null=True)
     profundidad_central = models.FloatField(blank=True, null=True)
     profundidad_derecha = models.FloatField(blank=True, null=True)
@@ -517,6 +529,7 @@ class Observacion(models.Model):
         )
     nivel = models.CharField(max_length=200, choices=opciones_de_nivel)
     automatico = models.BooleanField(default=True)
+    recomendacion = models.CharField(max_length=500, null=True)
     
     class Meta:
         verbose_name_plural = "Observaciones"

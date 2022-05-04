@@ -225,8 +225,13 @@
   background-color: #202020;
   border-radius: 0.25rem;
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto 1fr;
   overflow: hidden;
+}
+
+#km-vehiculo {
+  text-align: center;
+  margin: 0;
 }
 
 .config__header {

@@ -555,26 +555,6 @@ const handleSelectAll = ({ container = '', selectAll = 'all' }) => {
 const handleCheckbox = () => {
   const inputs = document.querySelectorAll('.input-check');
   const form = document.querySelector('.form-head');
-  const dates = document.querySelectorAll('input[data-fecha]');
-
-  dates.forEach(input => {
-    input.addEventListener('input', (e) => {
-      if (!dates[0].value) {
-        alert('Selecciona una fecha inicial');
-        dates[0].focus();
-        return;
-      } 
-      if (dates[0].value && dates[1].value) {
-        if (dates[0].value > dates[1].value) {
-          alert('La fecha inicial no puede ser mayor a la fecha final');
-          dates[0].focus();
-          return;
-        }
-        
-        form.submit();
-      }
-    });
-  })
 
   inputs.forEach(input => {
     input.addEventListener('change', (e) => form.submit());

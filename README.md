@@ -37,6 +37,11 @@ pip install xlwt
 pip install django-multi-form-view
 ```
 
+```bash
+pip install djangorestframework
+```
+
+
 ## Para abrir el servidor en la carpeta del proyecto
 
 ```bash

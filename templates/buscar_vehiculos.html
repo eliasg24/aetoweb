@@ -52,8 +52,27 @@
                     </button>
                 </div>
                 <div class="flex-row wrap">
-                    <input type="text" id="date-input" name="fecha1" class="drop-input date-input" placeholder="Seleccionar fecha" {% if fecha %}value="{{fecha}}"{% else %}value="Seleccionar Fecha"{% endif %}>
                     <div class="drop-search">
+                        <input 
+                            name="desde" 
+                            placeholder="Desde..."
+                            id="desde" 
+                            class="drop-input"
+                            type="text" 
+                            onblur="(this.type='text')" 
+                            onfocus="(this.type='date')" 
+                            data-fecha
+                        >
+                        <input 
+                            name="hasta" 
+                            id="hasta" 
+                            placeholder="Hasta..." 
+                            class="drop-input"
+                            type="text" 
+                            onblur="(this.type='text')" 
+                            onfocus="(this.type='date')" 
+                            data-fecha
+                        >
                         <input
                           type="search"
                           placeholder="Buscar vehiculo..."
@@ -64,12 +83,9 @@
                         />
                         <i class="bx bx-search"></i>
                       </div>
-                      <a href="{% url 'dashboards:search' %}" class="btn btn-danger">
+                      <!-- <a href="{% url 'dashboards:search' %}" class="btn btn-danger">
                           <span class="icon-trash"></span>
-                      </a>
-                      <button type="submit" class="btn btn-success">
-                          <span class="bx bx-search"></span>
-                      </button>
+                      </a> -->
                 </div>
             </nav>
             <article class="wrapper on-view" id="all">
@@ -82,8 +98,8 @@
                             {% include 'search/vehiculos-lista.html' %}
                         {% endfor %}
                         {% for vehiculo in vehiculos_rojos %}
-                        <a href="{% url 'dashboards:detail' vehiculo.id %}">
-                            <figure class="vehicle-card status__card-bad animate__animated animate__fadeInUp">
+                        <a href="{% url 'dashboards:detail' vehiculo.id %}" class="transition">
+                            <figure class="vehicle-card status__card-bad">
                         
                                 <div class="vehicle-card__img">
                                     <span class="icon-truck vehicle-card__icon"></span>
@@ -107,6 +123,9 @@
                                 </figcaption>
                             </figure>
                         </a>
+                        {% endfor %}
+                        {% for vehiculo in vehiculos_sospechosos %}
+                            {% include 'search/vehiculos-lista.html' %}
                         {% endfor %}
                     </div>
                 </div>
@@ -133,8 +152,8 @@
                 <div class="container-fluid">
                     <div class="card-container">
                         {% for vehiculo in vehiculos_rojos %}
-                        <a href="{% url 'dashboards:detail' vehiculo.id %}">
-                            <figure class="vehicle-card status__card-bad animate__animated animate__fadeInUp">
+                        <a href="{% url 'dashboards:detail' vehiculo.id %}" class="transition">
+                            <figure class="vehicle-card status__card-bad">
                         
                                 <div class="vehicle-card__img">
                                     <span class="icon-truck vehicle-card__icon"></span>
@@ -174,6 +193,8 @@
         </form>
     </section>
 </main>
+
+<script src="{% static './js/buscador/index.js' %}"></script>
     
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
@@ -183,7 +204,32 @@
         handleView('btn-bad', 'bad');
         handleView('btn-suspicious', 'suspicious');
         handleButtons('#status');
+        handleDate()
     });
+
+    const handleDate = () => {
+        const form = document.querySelector('form')
+        const dates = document.querySelectorAll('input[data-fecha]');
+
+        dates.forEach(input => {
+            input.addEventListener('input', (e) => {
+            if (!dates[0].value) {
+                alert('Selecciona una fecha inicial');
+                dates[0].focus();
+                return;
+            } 
+            if (dates[0].value && dates[1].value) {
+                if (dates[0].value > dates[1].value) {
+                alert('La fecha inicial no puede ser mayor a la fecha final');
+                dates[0].focus();
+                return;
+                }
+                
+                form.submit();
+            }
+            });
+        })
+    }
 
     const handleButtons = (container = '') => {
       const buttons = document.querySelectorAll(`${ container } .btn-aeto-crunch`);

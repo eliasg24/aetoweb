@@ -21,13 +21,13 @@
 }
 
 .tire__box {
-  background-color: var(--main-background);
+  background-color: #202020;
   height: 100%;
   padding: 1rem;
 }
 
 .tire__medium {
-  bottom: 45%;
+  bottom: 40%;
 }
 
 .form__wrapper {

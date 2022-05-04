@@ -258,12 +258,54 @@
   top: auto;
 }
 
-.drop-input {
+/* .drop-input {
   width: fit-content;
+} */
+
+.drop-search i {
+  top: 25%;
 }
 
 .text-center {
   text-align: center;
+}
+
+.drop-search i {
+  font-size: 1.25rem;
+}
+
+/* drop */
+
+.drop-form {
+  position: relative;
+}
+
+.drop-options {
+  background-color: #202020;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute; 
+  transition: all 0.4s ease;
+  visibility: hidden;
+  width: 100%; 
+  transform: scaleY(0);
+}
+
+.drop-input {
+  font-size: 1rem;
+}
+
+.drop-input:focus ~ .drop-options,
+.drop-options:hover {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: all;
+  z-index: 1;
+  transform: scaleY(1);
+  position: relative;
 }
 
 @media screen and (min-width: 1024px) {
@@ -276,7 +318,7 @@
   }
 
   .forms__container {
-    grid-template-rows: 30% 1fr auto;
+    grid-template-rows: 220px 1fr auto;
   }
 
   .tire__medium {

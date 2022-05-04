@@ -104,11 +104,12 @@
     </li>
     {% for sucursal in sucursales %}
     <li class="search-item">
-      <!-- <label for="{{sucursal}}" class="input-check">
+      <!-- ! Genera un error -->
+      <label for="{{sucursal}}" class="input-check">
         {{sucursal}}
         <input type="checkbox" name="ubicacion" value="{{sucursal}}" id="{{sucursal}}" />
         <span class="checkmark"></span>
-      </label> -->
+      </label>
     </li>
     {% endfor %}
   </ul>
@@ -138,11 +139,11 @@
     </li>
     {% for aplicacion in aplicaciones %}
     <li class="search-item">
-      <!-- <label for="{{aplicacion}}" class="input-check">
+      <label for="{{aplicacion}}" class="input-check">
         {{aplicacion}}
         <input type="checkbox" name="aplicacion" value="{{aplicacion}}" id="{{aplicacion}}" />
         <span class="checkmark"></span>
-      </label> -->
+      </label>
     </li>
     {% endfor %}
     </ul>
