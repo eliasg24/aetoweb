@@ -41,7 +41,10 @@ pip install django-multi-form-view
 pip install djangorestframework
 ```
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6615d62c7c253b99efd1ae88642c66666df939df
 ## Para abrir el servidor en la carpeta del proyecto
 
 ```bash
