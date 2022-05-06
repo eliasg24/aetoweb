@@ -1,3 +1,7 @@
+#Python
+from concurrent.futures import thread
+import threading
+
 # Django
 from django.contrib import auth
 from django.conf import settings
@@ -279,6 +283,29 @@ def color_observaciones(observaciones):
         color = 'good'
     return color
         
+def color_observaciones_all(inspeccion_vehiculo):
+    inspecciones = Inspeccion.objects.filter(inspeccion_vehiculo = inspeccion_vehiculo)
+    colores = []
+    observaciones_vehiculo = inspeccion_vehiculo.observaciones.all()
+    colores.append(color_observaciones(observaciones_vehiculo))
+        
+    for ins in inspecciones:
+        colores.append(color_observaciones(ins.observaciones.all()))
+    if 'bad' in colores:
+        return 'bad'
+    elif 'yellow' in colores:
+        return 'yellow'
+    else:
+        return 'good'
+    
+def color_observaciones_one(observacion):
+    if observacion.color == 'Rojo':
+        return 'bad'
+    elif observacion.color == 'Amarillo':
+        return 'yellow'
+    else:
+        return 'good'
+    
 
 def contar_dias(fecha):
     fecha_date = datetime.strptime(fecha, "%Y-%m-%d").date()
@@ -1782,6 +1809,16 @@ def km_proyectado_mediana(kms_proyectados):
 
     return kms_proyectados_final, mediana_final
 
+
+def km_max_template(inspeccion_vehiculo):
+    km_max_diario = inspeccion_vehiculo.vehiculo.km_diario_maximo
+    fecha = inspeccion_vehiculo.fecha.date()
+    hoy = date.today()
+    remaining_days = (hoy - fecha).days
+    km_max_total = km_max_diario * remaining_days
+    return km_max_total + inspeccion_vehiculo.km
+    
+    
 def mala_entrada(vehiculos):
     vehiculos_fallidos = {}
     vehiculos_fallidos = vehiculos.annotate(entrada=Cast(F("presion_de_entrada"),FloatField())/Cast(F("presion_de_salida"),FloatField())).filter(entrada__lt=0.9)
@@ -1844,6 +1881,27 @@ def min_profundidad(llanta):
         return(float(min(profundidades)))
     else:
         return None
+
+def min_profundidad_template(llanta):
+    if llanta.profundidad_izquierda != None:
+        min_izquierda = llanta.profundidad_izquierda
+    else:
+        min_izquierda = min_profundidad(llanta)
+        
+    if llanta.profundidad_central != None:
+        min_central = llanta.profundidad_central
+    else:
+        min_central = min_profundidad(llanta)
+        
+    if llanta.profundidad_derecha != None:
+        min_derecha = llanta.profundidad_derecha
+    else:
+        min_derecha = min_profundidad(llanta)
+    return {
+        'min_izquierda': min_izquierda,
+        'min_central': min_central,
+        'min_derecha': min_derecha
+    }
 
 
 def nunca_vistos(vehiculos):
@@ -2033,6 +2091,11 @@ def salida_correcta(vehiculos):
         return None
 
 def send_mail(bitacora, tipo):
+    thread = threading.Thread(target=mail, args=(bitacora, tipo))
+    print('Crear hilo')
+    thread.start()
+
+def mail(bitacora, tipo):
     vehiculo = Vehiculo.objects.get(pk = bitacora.numero_economico.id)   
     llantas = Llanta.objects.filter(vehiculo = vehiculo, inventario="Rodante")
     objetivo = vehiculo.compania.objetivo

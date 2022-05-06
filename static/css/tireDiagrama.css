@@ -34,5 +34,9 @@
   display: flex;
 }
 
+.forms__container {
+  grid-template-rows: 1fr auto;
+}
+
 @media screen and (min-width: 1024px) {
 }

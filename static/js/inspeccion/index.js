@@ -77,6 +77,8 @@ const diferenciaDual = (duales = document.documentElement) => {
       let presion1 = tires[0].querySelector('[data-tag-id]').textContent;
       let presion2 = tires[1].querySelector('[data-tag-id]').textContent;
 
+      if (presion1 === 0 && presion2 === 0) return;
+
       presion1 = parseFloat(presion1);
       presion2 = parseFloat(presion2);
 
@@ -84,6 +86,8 @@ const diferenciaDual = (duales = document.documentElement) => {
       let container2 = tires[1].getAttribute('data-tire-id');
 
       let ids = [container1, container2];
+
+      console.log(presion1, presion2);
 
       let porcentajeDif1 = (presion1 - presion2) / presion1;
       let porcentajeDif2 = (presion2 - presion1) / presion2;
@@ -285,54 +289,67 @@ const handleForms = () => {
   });
 };
 
-const emptyProfs = () => {
-  const profundidades = document.querySelectorAll('.form__prof input');
+// ! Empty profs
 
-  profundidades.forEach(input => {
-    if (!input.value) {
-      return true;
-    } else if (input.value) {
-      console.log(input.value)
-      return false;
+const emptyProfs = () => {
+  const inputs = document.querySelectorAll('.form__prof');
+  let counter = 0;
+
+  inputs.forEach((el) => {
+    let inputCounter = 0;
+    el.querySelectorAll('input').forEach((input) => {
+      if (input.value !== '') {
+        inputCounter++;
+      }   
+    });
+    if (inputCounter >= 1) {
+      counter++;
     }
-  })
-}
+  });
+
+  console.log(counter)
+
+  if (counter >= inputs.length) {
+    return true;
+  }
+
+  return false;
+};
 
 const confirmAlert = () => {
   const form = document.getElementById('tire-form');
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-
     const duplicate = noDoubleValues('llanta');
-    // const empty = emptyProfs();
-    const empty = true;
+    const empty = emptyProfs();
 
     if (duplicate) return;
+
     if (!empty) {
-      const error = Swal.fire({
+      const alert = Swal.fire({
         title: 'Error',
-        text: 'Las llantas al menos deben tener una profundidad',
+        text: 'Todas las llantas al menos tienen que tener una profundidad',
         icon: 'error',
         backdrop: true,
         allowOutsideClick: false,
         allowEscapeKey: false,
-      })
-    } else {
-      const alert = Swal.fire({
-        title: 'Confirmación',
-        text: '¿Seguro que desea continuar?',
-        icon: 'question',
-        confirmButtonText: 'Si',
-        backdrop: true,
-        showDenyButton: true,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      }).then((res) => {
-        res.value && form.submit();
       });
+      return;
     }
 
+    const alert = Swal.fire({
+      title: 'Confirmación',
+      text: '¿Seguro que desea continuar?',
+      icon: 'question',
+      confirmButtonText: 'Si',
+      backdrop: true,
+      showDenyButton: true,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    }).then((res) => {
+      res.value && form.submit();
+    });
   });
 };
 

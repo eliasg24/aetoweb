@@ -284,6 +284,19 @@
   background-color: var(--purple-color);
 }
 
+
+.good-text {
+  color: seagreen;
+}
+
+.yellow-text {
+  color: var(--yellow-color);
+}
+
+.bad-text {
+  color: var(--red-color);
+}
+
 .config__nav {
   padding: 0.5rem;
 }

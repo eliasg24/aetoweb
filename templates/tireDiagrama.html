@@ -51,29 +51,6 @@
 
     <form action="" method="" class="forms__container">
       <div class="form__container">
-        <div class="form__wrapper">
-
-          <legend>
-            <h2>Vehículo</h2>
-          </legend>
-
-          <!-- Start input -->
-          <div class="form__group field">
-            <input
-              class="form__field"
-              type="text"
-              placeholder="vehiculo"
-              name="vehiculo"
-              autocomplete="off"
-            />
-            <label for="vehiculo" class="form__label">
-              KM de vehículo
-            </label>
-          </div>
-          <!-- End input -->
-        </div>
-      </div>
-      <div class="form__container">
         <div class="form__wrapper" id="tire-form">
 
           <!-- Start input -->
@@ -139,6 +116,121 @@
             </label>
           </div>
           <!-- End input -->
+
+          <h3>Profundidades</h3>
+
+           <!-- Start input -->
+           <div 
+            class="form__prof" 
+            data-punto-retiro="{{ ej.6.punto_retiro }}" 
+            data-profundidad-id="{{ ej.0.id }}"
+            >
+            <div class="form__group field">
+              <input
+              class="form__field"
+              type="number"
+              max = {{ej.0.producto.profundidad_inicial}}
+              step="any"
+              placeholder="Profundidad izquierda"
+              name="profundidad_izquierda"
+              autocomplete="off"
+              value="{{ej.0.profundidad_izquierda}}"
+              />
+              <label for="profundidad" class="form__label">
+                Izquierda
+              </label>
+            </div>
+            
+            <div class="form__group field">
+              <input
+              class="form__field"
+              type="number"
+              max = {{ej.0.producto.profundidad_inicial}}
+              step="any"
+              placeholder="Profundidad central"
+              name="profundidad_central"
+              autocomplete="off"
+              value="{{ej.0.profundidad_central}}"
+              />
+              <label for="profundidad" class="form__label">
+                Central
+              </label>
+            </div>
+
+            <div class="form__group field">
+              <input
+                class="form__field"
+                type="number"
+                max = {{ej.0.producto.profundidad_inicial}}
+                step="any"
+                placeholder="derecha"
+                name="profundidad_derecha"
+                autocomplete="off"
+                value="{{ej.0.profundidad_derecha}}"
+                />
+                <label for="profundidad" class="form__label">
+                  Derecha
+                </label>
+              </div>
+
+          </div>
+        
+        <!-- End input -->
+
+        <!-- Start input -->
+        <div class="form__group field">
+          <input
+            class="form__field"
+            type="number"
+            step="any"
+            min="0"
+            placeholder="profundidad"
+            name="presion"
+            autocomplete="off"
+            value="{{ej.0.presion_actual}}"
+            data-input-id="{{ ej.0.id }}"
+            data-presion-min="{{ ej.6.presion_minima}}" 
+            data-presion-max="{{ ej.6.presion_maxima}}" 
+          />
+          <label for="profundidad" class="form__label">
+            Presión
+          </label>
+        </div>
+
+          <div class="drop-form">
+            <input type="search" class="drop-input" placeholder="Observación de vehículo" id="vehiculo-search">
+            <ul class="drop-options" id="vehiculo-observaciones">
+              {% for observacion in observaciones_vehiculo %}
+                <li class="search-item">
+                  <label for="{{observacion.observacion}}" class="input-check">
+                    <i class="{{observacion.icono}}"></i>
+                    {{observacion.observacion}}
+                    <input 
+                      type="checkbox" 
+                      name="observation-vehiculo" 
+                      value="{{observacion.observacion}}" 
+                      id="{{observacion.observacion}}" 
+                      data-vehiculo-item="{{observacion.observacion}}"
+                    />
+                    <span class="checkmark"></span>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <h3 class="text-center">
+            Observaciones
+          </h3>
+
+          <div class="observations__container">
+            {% for observacion in observaciones_vehiculo %}
+              <div data-icon-type="{{observacion.observacion}}">
+                <i class="{{observacion.icono}}"></i>
+                {{observacion.observacion}}
+              </div>
+            {% endfor %}
+          </div>
         </div>
       </div>
       <button class="btn btn-info" type="submit" role="button">Guardar</button>
@@ -146,5 +238,7 @@
 
   </main>
 </div>
+
+<script src="{% static 'js/manual-tire/index.js' %}" type="module"></script>
     
 {% endblock %}

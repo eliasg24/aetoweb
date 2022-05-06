@@ -24,6 +24,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, TemplateView, DetailView, DeleteView, UpdateView, FormView
 from django.views.generic.base import View
 
+# Rest Framework
+
 # Functions
 from dashboards.functions import functions, functions_ftp, functions_create, functions_excel
 from aeto import settings
@@ -813,13 +815,20 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 
                 punto_retiro = functions.punto_de_retiro(llanta)
                 color_profundidad = functions.color_profundiddad(min_produndidad, punto_retiro)
+                mm_dif = llanta.vehiculo.compania.mm_de_diferencia_entre_duales
+                context['mm_dif'] = mm_dif
+                data = {
+                    'presion_minima': presion_minima,
+                    'presion_maxima': presion_maxima,
+                    'punto_retiro': punto_retiro,
+                        }
                 if llanta.ultima_inspeccion == None:
                     con_inspeccion = False
                 else:
                     con_inspeccion = True
                 if llanta.eje == eje:
                     eForm = EdicionManual(instance = llanta)
-                    list_temp.append([llanta, color_profundidad, eForm, color_presion, min_produndidad, con_inspeccion])
+                    list_temp.append([llanta, color_profundidad, eForm, color_presion, min_produndidad, con_inspeccion, data])
             eje += 1
             ejes_no_ordenados.append(list_temp)
             numero += 1
@@ -837,6 +846,9 @@ class diagramaView(LoginRequiredMixin, TemplateView):
         
         cant_ejes = len(ejes)
         
+        observaciones_manuales=Observacion.objects.filter(nivel='Llanta', automatico=False)
+        observaciones_automaticas=Observacion.objects.filter(nivel='Llanta', automatico=True).exclude(observacion='Ponchado seguro').exclude(observacion='Mala entrada')
+        observaciones_vehiculo = Observacion.objects.filter(nivel='Vehiculo')
         
         #print(vehiculo.configuracion)
         #print(ejes)
@@ -850,6 +862,9 @@ class diagramaView(LoginRequiredMixin, TemplateView):
         context['cant_ejes'] = cant_ejes
         context['llantas_actuales'] = llantas_actuales
         context['vehiculo_actual'] = vehiculo_actual
+        context['observaciones_manuales'] = observaciones_manuales
+        context['observaciones_automaticas'] = observaciones_automaticas
+        context['observaciones_vehiculo'] = observaciones_vehiculo
 
         return context
     #DiagramaPost
@@ -871,6 +886,15 @@ class diagramaView(LoginRequiredMixin, TemplateView):
         presion = request.POST.getlist('presion')
         observaciones = request.POST.getlist('observaciones')
         reemplazar = request.POST.getlist('reemplazar')
+        observaciones_list = {}
+        for id in ids:
+            try:
+                cadena = str('manual-observation-') + str(id)
+                if len(request.POST.getlist(cadena)) > 0:
+                    observaciones_list[id] = request.POST.getlist(cadena)
+            except:
+                pass
+            
         print(ids)
         print(llanta)
         print(producto)
@@ -882,7 +906,6 @@ class diagramaView(LoginRequiredMixin, TemplateView):
         print(observaciones)
         print(reemplazar)
 
-        estado_vida = ['Nueva', '1R', '2R', '3R', '4R', '5R']
         elementos = 0
         diferencias = []
         id_bitacora = None
@@ -918,6 +941,7 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 llanta_nueva.id = None
                 llanta_nueva.ultima_inspeccion = None
                 llanta_nueva.km_actual = None
+                llanta_nueva.km_montado = None
                 llanta_actual.inventario = 'Archivado'
                 llanta_actual.save()
                 llanta_nueva.save()
@@ -1033,9 +1057,14 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                     print('No paso na')
                     
                 #observaciones
+                #observaciones
                 llanta_actual.observaciones.clear()
-                #print(llanta_actual.eje)
-                #print(llanta_actual.tipo_de_eje)
+                llanta_actual.ultima_inspeccion.observaciones.clear()
+                if ids[elementos] in observaciones_list:
+                    for i in (observaciones_list[ids[elementos]]):
+                        observacion = Observacion.objects.get(observacion = i)
+                        llanta_actual.observaciones.add(observacion)
+                        llanta_actual.save()
                 compania = llanta_actual.vehiculo.compania
                 presiones_establecidas = [
                     llanta_actual.vehiculo.presion_establecida_1,
@@ -1049,22 +1078,23 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 establecida = presiones_establecidas[(llanta_actual.eje - 1)]
                 presion_minima = establecida - (establecida * (compania.objetivo/100))
                 presion_maxima = establecida + (establecida * (compania.objetivo/100))
-                
-                if float(llanta_actual.presion_actual) < presion_minima:
-                    baja_presion = Observacion.objects.get(observacion = 'Baja presión')
-                    llanta_actual.observaciones.add(baja_presion)
-                    print(baja_presion)
-                    
-                if float(llanta_actual.presion_actual) > presion_maxima:
-                    alta_presion = Observacion.objects.get(observacion = 'Alta presion')
-                    llanta_actual.observaciones.add(alta_presion)
-                    print(alta_presion)
+                if llanta_actual.presion_actual != None:
+                    if float(llanta_actual.presion_actual) < presion_minima:
+                        baja_presion = Observacion.objects.get(observacion = 'Baja presión')
+                        llanta_actual.observaciones.add(baja_presion)
+                        print(baja_presion)
+                        
+                if llanta_actual.presion_actual != None:    
+                    if float(llanta_actual.presion_actual) > presion_maxima:
+                        alta_presion = Observacion.objects.get(observacion = 'Alta presion')
+                        llanta_actual.observaciones.add(alta_presion)
+                        print(alta_presion)
                 
                 if '4' in llanta_actual.tipo_de_eje:
                     print('Duales')
                     eje = str(llanta_actual.eje)
                     posicion = llanta_actual.posicion[1:]
-                    print(eje+posicion)
+                    #print(eje+posicion)
                     if posicion == 'LO':
                         dual = 'LI'
                     elif posicion == 'LI':
@@ -1078,42 +1108,44 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                     for llanta_i in llantas_comparacion:
                         if llanta_i.posicion == dual_completo:
                             dual_llanta = llanta_i
-                    porcentaje_dif = (float(llanta_actual.presion_actual) - dual_llanta.presion_actual) / float(llanta_actual.presion_actual)
-                    
-                    if llanta_actual in diferencia_presion_duales_list:
-                        diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
-                        llanta_actual.observaciones.add(diferencia_presion_duales)
-                        print(diferencia_presion_duales)
-                    else:
+                    if llanta_actual.presion_actual != None and dual_llanta.presion_actual != None:
+                        porcentaje_dif = (float(llanta_actual.presion_actual) - dual_llanta.presion_actual) / float(llanta_actual.presion_actual)
+                        if llanta_actual in diferencia_presion_duales_list:
                         
-                        if porcentaje_dif > 0.1:
-                            #Poner a los 2 duales
                             diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
                             llanta_actual.observaciones.add(diferencia_presion_duales)
-                            dual_llanta.observaciones.add(diferencia_presion_duales)
-                            dual_llanta.save()
-                            diferencia_presion_duales_list.append(dual_llanta)
+                            llanta_actual.ultima_inspeccion.observaciones.add(diferencia_presion_duales)
+                            llanta_actual.ultima_inspeccion.save()
                             print(diferencia_presion_duales)
-                    
+                        else:
+
+                            if porcentaje_dif > 0.1:
+                                #Poner a los 2 duales
+                                diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
+                                llanta_actual.observaciones.add(diferencia_presion_duales)
+                                dual_llanta.observaciones.add(diferencia_presion_duales)
+                                dual_llanta.save()
+                                diferencia_presion_duales_list.append(dual_llanta)
+                                print(diferencia_presion_duales)
+                            
                     if llanta_actual in desdualizacion_list:
                         desdualización = Observacion.objects.get(observacion = 'Desdualización')
                         llanta_actual.observaciones.add(desdualización)
+                        llanta_actual.ultima_inspeccion.observaciones.add(desdualización)
+                        llanta_actual.ultima_inspeccion.save()
                         print(desdualización)
                     else:
-                        print(type(functions.min_profundidad(llanta_actual)))
-                        print(type(functions.min_profundidad(dual_llanta)))
-                        print(type(float(compania.mm_de_diferencia_entre_duales)))
-                        if (functions.min_profundidad(llanta_actual) - functions.min_profundidad(dual_llanta)) >= float(compania.mm_de_diferencia_entre_duales):
+                        print(functions.min_profundidad(llanta_actual))
+                        print(functions.min_profundidad(dual_llanta))
+                        print(compania.mm_de_diferencia_entre_duales)
+                        if (functions.min_profundidad(llanta_actual) - functions.min_profundidad(dual_llanta)) >= compania.mm_de_diferencia_entre_duales:
                             #Poner a los 2 duales
                             desdualización = Observacion.objects.get(observacion = 'Desdualización')
                             llanta_actual.observaciones.add(desdualización)
                             dual_llanta.observaciones.add(desdualización)
                             dual_llanta.save()
-                            diferencia_presion_duales_list.append(dual_llanta)
+                            desdualizacion_list.append(dual_llanta)
                             print(desdualización)
-                    print(f'Llanta actual = {llanta_actual.posicion}')
-                    print(f'Dual llanta = {dual_llanta.posicion}')
-                    #print(f'Dual a buscar = {dual_completo}')
                     
                 if "S" in llanta_actual.tipo_de_eje:
                     punto_retiro = compania.punto_retiro_eje_direccion
@@ -1138,12 +1170,26 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 izquierda = llanta_actual.profundidad_izquierda
                 central = llanta_actual.profundidad_central
                 derecha = llanta_actual.profundidad_derecha
-                
                 functions.desgaste_profundidad(izquierda, central , derecha, llanta_actual)
-                    
+
                 
                 llanta_actual.save()
-                print(llanta_actual.observaciones)
+                if len(llanta_actual.observaciones.all()) > 0:
+                    for observacion in llanta_actual.observaciones.all():
+                        llanta_actual.ultima_inspeccion.observaciones.add(observacion)
+                    llanta_actual.ultima_inspeccion.save()
+                #print(llanta_act.ultima_inspeccion)
+                
+            elementos += 1
+                
+        elementos = 0    
+        for id_actual in ids: 
+            llanta_referencia = Llanta.objects.get(pk = ids[elementos])
+            llanta_actual = Llanta.objects.get(pk = ids[elementos]) 
+            for obs in llanta_actual.observaciones.all():
+                llanta_actual.ultima_inspeccion.observaciones.add(obs)
+                llanta_actual.ultima_inspeccion.save()
+                llanta_actual.save()
             elementos += 1
             
         #CREACION DE BITACORA
@@ -1176,6 +1222,11 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
     # Vista de tireDiagramaView
 
     template_name = "tireDiagrama.html"
+
+class webservicesView(LoginRequiredMixin, TemplateView):
+    # Vista de webservicesView
+
+    template_name = "webservices.html"    
 
 class ParametroExtractoView(LoginRequiredMixin, TemplateView):
     # Vista de ParametrosExtractoView
@@ -1474,42 +1525,23 @@ class sucursalFormularioView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy("dashboards:config")
 
-class sucursalEditView(LoginRequiredMixin, UpdateView):
-    # Vista de sucursalFormularioView
-
-    template_name = "formularios/sucursal2.html"
-    model = Ubicacion
-    fields = ["id", "nombre", 'compania', 'rendimiento_de_nueva', "rendimiento_de_primera", 'rendimiento_de_segunda', 'rendimiento_de_tercera', "rendimiento_de_cuarta", 'precio_nueva_direccion', 'precio_nueva', 'precio_renovada']
-
-    def get_object(self):
-        # Return user's profile
-        sucursal = Ubicacion.objects.get(nombre=self.kwargs['nombre'], compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        return sucursal
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        sucursal = Ubicacion.objects.get(nombre=self.kwargs['nombre'], compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        if self.request.POST:
-            sucursal.rendimiento_de_nueva = self.request.POST.get("rendimiento_de_nueva")
-            sucursal.rendimiento_de_primera = self.request.POST.get("rendimiento_de_primera")
-            sucursal.rendimiento_de_segunda = self.request.POST.get("rendimiento_de_segunda")
-            sucursal.rendimiento_de_tercera = self.request.POST.get("rendimiento_de_tercera")
-            sucursal.rendimiento_de_cuarta = self.request.POST.get("rendimiento_de_cuarta")
-            sucursal.precio_nueva_direccion = self.request.POST.get("precio_nueva_direccion")
-            sucursal.precio_nueva = self.request.POST.get("precio_nueva")
-            sucursal.precio_renovada = self.request.POST.get("precio_renovada")
-            sucursal.save()
-
-        context["sucursal"] = sucursal
-        return context
-
-def sucursalView(request, nombre):
-    sucursal = Ubicacion.objects.get(nombre=nombre, compania=Compania.objects.get(compania="pruebacarlos"))
-    string = f'<object model="Flota"><field name="nombre" type="CharField">{sucursal.nombre}</field><field name="email" type="CharField">{sucursal.email}</field><field name="compania" rel="ManyToOneRel" to="dashboards.compania">{sucursal.compania}</field><field name="rendimiento_de_nueva" type="IntegerField">{sucursal.rendimiento_de_nueva}</field><field name="rendimiento_de_primera" type="IntegerField">{sucursal.rendimiento_de_primera}</field><field name="rendimiento_de_segunda" type="IntegerField">{sucursal.rendimiento_de_segunda}</field><field name="rendimiento_de_tercera" type="IntegerField">{sucursal.rendimiento_de_tercera}</field><field name="rendimiento_de_cuarta" type="IntegerField">{sucursal.rendimiento_de_cuarta}</field><field name="precio_nueva" type="IntegerField">{sucursal.precio_nueva}</field><field name="precio_renovada" type="IntegerField">{sucursal.precio_renovada}</field><field name="precio_nueva_direccion" type="IntegerField">{sucursal.precio_nueva_direccion}</field></object>'
+def sucursalView(request):
+    sucursales = Ubicacion.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
+    for sucursal in sucursales:
+        string = f'<Flotas><Nombre>{sucursal.nombre}</Nombre><Email>{sucursal.email}</Email><Compania>{sucursal.compania}</Compania><RendimientoDeNueva>{sucursal.rendimiento_de_nueva}</RendimientoDeNueva><RendimientoDePrimera>{sucursal.rendimiento_de_primera}</RendimientoDePrimera><RendimientoDeSegunda>{sucursal.rendimiento_de_segunda}</RendimientoDeSegunda><RendimientoDeTercera>{sucursal.rendimiento_de_tercera}</RendimientoDeTercera><RendimientoDeCuarta>{sucursal.rendimiento_de_cuarta}</RendimientoDeCuarta><PrecioNueva>{sucursal.precio_nueva}</PrecioNueva><PrecioRenovada>{sucursal.precio_renovada}</PrecioRenovada><PrecioNuevaDirección>{sucursal.precio_nueva_direccion}</PrecioNuevaDirección></Flotas>'
     return HttpResponse(string, content_type='text/xml')
 
-
+def vehiculosView(request):
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania=request.user.perfil.compania))
+    string = ""
+    for vehiculo in vehiculos:
+        if string == "":
+            string = f'<Lista><Flotas><NumeroEconomico>{vehiculo.numero_economico}</NumeroEconomico><Modelo>{vehiculo.modelo}</Modelo><Marca>{vehiculo.marca}</Marca><Compania>{vehiculo.compania}</Compania><Base>{vehiculo.ubicacion}</Base><Aplicacion>{vehiculo.aplicacion}</Aplicacion><NumeroDeLlantas>{vehiculo.numero_de_llantas}</NumeroDeLlantas><Clase>{vehiculo.clase}</Clase><Configuracion>{vehiculo.configuracion}</Configuracion><FechaDeInflado>{vehiculo.fecha_de_inflado}</FechaDeInflado><TiempoDeInflado>{vehiculo.tiempo_de_inflado}</TiempoDeInflado><PresionDeEntrada>{vehiculo.presion_de_entrada}</PresionDeEntrada><PresionDeSalida>{vehiculo.presion_de_salida}</PresionDeSalida><PresionEstablecida1>{vehiculo.presion_establecida_1}</PresionEstablecida1><PresionEstablecida2>{vehiculo.presion_establecida_2}</PresionEstablecida2><PresionEstablecida3>{vehiculo.presion_establecida_3}</PresionEstablecida3><PresionEstablecida4>{vehiculo.presion_establecida_4}</PresionEstablecida4><PresionEstablecida5>{vehiculo.presion_establecida_5}</PresionEstablecida5><PresionEstablecida6>{vehiculo.presion_establecida_6}</PresionEstablecida6><PresionEstablecida7>{vehiculo.presion_establecida_7}</PresionEstablecida7><Km>{vehiculo.km}</Km><KmDiarioMaximo>{vehiculo.km_diario_maximo}</KmDiarioMaximo><Observaciones>{vehiculo.observaciones}</Observaciones><Nuevo>{vehiculo.nuevo}</Nuevo><FechaDeCreacion>{vehiculo.fecha_de_creacion}</FechaDeCreacion></Flotas>'
+        else:
+            string += f'<Flotas><NumeroEconomico>{vehiculo.numero_economico}</NumeroEconomico><Modelo>{vehiculo.modelo}</Modelo><Marca>{vehiculo.marca}</Marca><Compania>{vehiculo.compania}</Compania><Base>{vehiculo.ubicacion}</Base><Aplicacion>{vehiculo.aplicacion}</Aplicacion><NumeroDeLlantas>{vehiculo.numero_de_llantas}</NumeroDeLlantas><Clase>{vehiculo.clase}</Clase><Configuracion>{vehiculo.configuracion}</Configuracion><FechaDeInflado>{vehiculo.fecha_de_inflado}</FechaDeInflado><TiempoDeInflado>{vehiculo.tiempo_de_inflado}</TiempoDeInflado><PresionDeEntrada>{vehiculo.presion_de_entrada}</PresionDeEntrada><PresionDeSalida>{vehiculo.presion_de_salida}</PresionDeSalida><PresionEstablecida1>{vehiculo.presion_establecida_1}</PresionEstablecida1><PresionEstablecida2>{vehiculo.presion_establecida_2}</PresionEstablecida2><PresionEstablecida3>{vehiculo.presion_establecida_3}</PresionEstablecida3><PresionEstablecida4>{vehiculo.presion_establecida_4}</PresionEstablecida4><PresionEstablecida5>{vehiculo.presion_establecida_5}</PresionEstablecida5><PresionEstablecida6>{vehiculo.presion_establecida_6}</PresionEstablecida6><PresionEstablecida7>{vehiculo.presion_establecida_7}</PresionEstablecida7><Km>{vehiculo.km}</Km><KmDiarioMaximo>{vehiculo.km_diario_maximo}</KmDiarioMaximo><Observaciones>{vehiculo.observaciones}</Observaciones><Nuevo>{vehiculo.nuevo}</Nuevo><FechaDeCreacion>{vehiculo.fecha_de_creacion}</FechaDeCreacion></Flotas>'
+    string += "</Lista>"
+    j = 0
+    return HttpResponse(string, content_type='text/xml')
 
 class tallerFormularioView(LoginRequiredMixin, CreateView):
     # Vista de tallerFormularioView
@@ -1661,12 +1693,20 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                 min_produndidad = functions.min_profundidad(llanta)
                 
                 punto_retiro = functions.punto_de_retiro(llanta)
+                
+                minimos = functions.min_profundidad_template(llanta)
                 mm_dif = llanta.vehiculo.compania.mm_de_diferencia_entre_duales
                 context['mm_dif'] = mm_dif
+                
+                km_max = functions.km_max_template(llanta.ultima_inspeccion.inspeccion_vehiculo)
+                context['km_max'] = km_max
                 data = {
                     'presion_minima': presion_minima,
                     'presion_maxima': presion_maxima,
                     'punto_retiro': punto_retiro,
+                    'min_izquierda': minimos['min_izquierda'],
+                    'min_central': minimos['min_central'],
+                    'min_derecha': minimos['min_derecha'],
                         }
                                   
                 if llanta.eje == eje:
@@ -1712,7 +1752,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
         context['observaciones_manuales'] = observaciones_manuales
         context['observaciones_automaticas'] = observaciones_automaticas
         context['observaciones_vehiculo'] = observaciones_vehiculo
-        
+        print(date.today())
         return context
     
     def post(self, request, *args, **kwargs):
@@ -1814,7 +1854,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                 profundidad_izquierda_post = (float(profundidad_izquierda[elementos]) if profundidad_izquierda[elementos]!='' else None)
                 profundidad_central_post = (float(profundidad_central[elementos]) if profundidad_central[elementos]!='' else None)
                 profundidad_derecha_post = (float(profundidad_derecha[elementos]) if profundidad_derecha[elementos]!='' else None)
-                presion_post = presion[elementos]
+                presion_post = (presion[elementos] if presion[elementos] != '' else llanta_actual.presion_actual)
                 if vida_post != llanta_referencia.vida:
                     functions.cambio_de_vida(llanta_referencia)
                     cambios.append('1')
@@ -1844,7 +1884,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                         eje = llanta_actual.eje,
                         usuario = usuario_actual,
                         vehiculo = vehiculo,
-                        #fecha_hora = datetime.now(),
+                        fecha_hora = date.today(),
                         vida = vida_post,
                         km_vehiculo = vehiculo.km,
                         presion = presion_post,
@@ -1928,16 +1968,17 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                 establecida = presiones_establecidas[(llanta_actual.eje - 1)]
                 presion_minima = establecida - (establecida * (compania.objetivo/100))
                 presion_maxima = establecida + (establecida * (compania.objetivo/100))
-                
-                if float(llanta_actual.presion_actual) < presion_minima:
-                    baja_presion = Observacion.objects.get(observacion = 'Baja presión')
-                    llanta_actual.observaciones.add(baja_presion)
-                    print(baja_presion)
-                    
-                if float(llanta_actual.presion_actual) > presion_maxima:
-                    alta_presion = Observacion.objects.get(observacion = 'Alta presion')
-                    llanta_actual.observaciones.add(alta_presion)
-                    print(alta_presion)
+                if llanta_actual.presion_actual != None:
+                    if float(llanta_actual.presion_actual) < presion_minima:
+                        baja_presion = Observacion.objects.get(observacion = 'Baja presión')
+                        llanta_actual.observaciones.add(baja_presion)
+                        print(baja_presion)
+                        
+                if llanta_actual.presion_actual != None:    
+                    if float(llanta_actual.presion_actual) > presion_maxima:
+                        alta_presion = Observacion.objects.get(observacion = 'Alta presion')
+                        llanta_actual.observaciones.add(alta_presion)
+                        print(alta_presion)
                 
                 if '4' in llanta_actual.tipo_de_eje:
                     print('Duales')
@@ -1957,24 +1998,25 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                     for llanta_i in llantas_comparacion:
                         if llanta_i.posicion == dual_completo:
                             dual_llanta = llanta_i
-                    porcentaje_dif = (float(llanta_actual.presion_actual) - dual_llanta.presion_actual) / float(llanta_actual.presion_actual)
-                    if llanta_actual in diferencia_presion_duales_list:
-    
-                        diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
-                        llanta_actual.observaciones.add(diferencia_presion_duales)
-                        llanta_actual.ultima_inspeccion.observaciones.add(diferencia_presion_duales)
-                        llanta_actual.ultima_inspeccion.save()
-                        print(diferencia_presion_duales)
-                    else:
+                    if llanta_actual.presion_actual != None and dual_llanta.presion_actual != None:
+                        porcentaje_dif = (float(llanta_actual.presion_actual) - dual_llanta.presion_actual) / float(llanta_actual.presion_actual)
+                        if llanta_actual in diferencia_presion_duales_list:
                         
-                        if porcentaje_dif > 0.1:
-                            #Poner a los 2 duales
                             diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
                             llanta_actual.observaciones.add(diferencia_presion_duales)
-                            dual_llanta.observaciones.add(diferencia_presion_duales)
-                            dual_llanta.save()
-                            diferencia_presion_duales_list.append(dual_llanta)
+                            llanta_actual.ultima_inspeccion.observaciones.add(diferencia_presion_duales)
+                            llanta_actual.ultima_inspeccion.save()
                             print(diferencia_presion_duales)
+                        else:
+
+                            if porcentaje_dif > 0.1:
+                                #Poner a los 2 duales
+                                diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
+                                llanta_actual.observaciones.add(diferencia_presion_duales)
+                                dual_llanta.observaciones.add(diferencia_presion_duales)
+                                dual_llanta.save()
+                                diferencia_presion_duales_list.append(dual_llanta)
+                                print(diferencia_presion_duales)
                             
                     if llanta_actual in desdualizacion_list:
                         desdualización = Observacion.objects.get(observacion = 'Desdualización')
@@ -2722,7 +2764,7 @@ class VehiculoAPI(View):
             llanta.presion_de_salida=jd['presion_de_salida']
             llanta.presion_actual=jd['presion_de_salida']
             llanta.save()
-        #functions.send_mail(bi, 'pulpo')
+        functions.send_mail(bi, 'pulpo')
         return JsonResponse(jd)
 
 
@@ -2837,7 +2879,7 @@ class PulpoProAPI(View):
         
                 vehiculo.ultima_bitacora_pro= bi
                 vehiculo.save()
-                #functions.send_mail(bi, 'pulpopro')
+                functions.send_mail(bi, 'pulpopro')
                 return JsonResponse(jd)
 
 class TireEyeAPI(View):
@@ -3335,9 +3377,12 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
                         else:
                             estatus_activo = False
 
-                        if nuevo.lower() == "nuevo":
-                            nuevo = True
-                        else:
+                        try:
+                            if nuevo.lower() == "nuevo":
+                                nuevo = True
+                            else:
+                                nuevo = False
+                        except:
                             nuevo = False
 
                         try:
@@ -4049,11 +4094,19 @@ class DetailView(LoginRequiredMixin, DetailView):
             eventos.append([bit.fecha_de_inflado, bit, 'pulpopro'])
             
         for inspeccion in inspecciones_vehiculo:
-            inspecciones_list.append([inspeccion.fecha, inspeccion, 'inspeccion'])
+            color_insp = functions.color_observaciones_all(inspeccion)
+            if color_insp == 'bad':
+                signo = 'icon-cross bad-text'
+            elif color_insp == 'yellow':
+                signo = 'icon-warning  yellow-text'
+            else:
+                signo = 'icon-checkmark good-text'
+            inspecciones_list.append([inspeccion.fecha, inspeccion, 'inspeccion', signo])
         inspecciones_list = sorted(inspecciones_list, key=lambda x:x[0], reverse=True)
         for ins in inspecciones_list:
-            eventos.append([ins[0].date(), ins[1], ins[2]])
+            eventos.append([ins[0].date(), ins[1], ins[2], ins[3]])
         eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
+        print("eventos", eventos)
         hoy = date.today()
 
         mes_1 = hoy.strftime("%b")
@@ -4449,6 +4502,39 @@ class DetailView(LoginRequiredMixin, DetailView):
                 pass
         #print(dimension)
         context['dimension'] = dimension
+        
+        
+        #observaciones:
+        
+        problemas = []
+        ultima_inspeccion_vehiculo = InspeccionVehiculo.objects.filter(vehiculo=vehiculo).last()
+        print(ultima_inspeccion_vehiculo)
+        ultimas_inspecciones = Inspeccion.objects.filter(inspeccion_vehiculo = ultima_inspeccion_vehiculo)
+        print(ultimas_inspecciones)
+        
+        if len(ultimas_inspecciones) > 0:
+            for observacion in vehiculo.observaciones.all():
+                color_obs = functions.color_observaciones_one(observacion)
+                if color_obs == 'bad':
+                    signo = 'icon-cross bad-text'
+                elif color_obs == 'yellow':
+                    signo = 'icon-warning  yellow-text'
+                else:
+                    signo = 'icon-checkmark good-text'
+                problemas.append(['VH', observacion, signo])
+            for inspeccion in ultimas_inspecciones:
+                for observacion in inspeccion.observaciones.all():
+                    color_obs = functions.color_observaciones_one(observacion)
+                    if color_obs == 'bad':
+                        signo = 'icon-cross bad-text'
+                    elif color_obs == 'yellow':
+                        signo = 'icon-warning  yellow-text'
+                    else:
+                        signo = 'icon-checkmark good-text'
+                    problemas.append([inspeccion.posicion, observacion, signo])
+            
+        print(vehiculo.observaciones.all())
+        context['problemas'] = problemas
         return context
 
 
@@ -4522,10 +4608,14 @@ class ReporteInspeccion(ListView):
         context['ejes'] = ejes
         #Paso de los problemas
         problemas = []
+        for observacion in vehiculo.observaciones.all():
+            problemas.append(['VH', observacion])
         for inspeccion in inspecciones_actuales:
             for observacion in inspeccion.observaciones.all():
                 problemas.append([inspeccion.posicion, observacion])
+                
         context['problemas'] = problemas
+        
         return context
 
 

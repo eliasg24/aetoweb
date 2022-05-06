@@ -13,7 +13,7 @@
           autocomplete="off"
           value="{{vehiculo_actual}}"
           required
-          C
+          readonly
         />
         <label for="vehiculo" class="form__label">
           Vehiculo
@@ -26,7 +26,13 @@
       <div class="form__group field">
         <input
           class="form__field"
-          type="text"
+          type="number"
+          {% if vehiculo_actual.km == None %}
+            min="0"
+          {% else %}
+            min="{{vehiculo_actual.km}}"
+          {% endif %}
+          max="{{km_max}}"
           placeholder="producto"
           name="kilometraje"
           autocomplete="off"
@@ -218,6 +224,7 @@
                 autocomplete="off"
                 list="vida"
                 value = {{ej.0.vida}}
+                readonly
               />
               <label for="vida" class="form__label">
                 Vida
@@ -244,7 +251,7 @@
                 <input
                   class="form__field"
                   type="number"
-                  max = {{ej.0.producto.profundidad_inicial}}
+                  max = {{ ej.6.min_izquierda }}
                   min="0"
                   step="any"
                   placeholder="Profundidad izquierda"
@@ -261,7 +268,7 @@
                   class="form__field"
                   type="number"
                   min="0"
-                  max = {{ej.0.producto.profundidad_inicial}}
+                  max = {{ ej.6.min_central }}
                   step="any"
                   placeholder="Profundidad central"
                   name="profundidad_central"
@@ -277,7 +284,7 @@
                   class="form__field"
                   type="number"
                   min="0"
-                  max = {{ej.0.producto.profundidad_inicial}}
+                  max = {{ ej.6.min_derecha }}
                   step="any"
                   placeholder="Profundidad derecha"
                   name="profundidad_derecha"

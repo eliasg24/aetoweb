@@ -21,7 +21,7 @@
       </div>
     </div>
     </header>
-    <h2>{{vehiculo}}</h2>
+    <h2 class="neInspeccion">{{vehiculo}}</h2>
     <main class="main__container-inspection">
       <nav class="report__inspection">
         <div class="report__card-inspection">
@@ -45,8 +45,8 @@
           <div class="report__card_body">{{vehiculo.aplicacion}}</div>
         </div>
         <div class="report__card-inspection">
-          <div class="report__card_title">Fecha/hora</div>
-          <div class="report__card_body">{{inspeccion_vehiculo.fecha}}</div>
+          <div class="report__card_title">Fecha</div>
+          <div class="report__card_body">{{inspeccion_vehiculo.fecha.date}}</div>
         </div>
         <div class="report__card-inspection">
           <div class="report__card_title">Kilómetros</div>
@@ -56,12 +56,8 @@
           <div class="report__card_title">Tipo de inspección</div>
           <div class="report__card_body">Inspection</div>
         </div>
-        <div class="report__card-inspection">
-          <div class="report__card_title">Comentarios</div>
-          <div class="report__card_body">-</div>
-        </div>
       </nav>
-      <section class="content__wrapper">
+      <section class="content__wrapper" id="content__wrapperid">
         <div class="config__container">
             {% for eje in ejes %}
               {% if eje|length == 2 %}
@@ -164,51 +160,62 @@
         </div>
       </section>
     </main>
-    <div class="inspection mb-8">
-        <nav class="report__color">
-          <div class="report__card-evaluacion">
-            <div class="report__card_rojo"></div>
-            <div class="report__card_body">Problema</div>
-          </div>
-          <div class="report__card-evaluacion">
-            <div class="report__card_amarillo"></div>
-            <div class="report__card_body">Advertencia</div>
-          </div>
-        <div class="report__card-evaluacion">
-            <div class="report__card_azul"></div>
-            <div class="report__card_body">Información</div>
-          </div>
-        </nav>
-    </div>
-    <div class="list__cont">
-      <div class="title-list">
-        <h1>Lista de problemas</h1>
-      </div>
-      <div class="config__container-table">
-          <table class="config__table">
-              <thead>
-                  <tr>
-                      <th class="th-table">Pos</th>
-                      <th class="th-table">Icono</th>
-                      <th class="th-table">Incidencia</th>
-                      <th class="th-table">Acción</th>
-                  </tr>
-              </thead>
-              <tbody>
-                {% for problema in problemas %}
-                
-                  <tr>
-                      <td class="td-table">{{problema.0}}</td>
-                      <td class="td-table"><span class="icon-baja-presion"></span></td>
-                      <td class="td-table">{{problema.1.observacion}}</td>
-                      <td class="td-table">Ajuste presión de llanta</td>
-                  </tr>
+    <div class="config__list">
+      
+      <div class="list__cont">
+        <div class="title-list">
+          <h1>Lista de problemas</h1>
+        </div>
+        <div class="config__container-table">
+            <table class="config__table">
+                <thead>
+                    <tr>
+                        <th class="th-table">Pos</th>
+                        <th class="th-table">Icono</th>
+                        <th class="th-table">Incidencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  {% for problema in problemas %}
 
-                {% endfor %}
-              </tbody>
-          </table>
+
+                    {% if forloop.counter|divisibleby:2  == False %}
+                    <tr>
+                        <td class="td-table" id="{{forloop.counter}}">{{problema.0}}</td>
+                        <td class="td-table"><span class="{{problema.1.icono}}"></span></td>
+                        <td class="td-table">{{problema.1.observacion}}</td>
+                    </tr>
+                    {% endif %}
+
+                  {% endfor %}
+                </tbody>
+            </table>
+            <table class="config__table">
+                <thead>
+                    <tr>
+                        <th class="th-table">Pos</th>
+                        <th class="th-table">Icono</th>
+                        <th class="th-table">Incidencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  {% for problema in problemas %}
+                  
+                      {% if forloop.counter|divisibleby:2  == True %}
+                      <tr>
+                          <td class="td-table" id="{{forloop.counter}}">{{problema.0}}</td>
+                          <td class="td-table"><span class="{{problema.1.icono}}"></span></td>
+                          <td class="td-table">{{problema.1.observacion}}</td>
+                      </tr>
+                      {% endif %}
+
+                  {% endfor %}
+                </tbody>
+            </table>
+        </div>
       </div>
     </div>
+    
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"

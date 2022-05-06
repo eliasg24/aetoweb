@@ -247,7 +247,7 @@ class InspeccionVehiculo(models.Model):
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, null=True, blank=True)
     km = models.IntegerField(blank=True, null=True)
     observaciones = models.ManyToManyField("Observacion", null=True, blank=True, limit_choices_to={'nivel': "Vehiculo"})
-    fecha = models.DateTimeField(auto_now=True, null=True, blank=True)
+    fecha = models.DateTimeField(null=True, blank=True, editable=True)
     
 class Inspeccion(models.Model):
     # Modelo de la Inspección
@@ -529,7 +529,6 @@ class Observacion(models.Model):
         )
     nivel = models.CharField(max_length=200, choices=opciones_de_nivel)
     automatico = models.BooleanField(default=True)
-    recomendacion = models.CharField(max_length=500, null=True)
     
     class Meta:
         verbose_name_plural = "Observaciones"

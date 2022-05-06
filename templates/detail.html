@@ -299,17 +299,26 @@
                                         <th class="th-table2">Icono</th>
                                     </tr>
                                 </thead>
-                                {% if problemas_abiertos %}
+                                
                                 <tbody>
-                                    {% for llanta in problemas_abiertos %}
+                                    {% for llanta in problemas %}
                                         <tr>
-                                            <td class="td-table2">{{llanta.0.posicion}}</td>
-                                            <td class="td-table2">{{llanta.1}}</td>
-                                            <td class="td-table2"><span class="icon-cross"></span>
+                                            <td class="td-table2">{{llanta.0}}</td>
+                                            <td class="td-table2">{{llanta.1.observacion}}</td>
+                                            <td class="td-table2"><span class="{{llanta.2}}"></span>
                                         </tr>
                                     {% endfor %}
+                                    {% if problemas_abiertos %}
+                                        {% for llanta in problemas_abiertos %}
+                                            <tr>
+                                                <td class="td-table2">{{llanta.0.posicion}}</td>
+                                                <td class="td-table2">{{llanta.1}}</td>
+                                                <td class="td-table2"><span class="icon-cross"></span>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
                                 </tbody>
-                                {% endif %}
+                                
                             </table>
                         </div>
 
@@ -369,8 +378,8 @@
                                                 <tr id="paragraph {{evento.1.id}}">
                                                     <td class="td-table4"><span class="icon-magnifier"></span></td>
                                                     <td class="td-table4">{{evento.1.fecha.day}}/{{evento.1.fecha.month}}/{{evento.1.fecha.year}}</td>
-                                                    <td class="td-table4"><span id="icon {{evento.1.id}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
-                                                    <td class="td-table4">{{evento.1.llanta}} {{evento.1.fecha_hora}}</td>
+                                                    <td class="td-table4"><span class="{{evento.3}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
+                                                    <td class="td-table4">{{evento.1.id}}</td>
                                                     <td class="td-table4">
                                                         <a href="{% url 'dashboards:reporteInspeccion' evento.1.id evento.2 %}" rel="noopener" target="_blank">
                                                             <span class="icon-file-pdf" ></span>

@@ -41,7 +41,7 @@
                   <div class="par-llantas ejes__{{cant_ejes|safe}}">
                     <div class="tire" data-tire-id="{{eje.0.0.id}}">
                       <div class="tire__top {{eje.0.3}}">
-                        <span class="tire__data">
+                        <span class="tire__data" data-tag-id="{{eje.0.3.id}}">
                           {{eje.0.0.presion_actual}}
                         </span>
                       </div>
@@ -55,7 +55,7 @@
                       <span class="icon-tire2"></span>
                       
                       <div class="tire__bottom {{eje.0.1}}">
-                          <span class="tire__data">
+                          <span class="tire__data" data-prof-tag="profundidad-{{ eje.0.3.id }}">
 
                             {% if eje.0.4 == None %}
                                 N/A
@@ -73,7 +73,7 @@
             
                     <div class="tire" data-tire-id="{{eje.1.0.id}}">
                       <div class="tire__top {{eje.1.3}}">
-                        <span class="tire__data">
+                        <span class="tire__data" data-tag-id="{{eje.1.0.id}}">
                           {{eje.1.0.presion_actual}}
                         </span>
                       </div>
@@ -87,7 +87,7 @@
                       <span class="icon-tire2"></span>
                       
                       <div class="tire__bottom {{eje.1.1}}">
-                          <span class="tire__data">
+                          <span class="tire__data" data-prof-tag="profundidad-{{ eje.1.0.id }}">
 
                             {% if eje.1.4 == None %}
                                 N/A
@@ -103,10 +103,10 @@
                 {% else %}
 
                   <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
-                    <div class="double-tire">
+                    <div class="double-tire" data-mm-dif="{{mm_dif}}">
                       <div class="tire" data-tire-id="{{eje.0.0.id}}">
                         <div class="tire__top {{eje.0.3}}">
-                          <span class="tire__data">
+                          <span class="tire__data" data-tag-id="{{eje.0.0.id}}">
                             {{eje.0.0.presion_actual}}
                           </span>
                         </div>
@@ -120,7 +120,7 @@
                         <span class="icon-tire2"></span>
                         
                         <div class="tire__bottom {{eje.0.1}}">
-                            <span class="tire__data">
+                            <span class="tire__data" data-prof-tag="profundidad-{{ eje.0.0.id }}">
                               
                               {% if eje.0.4 == None %}
                                 N/A
@@ -133,7 +133,7 @@
                       </div>
                       <div class="tire" data-tire-id="{{eje.1.0.id}}">
                         <div class="tire__top {{eje.1.3}}">
-                          <span class="tire__data">
+                          <span class="tire__data" data-tag-id="{{eje.1.0.id}}">
                             {{eje.1.0.presion_actual}}
                           </span>
                         </div>
@@ -147,7 +147,7 @@
                         <span class="icon-tire2"></span>
                         
                         <div class="tire__bottom {{eje.1.1}}">
-                            <span class="tire__data">
+                            <span class="tire__data" data-prof-tag="profundidad-{{ eje.1.0.id }}">
 
                               {% if eje.1.4 == None %}
                                 N/A
@@ -165,7 +165,7 @@
                     <div class="double-tire">
                       <div class="tire" data-tire-id="{{eje.2.0.id}}">
                         <div class="tire__top {{eje.2.3}}">
-                          <span class="tire__data">
+                          <span class="tire__data" data-tag-id="{{eje.2.0.id}}">
                             {{eje.2.0.presion_actual}}
                           </span>
                         </div>
@@ -179,7 +179,7 @@
                         <span class="icon-tire2"></span>
                         
                         <div class="tire__bottom {{eje.2.1}}">
-                            <span class="tire__data">
+                            <span class="tire__data" data-prof-tag="profundidad-{{ eje.2.0.id }}">
                               
                               {% if eje.2.4 == None %}
                                 N/A
@@ -192,7 +192,7 @@
                       </div>
                       <div class="tire" data-tire-id="{{eje.3.0.id}}">
                         <div class="tire__top {{eje.3.3}}">
-                          <span class="tire__data">
+                          <span class="tire__data" data-tag-id="{{eje.3.0.id}}">
                             {{eje.3.0.presion_actual}}
                           </span>
                         </div>
@@ -206,7 +206,7 @@
                         <span class="icon-tire2"></span>
                         
                         <div class="tire__bottom {{eje.3.1}}">
-                            <span class="tire__data">
+                            <span class="tire__data" data-prof-tag="profundidad-{{ eje.3.0.id }}">
                               
                               {% if eje.3.4 == None %}
                                 N/A
@@ -284,255 +284,281 @@
             </div>
           </div>
 
-          <div class="relative">
-            <div class="absolute form__container">
-
-              {% for eje in ejes %}
-                {% for ej in eje %}
-                
-                  <div class="form__wrapper" data-item-id="{{ej.0.id}}">
-                    {% if ej.5 == True %}
-                    
-                    
-                    <!-- Start input -->
-                    <div class="form__group field">
-                      <input
-                        class="form__field"
-                        type="text"
-                        placeholder="economico"
-                        name="economico"
-                        list="llantas_option"
-                        autocomplete="off"
-                        value = "{{ej.2.numero_economico.value}}"
-                        required
-                      />
-                      <label for="economico" class="form__label">
-                        Número económico
-                      </label>
-                      <div class="alert__error">
-                        El valor no se encuentra en la lista de llantas, por favor seleccione opción una valida.
-                      </div>
-                      <div class="alert__warn">
-                        El campo no puede estar vacio 
-                      </div>
-                    </div>
-                    <datalist id="llantas_option">
-                        
-                      {% for i in llantas_actuales %}
-                    
-                          <option value="{{i}}">{{i}}</option>
-
-                      {% endfor %}
-              
-                    </datalist>
-
-                    <!-- End input -->
+          <div class="form__container">
+            <div class="relative">
+              <div class="absolute">
   
-                    <!-- Start input -->
-                    <div class="form__group field">
-                      <input
-                        class="form__field"
-                        type="text"
-                        placeholder="producto"
-                        name="producto"
-                        autocomplete="off"
-                        list="producto"
-                        value = "{{ej.0.producto}}"
-                        
-                      />
-                      <label for="producto" class="form__label">
-                        Producto
-                      </label>
-                      <div class="alert__error">
-                        El valor no se encuentra en la lista de productos, por favor seleccione una opción valida.
-                      </div>
-                      <div class="alert__warn">
-                        El campo no puede estar vacio 
-                      </div>
-                      <datalist id="producto">
-                        
-                        {% for i in ej.2.producto %}
+                {% for eje in ejes %}
+                  {% for ej in eje %}
+                  
+                    <div class="form__wrapper" data-item-id="{{ej.0.id}}">
+                      {% if ej.5 == True %}
                       
-                            <option value="{{i.data.label}}">{{i.data.label}}</option>
-  
-                        {% endfor %}
-                
-                      </datalist>
-                    </div>
-                    <!-- End input -->
-        
-                    <!-- Start input -->
-                    <div class="form__group field">
-                      <input
-                        class="form__field"
-                        type="text"
-                        placeholder="vida"
-                        name="vida"
-                        autocomplete="off"
-                        list="vida"
-                        value = {{ej.2.vida.value}}
-                      />
-                      <label for="vida" class="form__label">
-                        Vida
-                      </label>
-                      <datalist id="vida">
-  
-                        {% for i in ej.2.vida %}
                       
-                            <option value="{{i.data.label}}">{{i.data.label}}</option>
-  
-                        {% endfor %}
-  
-                      </datalist>
-                    </div>
-                    <!-- End input -->
-                    
-                    <!-- Start input -->
-                        <div class="form__prof">
-                        <div class="form__group field">
-                          <input
-                            class="form__field"
-                            type="number"
-                            max = {{ej.0.producto.profundidad_inicial}}
-                            step="any"
-                            placeholder="Profundidad derecha"
-                            name="profundidad_derecha"
-                            autocomplete="off"
-                            value="{{ej.0.profundidad_derecha}}"
-                          />
-                          <label for="profundidad" class="form__label">
-                            Profundidad Derecha
-                          </label>
-                        </div>
-
-                        <div class="form__group field">
-                          <input
-                            class="form__field"
-                            type="number"
-                            max = {{ej.0.producto.profundidad_inicial}}
-                            step="any"
-                            placeholder="Profundidad central"
-                            name="profundidad_central"
-                            autocomplete="off"
-                            value="{{ej.0.profundidad_central}}"
-                          />
-                          <label for="profundidad" class="form__label">
-                            Profundidad Central
-                          </label>
-                        </div>
-
-                        <div class="form__group field">
-                          <input
-                            class="form__field"
-                            type="number"
-                            max = {{ej.0.producto.profundidad_inicial}}
-                            step="any"
-                            placeholder="Profundidad izquierda"
-                            name="profundidad_izquierda"
-                            autocomplete="off"
-                            value="{{ej.0.profundidad_izquierda}}"
-                          />
-                          <label for="profundidad" class="form__label">
-                            Profundidad Izquierda
-                          </label>
-                        </div>
-                      </div>
-                    
-                    <!-- End input -->
-
-                    <!-- Start input -->
-                    <div class="form__group field">
-                      <input
-                        class="form__field"
-                        type="number"
-                        step="any"
-                        placeholder="profundidad"
-                        name="presion"
-                        autocomplete="off"
-                        value="{{ej.0.presion_actual}}"
-                      />
-                      <label for="profundidad" class="form__label">
-                        Presión
-                      </label>
-                    </div>
-                    
-                    <!-- End input -->
-                    <!-- Start input -->
-
+                      <!-- Start input -->
                       <div class="form__group field">
                         <input
                           class="form__field"
                           type="text"
-                          placeholder="Observaciones"
-                          name="observaciones"
+                          placeholder="economico"
+                          name="economico"
+                          list="llantas_option"
                           autocomplete="off"
-                          {% if ej.2.observacion_1.value == None %}
-                            value = ""
-                          {% else %}
-                            value = "{{ej.2.observacion_1.value}}"
-                          {% endif %}
-      
+                          value = "{{ej.2.numero_economico.value}}"
+                          required
                         />
-                        <label for="observaciones" class="form__label">
-                          Observaciones
+                        <label for="economico" class="form__label">
+                          Número económico
+                        </label>
+                        <div class="alert__error">
+                          El valor no se encuentra en la lista de llantas, por favor seleccione opción una valida.
+                        </div>
+                        <div class="alert__warn">
+                          El campo no puede estar vacio 
+                        </div>
+                      </div>
+                      <datalist id="llantas_option">
+                          
+                        {% for i in llantas_actuales %}
+                      
+                            <option value="{{i}}">{{i}}</option>
+  
+                        {% endfor %}
+                
+                      </datalist>
+  
+                      <!-- End input -->
+    
+                      <!-- Start input -->
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="text"
+                          placeholder="producto"
+                          name="producto"
+                          autocomplete="off"
+                          list="producto"
+                          value = "{{ej.0.producto}}"
+                          
+                        />
+                        <label for="producto" class="form__label">
+                          Producto
+                        </label>
+                        <div class="alert__error">
+                          El valor no se encuentra en la lista de productos, por favor seleccione una opción valida.
+                        </div>
+                        <div class="alert__warn">
+                          El campo no puede estar vacio 
+                        </div>
+                        <datalist id="producto">
+                          
+                          {% for i in ej.2.producto %}
+                        
+                              <option value="{{i.data.label}}">{{i.data.label}}</option>
+    
+                          {% endfor %}
+                  
+                        </datalist>
+                      </div>
+                      <!-- End input -->
+          
+                      <!-- Start input -->
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="text"
+                          placeholder="vida"
+                          name="vida"
+                          autocomplete="off"
+                          list="vida"
+                          value = {{ej.2.vida.value}}
+                        />
+                        <label for="vida" class="form__label">
+                          Vida
+                        </label>
+                        <datalist id="vida">
+    
+                          {% for i in ej.2.vida %}
+                        
+                              <option value="{{i.data.label}}">{{i.data.label}}</option>
+    
+                          {% endfor %}
+    
+                        </datalist>
+                      </div>
+                      <!-- End input -->
+
+                      <h3>Observaciones</h3>
+                      
+                      <!-- Start input -->
+                          <div 
+                            class="form__prof" 
+                            data-punto-retiro="{{ ej.6.punto_retiro }}" 
+                            data-profundidad-id="{{ ej.0.id }}"
+                          >
+
+                          <div class="form__group field">
+                            <input
+                              class="form__field"
+                              type="number"
+                              max = {{ej.0.producto.profundidad_inicial}}
+                              step="any"
+                              placeholder="Profundidad izquierda"
+                              name="profundidad_izquierda"
+                              autocomplete="off"
+                              value="{{ej.0.profundidad_izquierda}}"
+                            />
+                            <label for="profundidad" class="form__label">
+                              Izquierda
+                            </label>
+                          </div>
+  
+                          <div class="form__group field">
+                            <input
+                              class="form__field"
+                              type="number"
+                              max = {{ej.0.producto.profundidad_inicial}}
+                              step="any"
+                              placeholder="Profundidad central"
+                              name="profundidad_central"
+                              autocomplete="off"
+                              value="{{ej.0.profundidad_central}}"
+                            />
+                            <label for="profundidad" class="form__label">
+                              Central
+                            </label>
+                          </div>
+                          
+                          <div class="form__group field">
+                            <input
+                              class="form__field"
+                              type="number"
+                              max = {{ej.0.producto.profundidad_inicial}}
+                              step="any"
+                              placeholder="Profundidad derecha"
+                              name="profundidad_derecha"
+                              autocomplete="off"
+                              value="{{ej.0.profundidad_derecha}}"
+                            />
+                            <label for="profundidad" class="form__label">
+                              Derecha
+                            </label>
+                          </div>  
+                        
+                        </div>
+                      
+                      <!-- End input -->
+  
+                      <!-- Start input -->
+                      <div class="form__group field">
+                        <input
+                          class="form__field"
+                          type="number"
+                          step="any"
+                          min="0"
+                          placeholder="profundidad"
+                          name="presion"
+                          autocomplete="off"
+                          value="{{ej.0.presion_actual}}"
+                          data-input-id="{{ ej.0.id }}"
+                          data-presion-min="{{ ej.6.presion_minima}}" 
+                          data-presion-max="{{ ej.6.presion_maxima}}" 
+                        />
+                        <label for="profundidad" class="form__label">
+                          Presión
                         </label>
                       </div>
-
-                      <h3 class="text-center">Observaciones</h3>
-
-                      <div class="observations__container" data-container-id="{{ ej.0.id }}">
-                        
-                        {% for observacion in observaciones_manuales %}
-                        <div data-icon-type="{{observacion.observacion}}">
-                          <i class="{{observacion.icono}}"></i>
-                          Desgaste externo
-                        </div>
-                        {% endfor %}
-
-                        <!-- INSPECCIONES AUTOMATICAS -->
-
-                        {% for observacion in observaciones_automaticas %}
-                          <div 
-                            {% if observacion.observacion == "Baja presión" or observacion.observacion == "Alta presion" %}
-                              data-icon-presion="{{observacion.observacion}}"
-                            {% elif observacion.observacion == "Desdualización" or observacion.observacion == "Diferencia de presión entre los duales" %}
-                              data-icon-dual="{{observacion.observacion}}"
-                            {% elif observacion.observacion == "En punto de retiro" %}
-                              data-icon-retiro="{{observacion.observacion}}"
-                            {% elif observacion.observacion == "Baja profundidad" %}
-                              data-icon-profundidad="{{observacion.observacion}}"
-                            {% else %}
-                              data-icon-desgaste="{{observacion.observacion}}"
-                            {% endif %}
-                          >
-                            <i class="{{observacion.icono}}"></i>
-                            {{observacion.observacion}}
-                          </div>
-                        {% endfor %}
-
-                      </div>
                       
-                    <!-- End input -->   
-                    <input id="ids" name="ids" type="text" value={{ej.0.id}} style="display: None">
-  
-                    <div>
-                      <label for="reemplazar-{{ej.0.id}}" class="input-check">
-                        Remplazar
-                        <input type="checkbox" value="{{ej.0.id}}" name="reemplazar" id="reemplazar-{{ej.0.id}}"/>
-                        <span class="checkmark"></span>
-                      </label>
-                    </div>
+                      <!-- End input -->
+                      <!-- Start input -->
 
-                    <!-- ! NO QUITAR -->
-                    <input type="hidden" name="id" value="">
-                    <!-- ! NO QUITAR -->
-                    {% else %}
-                    Agrege una inspeccion para poder hacer una edicion manual
-                    {% endif %}
-                  </div>
+                      <div>
+                        <label for="reemplazar-{{ej.0.id}}" class="input-check">
+                          Remplazar
+                          <input type="checkbox" value="{{ej.0.id}}" name="reemplazar" id="reemplazar-{{ej.0.id}}"/>
+                          <span class="checkmark"></span>
+                        </label>
+                      </div>
+  
+                      <details>
+                        <summary class="drop__btn">Observaciones manuales</summary>
+          
+                        <ul class="drop__content">
+          
+                          <!-- <li>
+                            <input type="search" class="drop-input" placeholder="Buscar...">
+                          </li> -->
+          
+                          <!-- FOR DJANGO -->
+                          {% for observacion in observaciones_manuales %}
+                            <li class="search-item">
+                              <label for="{{observacion.observacion}}-{{ ej.0.id }}" class="input-check">
+                                <i class="{{observacion.icono}}"></i>
+                                {{observacion.observacion}}
+                                <input 
+                                  type="checkbox" 
+                                  name="manual-observation-{{ ej.0.id }}" 
+                                  value="{{observacion.observacion}}" 
+                                  id="{{observacion.observacion}}-{{ ej.0.id }}" 
+                                  data-check-id="{{ ej.0.id }}" 
+                                />
+                                <span class="checkmark"></span>
+                              </label>
+                            </li>
+                          {% endfor %}
+                          <!-- ENDFOR -->
+          
+                        </ul>
+                      </details>
+  
+                        <h3 class="text-center">Observaciones</h3>
+  
+                        <div class="observations__container" data-container-id="{{ ej.0.id }}">
+                          
+                          {% for observacion in observaciones_manuales %}
+                          <div data-icon-type="{{observacion.observacion}}">
+                            <i class="{{observacion.icono}}"></i>
+                            Desgaste externo
+                          </div>
+                          {% endfor %}
+  
+                          <!-- INSPECCIONES AUTOMATICAS -->
+  
+                          {% for observacion in observaciones_automaticas %}
+                            <div 
+                              {% if observacion.observacion == "Baja presión" or observacion.observacion == "Alta presion" %}
+                                data-icon-presion="{{observacion.observacion}}"
+                              {% elif observacion.observacion == "Desdualización" or observacion.observacion == "Diferencia de presión entre los duales" %}
+                                data-icon-dual="{{observacion.observacion}}"
+                              {% elif observacion.observacion == "En punto de retiro" %}
+                                data-icon-retiro="{{observacion.observacion}}"
+                              {% elif observacion.observacion == "Baja profundidad" %}
+                                data-icon-profundidad="{{observacion.observacion}}"
+                              {% else %}
+                                data-icon-desgaste="{{observacion.observacion}}"
+                              {% endif %}
+                            >
+                              <i class="{{observacion.icono}}"></i>
+                              {{observacion.observacion}}
+                            </div>
+                          {% endfor %}
+  
+                        </div>
+                        
+                      <!-- End input -->   
+                      <input id="ids" name="ids" type="text" value={{ej.0.id}} style="display: None">
+  
+                      <!-- ! NO QUITAR -->
+                      <input type="hidden" name="id" value="">
+                      <!-- ! NO QUITAR -->
+                      {% else %}
+                      Agrege una inspeccion para poder hacer una edicion manual
+                      {% endif %}
+                    </div>
+                  {% endfor %}
                 {% endfor %}
-              {% endfor %}
-              {% csrf_token %}
+                {% csrf_token %}
+              </div>
             </div>
           </div>
 
@@ -540,7 +566,7 @@
         </form>
       </main>
 
-      <script src="{% static 'js/inspeccion/index.js' %}" type="module"></script>
+      <script src="{% static 'js/edicion/index.js' %}" type="module"></script>
 
       <script>
         const handlePresion = () => {

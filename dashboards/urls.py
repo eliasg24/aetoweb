@@ -187,14 +187,14 @@ urlpatterns = [
         name="sucursalFormulario"
     ),
     path(
-        route="sucursalUpdate/<str:nombre>",
-        view=views.sucursalEditView.as_view(),
-        name="sucursalUpdate"
-    ),
-    path(
-        route="sucursalView/<str:nombre>",
+        route="sucursalView",
         view=views.sucursalView,
         name="sucursalView"
+    ),
+    path(
+        route="vehiculosView",
+        view=views.vehiculosView,
+        name="vehiculosView"
     ),
     path(
         route="tallerFormulario",
@@ -355,6 +355,11 @@ urlpatterns = [
         route="calendario",
         view=views.calendarView.as_view(),
         name="calendario"
+    ),
+    path(
+        route="webservices",
+        view=views.webservicesView.as_view(),
+        name="webservices"
     ),
     path(
         route="download1",
