@@ -106,29 +106,61 @@ def cambio_de_vida(llanta):
             historico_llanta.casco_nuevo = llanta.producto
             historico_llanta.km_recorrido_nuevo = llanta.km_actual
             historico_llanta.km_total = llanta.km_actual
+            
         elif llanta.vida == '1R':
-            historico_llanta.renovado_1 = llanta.producto
-            historico_llanta.km_recorrido_1 = llanta.km_actual
-            historico_llanta.km_total = llanta.km_actual
+            if historico_llanta.km_recorrido_nuevo == None:
+                historico_llanta.renovado_1 = llanta.producto
+                historico_llanta.km_recorrido_1 = llanta.km_actual
+                historico_llanta.km_total = llanta.km_actual
+            else:
+                historico_llanta.renovado_1 = llanta.producto
+                historico_llanta.km_recorrido_1 = llanta.km_actual - historico_llanta.km_recorrido_nuevo
+                historico_llanta.km_total = llanta.km_actual
+                
         elif llanta.vida == '2R':
-            historico_llanta.renovado_2 = llanta.producto
-            historico_llanta.km_recorrido_2 = llanta.km_actual
-            historico_llanta.km_total = llanta.km_actual
+            if historico_llanta.km_recorrido_1 == None:
+                historico_llanta.renovado_2 = llanta.producto
+                historico_llanta.km_recorrido_2 = llanta.km_actual
+                historico_llanta.km_total = llanta.km_actual
+            else:
+                historico_llanta.renovado_2 = llanta.producto
+                historico_llanta.km_recorrido_2 = llanta.km_actual  - historico_llanta.km_recorrido_1
+                historico_llanta.km_total = llanta.km_actual
+            
         elif llanta.vida == '3R':
-            historico_llanta.renovado_3 = llanta.producto
-            historico_llanta.km_recorrido_3 = llanta.km_actual
-            historico_llanta.km_total = llanta.km_actual
+            if historico_llanta.km_recorrido_2 == None:
+                historico_llanta.renovado_3 = llanta.producto
+                historico_llanta.km_recorrido_3 = llanta.km_actual
+                historico_llanta.km_total = llanta.km_actual
+            else:
+                historico_llanta.renovado_3 = llanta.producto
+                historico_llanta.km_recorrido_3 = llanta.km_actual - historico_llanta.km_recorrido_2
+                historico_llanta.km_total = llanta.km_actual
+            
         elif llanta.vida == '4R':
-            historico_llanta.renovado_4 = llanta.producto
-            historico_llanta.km_recorrido_4 = llanta.km_actual
-            historico_llanta.km_total = llanta.km_actual
+            if historico_llanta.km_recorrido_3 == None:
+                historico_llanta.renovado_4 = llanta.producto
+                historico_llanta.km_recorrido_4 = llanta.km_actual
+                historico_llanta.km_total = llanta.km_actual
+            else:
+                historico_llanta.renovado_4 = llanta.producto
+                historico_llanta.km_recorrido_4 = llanta.km_actual - historico_llanta.km_recorrido_3
+                historico_llanta.km_total = llanta.km_actual
+            
         elif llanta.vida == '5R':
-            historico_llanta.renovado_5 = llanta.producto
-            historico_llanta.km_recorrido_5 = llanta.km_actual
-            historico_llanta.km_total = llanta.km_actual
+            if historico_llanta.km_recorrido_4 == None:
+                historico_llanta.renovado_5 = llanta.producto
+                historico_llanta.km_recorrido_5 = llanta.km_actual
+                historico_llanta.km_total = llanta.km_actual
+            else:
+                historico_llanta.renovado_5 = llanta.producto
+                historico_llanta.km_recorrido_5 = llanta.km_actual - historico_llanta.km_recorrido_4 
+                historico_llanta.km_total = llanta.km_actual
         historico_llanta.save()
     except:
         historico_llanta = HistoricoLlanta.objects.create(num_eco = llanta)
+        print('crear')
+        print(llanta.vida)
         if llanta.vida == 'Nueva':
             historico_llanta.casco_nuevo = llanta.producto
             historico_llanta.km_recorrido_nuevo = llanta.km_actual
@@ -520,28 +552,33 @@ def desdualizacion(llantas, periodo):
     return eje
 
 def desgaste_profundidad(izquierda, central , derecha, llanta_actual):
+    print(izquierda, central , derecha)
     if (izquierda != None and central != None and derecha != None):
+        print('hey')
         if not(izquierda == central == derecha):
             print('izq centr der')
-            if izquierda == min(izquierda, central, derecha):
-                desgaste_inclinado_izquierda = Observacion.objects.get(observacion = 'Desgaste inclinado a la izquierda')
-                llanta_actual.observaciones.add(desgaste_inclinado_izquierda)
-                print(desgaste_inclinado_izquierda)
-
-            if derecha == min(izquierda, central, derecha):
-                desgaste_inclinado_derecha = Observacion.objects.get(observacion = 'Desgaste inclinado a la derecha')
-                llanta_actual.observaciones.add(desgaste_inclinado_derecha)
-                print(desgaste_inclinado_derecha)
-
+            
             if izquierda < central > derecha:
                 desgaste_costilla_interna = Observacion.objects.get(observacion = 'Desgaste  costilla interna')
                 llanta_actual.observaciones.add(desgaste_costilla_interna)
                 print(desgaste_costilla_interna)
 
-            if izquierda > central < derecha:
+            elif izquierda > central < derecha:
                 desgaste_alta_presión = Observacion.objects.get(observacion = 'Desgaste alta presión')
                 llanta_actual.observaciones.add(desgaste_alta_presión)
                 print(desgaste_alta_presión)
+                
+            elif izquierda == min(izquierda, central, derecha):
+                desgaste_inclinado_izquierda = Observacion.objects.get(observacion = 'Desgaste inclinado a la izquierda')
+                llanta_actual.observaciones.add(desgaste_inclinado_izquierda)
+                print(desgaste_inclinado_izquierda)
+
+            elif derecha == min(izquierda, central, derecha):
+                desgaste_inclinado_derecha = Observacion.objects.get(observacion = 'Desgaste inclinado a la derecha')
+                llanta_actual.observaciones.add(desgaste_inclinado_derecha)
+                print(desgaste_inclinado_derecha)
+
+            
             
     elif izquierda != None and central != None:
         print('izq central')
@@ -606,11 +643,11 @@ def desgaste_mensual(inspecciones):
         if dias == 0:
             dias = 1
         #print(dias)
-        resta = sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").first().min_profundidad - sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").last().min_profundidad
+        resta = sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).first().min_profundidad - sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).last().min_profundidad
         #print(resta)
         diario = resta/dias
         #print(diario)
-        dias_30 = sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").last().min_profundidad - (diario * 30)
+        dias_30 = sin_regresion.filter(llanta=llanta[0]["llanta"]).order_by("fecha_hora").annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).last().min_profundidad - (diario * 30)
         return round(dias_30, 2)
 
 def distribucion_cantidad(cpks):
@@ -1454,6 +1491,13 @@ def estatus_profundidad(llantas):
     estatus = llantas.select_related("ultima_inspeccion", "vehiculo__compania").annotate(llanta_eje=Substr(F("tipo_de_eje"),1,1)).annotate(punto_de_retiro=Case(When(llanta_eje="S", then=F("vehiculo__compania__punto_retiro_eje_direccion")),When(llanta_eje="D", then=F("vehiculo__compania__punto_retiro_eje_traccion")),When(llanta_eje="T", then=F("vehiculo__compania__punto_retiro_eje_arrastre")),When(llanta_eje="C", then=F("vehiculo__compania__punto_retiro_eje_loco")),When(llanta_eje="L", then=F("vehiculo__compania__punto_retiro_eje_retractil"))), nombre_eje=Case(When(llanta_eje="S", then=Value("direccion")),When(llanta_eje="D", then=Value("traccion")),When(llanta_eje="T",then=Value("arrastre")),When(llanta_eje="C", then=Value("loco")),When(llanta_eje="L", then=Value("retractil")), output_field=CharField())).annotate(estatus=Case(When(ultima_inspeccion__min_profundidad__gt=F("punto_de_retiro"), then=Value("verde")),When(ultima_inspeccion__min_profundidad__gte=F("punto_de_retiro"),then=Value("amarillo")),When(ultima_inspeccion__min_profundidad__lte=F("punto_de_retiro"),then=Value("rojo")), output_field=CharField())).values("nombre_eje").annotate(num_verde=Count("estatus",filter=Q(estatus="verde")),num_amarillo=Count("estatus",filter=Q(estatus="amarillo")),num_rojo=Count("estatus",filter=Q(estatus="rojo")))
     return estatus
 
+def exist_edicion_manual(inspeccion_vehiculo):
+    inspecciones = Inspeccion.objects.filter(inspeccion_vehiculo=inspeccion_vehiculo)
+    for inspeccion in inspecciones:
+        if inspeccion.edicion_manual == True:
+            return True
+    return False
+
 
 def inflado_promedio(vehiculo):
     tiempo_promedio = 0
@@ -1816,7 +1860,10 @@ def km_max_template(inspeccion_vehiculo):
     hoy = date.today()
     remaining_days = (hoy - fecha).days
     km_max_total = km_max_diario * remaining_days
-    return km_max_total + inspeccion_vehiculo.km
+    if km_max_total != 0:
+        return km_max_total + inspeccion_vehiculo.km
+    else:
+        return inspeccion_vehiculo.km
     
     
 def mala_entrada(vehiculos):

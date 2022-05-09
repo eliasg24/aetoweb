@@ -1,16 +1,12 @@
 {% extends 'base.html' %} 
 
 {% block head %} 
-
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/nueva.css' %}" />
   <title>Nueva</title>
-
 {% endblock head %} 
 
 {% block content %}
-
-
 <main class="main__container animate__animated animate__fadeIn">
   <header class="head-cont">
     <h1>Nueva</h1>
@@ -21,7 +17,7 @@
     </div>
 
     <nav class="flex-row">
-      <a href="#" class="btn btn-download">
+      <a href="{% url 'dashboards:tallerDestino' %}" class="btn btn-download">
         <span class="icon-truck"></span>
       </a>
       <button class="btn btn-download" type="button" id="filter-btn">
@@ -29,7 +25,6 @@
       </button>
     </nav>
   </header>
-
   
   <div class="relative">
     <div class="absolute cards__container">
@@ -40,11 +35,12 @@
           <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta.id %}">
             <span class="icon-tire2"></span>
           </a>
-          <h3 id="tire-name">#{{llanta.numero_economico}}</h3>
           </div>
           
           <div class="card__body">
+            <div class="tire__status good"></div>
             <div class="card__body-label">
+              <h3 id="tire-name">#{{llanta.numero_economico}}</h3>
               <h4 class="card-title">Profunidad:</h4>
               <p><i>{{ llanta.ultima_inspeccion.min_profundidad }}</i></p>
             </div>

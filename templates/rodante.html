@@ -32,17 +32,18 @@
   <div class="relative">
     <div class="absolute cards__container">
       {% for llanta in llantas_nuevas %}
-      <div class="card__wrapper">
+      <div class="card__wrapper" id="{{ llanta.numero_economico | lower }}">
         
         <div class="card__img">
           <a class="tireDecoration" href="{% url 'dashboards:tireDetail' llanta.id %}">
             <span class="icon-tire2"></span>
           </a>
-          <h3 id="tire-name">#{{llanta.numero_economico}}</h3>
           </div>
           
           <div class="card__body">
+            <div class="tire__status good"></div>
             <div class="card__body-label">
+              <h3 id="tire-name">#{{llanta.numero_economico}}</h3>
               <h4 class="card-title">Profunidad:</h4>
               <p><i>{{ llanta.ultima_inspeccion.min_profundidad }}</i></p>
             </div>

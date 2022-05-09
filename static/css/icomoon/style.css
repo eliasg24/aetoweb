@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?eszsoc');
-  src:  url('fonts/icomoon.eot?eszsoc#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?eszsoc') format('truetype'),
-    url('fonts/icomoon.woff?eszsoc') format('woff'),
-    url('fonts/icomoon.svg?eszsoc#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?rmiuna');
+  src:  url('fonts/icomoon.eot?rmiuna#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?rmiuna') format('truetype'),
+    url('fonts/icomoon.woff?rmiuna') format('woff'),
+    url('fonts/icomoon.svg?rmiuna#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,10 +25,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-autoinflado-fallando:before {
+  content: "\e93b";
+}
+.icon-desdualizacion:before {
+  content: "\e93c";
+}
+.icon-separacion-de-chofer:before {
+  content: "\e93d";
+}
+.icon-separacion-de-impacto-de-costado:before {
+  content: "\e93e";
+}
 .icon-rin-danado:before {
   content: "\e939";
 }
-.icon-ruptura-por-impacto1:before {
+.icon-ruptura-por-impacto:before {
   content: "\e93a";
 }
 .icon-baja-profundidad:before {
@@ -91,7 +103,7 @@
 .icon-vehiculo-desalineado:before {
   content: "\e923";
 }
-.icon-ruptura-por-impacto:before {
+.icon-ruptura-en-corona:before {
   content: "\e924";
 }
 .icon-objeto-penetrado:before {

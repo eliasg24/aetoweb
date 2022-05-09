@@ -18,121 +18,72 @@ document.addEventListener('DOMContentLoaded', (e) => {
   search('#vehiculo-search', '#vehiculo-observaciones', '.search-item');
 });
 
-// const desdualizacion = (duales = document.documentElement, mm) => {
-//   let tires = duales.querySelectorAll('.tire');
+const diferenciaDual = (duales = document.documentElement) => {
+  let tires = duales.querySelectorAll('.tire');
 
-//   tires.forEach((tire) => {
-//     const inputs = document.querySelectorAll(
-//       `[data-profundidad-id="${tire.getAttribute('data-tire-id')}"]`
-//     );
+  tires.forEach((tire) => {
+    const input = document.querySelector(
+      `input[data-input-id="${tire.getAttribute('data-tire-id')}"]`
+    );
 
-//     inputs.forEach((input) => {
-//       input.querySelectorAll('input').forEach((controllers) => {
-//         controllers.addEventListener('input', (e) => {
-//           let prof1 = tires[0].querySelector('[data-prof-tag]').textContent;
-//           let prof2 = tires[1].querySelector('[data-prof-tag]').textContent;
-//           const container = document.querySelectorAll(
-//             `[data-container-id="${tire.getAttribute('data-tire-id')}"]`
-//           );
+    if (!input) return;
 
-//           let container1 = tires[0].getAttribute('data-tire-id');
-//           let container2 = tires[1].getAttribute('data-tire-id');
+    input.addEventListener('input', (e) => {
+      let presion1 = tires[0].querySelector('[data-tag-id]').textContent;
+      let presion2 = tires[1].querySelector('[data-tag-id]').textContent;
 
-//           let ids = [container1, container2];
-//           if (prof1 - prof2 >= mm || prof2 - prof1 >= mm) {
-//             ids.forEach((id) => {
-//               let content = document.querySelector(
-//                 `[data-container-id="${id}"]`
-//               );
-//               content
-//                 .querySelector('[data-icon-dual="Desdualización"]')
-//                 .classList.add('visible');
-//             });
-//           } else {
-//             ids.forEach((id) => {
-//               let content = document.querySelector(
-//                 `[data-container-id="${id}"]`
-//               );
+      if ( presion1 === 0 && presion2 === 0 ) return;
 
-//               content
-//                 .querySelector('[data-icon-dual="Desdualización"]')
-//                 .classList.remove('visible');
-//             });
-//           }
-//         });
-//       });
-//     });
-//   });
-// };
+      presion1 = parseFloat(presion1);
+      presion2 = parseFloat(presion2);
 
-// const diferenciaDual = (duales = document.documentElement) => {
-//   let tires = duales.querySelectorAll('.tire');
+      let container1 = tires[0].getAttribute('data-tire-id');
+      let container2 = tires[1].getAttribute('data-tire-id');
 
-//   tires.forEach((tire) => {
-//     const input = document.querySelector(
-//       `input[data-input-id="${tire.getAttribute('data-tire-id')}"]`
-//     );
+      let ids = [container1, container2];
 
-//     input.addEventListener('input', (e) => {
-//       let presion1 = tires[0].querySelector('[data-tag-id]').textContent;
-//       let presion2 = tires[1].querySelector('[data-tag-id]').textContent;
+      console.log(presion1, presion2)
 
-//       if ( presion1 === 0 && presion2 === 0 ) return;
+      let porcentajeDif1 = (presion1 - presion2) / presion1;
+      let porcentajeDif2 = (presion2 - presion1) / presion2;
 
-//       presion1 = parseFloat(presion1);
-//       presion2 = parseFloat(presion2);
+      if (
+        porcentajeDif1 > 0.1 ||
+        porcentajeDif1 < 0 ||
+        porcentajeDif2 > 0.1 ||
+        porcentajeDif2 < 0
+      ) {
+        ids.forEach((id) => {
+          let content = document.querySelector(`[data-container-id="${id}"]`);
+          content
+            .querySelector(
+              '[data-icon-dual="Diferencia de presión entre los duales"]'
+            )
+            .classList.add('visible');
+        });
+      } else {
+        ids.forEach((id) => {
+          let content = document.querySelector(`[data-container-id="${id}"]`);
+          content
+            .querySelector(
+              '[data-icon-dual="Diferencia de presión entre los duales"]'
+            )
+            .classList.remove('visible');
+        });
+      }
+    });
+  });
+};
 
-//       let container1 = tires[0].getAttribute('data-tire-id');
-//       let container2 = tires[1].getAttribute('data-tire-id');
+const dual = () => {
+  const duales = document.querySelectorAll('.double-tire');
 
-//       let ids = [container1, container2];
+  duales.forEach((dual) => {
+    diferenciaDual(dual);
+  });
+};
 
-//       console.log(presion1, presion2)
-
-//       let porcentajeDif1 = (presion1 - presion2) / presion1;
-//       let porcentajeDif2 = (presion2 - presion1) / presion2;
-
-//       if (
-//         porcentajeDif1 > 0.1 ||
-//         porcentajeDif1 < 0 ||
-//         porcentajeDif2 > 0.1 ||
-//         porcentajeDif2 < 0
-//       ) {
-//         ids.forEach((id) => {
-//           let content = document.querySelector(`[data-container-id="${id}"]`);
-//           content
-//             .querySelector(
-//               '[data-icon-dual="Diferencia de presión entre los duales"]'
-//             )
-//             .classList.add('visible');
-//         });
-//       } else {
-//         ids.forEach((id) => {
-//           let content = document.querySelector(`[data-container-id="${id}"]`);
-//           content
-//             .querySelector(
-//               '[data-icon-dual="Diferencia de presión entre los duales"]'
-//             )
-//             .classList.remove('visible');
-//         });
-//       }
-//     });
-//   });
-// };
-
-// const dual = () => {
-//   const duales = document.querySelectorAll('.double-tire');
-//   const mmDiferencia = document
-//     .querySelector('.double-tire')
-//     .getAttribute('data-mm-dif');
-
-//   duales.forEach((dual) => {
-//     diferenciaDual(dual);
-//     desdualizacion(dual, mmDiferencia);
-//   });
-// };
-
-// dual();
+dual();
 
 const vehiculoManual = (item = '') => {
   const observations = document.querySelectorAll(`[${item}]`);

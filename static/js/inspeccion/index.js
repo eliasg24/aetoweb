@@ -16,54 +16,8 @@ document.addEventListener('DOMContentLoaded', (e) => {
   vehiculoManual('data-vehiculo-item');
 
   search('#vehiculo-search', '#vehiculo-observaciones', '.search-item');
+  dual();
 });
-
-const desdualizacion = (duales = document.documentElement, mm) => {
-  let tires = duales.querySelectorAll('.tire');
-
-  tires.forEach((tire) => {
-    const inputs = document.querySelectorAll(
-      `[data-profundidad-id="${tire.getAttribute('data-tire-id')}"]`
-    );
-
-    inputs.forEach((input) => {
-      input.querySelectorAll('input').forEach((controllers) => {
-        controllers.addEventListener('input', (e) => {
-          let prof1 = tires[0].querySelector('[data-prof-tag]').textContent;
-          let prof2 = tires[1].querySelector('[data-prof-tag]').textContent;
-          const container = document.querySelectorAll(
-            `[data-container-id="${tire.getAttribute('data-tire-id')}"]`
-          );
-
-          let container1 = tires[0].getAttribute('data-tire-id');
-          let container2 = tires[1].getAttribute('data-tire-id');
-
-          let ids = [container1, container2];
-          if (prof1 - prof2 >= mm || prof2 - prof1 >= mm) {
-            ids.forEach((id) => {
-              let content = document.querySelector(
-                `[data-container-id="${id}"]`
-              );
-              content
-                .querySelector('[data-icon-dual="Desdualización"]')
-                .classList.add('visible');
-            });
-          } else {
-            ids.forEach((id) => {
-              let content = document.querySelector(
-                `[data-container-id="${id}"]`
-              );
-
-              content
-                .querySelector('[data-icon-dual="Desdualización"]')
-                .classList.remove('visible');
-            });
-          }
-        });
-      });
-    });
-  });
-};
 
 const diferenciaDual = (duales = document.documentElement) => {
   let tires = duales.querySelectorAll('.tire');
@@ -128,11 +82,8 @@ const dual = () => {
 
   duales.forEach((dual) => {
     diferenciaDual(dual);
-    desdualizacion(dual, mmDiferencia);
   });
 };
-
-dual();
 
 const vehiculoManual = (item = '') => {
   const observations = document.querySelectorAll(`[${item}]`);
@@ -300,14 +251,14 @@ const emptyProfs = () => {
     el.querySelectorAll('input').forEach((input) => {
       if (input.value !== '') {
         inputCounter++;
-      }   
+      }
     });
     if (inputCounter >= 1) {
       counter++;
     }
   });
 
-  console.log(counter)
+  console.log(counter);
 
   if (counter >= inputs.length) {
     return true;

@@ -29,8 +29,8 @@ const searchTire = () => {
           .replace('#', '')
           .toLowerCase()
           .includes(e.target.value.toLowerCase())
-          ? item.parentNode.parentNode.classList.remove('filter')
-          : item.parentNode.parentNode.classList.add('filter')
+          ? item.parentElement.parentElement.parentElement.classList.remove('filter')
+          : item.parentElement.parentElement.parentElement.classList.add('filter')
       );
     }
   });

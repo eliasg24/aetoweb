@@ -65,7 +65,7 @@
                         </a> 
                     </div>
 
-                    <h2 id="km-vehiculo">KM: 12343</h2> 
+                    <h2 id="km-vehiculo">KM: {{vehiculo.km}}</h2> 
                 {% endif %}
                 <div class="{% if sin_llantas %} alert__container {% else %} config__config {% endif %}">
 
@@ -373,6 +373,21 @@
                                                         </a>
                                                     </td>
                                                 </tr>
+                                            
+                                            {% elif evento.2 == 'edicion'%}  
+                                        
+                                                <tr id="paragraph {{evento.1.id}}">
+                                                    <td class="td-table4"><span class="icon-pencil"></span></td>
+                                                    <td class="td-table4">{{evento.1.fecha.day}}/{{evento.1.fecha.month}}/{{evento.1.fecha.year}}</td>
+                                                    <td class="td-table4"><span class="{{evento.3}}"></span><span id="icon2 {{evento.1.id}}"></span></td>
+                                                    <td class="td-table4">{{evento.1.id}}</td>
+                                                    <td class="td-table4">
+                                                        <a href="{% url 'dashboards:reporteEdicion' evento.1.id evento.2 %}" rel="noopener" target="_blank">
+                                                            <span class="icon-file-pdf" ></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            
                                             {% elif evento.2 == 'inspeccion'%}  
                                             
                                                 <tr id="paragraph {{evento.1.id}}">
@@ -391,23 +406,7 @@
                                             {% endif %}
                                         {% endfor %}
 
-                                        {% for bitacora in bitacora_edicion %}
-                                        <tr id="paragraph {{bitacora.id}}">
-                                            {% if bitacora.tipo == 'edicion' %}
-                                                <td class="td-table4"><span class="icon-pencil"></span></td>
-                                            {% else %}
-                                                <td class="td-table4"><span class="icon-magnifier"></span></td>
-                                            {% endif %}
-                                            <td class="td-table4">{{bitacora.fecha.day}}/{{bitacora.fecha.month}}/{{bitacora.fecha.year}}</td>
-                                            <td class="td-table4">N/A</td>
-                                            <td class="td-table4">{{bitacora.id}}</td>
-                                            <td class="td-table4">
-                                                <a href="{% url 'dashboards:reporteDeCambios' bitacora.id %}" rel="noopener" target="_blank">
-                                                    <span class="icon-file-pdf" ></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
+
                                     </tbody>
                                 </table>
                             </div>

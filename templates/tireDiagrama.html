@@ -219,6 +219,37 @@
             </ul>
           </div>
 
+          <details>
+            <summary class="drop__btn">Observaciones manuales</summary>
+
+            <ul class="drop__content">
+
+              <!-- <li>
+                <input type="search" class="drop-input" placeholder="Buscar...">
+              </li> -->
+
+              <!-- FOR DJANGO -->
+              {% for observacion in observaciones_manuales %}
+                <li class="search-item">
+                  <label for="{{observacion.observacion}}-{{ ej.0.id }}" class="input-check">
+                    <i class="{{observacion.icono}}"></i>
+                    {{observacion.observacion}}
+                    <input 
+                      type="checkbox" 
+                      name="manual-observation-{{ ej.0.id }}" 
+                      value="{{observacion.observacion}}" 
+                      id="{{observacion.observacion}}-{{ ej.0.id }}" 
+                      data-check-id="{{ ej.0.id }}" 
+                    />
+                    <span class="checkmark"></span>
+                  </label>
+                </li>
+              {% endfor %}
+              <!-- ENDFOR -->
+
+            </ul>
+          </details>
+
           <h3 class="text-center">
             Observaciones
           </h3>

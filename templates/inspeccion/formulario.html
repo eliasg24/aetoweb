@@ -213,36 +213,68 @@
 
             {% endif %}
 
-            <!-- Start input -->
-            <div class="form__group field">
-              <input
-                class="form__field"
-                type="text"
-                placeholder="vida"
-                required
-                name="vida"
-                autocomplete="off"
-                list="vida"
-                value = {{ej.0.vida}}
-                readonly
-              />
-              <label for="vida" class="form__label">
-                Vida
-              </label>
 
-              <datalist id="vida">
-              
-                <option value="Nueva">Nueva</option>
-                <option value="1R">1R</option>
-                <option value="2R">2R</option>
-                <option value="3R">3R</option>
-                <option value="4R">4R</option>
-                <option value="5R">5R</option>
+            {% if ej.0.ultima_inspeccion == None %}
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="vida"
+                  required
+                  name="vida"
+                  autocomplete="off"
+                  list="vida"
+                  value = {{ej.0.vida}}
+                />
+                <label for="vida" class="form__label">
+                  Vida
+                </label>
 
-              </datalist>
-            </div>
-            <!-- End input -->
+                <datalist id="vida">
+                
+                  <option value="Nueva">Nueva</option>
+                  <option value="1R">1R</option>
+                  <option value="2R">2R</option>
+                  <option value="3R">3R</option>
+                  <option value="4R">4R</option>
+                  <option value="5R">5R</option>
 
+                </datalist>
+              </div>
+              <!-- End input -->
+            {% else %}
+              <!-- Start input -->
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="text"
+                  placeholder="vida"
+                  required
+                  name="vida"
+                  autocomplete="off"
+                  list="vida"
+                  value = {{ej.0.vida}}
+                  readonly
+                />
+                <!-- readonly -->
+                <label for="vida" class="form__label">
+                  Vida
+                </label>
+
+                <datalist id="vida">
+                
+                  <option value="Nueva">Nueva</option>
+                  <option value="1R">1R</option>
+                  <option value="2R">2R</option>
+                  <option value="3R">3R</option>
+                  <option value="4R">4R</option>
+                  <option value="5R">5R</option>
+
+                </datalist>
+              </div>
+              <!-- End input -->
+            {% endif %}
             <h3>Profundidades</h3>
 
             <div class="form__prof" data-punto-retiro="{{ ej.6.punto_retiro }}" data-profundidad-id="{{ ej.0.id }}">

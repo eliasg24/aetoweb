@@ -58,7 +58,7 @@ class TendenciasAdmin(admin.ModelAdmin):
 @admin.register(Vehiculo)
 class VehiculosAdmin(admin.ModelAdmin):
     # Admin de los Vehículos
-    list_display = ('numero_economico', 'tirecheck', "compania", "km", "presion_establecida_1", 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'ultima_inspeccion', 'fecha_de_creacion')
+    list_display = ('numero_economico', 'tirecheck', "compania", "km", "presion_establecida_1", 'clase', 'ubicacion', 'aplicacion', 'configuracion', 'fecha_de_creacion')
     search_fields= ('numero_economico',)
     list_filter = ('compania', 'tirecheck', 'fecha_de_creacion', 'clase', "configuracion")
 

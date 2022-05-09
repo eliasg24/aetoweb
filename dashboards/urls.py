@@ -77,6 +77,16 @@ urlpatterns = [
         name="dashboardOperativo"
     ),
     path(
+        route="formulario/<int:pk>",
+        view=views.formularioView.as_view(),
+        name="formulario"
+    ),
+    path(
+        route="vehiculosformulario",
+        view=views.vehiculosformularioView.as_view(),
+        name="vehiculosformulario"
+    ),
+    path(
         route="login/",
         view=views.LoginView.as_view(),
         name="login"
@@ -192,9 +202,19 @@ urlpatterns = [
         name="sucursalView"
     ),
     path(
+        route="aplicacionesView",
+        view=views.aplicacionesView,
+        name="aplicacionesView"
+    ),
+    path(
         route="vehiculosView",
         view=views.vehiculosView,
         name="vehiculosView"
+    ),
+    path(
+        route="llantasView",
+        view=views.llantasView,
+        name="llantasView"
     ),
     path(
         route="tallerFormulario",

@@ -33,6 +33,32 @@ const colorProf = (tag, puntoRetiro, container) => {
   }
 };
 
+const desdualizacion = (tire = document.documentElement, mm) => {
+  const dual =
+    tire.parentElement.parentElement.parentElement.querySelectorAll('.tire');
+
+  const ids = [ dual[0].getAttribute('data-tire-id'), dual[1].getAttribute('data-tire-id') ];
+  const tire1 = parseFloat(dual[0].querySelector('[data-prof-tag]').textContent);
+  const tire2 = parseFloat(dual[1].querySelector('[data-prof-tag]').textContent);
+
+  if (tire1 - tire2 >= mm || tire2 - tire1 >= mm) {
+    ids.forEach((id) => {
+      let content = document.querySelector(`[data-container-id="${id}"]`);
+      content
+        .querySelector('[data-icon-dual="Desdualización"]')
+        .classList.add('visible');
+    });
+  } else {
+    ids.forEach((id) => {
+      let content = document.querySelector(`[data-container-id="${id}"]`);
+
+      content
+        .querySelector('[data-icon-dual="Desdualización"]')
+        .classList.remove('visible');
+    });
+  }
+};
+
 const validaciones = (
   target,
   left,
@@ -45,6 +71,9 @@ const validaciones = (
   const leftValue = parseFloat(left.value);
   const centerValue = parseFloat(center.value);
   const rightValue = parseFloat(right.value);
+  const mm = parseFloat(
+    document.querySelector('.double-tire').getAttribute('data-mm-dif')
+  );
 
   if (target === left) {
     // ! Si es solo la izquierda
@@ -53,11 +82,13 @@ const validaciones = (
       if (left.value === '') {
         tag.parentElement.classList.remove('bad', 'yellow', 'good');
         tag.textContent = '-';
+        desdualizacion(tag, mm);
         colorProf(tag, puntoRetiro, container);
         return;
       }
 
       tag.textContent = leftValue;
+      desdualizacion(tag, mm);
       colorProf(tag, puntoRetiro, container);
     }
     colorProf(tag, puntoRetiro, container);
@@ -68,12 +99,14 @@ const validaciones = (
       if (center.value === '') {
         tag.parentElement.classList.remove('bad', 'yellow', 'good');
         tag.textContent = '-';
+        desdualizacion(tag, mm);
         colorProf(tag, puntoRetiro, container);
         return;
       }
       tag.textContent = centerValue;
 
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
     colorProf(tag, puntoRetiro, container);
@@ -85,13 +118,14 @@ const validaciones = (
         tag.parentElement.classList.remove('bad', 'yellow', 'good');
         tag.textContent = '-';
         colorProf(tag, puntoRetiro, container);
+        desdualizacion(tag, mm);
         return;
       }
 
       tag.textContent = rightValue;
 
       colorProf(tag, puntoRetiro, container);
-      console.log('Solo se modifico el derecho');
+      desdualizacion(tag, mm);
       return;
     }
     colorProf(tag, puntoRetiro, container);
@@ -114,6 +148,7 @@ const validaciones = (
 
       tag.textContent = minValue;
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
 
@@ -127,6 +162,7 @@ const validaciones = (
 
       tag.textContent = minValue;
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
 
@@ -140,6 +176,7 @@ const validaciones = (
 
       tag.textContent = minValue;
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
 
@@ -153,6 +190,7 @@ const validaciones = (
 
       tag.textContent = minValue;
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
 
@@ -166,6 +204,7 @@ const validaciones = (
 
       tag.textContent = minValue;
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
 
@@ -179,10 +218,9 @@ const validaciones = (
 
       tag.textContent = minValue;
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
       return;
     }
-
-    // * Evaluación de los 3 ejes
 
     // ! Si no tiene los tres valores no aplican los desgastes siguientes
 
@@ -193,12 +231,14 @@ const validaciones = (
       return;
     }
 
+    // * Evaluación de los 3 ejes
     if (left.value !== '' && center.value !== '' && right.value !== '') {
       const minValue = Math.min(...values);
 
       tag.textContent = minValue;
 
       colorProf(tag, puntoRetiro, container);
+      desdualizacion(tag, mm);
 
       if (
         (rightValue < leftValue && rightValue < centerValue) ||

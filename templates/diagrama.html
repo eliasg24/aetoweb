@@ -235,14 +235,19 @@
               <input
                 class="form__field"
                 type="number"
+                {% if vehiculo_actual.km == None %}
+                  min="0"
+                {% else %}
+                  min="{{vehiculo_actual.km}}"
+                {% endif %}
                 step="any"
                 placeholder=""
                 name="km_vehiculo"
                 autocomplete="off"
-                value = "{% if vehiculo_actual.km == None %}0{% else %}{{vehiculo_actual.km}}{% endif %}"
+                value = "{% if vehiculo_actual.km == None %}{% else %}{{vehiculo_actual.km}}{% endif %}"
               />
               <label for="" class="form__label">
-                kM de vehículo
+                KM de vehículo
               </label>
             </div>
 
@@ -262,6 +267,9 @@
                         value="{{observacion.observacion}}" 
                         id="{{observacion.observacion}}" 
                         data-vehiculo-item="{{observacion.observacion}}"
+                        {% if observacion in observaciones_vehiculo_act %}
+                        checked
+                        {% endif %}
                       />
                       <span class="checkmark"></span>
                     </label>
@@ -501,6 +509,9 @@
                                   value="{{observacion.observacion}}" 
                                   id="{{observacion.observacion}}-{{ ej.0.id }}" 
                                   data-check-id="{{ ej.0.id }}" 
+                                  {% if observacion in ej.6.observaciones %}
+                                  checked
+                                  {% endif %}
                                 />
                                 <span class="checkmark"></span>
                               </label>
