@@ -226,6 +226,7 @@
 .input-check > i {
   font-size: 3rem;
   border: thin solid #fff;
+  padding: 0.5rem;
 }
 
 .observations__container {
@@ -287,10 +288,10 @@
   gap: 1rem;
   opacity: 0;
   pointer-events: none;
-  position: absolute; 
+  position: absolute;
   transition: all 0.4s ease;
   visibility: hidden;
-  width: 100%; 
+  width: 100%;
   transform: scaleY(0);
 }
 

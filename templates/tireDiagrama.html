@@ -48,8 +48,9 @@
         </div>
       </div>
     </div>
+  {% if con_inspeccion == False %}
 
-    <form action="" method="" class="forms__container">
+    <form method="POST" class="forms__container">
       <div class="form__container">
         <div class="form__wrapper" id="tire-form">
 
@@ -57,10 +58,11 @@
           <div class="form__group field">
             <input
               class="form__field"
-              type="number"
+              type="text"
               placeholder="economico"
               name="economico"
               autocomplete="off"
+              value="{{llanta.numero_economico}}"
               required
             />
             <label for="economico" class="form__label">
@@ -77,11 +79,23 @@
               placeholder="producto"
               name="producto"
               autocomplete="off"
+              list="producto"
+              value="{{llanta.producto}}"
               required
             />
             <label for="producto" class="form__label">
               Producto
             </label>
+
+            <datalist id="producto">
+                  
+              {% for producto in productos %}
+            
+                  <option value="{{producto}}">{{producto}}</option>
+
+              {% endfor %}
+      
+            </datalist>
           </div>
           <!-- End input -->
 
@@ -93,27 +107,24 @@
               placeholder="vida"
               name="vida"
               autocomplete="off"
+              list='vida'
+              value="{{llanta.vida}}"
               required
             />
             <label for="vida" class="form__label">
               Vida
             </label>
-          </div>
-          <!-- End input -->
 
-          <!-- Start input -->
-          <div class="form__group field">
-            <input
-              class="form__field"
-              type="text"
-              placeholder="montado"
-              name="montado"
-              autocomplete="off"
-              required
-            />
-            <label for="montado" class="form__label">
-              KM de montado
-            </label>
+            <datalist id="vida">
+                
+              <option value="Nueva">Nueva</option>
+              <option value="1R">1R</option>
+              <option value="2R">2R</option>
+              <option value="3R">3R</option>
+              <option value="4R">4R</option>
+              <option value="5R">5R</option>
+
+            </datalist>
           </div>
           <!-- End input -->
 
@@ -123,18 +134,18 @@
            <div 
             class="form__prof" 
             data-punto-retiro="{{ ej.6.punto_retiro }}" 
-            data-profundidad-id="{{ ej.0.id }}"
+            data-profundidad-id="{{ llanta.id }}"
             >
             <div class="form__group field">
               <input
               class="form__field"
               type="number"
-              max = {{ej.0.producto.profundidad_inicial}}
+              max = {{llanta.producto.profundidad_inicial}}
               step="any"
               placeholder="Profundidad izquierda"
               name="profundidad_izquierda"
               autocomplete="off"
-              value="{{ej.0.profundidad_izquierda}}"
+              value="{{llanta.profundidad_izquierda}}"
               />
               <label for="profundidad" class="form__label">
                 Izquierda
@@ -145,12 +156,12 @@
               <input
               class="form__field"
               type="number"
-              max = {{ej.0.producto.profundidad_inicial}}
+              max = {{llanta.producto.profundidad_inicial}}
               step="any"
               placeholder="Profundidad central"
               name="profundidad_central"
               autocomplete="off"
-              value="{{ej.0.profundidad_central}}"
+              value="{{llanta.profundidad_central}}"
               />
               <label for="profundidad" class="form__label">
                 Central
@@ -161,12 +172,12 @@
               <input
                 class="form__field"
                 type="number"
-                max = {{ej.0.producto.profundidad_inicial}}
+                max = {{llanta.producto.profundidad_inicial}}
                 step="any"
                 placeholder="derecha"
                 name="profundidad_derecha"
                 autocomplete="off"
-                value="{{ej.0.profundidad_derecha}}"
+                value="{{llanta.profundidad_derecha}}"
                 />
                 <label for="profundidad" class="form__label">
                   Derecha
@@ -187,7 +198,7 @@
             placeholder="profundidad"
             name="presion"
             autocomplete="off"
-            value="{{ej.0.presion_actual}}"
+            value="{{llanta.presion_actual}}"
             data-input-id="{{ ej.0.id }}"
             data-presion-min="{{ ej.6.presion_minima}}" 
             data-presion-max="{{ ej.6.presion_maxima}}" 
@@ -196,28 +207,6 @@
             Presión
           </label>
         </div>
-
-          <div class="drop-form">
-            <input type="search" class="drop-input" placeholder="Observación de vehículo" id="vehiculo-search">
-            <ul class="drop-options" id="vehiculo-observaciones">
-              {% for observacion in observaciones_vehiculo %}
-                <li class="search-item">
-                  <label for="{{observacion.observacion}}" class="input-check">
-                    <i class="{{observacion.icono}}"></i>
-                    {{observacion.observacion}}
-                    <input 
-                      type="checkbox" 
-                      name="observation-vehiculo" 
-                      value="{{observacion.observacion}}" 
-                      id="{{observacion.observacion}}" 
-                      data-vehiculo-item="{{observacion.observacion}}"
-                    />
-                    <span class="checkmark"></span>
-                  </label>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
 
           <details>
             <summary class="drop__btn">Observaciones manuales</summary>
@@ -264,9 +253,13 @@
           </div>
         </div>
       </div>
+      {% csrf_token %}
       <button class="btn btn-info" type="submit" role="button">Guardar</button>
     </form>
-
+  
+  {% else %}
+    Agrege una inspeccion para poder hacer una edicion manual.
+  {% endif %}
   </main>
 </div>
 

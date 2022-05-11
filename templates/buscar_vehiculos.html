@@ -52,27 +52,27 @@
                     </button>
                 </div>
                 <div class="flex-row wrap">
+                    <input 
+                        name="desde" 
+                        placeholder="Desde..."
+                        id="desde" 
+                        class="drop-input"
+                        type="text" 
+                        onblur="(this.type='text')" 
+                        onfocus="(this.type='date')" 
+                        data-fecha
+                    >
+                    <input 
+                        name="hasta" 
+                        id="hasta" 
+                        placeholder="Hasta..." 
+                        class="drop-input"
+                        type="text" 
+                        onblur="(this.type='text')" 
+                        onfocus="(this.type='date')" 
+                        data-fecha
+                    >
                     <div class="drop-search">
-                        <input 
-                            name="desde" 
-                            placeholder="Desde..."
-                            id="desde" 
-                            class="drop-input"
-                            type="text" 
-                            onblur="(this.type='text')" 
-                            onfocus="(this.type='date')" 
-                            data-fecha
-                        >
-                        <input 
-                            name="hasta" 
-                            id="hasta" 
-                            placeholder="Hasta..." 
-                            class="drop-input"
-                            type="text" 
-                            onblur="(this.type='text')" 
-                            onfocus="(this.type='date')" 
-                            data-fecha
-                        >
                         <input
                           type="search"
                           placeholder="Buscar vehiculo..."

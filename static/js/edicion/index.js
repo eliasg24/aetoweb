@@ -4,13 +4,10 @@ import { profundidad } from './profundidad.js';
 document.addEventListener('DOMContentLoaded', (e) => {
   onSelectTire();
   profundidad();
-  confirmAlert();
-  handleForms();
   handleTire();
 
-  validateInputList('#llanta', 'llanta');
   validateInputList('#producto', 'producto');
-  noDoubleValues();
+  // noDoubleValues();
 
   manualObserver('data-check-id');
   vehiculoManual('data-vehiculo-item');
@@ -32,7 +29,7 @@ const diferenciaDual = (duales = document.documentElement) => {
       let presion1 = tires[0].querySelector('[data-tag-id]').textContent;
       let presion2 = tires[1].querySelector('[data-tag-id]').textContent;
 
-      if ( presion1 === 0 && presion2 === 0 ) return;
+      if (presion1 === 0 && presion2 === 0) return;
 
       presion1 = parseFloat(presion1);
       presion2 = parseFloat(presion2);
@@ -42,7 +39,7 @@ const diferenciaDual = (duales = document.documentElement) => {
 
       let ids = [container1, container2];
 
-      console.log(presion1, presion2)
+      console.log(presion1, presion2);
 
       let porcentajeDif1 = (presion1 - presion2) / presion1;
       let porcentajeDif2 = (presion2 - presion1) / presion2;
@@ -144,25 +141,30 @@ const validateInputList = (listItem = '', inputName = '') => {
   inputs.forEach((input) => {
     let isValid = false;
 
-    input.addEventListener('keyup', (e) => {
+    input.addEventListener('input', (e) => {
+      if (input.value === '') {
+        input.parentElement
+          .querySelector('.alert__warn')
+          .classList.add('active');
+        document.querySelector('.btn-info').classList.add('disabled');
+        isValid = false;
+        return;
+      }
+
       if (listValues.indexOf(input.value) > -1) {
-        input.parentNode
+        input.parentElement
           .querySelector('.alert__error')
           .classList.remove('active');
-        input.parentNode
+        input.parentElement
           .querySelector('.alert__warn')
           .classList.remove('active');
         document.querySelector('.btn-info').classList.remove('disabled');
         isValid = true;
       } else {
-        input.parentNode.querySelector('.alert__error').classList.add('active');
+        input.parentElement
+          .querySelector('.alert__error')
+          .classList.add('active');
         input.focus();
-        document.querySelector('.btn-info').classList.add('disabled');
-        isValid = false;
-      }
-
-      if (input.value === '') {
-        input.parentNode.querySelector('.alert__warn').classList.add('active');
         document.querySelector('.btn-info').classList.add('disabled');
         isValid = false;
       }
@@ -174,38 +176,6 @@ const validateInputList = (listItem = '', inputName = '') => {
       }
     });
   });
-};
-
-const noDoubleValues = (inputName = '') => {
-  const elements = document.querySelectorAll(`input[name="${inputName}"]`);
-  let values = [];
-
-  elements.forEach((value) => {
-    values.push(value.value);
-  });
-
-  const tempArray = [...values].sort();
-  let duplicate = [];
-
-  for (let i = 0; i < tempArray.length; i++) {
-    if (tempArray[i + 1] === tempArray[i]) {
-      duplicate.push(tempArray[i]);
-    }
-  }
-
-  if (duplicate.length > 0) {
-    const alert = Swal.fire({
-      title: 'Error',
-      text: 'No puede haber elementos duplicados',
-      icon: 'error',
-      backdrop: true,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-    });
-    return true; // Si hay elementos duplicados retorna true para la validación con sweetalert
-  }
-
-  return false; // Si no hay elementos duplicados
 };
 
 const handleTire = () => {
@@ -228,93 +198,6 @@ const handleTire = () => {
   });
 };
 
-const handleForms = () => {
-  const forms = document.querySelectorAll('form');
-
-  forms[0].addEventListener('submit', (e) => {
-    if (forms[0].querySelector('input').value === '') {
-      e.preventDefault();
-      alert('El campo no puede estar vacío');
-      forms[0].querySelector('input').focus();
-    }
-  });
-};
-
-// ! Empty profs
-
-const emptyProfs = () => {
-  const inputs = document.querySelectorAll('.form__prof');
-  let counter = 0;
-
-  inputs.forEach((el) => {
-    let inputCounter = 0;
-    el.querySelectorAll('input').forEach((input) => {
-      if (input.value !== '') {
-        inputCounter++;
-      }   
-    });
-    if (inputCounter >= 1) {
-      counter++;
-    }
-  });
-
-  console.log(counter)
-
-  if (counter >= inputs.length) {
-    return true;
-  }
-
-  return false;
-};
-
-const confirmAlert = () => {
-  const form = document.getElementById('tire-form');
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const duplicate = noDoubleValues('llanta');
-    const empty = emptyProfs();
-
-    if (!empty) {
-      const alert = Swal.fire({
-        title: 'Error',
-        text: 'Todas las llantas al menos tienen que tener una profundidad',
-        icon: 'error',
-        backdrop: true,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      });
-      return;
-    }
-
-    if (duplicate) return;
-    if (!empty) {
-      const error = Swal.fire({
-        title: 'Error',
-        text: 'Las llantas al menos deben tener una profundidad',
-        icon: 'error',
-        backdrop: true,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      })
-    } else {
-      const alert = Swal.fire({
-        title: 'Confirmación',
-        text: '¿Seguro que desea continuar?',
-        icon: 'question',
-        confirmButtonText: 'Si',
-        backdrop: true,
-        showDenyButton: true,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      }).then((res) => {
-        res.value && form.submit();
-      });
-    }
-
-  });
-};
 
 const onSelectTire = () => {
   const tires = document.querySelectorAll('.tire');

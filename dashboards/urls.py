@@ -77,11 +77,6 @@ urlpatterns = [
         name="dashboardOperativo"
     ),
     path(
-        route="formulario/<int:pk>",
-        view=views.formularioView.as_view(),
-        name="formulario"
-    ),
-    path(
         route="vehiculosformulario",
         view=views.vehiculosformularioView.as_view(),
         name="vehiculosformulario"
@@ -198,23 +193,53 @@ urlpatterns = [
     ),
     path(
         route="sucursalView",
-        view=views.sucursalView,
+        view=views.sucursalView.as_view(),
         name="sucursalView"
     ),
     path(
         route="aplicacionesView",
-        view=views.aplicacionesView,
+        view=views.aplicacionesView.as_view(),
         name="aplicacionesView"
     ),
     path(
         route="vehiculosView",
-        view=views.vehiculosView,
+        view=views.vehiculosView.as_view(),
         name="vehiculosView"
     ),
     path(
         route="llantasView",
-        view=views.llantasView,
+        view=views.llantasView.as_view(),
         name="llantasView"
+    ),
+    path(
+        route="inpeccionesView",
+        view=views.inpeccionesView.as_view(),
+        name="inspeccionesView"
+    ),
+    path(
+        route="inspeccionesAdd/",
+        view=views.my_soap_inspeccion(),
+        name="inspeccionesAdd"
+    ),
+    path(
+        route="basesList/",
+        view=views.my_soap_base(),
+        name="basesList"
+    ),
+    path(
+        route="rutasList/",
+        view=views.my_soap_ruta(),
+        name="rutasList"
+    ),
+    path(
+        route="vehiculosList/",
+        view=views.my_soap_vehiculo(),
+        name="vehiculosList"
+    ),
+    path(
+        route="llantasList/",
+        view=views.my_soap_llanta(),
+        name="llantasList"
     ),
     path(
         route="tallerFormulario",
@@ -257,7 +282,7 @@ urlpatterns = [
         name="diagrama"
     ),
     path(
-        route="tireDiagrama",
+        route="tireDiagrama/<int:pk>",
         view=views.tireDiagramaView.as_view(),
         name="tireDiagrama"
     ),

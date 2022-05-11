@@ -14,6 +14,18 @@
   background-color: var(--purple-color);
 }
 
+.good-text {
+  color: seagreen;
+}
+
+.yellow-text {
+  color: var(--yellow-color);
+}
+
+.bad-text {
+  color: var(--red-color);
+}
+
 .head-cont {
   flex-direction: column;
 }

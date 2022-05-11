@@ -385,9 +385,8 @@
             <div class="observations__container" data-container-id="{{ ej.0.id }}">
               
               {% for observacion in observaciones_manuales %}
-              <div data-icon-type="{{observacion.observacion}}">
+              <div data-icon-type="{{observacion.observacion}}" title="{{ observacion.observacion }}">
                 <i class="{{observacion.icono}}"></i>
-                Desgaste externo
               </div>
               {% endfor %}
 
@@ -406,9 +405,9 @@
                   {% else %}
                     data-icon-desgaste="{{observacion.observacion}}"
                   {% endif %}
+                  title="{{ observacion.observacion }}"
                 >
                   <i class="{{observacion.icono}}"></i>
-                  {{observacion.observacion}}
                 </div>
               {% endfor %}
 

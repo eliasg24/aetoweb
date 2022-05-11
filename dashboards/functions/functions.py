@@ -98,7 +98,15 @@ def actualizar_km_actual_no_km_montado(primer_inspeccion, ultima_inspeccion):
     km_teorico = (profundidad_inicial - ultima_profundidad) * km_x_mm
     return km_teorico
     
-    
+def all_num_eco_compania(compania, llantas_actuales):
+    num_eco = []
+    llantas = Llanta.objects.filter(compania = compania)
+    for llanta in llantas:
+        if llanta not in llantas_actuales:
+            num_eco.append(llanta.numero_economico)
+    return num_eco
+
+
 def cambio_de_vida(llanta):
     try:
         historico_llanta = HistoricoLlanta.objects.get(num_eco = llanta)
@@ -323,6 +331,18 @@ def color_observaciones_all(inspeccion_vehiculo):
         
     for ins in inspecciones:
         colores.append(color_observaciones(ins.observaciones.all()))
+    if 'bad' in colores:
+        return 'bad'
+    elif 'yellow' in colores:
+        return 'yellow'
+    else:
+        return 'good'
+
+def color_observaciones_all_one(inspeccion):
+    colores = []
+    observaciones = inspeccion.observaciones.all()
+    for obs in observaciones:
+        colores.append(color_observaciones_one(obs))
     if 'bad' in colores:
         return 'bad'
     elif 'yellow' in colores:
@@ -1498,6 +1518,10 @@ def exist_edicion_manual(inspeccion_vehiculo):
             return True
     return False
 
+def exist_edicion_manual_one(inspeccion):
+    if inspeccion.edicion_manual == True:
+        return True
+    return False
 
 def inflado_promedio(vehiculo):
     tiempo_promedio = 0
@@ -2305,6 +2329,91 @@ def mail(bitacora, tipo):
 def sin_informacion(llantas):
     llantas_sin_informacion = llantas.filter(producto__isnull=True).count()
     return llantas_sin_informacion
+
+def signo_pulpo(bitacora, num_eje):
+    vehiculo = bitacora.numero_economico
+    objetivo = vehiculo.compania.objetivo
+    establecidas = [
+       vehiculo.presion_establecida_1, 
+       vehiculo.presion_establecida_2,
+       vehiculo.presion_establecida_3,
+       vehiculo.presion_establecida_4,
+       vehiculo.presion_establecida_5,
+       vehiculo.presion_establecida_6,
+       vehiculo.presion_establecida_7
+    ]
+    presion_establecida = establecidas[num_eje-1]
+    presion_minima = presion_establecida - (presion_establecida * (objetivo / 100))
+    presion_maxima = presion_establecida + (presion_establecida * (objetivo / 100))
+    presion_de_entrada = bitacora.presion_de_entrada
+    presion_de_salida = bitacora.presion_de_salida
+    
+    if (
+        (presion_de_entrada >= presion_minima and presion_de_entrada <= presion_maxima)
+        and
+        (presion_de_salida >= presion_minima and presion_de_salida <= presion_maxima)
+        ):
+        return 'icon-checkmark good-text'
+    else:
+        return 'icon-cross bad-text'
+
+def signo_pulpo_pro(bitacora, num_llanta, num_eje):
+    vehiculo = bitacora.numero_economico
+    objetivo = vehiculo.compania.objetivo
+    establecidas = [
+       vehiculo.presion_establecida_1, 
+       vehiculo.presion_establecida_2,
+       vehiculo.presion_establecida_3,
+       vehiculo.presion_establecida_4,
+       vehiculo.presion_establecida_5,
+       vehiculo.presion_establecida_6,
+       vehiculo.presion_establecida_7
+    ]
+    
+    
+    presiones_entrada =[
+        bitacora.presion_de_entrada_1,
+        bitacora.presion_de_entrada_2,
+        bitacora.presion_de_entrada_3,
+        bitacora.presion_de_entrada_4,
+        bitacora.presion_de_entrada_5,
+        bitacora.presion_de_entrada_6,
+        bitacora.presion_de_entrada_7,
+        bitacora.presion_de_entrada_8,
+        bitacora.presion_de_entrada_9,
+        bitacora.presion_de_entrada_10,
+        bitacora.presion_de_entrada_11,
+        bitacora.presion_de_entrada_12,
+    ]
+    
+    presiones_salidas =[
+        bitacora.presion_de_salida_1,
+        bitacora.presion_de_salida_2,
+        bitacora.presion_de_salida_3,
+        bitacora.presion_de_salida_4,
+        bitacora.presion_de_salida_5,
+        bitacora.presion_de_salida_6,
+        bitacora.presion_de_salida_7,
+        bitacora.presion_de_salida_8,
+        bitacora.presion_de_salida_9,
+        bitacora.presion_de_salida_10,
+        bitacora.presion_de_salida_11,
+        bitacora.presion_de_salida_12,
+    ]
+    presion_establecida = establecidas[num_eje-1]
+    presion_minima = presion_establecida - (presion_establecida * (objetivo / 100))
+    presion_maxima = presion_establecida + (presion_establecida * (objetivo / 100))
+    presion_de_entrada = presiones_entrada[num_llanta-1]
+    presion_de_salida = presiones_salidas[num_llanta-1]
+    
+    if (
+        (presion_de_salida >= presion_minima and presion_de_salida <= presion_maxima)
+        and
+        (presion_de_entrada >= presion_minima and presion_de_entrada <= presion_maxima)
+        ):
+        return 'icon-checkmark good-text'
+    else:
+        return 'icon-cross bad-text'
 
 def vehiculo_amarillo(llantas):
     vehiculos_amarillos = []
