@@ -89,7 +89,6 @@ WSGI_APPLICATION = 'aeto.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 data = modoDB()
-print(data)
 DATABASES = {
     'default': {
         'ENGINE': data['ENGINE'],

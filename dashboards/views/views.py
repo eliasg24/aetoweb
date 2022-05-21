@@ -4455,7 +4455,7 @@ def ordenLlantaDef(request, id):
                 profundidad_izquierda = producto_act.profundidad_inicial,
                 profundidad_central = producto_act.profundidad_inicial,
                 profundidad_derecha = producto_act.profundidad_inicial,
-                inventario = 'Antes de Renovar'
+                inventario = 'Nueva'
             )
     orden.status = 'Orden'
     orden.save()
