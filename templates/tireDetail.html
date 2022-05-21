@@ -66,7 +66,7 @@
                 <span class="tire__data">{{llanta_info.0.presion_actual}}</span>
               </div>
 
-              <div class="tire__medium {{llanta_info.4}}">
+              <div class="tire__medium {{color_observaciones}}">
                 <span class="tire__data">
                     {{llanta_info.0.posicion}}
                 </span>
@@ -189,6 +189,26 @@
                   {% if evento.2 == 'inspeccion' %}
                     <tr id="paragraph {{evento.0.id}}">
                       <td class="td-table3">
+                        <span class="icon-magnifier"></span>
+                      </td>
+                      <td class="td-table3">
+                        {{evento.0.day}}/{{evento.0.month}}/{{evento.0.year}}
+                      </td>
+                      <td class="td-table3">
+                        <span class="{{evento.3}}"></span>
+                      </td>
+                      
+                      <td class="td-table3">
+                        <a href="{% url 'dashboards:inspeccionLlanta' evento.1.id %}" rel="noopener" target="_blank">
+                          <span class="icon-file-pdf" ></span>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endif %}
+
+                  {% if evento.2 == 'edicion' %}
+                    <tr id="paragraph {{evento.0.id}}">
+                      <td class="td-table3">
                         <span class="icon-pencil"></span>
                       </td>
                       <td class="td-table3">
@@ -199,13 +219,12 @@
                       </td>
                       
                       <td class="td-table3">
-                        <a href="" rel="noopener" target="_blank">
+                        <a href="{% url 'dashboards:reporteEdicionLlanta' evento.1.id evento.2 %}" rel="noopener" target="_blank">
                           <span class="icon-file-pdf" ></span>
                         </a>
                       </td>
                     </tr>
                   {% endif %}
-
 
                   {% endfor %}
                 </tbody>

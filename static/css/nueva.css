@@ -48,11 +48,11 @@
 }
 
 .cards__container {
-  /* display: grid; */
-  display: flex;
-  flex-flow: row wrap;
+  display: grid;
+  /* display: flex;
+  flex-flow: row wrap; */
   gap: 1rem;
-  /* grid-template-columns: repeat(auto-fill, minmax(325px, 1fr)); */
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   padding: 1rem;
 }
 
@@ -63,8 +63,8 @@
   display: grid;
   height: fit-content;
   flex: 1 1 400px;
-  gap: 1rem;
-  grid-template-columns: auto 1fr;
+  /* gap: 1rem; */
+  grid-template-rows: auto 1fr;
   padding: 1rem;
   position: relative;
   transition: all 0.3s ease-in-out;
@@ -77,6 +77,16 @@
   opacity: 0;
   pointer-events: none;
   order: 1;
+}
+
+.card__content {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto 1fr;
+}
+
+.economic {
+  text-align: center;
 }
 
 .card__img {
@@ -115,14 +125,17 @@
 
 .tire__status.good {
   background-color: var(--main-blue);
+  background-color: blue;
 }
 
 .tire__status.yellow {
   background-color: var(--yellow-color);
+  background-color: yellow;
 }
 
 .tire__status.bad {
   background-color: var(--red-color);
+  background-color: red;
 }
 
 .tire__status.suspiciuos {
@@ -142,7 +155,6 @@
   width: 100%;
   transition: all 0.4s ease;
   z-index: 1000;
-
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
@@ -161,7 +173,8 @@
   flex-flow: column nowrap;
   gap: 1rem;
   padding: 2rem;
-  min-width: 300px;
+  /* min-width: 300px; */
+  max-width: 325px;
   position: relative;
 }
 
@@ -186,6 +199,19 @@ h1 {
   border-radius: 5px;
 }
 
+.check-tire {
+  display: none;
+}
+
+.tire-input input:checked ~ .card__wrapper {
+  box-shadow: 0 0 8px 1px #026cf5;
+}
+
+button:disabled {
+  background-color: gray;
+  cursor: default;
+}
+
 @media screen and (min-width: 768px) {
   .flex-row {
     justify-content: flex-end;
@@ -197,6 +223,10 @@ h1 {
 
   .head-cont > * {
     flex: 1 1 auto;
+  }
+
+  .filter__content {
+    max-width: 350px;
   }
 }
 

@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from concurrent.futures import process
 import os
+
+from aeto.credentials import modoDB
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -85,11 +88,16 @@ WSGI_APPLICATION = 'aeto.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+data = modoDB()
+print(data)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': data['ENGINE'],
+        'NAME': data['NAME'],
+        'USER': data['USER'],
+        'PASSWORD': data['PASSWORD'],
+        'HOST': data['HOST'],
+        'PORT': data['PORT'],
     }
 }
 

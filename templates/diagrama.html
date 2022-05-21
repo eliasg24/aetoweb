@@ -41,7 +41,7 @@
                   <div class="par-llantas ejes__{{cant_ejes|safe}}">
                     <div class="tire" data-tire-id="{{eje.0.0.id}}">
                       <div class="tire__top {{eje.0.3}}">
-                        <span class="tire__data" data-tag-id="{{eje.0.3.id}}">
+                        <span class="tire__data" data-tag-id="{{eje.0.0.id}}">
                           {{eje.0.0.presion_actual}}
                         </span>
                       </div>
@@ -55,7 +55,7 @@
                       <span class="icon-tire2"></span>
                       
                       <div class="tire__bottom {{eje.0.1}}">
-                          <span class="tire__data" data-prof-tag="profundidad-{{ eje.0.3.id }}">
+                          <span class="tire__data" data-prof-tag="profundidad-{{ eje.0.0.id }}">
 
                             {% if eje.0.4 == None %}
                                 N/A
@@ -527,7 +527,11 @@
                         <div class="observations__container" data-container-id="{{ ej.0.id }}">
                           
                           {% for observacion in observaciones_manuales %}
-                          <div data-icon-type="{{observacion.observacion}}">
+                          <div data-icon-type="{{observacion.observacion}}"
+                              {% if observacion in ej.6.observaciones_act %}
+                                class='visible'
+                              {% endif %}
+                          >
                             <i class="{{observacion.icono}}"></i>
                             Desgaste externo
                           </div>
@@ -547,6 +551,9 @@
                                 data-icon-profundidad="{{observacion.observacion}}"
                               {% else %}
                                 data-icon-desgaste="{{observacion.observacion}}"
+                              {% endif %}
+                              {% if observacion in ej.6.observaciones_act %}
+                                class='visible'
                               {% endif %}
                             >
                               <i class="{{observacion.icono}}"></i>

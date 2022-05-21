@@ -71,7 +71,7 @@ h3 {
 }
 
 .con {
-  background-color: #242424;
+  background-color: var(--colorv01);
   border-radius: 0.25rem;
   display: none;
   flex-flow: column nowrap;
@@ -83,7 +83,7 @@ h3 {
 
 .con-title,
 .con-sec {
-  background-color: #333;
+  background-color: var(--colorv37);
 }
 
 .con-title {
@@ -111,28 +111,28 @@ h3 {
 }
 
 .number-input {
-  background: transparent;
+  background: var(--colorv18);
   border: none;
-  border-bottom: thin solid #fff;
-  color: #fff;
+  border-bottom: thin solid var(--colorv02);
+  color: var(--colorv02);
   font-size: 1.25rem;
   font-weight: bold;
   outline: none;
 }
 
 .btn-redirect {
-  background-color: #fff;
-  border: thin solid #fff;
+  background-color: var(--colorv02);
+  border: thin solid var(--colorv02);
   border-radius: 0.5rem;
-  color: #000;
+  color: var(--colorv16);
   font-weight: bold;
   padding: 1rem;
   width: 100%;
 }
 
 .btn-redirect:hover {
-  background: #000;
-  color: #fff;
+  background: var(--colorv16);
+  color: var(--colorv02);
 }
 
 .w-100 {
@@ -160,12 +160,12 @@ h3 {
 
 .con-sec::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: black;
+  background-color: var(--colorv16);
 }
 
 .con-sec::-webkit-scrollbar-track {
   border-radius: 5px;
-  background-color: gray;
+  background-color: var(--colorv17);
 }
 
 .form-group {
@@ -188,7 +188,7 @@ h3 {
 
 .dias_inflado {
   text-align: center;
-  background: #646464;
+  background: var(--colorv38);
   margin: 1rem;
   border-radius: 10px;
 }
@@ -199,7 +199,7 @@ h3 {
 
 .presion {
   text-align: center;
-  background: #646464;
+  background: var(--colorv38);
   margin: 1rem;
   border-radius: 10px;
 }
@@ -210,21 +210,21 @@ h3 {
 
 .dias_visto {
   text-align: center;
-  background: #646464;
+  background: var(--colorv38);
   margin: 1rem;
   border-radius: 10px;
 }
 
 .retiro {
   text-align: center;
-  background: #646464;
+  background: var(--colorv38);
   margin: 1rem;
   border-radius: 10px;
 }
 
 .title_cont2 {
   display: flex;
-  background: #353535;
+  background: var(--colorv39);
   border-radius: 10px;
   align-items: center;
   justify-content: center;
@@ -245,9 +245,9 @@ h3 {
 }
 
 .form-control {
-  background: transparent;
-  border: thin solid #fff;
-  color: #fff;
+  background: var(--colorv18);
+  border: thin solid var(--colorv02);
+  color: var(--colorv02);
   font-size: 16px;
   padding: 0.5rem;
   outline: none;
@@ -278,11 +278,11 @@ h3 {
   font-weight: bold;
   border: none;
   border-radius: 12px;
-  color: white;
+  color: var(--colorv02);
   cursor: pointer;
   text-align: center;
   vertical-align: middle;
-  background: #6666d9;
+  background: var(--colorv40);
 }
 
 .buttons .button2 {
@@ -291,13 +291,13 @@ h3 {
   margin: 0 auto;
   border-radius: 10px;
   cursor: pointer;
-  background: #2e8b57;
+  background: var(--colorv08);
   align-items: center;
 }
 
 .buttons .button2 .blue_btn-text {
   background: none;
-  color: white;
+  color: var(--colorv02);
 }
 
 .indicators {
@@ -305,8 +305,8 @@ h3 {
 }
 
 .btn.disabled {
-  background-color: gainsboro;
-  color: gray;
+  background-color: var(--colorv23);
+  color: var(--colorv17);
   cursor: not-allowed;
   pointer-events: none;
 }
