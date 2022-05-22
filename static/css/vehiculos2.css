@@ -14,9 +14,9 @@ figure {
 }
 
 .btn-filter {
-  background-color: var(--main-blue);
+  background-color: var(--colorv04);
   border-radius: 0.25rem;
-  color: #fff;
+  color: var(--colorv02);
   padding: 0.5rem;
 }
 
@@ -41,7 +41,7 @@ figure {
 
 .search__wrapper {
   align-items: center;
-  background-color: #fff;
+  background-color: var(--colorv02);
   border-radius: 0.25rem;
   display: flex;
   flex-flow: row nowrap;
@@ -50,7 +50,7 @@ figure {
 }
 
 .search__wrapper input {
-  background: transparent;
+  background: var(--colorv18);
   border: none;
   font-family: inherit;
   font-size: 1rem;
@@ -60,7 +60,7 @@ figure {
 }
 
 .search__wrapper button {
-  background: transparent;
+  background: var(--colorv18);
   border: none;
   bottom: 0;
   font-size: 1.25rem;
@@ -84,7 +84,7 @@ figure {
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
-  background-color: var(--head-bg);
+  background-color: var(--colorv01);
   height: 100vh;
   left: 0;
   opacity: 0;
@@ -101,7 +101,7 @@ figure {
 
 .btn-close {
   font-size: 2rem;
-  color: #fff;
+  color: var(--colorv02);
   position: absolute;
   right: 1rem;
 }
@@ -123,15 +123,15 @@ figure {
 }
 
 .form-group {
-  border-bottom: thin solid #fff;
-  border-top: thin solid #fff;
+  border-bottom: thin solid var(--colorv02);
+  border-top: thin solid var(--colorv02);
   cursor: pointer;
   gap: 1rem;
   padding: 0.75rem 0.5rem;
 }
 
 summary::marker {
-  color: var(--main-blue);
+  color: var(--colorv04);
 }
 
 .label-form {
@@ -140,10 +140,10 @@ summary::marker {
 }
 
 .form-control {
-  background-color: transparent;
+  background-color: var(--colorv18);
   border: none;
-  border: thin solid #fff;
-  color: #fff;
+  border: thin solid var(--colorv02);
+  color: var(--colorv02);
   font-family: inherit;
   font-size: 0.85rem;
   padding: 0.5rem;
@@ -169,8 +169,8 @@ summary::marker {
 
 .vehicle-card {
   align-items: center;
-  background-color: var(--head-bg);
-  color: #fff;
+  background-color: var(--colorv01);
+  color: var(--colorv02);
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
@@ -192,7 +192,7 @@ summary::marker {
 
 .vehicle-card__info {
   align-items: center;
-  background-color: var(--gray-color);
+  background-color: var(--colorv00);
   border-radius: 0.25rem;
   display: flex;
   flex-flow: row wrap;
@@ -209,11 +209,11 @@ summary::marker {
 }
 
 .icon-checkmark {
-  color: green;
+  color: var(--colorv08);
 }
 
 .icon-cross {
-  color: red;
+  color: var(--colorv22);
 }
 
 /* Status */
@@ -224,19 +224,19 @@ summary::marker {
 }
 
 .status.ok {
-  background-color: var(--main-blue);
+  background-color: var(--colorv04);
 }
 
 .status.bad {
-  background-color: var(--red-color);
+  background-color: var(--colorv07);
 }
 
 .status.yellow {
-  background-color: var(--yellow-color);
+  background-color: var(--colorv05);
 }
 
 .status.suspicious {
-  background-color: var(--purple-color);
+  background-color: var(--colorv06);
 }
 
 @media screen and (min-width: 1024px) {

@@ -8,6 +8,12 @@ node_modules/
 *.xlsx
 .xlsx
 
+<<<<<<< HEAD
+aeto/credentials.py
+=======
+
+>>>>>>> 2abbc13b39fd42546786d8d11915b70c52539132
+
 ### Django ###
 *.log
 *.pot

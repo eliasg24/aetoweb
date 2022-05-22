@@ -34,12 +34,12 @@
 
 .absolute::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: black;
+  background-color: var(--colorv16);
 }
 
 .absolute::-webkit-scrollbar-track {
   border-radius: 5px;
-  background-color: gray;
+  background-color: var(--colorv17);
 }
 
 .main__container {
@@ -58,7 +58,7 @@
 
 .card__wrapper {
   align-items: center;
-  background-color: #202020;
+  background-color: var(--colorv27);
   border-radius: 0.25rem;
   display: grid;
   height: fit-content;
@@ -69,7 +69,7 @@
   position: relative;
   transition: all 0.3s ease-in-out;
   /* box-shadow: 1px 1px 6px rgba(255, 255, 255, 0.5); */
-  box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 1px 1px var(--colorv36);
 }
 
 .card__wrapper.filter {
@@ -102,7 +102,7 @@
 }
 
 .card__body {
-  background-color: var(--main-background);
+  background-color: var(--colorv00);
   border-radius: 0.25rem;
   height: 100%;
   padding: 1rem;
@@ -114,7 +114,7 @@
 }
 
 .tire__status {
-  background-color: #fff;
+  background-color: var(--colorv02);
   border-radius: 50%;
   height: 1.25rem;
   position: absolute;
@@ -124,22 +124,19 @@
 }
 
 .tire__status.good {
-  background-color: var(--main-blue);
-  background-color: blue;
+  background-color: var(--colorv04);
 }
 
 .tire__status.yellow {
-  background-color: var(--yellow-color);
-  background-color: yellow;
+  background-color: var(--colorv05);
 }
 
 .tire__status.bad {
-  background-color: var(--red-color);
-  background-color: red;
+  background-color: var(--colorv07);
 }
 
 .tire__status.suspiciuos {
-  background-color: var(--purple-color);
+  background-color: var(--colorv06);
 }
 
 /* ? Filter Menu */
@@ -167,7 +164,7 @@
 }
 
 .filter__content {
-  background-color: var(--main-background);
+  background-color: var(--colorv00);
   border-radius: 0.25rem;
   display: flex;
   flex-flow: column nowrap;
@@ -195,7 +192,7 @@
 }
 
 h1 {
-  background: #026cf5;
+  background: var(--colorv04);
   border-radius: 5px;
 }
 
@@ -204,11 +201,11 @@ h1 {
 }
 
 .tire-input input:checked ~ .card__wrapper {
-  box-shadow: 0 0 8px 1px #026cf5;
+  box-shadow: 0 0 8px 1px var(--colorv04);
 }
 
 button:disabled {
-  background-color: gray;
+  background-color: var(--colorv17);
   cursor: default;
 }
 

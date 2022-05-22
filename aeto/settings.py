@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 from concurrent.futures import process
+from decouple import config
 import os
 
 from aeto.credentials import modoDB

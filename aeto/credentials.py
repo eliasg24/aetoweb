@@ -1,17 +1,19 @@
-def modoDB(modo='local'):
+from decouple import config
+
+def modoDB(modo=config('MODO')):
     # Base de Pruebas
     if modo == 'local':
         return{
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aeto',
         'USER': 'postgres',
-        'PASSWORD': 'root',
+        'PASSWORD': config('PASSWORD'),
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': config('PORT'),
     }
         
     #Base de despliege aetoweb (No tocar)
-    if modo == 'despliege':
+    if modo == 'despliegue':
         return{
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aeto',
@@ -22,7 +24,7 @@ def modoDB(modo='local'):
     }
 
     #Base de despliegue local (No tocar)
-    if modo == 'despliege_local':
+    if modo == 'despliegue_local':
         return{
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'aeto',
