@@ -190,6 +190,7 @@ class Vehiculo(models.Model):
                             ("S2.D2", "S2.D2"),
                             ("S2.D2.D2", "S2.D2.D2"),
                             ("S2.D2.D2.T4.T4", "S2.D2.D2.T4.T4"),
+                            ("S2.D2.SP1", "S2.D2.SP1"),
                             ("S2.C4.D4", "S2.C4.D4"),
                             ("S2.D4", "S2.D4"),
                             ("S2.D4.SP1", "S2.D4.SP1"),

@@ -78,6 +78,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     template_name = "home.html"
     def get_context_data(self, **kwargs):
+        #functions_create.asignar_aplicaciones()
         context = super().get_context_data(**kwargs)
         user = User.objects.get(username=self.request.user)
         flotas = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
@@ -86,8 +87,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context["flotas"] = flotas
         context["aplicaciones"] = aplicaciones
         return context
-
-
 
 class TireDBView(LoginRequiredMixin, TemplateView):
     # Vista de tire-dashboard1
