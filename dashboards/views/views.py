@@ -38,7 +38,7 @@ from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, Lla
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, Orden, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, Producto, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
 
 
 # Utilities
@@ -78,15 +78,67 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     template_name = "home.html"
     def get_context_data(self, **kwargs):
-        #functions_create.asignar_aplicaciones()
         context = super().get_context_data(**kwargs)
         user = User.objects.get(username=self.request.user)
         flotas = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         aplicaciones = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        functions.exist_context(user)
         context["user"] = user
         context["flotas"] = flotas
         context["aplicaciones"] = aplicaciones
         return context
+    
+    def post(self, request, *args, **kwargs):
+        #Obtencion de la data
+        print(request.POST)
+        user = request.user
+        perfil = Perfil.objects.get(user = user)
+        compania_post = request.POST.getlist('company')[0]
+        sucursal_post = request.POST.getlist('sucursal')
+        aplicacion_post = request.POST.getlist('aplicacion')
+        taller_post = request.POST.getlist('taller')
+        #Consulta de la lista del post
+        compania = Compania.objects.get(compania = compania_post)
+        sucursales = Ubicacion.objects.filter(nombre__in = sucursal_post)
+        aplicaciones = Aplicacion.objects.filter(nombre__in = aplicacion_post)
+        talleres = Taller.objects.filter(nombre__in = taller_post)
+        #Asignmacion del contexto
+        perfil.compania = compania
+        perfil.ubicacion.clear()
+        perfil.aplicacion.clear()
+        perfil.taller.clear()
+        perfil.ubicacion.set(sucursales)
+        perfil.aplicacion.set(aplicaciones)
+        perfil.taller.set(talleres)
+        perfil.save()
+        #Vaciado del carrito
+        try:
+            seleccionadas = LlantasSeleccionadas.objects.filter(perfil=perfil)
+            for select in seleccionadas:
+                select.llantas.clear()
+                select.save()
+        except:
+            data = []
+            inventarios = [
+                "Nueva", 
+                "Antes de Renovar",
+                "Antes de Desechar",
+                "Renovada",
+                "Con renovador",
+                "Desecho final",
+                "Servicio",
+                "Rodante",
+                "Archivado"
+                        ]
+            for inventario in inventarios:
+                data.append(
+                    LlantasSeleccionadas(
+                        perfil = perfil,
+                        inventario = inventario
+                    )
+                )
+            LlantasSeleccionadas.objects.bulk_create(data)
+        return redirect('dashboards:home')
 
 class TireDBView(LoginRequiredMixin, TemplateView):
     # Vista de tire-dashboard1
@@ -4545,6 +4597,9 @@ class VehiculoAPI(View):
             llanta.presion_de_entrada=jd['presion_de_entrada']
             llanta.presion_de_salida=jd['presion_de_salida']
             llanta.presion_actual=jd['presion_de_salida']
+            min_presion = functions.min_presion(llanta)
+            max_presion = functions.max_presion(llanta)
+            functions.check_presion_pulpo(llanta, min_presion, max_presion)
             llanta.save()
         functions.send_mail(bi, 'pulpo')
         return JsonResponse(jd)
@@ -4661,6 +4716,10 @@ class PulpoProAPI(View):
         
                 vehiculo.ultima_bitacora_pro= bi
                 vehiculo.save()
+                for llanta in llantas:
+                    min_presion = functions.min_presion(llanta)
+                    max_presion = functions.max_presion(llanta)
+                    functions.check_presion_pulpo(llanta, min_presion, max_presion)
                 functions.send_mail(bi, 'pulpopro')
                 return JsonResponse(jd)
 
@@ -6018,6 +6077,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                 pass
 
             print("doble_entrada", doble_entrada)
+            print("doble_entrada_pro", doble_entrada_pro)
             print("doble_mala_entrada", doble_mala_entrada)
 
             print("message_pro", message_pro)
@@ -6319,10 +6379,12 @@ class DetailView(LoginRequiredMixin, DetailView):
         problemas = []
         ultima_inspeccion_vehiculo = InspeccionVehiculo.objects.filter(vehiculo=vehiculo).last()
         print(ultima_inspeccion_vehiculo)
-        ultimas_inspecciones = Inspeccion.objects.filter(inspeccion_vehiculo = ultima_inspeccion_vehiculo)
-        print(ultimas_inspecciones)
-        
-        if len(ultimas_inspecciones) > 0:
+        current_isnpec = False
+        if ultima_inspeccion_vehiculo != None:
+            ultimas_inspecciones = Inspeccion.objects.filter(inspeccion_vehiculo = ultima_inspeccion_vehiculo)
+            current_isnpec = True
+            print(ultimas_inspecciones)
+        if current_isnpec:
             for observacion in vehiculo.observaciones.all():
                 color_obs = functions.color_observaciones_one(observacion)
                 if color_obs == 'bad':
@@ -6332,17 +6394,26 @@ class DetailView(LoginRequiredMixin, DetailView):
                 else:
                     signo = 'icon-checkmark good-text'
                 problemas.append(['VH', observacion, signo])
-            for inspeccion in ultimas_inspecciones:
-                for observacion in inspeccion.observaciones.all():
-                    color_obs = functions.color_observaciones_one(observacion)
-                    if color_obs == 'bad':
-                        signo = 'icon-cross bad-text'
-                    elif color_obs == 'yellow':
-                        signo = 'icon-warning  yellow-text'
-                    else:
-                        signo = 'icon-checkmark good-text'
-                    problemas.append([inspeccion.posicion, observacion, signo])
-            
+            #for inspeccion in ultimas_inspecciones:
+            #    for observacion in inspeccion.observaciones.all():
+            #        color_obs = functions.color_observaciones_one(observacion)
+            #        if color_obs == 'bad':
+            #            signo = 'icon-cross bad-text'
+            #        elif color_obs == 'yellow':
+            #            signo = 'icon-warning  yellow-text'
+            #        else:
+            #            signo = 'icon-checkmark good-text'
+            #        problemas.append([inspeccion.posicion, observacion, signo])
+        for llanta in llantas_actuales:
+            for observacion in llanta.observaciones.all():
+                color_obs = functions.color_observaciones_one(observacion)
+                if color_obs == 'bad':
+                    signo = 'icon-cross bad-text'
+                elif color_obs == 'yellow':
+                    signo = 'icon-warning  yellow-text'
+                else:
+                    signo = 'icon-checkmark good-text'
+                problemas.append([llanta.posicion, observacion, signo])
         print(vehiculo.observaciones.all())
         context['problemas'] = problemas
         return context

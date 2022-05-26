@@ -28,7 +28,7 @@ from psycopg2 import IntegrityError
 # Rest Framework
 
 # Functions
-from dashboards.functions import functions, functions_ftp, functions_create, functions_excel
+from dashboards.functions import functions, functions_ftp, functions_create, functions_excel, functions_api
 from aeto import settings
 
 # Forms
@@ -36,7 +36,7 @@ from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, Lla
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion, Orden, Taller
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Producto, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion, Orden, Taller
 
 # Utilities
 from multi_form_view import MultiModelFormView
@@ -64,6 +64,48 @@ from spyne.server.wsgi import WsgiApplication
 from spyne.service import ServiceBase
 import statistics
 import xlwt
+
+
+class ContextoApi(LoginRequiredMixin, View):
+    # Vista del dashboard buscar_vehiculos
+
+    def get(self, request):
+
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        #Compañia
+        companias = list(perfil.companias.all())
+        companias_list = functions_api.companias_list(companias)
+        
+        #Select
+        compania_select = request.GET.get('compania_select', None)
+        ubicaciones_select = functions_api.list_select(request.GET.get('ubicaciones_select', None))
+        aplicaciones_select = functions_api.list_select(request.GET.get('aplicaciones_select', None))
+        talleres_select = functions_api.list_select(request.GET.get('talleres_select', None))
+
+        #Ubicaciones
+        ubicaciones = perfil.ubicaciones.all().filter(compania__compania = compania_select)
+        ubicaciones_list = functions_api.ubicaciones_list(ubicaciones)
+        
+        #Aplicacion
+        aplicaciones = perfil.aplicaciones.all().filter(ubicacion__nombre__in = ubicaciones_select)
+        aplicaciones_list = functions_api.aplicaciones_list(aplicaciones, ubicaciones_select)
+        
+        #Taller
+        taller = perfil.talleres.all().filter(compania__compania = compania_select)
+        talleres = functions_api.taller_list(taller)
+        dict_context = {
+            'companias': companias_list,
+            'ubicaciones': ubicaciones_list,
+            'aplicaciones': aplicaciones_list,
+            'talleres': talleres
+        }
+
+        json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
+
+
+        return HttpResponse(json_context, content_type='application/json')
+
 
 class SearchView(LoginRequiredMixin, View):
     # Vista del dashboard buscar_vehiculos
@@ -166,18 +208,20 @@ class NumTireStock(LoginRequiredMixin, View):
        
         usuario = self.request.user
         perfil = Perfil.objects.get(user = usuario)
+        talleres = perfil.taller.all()
         compania = perfil.compania
-        llantas = Llanta.objects.filter(compania = compania)
+        llantas = Llanta.objects.select_related().filter(compania = compania, taller__in = talleres)
+        llantas_rodantes = Llanta.objects.select_related().filter(compania = compania, inventario = "Rodante")
         total_llantas = llantas.count()
-        nueva = llantas.filter(compania = compania, inventario = "Nueva").count()
-        antes_de_renovar = llantas.filter(compania = compania, inventario = "Antes de Renovar").count()
-        antes_de_desechar =llantas.filter(compania = compania, inventario = "Antes de Desechar").count()
-        renovada = llantas.filter(compania = compania, inventario = "Renovada").count()
-        con_renovador = llantas.filter(compania = compania, inventario = "Con renovador").count()
-        desecho_final = llantas.filter(compania = compania, inventario = "Desecho final").count()
-        servicio = llantas.filter(compania = compania, inventario = "Servicio").count()
-        rodante = llantas.filter(compania = compania, inventario = "Rodante").count()
-        archivado = llantas.filter(compania = compania, inventario = "Archivado").count()
+        nueva = llantas.filter(inventario = "Nueva").count()
+        antes_de_renovar = llantas.filter(inventario = "Antes de Renovar").count()
+        antes_de_desechar =llantas.filter(inventario = "Antes de Desechar").count()
+        renovada = llantas.filter(inventario = "Renovada").count()
+        con_renovador = llantas.filter(inventario = "Con renovador").count()
+        desecho_final = llantas.filter(inventario = "Desecho final").count()
+        servicio = llantas.filter(inventario = "Servicio").count()
+        rodante = llantas_rodantes.count()
+        archivado = llantas.filter(inventario = "Archivado").count()
         
         stock_list = [
             {
@@ -240,7 +284,7 @@ class TireSearch(LoginRequiredMixin, View):
         perfil = Perfil.objects.get(user = usuario)
         compania = perfil.compania
         llantas = Llanta.objects.filter(compania = compania)
-        
+        llantas_excluidas = LlantasSeleccionadas.objects.get(perfil=perfil).llantas.all().values('numero_economico')
         #Queryparams
         size = (int(request.GET['size']) if 'size' in request.GET else 10)
         
@@ -252,6 +296,10 @@ class TireSearch(LoginRequiredMixin, View):
         inventario = (request.GET['inventario'] if 'inventario' in request.GET else None)
         inventario_query = ({'inventario': inventario} if  inventario != None else {})
         
+        if inventario != 'Rodante':
+            taller_query = ({'taller__in': perfil.taller.all()} if  inventario != None else {})
+        else:
+            taller_query = ({})
         producto = (request.GET['producto'].split(',') if 'producto' in request.GET else None)
         producto_query = ({'producto__producto__in': producto} if  producto != None else {})
         
@@ -292,7 +340,9 @@ class TireSearch(LoginRequiredMixin, View):
                     
         #Resultado final
         search = llantas.filter(
-            **eco_query).annotate(
+            **eco_query,
+            **taller_query
+            ).annotate(
                 min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha"), 
                 max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha"),
                 color=Case(
@@ -306,7 +356,7 @@ class TireSearch(LoginRequiredMixin, View):
                     **max_prof_query, 
                     **start_date_query,
                     **end_date_query
-                    )
+                    ).exclude(numero_economico__in = llantas_excluidas)
         
         
         #Paginacion
@@ -539,6 +589,35 @@ class HistoricoDeOrdenApi(LoginRequiredMixin, View):
         dict_context = {
             'pagination': pagination,
             'datos': datos,
+        }
+
+        json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
+
+        return HttpResponse(json_context, content_type='application/json')
+    
+class CarritoLlantasApi(LoginRequiredMixin, View):
+        # Vista del dashboard buscar_vehiculos
+
+    def get(self, request , *args, **kwargs):
+
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        try:
+            llanta = int(self.request.GET.get('llanta'))
+            inventario = (self.request.GET.get('inventario', None))
+            functions_api.inventario_none(inventario)
+            llanta = Llanta.objects.get(pk=llanta)
+            status:str
+            try:
+                LlantasSeleccionadas.objects.get(perfil=perfil, inventario=inventario).llantas.add(llanta)
+                status = 'Llanta Agregada'
+            except:
+                status = 'Inventario no especificado'
+        except:
+            status = 'Llanta no encontrada'
+        
+        dict_context = {
+            'status': status
         }
 
         json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)

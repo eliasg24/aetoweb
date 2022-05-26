@@ -1,6 +1,7 @@
 # Django
 from operator import mod
 from pyexpat import model
+from re import L
 from xmlrpc.client import Boolean
 from django.contrib.auth.models import User
 from django.db import models
@@ -108,15 +109,19 @@ class Perfil(models.Model):
     # Modelo del Perfil de Usuario
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
-    ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
-    aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
+    compania = models.ForeignKey(Compania, on_delete=models.CASCADE, blank=True, null=True)
+    ubicacion = models.ManyToManyField("Ubicacion", blank=True, null=True)
+    aplicacion = models.ManyToManyField("Aplicacion", blank=True, null=True)
+    taller = models.ManyToManyField("Taller", blank=True, null=True)
     opciones_idioma = (("Español", "Español"), ("Inglés", "Inglés"))
     idioma = models.CharField(max_length=200, choices=opciones_idioma, default="Español")
 
     fecha_de_creacion = models.DateTimeField(auto_now_add=True)
     fecha_de_modificacion = models.DateTimeField(auto_now=True)
-
+    companias = models.ManyToManyField("Compania", null=True, blank=True, related_name="companias")
+    ubicaciones = models.ManyToManyField("Ubicacion", blank=True, null=True, related_name="ubicaciones")
+    aplicaciones = models.ManyToManyField("Aplicacion", blank=True, null=True, related_name="aplicaciones")
+    talleres = models.ManyToManyField("Taller", blank=True, null=True, related_name="talleres")
     def __str__(self):
         # Retorna el username
         return self.user.username
@@ -597,6 +602,27 @@ class Orden(models.Model):
 
     class Meta:
         verbose_name_plural = "Ordenes"
+        
+        
+class LlantasSeleccionadas(models.Model):
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    opciones_de_inventario = (("Nueva", "Nueva"),
+                        ("Antes de Renovar", "Antes de Renovar"),
+                        ("Antes de Desechar", "Antes de Desechar"),
+                        ("Renovada", "Renovada"),
+                        ("Con renovador", "Con renovador"),
+                        ("Desecho final", "Desecho final"),
+                        ("Servicio", "Servicio"),
+                        ("Rodante", "Rodante"),
+                        ("Archivado", "Archivado")
+                )
+    inventario = models.CharField(max_length=200, choices=opciones_de_inventario, null=True, blank=True)
+    llantas = models.ManyToManyField(Llanta, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = "LlantasSeleccionadas"
+
+
 """
 class Bitacora_Edicion(models.Model):
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)

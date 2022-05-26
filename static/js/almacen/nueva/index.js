@@ -1,7 +1,8 @@
-import { getByEconomic } from "./getByEconomic.js";
-import { getData } from "./getData.js";
+import { setFilters, setValues } from "./getByEconomic.js";
+import getTires from "./getData.js";
 
 document.addEventListener('DOMContentLoaded', (e) => {
-  getByEconomic();
-  getData();
+  setFilters();
+  setValues();
+  getTires(window.location.search);
 });

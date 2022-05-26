@@ -9,11 +9,14 @@ node_modules/
 .xlsx
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 aeto/credentials.py
 =======
 
 >>>>>>> 2abbc13b39fd42546786d8d11915b70c52539132
 
+=======
+>>>>>>> 7ec355002f106dda52ba0843312e086d1f85ae80
 ### Django ###
 *.log
 *.pot
@@ -178,3 +181,5 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
 desktop.ini
+*.pyc
+*.pyc

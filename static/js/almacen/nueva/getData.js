@@ -1,38 +1,25 @@
-import { counter } from "../counter.js";
-
 const template = document.getElementById('card-template').content;
 const container = document.querySelector('.cards__container');
 const fragment = document.createDocumentFragment();
+const loader = document.querySelector('.icon-spinner2');
 
-let offset = 0,
-  limit = 16;
+let page = 1;
 
-export const getData = async () => {
-  const loader = document.createElement('div');
-  loader.classList.add('loader__container');
-  loader.innerHTML = `<div class="loader"></div>`;
-  container.appendChild(loader);
+const getTires = async (querys = '') => {
+  const origin = window.location.origin,
+    api = `${origin}/api`,
+    tires = `${api}/tiresearch`,
+    apiSearch = `${tires}${
+      querys || '?'
+    }&inventario=Nueva&size=20&page=${page}`;
+
+  loader.style.display = 'block';
 
   try {
-    const resp = await fetch(
-      `${window.location.origin}/api/tiresearch?inventario=Nueva&offset=${offset}&limit=${limit}`
-    );
-    const { result } = await resp.json();
+    const resp = await fetch(apiSearch);
+    const { result, pagination } = await resp.json();
 
-    if (!resp.ok)
-      throw new Error({
-        status: resp.status,
-        statusMessage: resp.statusText,
-      });
-
-    if (result.length === 0) {
-      container.innerHTML = `
-        <div>
-          No hay resultados :(
-        </div>
-      `;
-      return;
-    }
+    if (!resp.ok) throw new Error('Algo sucedió mal');
 
     result.forEach((item) => {
       template.querySelector('a').href = `/tireDetail/${item.id}`; // Poner el id del rodante
@@ -41,31 +28,46 @@ export const getData = async () => {
       template.querySelector('label').setAttribute('for', item.id);
 
       template.querySelector('.economic').textContent = item.numero_economico;
-      template.querySelector('.profundidad').textContent = item.min_profundidad || 'Sin profundidad';
+      template.querySelector('.economic').textContent = item.numero_economico;
+
+      if (item.color === 'good') {
+        template
+          .querySelector('.tire__status')
+          .classList.toggle('good', item.color === 'good');
+      } else if (item.color === 'bad') {
+        template
+          .querySelector('.tire__status')
+          .classList.toggle('bad', item.color === 'bad');
+      } else if (item.color === 'yellow') {
+        template
+          .querySelector('.tire__status')
+          .classList.toggle('yellow', item.color === 'yellow');
+      }
+
+      template.querySelector('.profundidad').textContent =
+        item.min_profundidad || 'Sin profundidad';
       template.querySelector('.product').textContent = item.producto__producto;
       template.querySelector('.date').textContent =
         item.fecha_de_entrada_inventario;
-      
 
       let clone = document.importNode(template, true);
       fragment.appendChild(clone);
     });
 
-    container.innerHTML = '';
-    loader.remove();
+    loader.style.display = 'none';
     container.appendChild(fragment);
-    counter();
   } catch (error) {
-    console.error(`Error ${error.status}: ${error.statusMessage}`);
+    console.error(error);
   }
+
+  window.addEventListener('scroll', (e) => {
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+
+    if (scrollTop + clientHeight >= scrollHeight) {
+      page++;
+      getTires(window.location.search);
+    }
+  });
 };
 
-window.addEventListener('scroll', (e) => {
-  const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-
-  if (scrollTop + clientHeight >= scrollHeight) {
-    limit = limit + limit;
-    getData();
-  }
-});
-
+export default getTires;

@@ -146,12 +146,12 @@ h6 {
 
 .icon-spinner2 {
   animation: spinner 1s linear infinite;
-  display: block;
+  display: none;
   font-size: 3rem;
   height: fit-content;
   margin: auto;
   width: fit-content;
-  grid-column: span 4;
+  /* grid-column: span 4; */
 }
 
 @keyframes spinner {

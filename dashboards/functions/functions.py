@@ -231,6 +231,21 @@ def clases_mas_frecuentes(vehiculo_fecha, compania):
     except:
         return None
 
+
+def check_presion_pulpo(llanta, min_presion, max_presion):
+    presion = int(llanta.presion_actual)
+    alta = Observacion.objects.get(observacion='Alta presion')
+    baja = Observacion.objects.get(observacion='Baja presión')
+    llanta.observaciones.remove(alta)
+    llanta.observaciones.remove(baja)
+    print(presion)
+    if presion < min_presion:
+        llanta.observaciones.add(baja)
+    if presion > max_presion:
+        llanta.observaciones.add(alta)
+    llanta.save()
+
+
 def aplicaciones_mas_frecuentes(vehiculo_fecha, vehiculos, compania):
     try:
         aplicaciones_compania = []
@@ -704,9 +719,13 @@ def doble_entrada(bitacoras):
     entradas = {}
     dobles_entradas = []
     for bitacora in bitacoras:
-        presion_de_entrada = bitacora.presion_de_entrada
-        presion_de_salida = bitacora.presion_de_salida
-        entrada_correcta = presion_de_entrada/presion_de_salida
+        if bitacora.presion_de_salida == 0:
+            entrada_correcta = 0
+        else:
+            presion_de_entrada = bitacora.presion_de_entrada
+            presion_de_salida = bitacora.presion_de_salida
+            entrada_correcta = presion_de_entrada/presion_de_salida
+
 
         if entrada_correcta < 0.9:
             if bitacora.numero_economico.id in entradas:
@@ -728,6 +747,7 @@ def doble_entrada_pro(bitacoras):
     entradas = {}
     dobles_entradas = []
     for bitacora in bitacoras:
+        mala_entrada = False
         presion_de_entrada_1 = bitacora.presion_de_entrada_1
         presion_de_salida_1 = bitacora.presion_de_salida_1
         try:
@@ -814,71 +834,86 @@ def doble_entrada_pro(bitacoras):
 
 
         if entrada_correcta_1 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_2 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_3 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_4 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_5 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_6 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_7 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_8 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_9 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_10 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_11 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
         elif entrada_correcta_12 < 0.9:
+            mala_entrada = True
             if bitacora.numero_economico.id in entradas:
                 entradas[bitacora.numero_economico.id] += 1
             else:
                 entradas[bitacora.numero_economico.id] = 1
+        else:
+            entradas[bitacora.numero_economico.id] = 0
 
         if bitacora.numero_economico.id in entradas:
-            if entradas[bitacora.numero_economico.id] >= 2:
+            if entradas[bitacora.numero_economico.id] >= 2 and mala_entrada:
                 dobles_entradas.append(bitacora.id)
 
     bitacora = bitacoras.filter(id__in=dobles_entradas).values("numero_economico").annotate(max=Max("fecha_de_inflado")).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
+    print("bitacora", bitacora)
     meses = bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1),distinct=True), mes2=Count("mes",filter=Q(mes=2),distinct=True), mes3=Count("mes",filter=Q(mes=3),distinct=True), mes4=Count("mes",filter=Q(mes=4),distinct=True), mes5=Count("mes",filter=Q(mes=5),distinct=True), mes6=Count("mes",filter=Q(mes=6),distinct=True), mes7=Count("mes",filter=Q(mes=7),distinct=True), mes8=Count("mes",filter=Q(mes=8),distinct=True))
     bitacora = bitacora.values("numero_economico")
     return bitacora, meses
@@ -888,9 +923,12 @@ def doble_mala_entrada(bitacoras, vehiculos):
     entradas = {}
     dobles_entradas = []
     for bitacora in bitacoras:
-        presion_de_entrada = bitacora.presion_de_entrada
-        presion_de_salida = bitacora.presion_de_salida
-        entrada_correcta = presion_de_entrada/presion_de_salida
+        if bitacora.presion_de_salida == 0:
+            entrada_correcta = 0
+        else:
+            presion_de_entrada = bitacora.presion_de_entrada
+            presion_de_salida = bitacora.presion_de_salida
+            entrada_correcta = presion_de_entrada/presion_de_salida
 
         if entrada_correcta < 0.9:
             if bitacora.numero_economico.id in entradas:
@@ -915,9 +953,12 @@ def doble_mala_entrada2(bitacoras, vehiculos):
     entradas = {}
     dobles_entradas = []
     for bitacora in bitacoras:
-        presion_de_entrada = bitacora.presion_de_entrada
-        presion_de_salida = bitacora.presion_de_salida
-        entrada_correcta = presion_de_entrada/presion_de_salida
+        if bitacora.presion_de_salida == 0:
+            entrada_correcta = 0
+        else:
+            presion_de_entrada = bitacora.presion_de_entrada
+            presion_de_salida = bitacora.presion_de_salida
+            entrada_correcta = presion_de_entrada/presion_de_salida
 
         if entrada_correcta < 0.9:
             if bitacora.numero_economico.id in entradas:
@@ -1565,6 +1606,13 @@ def exist_edicion_manual_one(inspeccion):
     if inspeccion.edicion_manual == True:
         return True
     return False
+
+
+def exist_context(user):
+    perfil = Perfil.objects.get(user = user)
+    print(perfil)
+    return False
+
 
 def get_product_list(productos):
     list_temp = []

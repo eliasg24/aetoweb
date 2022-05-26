@@ -1,7 +1,8 @@
-import { getByEconomic } from "./getByEconomic.js";
-import { getRodante } from "./getRodante.js"
+import getTires from './getTires.js';
+import { setFilters, setValues } from './setFilters.js';
 
 document.addEventListener('DOMContentLoaded', (e) => {
-  getRodante();
-  getByEconomic();
-})
+  getTires(window.location.search);
+  setFilters();
+  setValues();
+});

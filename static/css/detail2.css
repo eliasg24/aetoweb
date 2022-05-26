@@ -35,6 +35,7 @@
   bottom: 35%;
   margin: auto;
   padding: 0.25rem;
+  width: -moz-fit-content;
   width: fit-content;
 }
 
@@ -470,6 +471,14 @@
   padding: 1rem;
 }
 
+.sp1 {
+  transform: rotate(90deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
 .icon-central-axle,
 .icon-da {
   background-color: var(--colorv02);
@@ -594,11 +603,11 @@
   /*ejes__2*/
 
   .ejes__2 > .tire > .icon-tire2 {
-    font-size: 24vmin;
+    font-size: 23vmin;
   }
 
   .par-doble-llanta.ejes__2 .icon-tire2 {
-    font-size: 24vmin;
+    font-size: 23vmin;
   }
 
   .ejes__2 > .axle {

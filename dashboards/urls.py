@@ -497,36 +497,108 @@ urlpatterns = [
         name="download_todo"
     ),
     
-    #APIS
+    #----------------------APIS---------------------
+    
+    #-----------------------A-----------------------
+    
+    #-----------------------B-----------------------
+    
+    #-----------------------C-----------------------
+    
+    path(
+        route="api/contextoapi",
+        view=views_rest.ContextoApi.as_view(),
+        name="contextoapi"
+    ),
+
+    path(
+        route="api/carritollantasapi",
+        view=views_rest.CarritoLlantasApi.as_view(),
+        name="carritollantasapi"
+    ),
+    
+    #-----------------------D-----------------------
+    
+    #-----------------------E-----------------------
+    
+    #-----------------------F-----------------------
+    
+    #-----------------------G-----------------------
+    
+    path(
+        route="api/generacionllantanueva",
+        view=views_rest.GeneracionLlantaNuevaView.as_view(),
+        name="generacionllantanueva"
+    ),
+    
+    #-----------------------H-----------------------
+    
+    path(
+        route="api/historicodeorden",
+        view=views_rest.HistoricoDeOrdenApi.as_view(),
+        name="historicodeorden"
+    ),
+    
+    #-----------------------I-----------------------
+    
+    #-----------------------J-----------------------
+    
+    #-----------------------K-----------------------
+    
+    #-----------------------L-----------------------
+    
+    #-----------------------M-----------------------
+    
+    #-----------------------N-----------------------
+    
      path(
         route="api/numtirestock",
         view=views_rest.NumTireStock.as_view(),
         name="numtirestock"
     ),
-      path(
-        route="api/tiresearch",
-        view=views_rest.TireSearch.as_view(),
-        name="tiresearch"
-    ),
+     
+    #-----------------------Ñ-----------------------
+    
+    #-----------------------O-----------------------
+    
     path(
         route="api/ordenllantanueva",
         view=views_rest.OrdenLlantaNuevaView.as_view(),
         name="ordenllantanueva"
     ),
     path(
-        route="api/generacionllantanueva",
-        view=views_rest.GeneracionLlantaNuevaView.as_view(),
-        name="generacionllantanueva"
-    ),
-    path(
         route="api/ordersearch",
         view=views_rest.OrderSearch.as_view(),
         name="ordersearch"
-    )
-    ,
-    path(
-        route="api/historicodeorden",
-        view=views_rest.HistoricoDeOrdenApi.as_view(),
-        name="historicodeorden"
-    )
+    ),
+    
+    #-----------------------P-----------------------
+    
+    #-----------------------Q-----------------------
+
+    #-----------------------R-----------------------
+
+    #-----------------------S-----------------------
+
+    #-----------------------T-----------------------
+
+      path(
+        route="api/tiresearch",
+        view=views_rest.TireSearch.as_view(),
+        name="tiresearch"
+    ),
+
+    #-----------------------U-----------------------
+
+    #-----------------------V-----------------------
+
+    #-----------------------W-----------------------
+
+    #-----------------------X-----------------------
+
+    #-----------------------Y-----------------------
+
+    #-----------------------Z-----------------------
+
+
 ]

@@ -1,0 +1,48 @@
+.all-cont {
+    display: grid;
+    height: 100%;
+    grid-template-rows: auto 1fr;
+}
+
+.container {
+    width: 100%;
+    margin: 1rem auto;
+    padding: 1rem;
+    display: grid;
+    gap: 1rem;
+    grid-template-rows: auto 1fr;
+}
+
+.nav__top {
+    display: grid;
+    gap: 1rem;
+}
+
+.card__item {
+    background: var(--colorv04);
+    padding: 1rem;
+}
+
+.list__items {
+    background: var(--colorv27);
+}
+
+.top__list {
+    background: var(--colorv04);
+    display: flex;
+}
+
+.top__list h2 {
+    font-size: 2rem;
+    padding: 0.5rem;
+}
+
+@media screen and (min-width: 1024px) { 
+    .container {
+        width: 80%;
+    }
+    .nav__top {
+        grid-template-columns: repeat(3, 1fr);
+        justify-content: space-between;
+    }
+}
