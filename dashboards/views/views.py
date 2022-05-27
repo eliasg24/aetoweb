@@ -5967,8 +5967,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         inspecciones_vehiculo = InspeccionVehiculo.objects.filter(vehiculo=vehiculo)
         bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-        entradas_correctas = functions.entrada_correcta(bitacora)
-        entradas_correctas_pro = functions.entrada_correcta_pro(bitacora_pro)
+        entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
         if vehiculo.fecha_de_inflado:
             inflado = 1
@@ -5981,7 +5980,7 @@ class DetailView(LoginRequiredMixin, DetailView):
             eventos.append([bit.fecha_de_inflado, bit, 'pulpo'])
         for bit in bitacora_pro:
             eventos.append([bit.fecha_de_inflado, bit, 'pulpopro'])
-            
+
         for inspeccion in inspecciones_vehiculo:
             color_insp = functions.color_observaciones_all(inspeccion)
             if color_insp == 'bad':
@@ -5998,7 +5997,7 @@ class DetailView(LoginRequiredMixin, DetailView):
             print(ins)
             eventos.append([ins[0].date(), ins[1], ins[2], ins[3]])
         eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
-        print("eventos", eventos)
+        context["eventos"] = eventos
         hoy = date.today()
 
         mes_1 = hoy.strftime("%b")
@@ -6103,7 +6102,7 @@ class DetailView(LoginRequiredMixin, DetailView):
 
                     valores_posicion.append(km_proyectado)
                     valores_posicion.append(profundidad)
-                    
+
                     comparativa_de_posiciones[posicion["posicion"]] = valores_posicion
 
             #print("comparativa_de_posiciones", comparativa_de_posiciones)
@@ -6118,9 +6117,9 @@ class DetailView(LoginRequiredMixin, DetailView):
                     km_x_mm_eje = regresion_eje[1]
 
                     valores_eje.append(km_x_mm_eje)
-                    
+
                     comparativa_de_ejes[eje["nombre_de_eje"]] = valores_eje
-            
+
             regresion_vehiculo = functions.km_proyectado(inspecciones, False)
             cpk_vehiculo = regresion_vehiculo[3]
             cpk_vehiculo = round(sum(cpk_vehiculo), 3)
@@ -6154,8 +6153,6 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["cpk_vehiculo"] = cpk_vehiculo
             context["doble_entrada"] = doble_entrada
             context["entradas"] = entradas_correctas
-            context["entradas_pro"] = entradas_correctas_pro
-            context["eventos"] = eventos
             context["fecha"] = fecha
             context["hoy"] = hoy
             context["llantas"] = llantas
@@ -6178,25 +6175,25 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["vehiculo_mes6"] = vehiculo_mes6.count() + vehiculo_pro_mes6.count()
             context["vehiculo_mes7"] = vehiculo_mes7.count() + vehiculo_pro_mes7.count()
             context["vehiculo_mes8"] = vehiculo_mes8.count() + vehiculo_pro_mes8.count()
-            
+
         #Generacion de ejes dinamico
         vehiculo_actual = Vehiculo.objects.get(pk = self.kwargs['pk'])
         llantas_actuales = Llanta.objects.filter(vehiculo = self.kwargs['pk'], tirecheck=False, inventario="Rodante")
         inspecciones_actuales = Inspeccion.objects.filter(llanta__in=llantas_actuales)
 
         #Obtencion de la lista de las llantas
-        
+
         filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones_actuales)
         llantas_sospechosas = llantas_actuales.filter(numero_economico__in=filtro_sospechoso)
 
         filtro_rojo = functions.vehiculo_rojo_llanta(llantas_actuales)
         llantas_rojas = llantas_actuales.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
-        
+
         filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas_actuales)
         llantas_amarillas = llantas_actuales.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
-        
+
         llantas_azules = llantas_actuales.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
-        
+
         #Obtencion de la data
         num_ejes = vehiculo_actual.configuracion.split('.')
         ejes_no_ordenados = []
@@ -6216,7 +6213,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         for num in num_ejes:
             list_temp = []
             for llanta in llantas_actuales:
-                
+
                 objetivo = llanta.vehiculo.compania.objetivo / 100
                 presion_act = llanta.presion_actual
                 presion_minima = presiones_establecida[numero] - (presiones_establecida[numero] * objetivo)
@@ -6224,7 +6221,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                 min_produndidad = functions.min_profundidad(llanta)
                 punto_retiro = functions.punto_de_retiro(llanta)
                 color_profundidad = functions.color_profundidad(min_produndidad, punto_retiro)
-                
+
                 problema = None
                 try:
                     if presion_act < presion_minima:
@@ -6235,12 +6232,12 @@ class DetailView(LoginRequiredMixin, DetailView):
                         color_presion = 'good'
                 except:
                     color_presion = 'good'
-                
+
                 if message or problema:
                     color_llanta = "bad"
                 else:
                     color_llanta = "good"
-                try:  
+                try:
                     if presion_act >= presion_minima and presion_act <= presion_maxima:
                         color_presion = 'good'
                     else:
@@ -6269,14 +6266,14 @@ class DetailView(LoginRequiredMixin, DetailView):
                 style = 'bad'
         else:
             style = 'good'
-        
+
         cant_ejes = len(ejes)
-        
+
         if len(llantas_actuales) == 0:
             sin_llantas = True
         else:
             sin_llantas = False
-        
+
         problemas_abiertos = []
 
         try:
@@ -6287,7 +6284,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                     num_llanta += 1
                     if num_llanta in message_pro:
                         problemas_abiertos.append([eje[0][0], message_pro[num_llanta]])
-                        eje[0][4] = "bad" 
+                        eje[0][4] = "bad"
                     elif message:
                         problemas_abiertos.append([eje[0][0], message])
                     if eje[0][5] or eje[0][5] == 0:
@@ -6304,7 +6301,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                     num_llanta += 1
                     if num_llanta in message_pro:
                         problemas_abiertos.append([eje[0][0], message_pro[num_llanta]])
-                        eje[0][4] = "bad" 
+                        eje[0][4] = "bad"
                     elif message:
                         problemas_abiertos.append([eje[0][0], message])
                     if eje[0][5] or eje[0][5] == 0:
@@ -6360,7 +6357,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         #Generacion de las bitacoras
         """bitacora_edicion = Bitacora_Edicion.objects.filter(vehiculo = vehiculo_actual)
         context['bitacora_edicion'] = bitacora_edicion"""
-        
+
         #Generacion de la dimencion
         dimension = 'Desconocido'
         for llanta in llantas_actuales:
@@ -6372,10 +6369,10 @@ class DetailView(LoginRequiredMixin, DetailView):
                 pass
         #print(dimension)
         context['dimension'] = dimension
-        
-        
+
+
         #observaciones:
-        
+
         problemas = []
         ultima_inspeccion_vehiculo = InspeccionVehiculo.objects.filter(vehiculo=vehiculo).last()
         print(ultima_inspeccion_vehiculo)
