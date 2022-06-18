@@ -327,6 +327,11 @@ urlpatterns = [
         name="almacen"
     ),
     path(
+        route="carrito-stock",
+        view=views.carritoStockView.as_view(),
+        name="carritoStock"
+    ),
+    path(
         route="antesDesechar",
         view=views.antesDesecharView.as_view(),
         name="antesDesechar"
@@ -387,6 +392,16 @@ urlpatterns = [
         name="ordenEntrada"
     ),
     path(
+        route="orden-entrada-taller/<int:pk>",
+        view=views.ordenEntradaTallerView.as_view(),
+        name="ordenEntradaTaller"
+    ),
+    path(
+        route="orden-entrada-stock/<int:pk>",
+        view=views.ordenEntradaStockView.as_view(),
+        name="ordenEntradaStock"
+    ),
+    path(
         route="ordenLlanta/<int:pk>",
         view=views.ordenLlantaView.as_view(),
         name="ordenLlanta"
@@ -422,9 +437,14 @@ urlpatterns = [
         name="procesoRenovado"
     ),
     path(
-        route="planTrabajo",
-        view=views.planTrabajoView.as_view(),
-        name="planTrabajo"
+        route="vehicleList",
+        view=views.vehicleListView.as_view(),
+        name="vehicleList"
+    ),
+    path(
+        route="taller/<int:pk>",
+        view=views.planTallerView.as_view(),
+        name="planTaller"
     ),
     path(
         route="calendario",
@@ -492,6 +512,16 @@ urlpatterns = [
         name="historialTransacciones"
     ),
     path(
+        route="orden-desecho",
+        view=views.reporteDesechoView.as_view(),
+        name="ordenDesechoTemplete"
+    ),
+    path(
+        route="historial-desecho",
+        view=views.historialDesechoView.as_view(),
+        name="ordenDesecho"
+    ),
+    path(
         route="download_todo",
         view=views.download_todo,
         name="download_todo"
@@ -515,6 +545,12 @@ urlpatterns = [
         route="api/carritollantasapi",
         view=views_rest.CarritoLlantasApi.as_view(),
         name="carritollantasapi"
+    ),
+    
+    path(
+        route="api/carritocountapi",
+        view=views_rest.CarritoCountApi.as_view(),
+        name="carritocountapi"
     ),
     
     #-----------------------D-----------------------
@@ -571,9 +607,24 @@ urlpatterns = [
         view=views_rest.OrderSearch.as_view(),
         name="ordersearch"
     ),
-    
+        path(
+        route="api/opcionesdesecho",
+        view=views_rest.OpcionesDesechoApi.as_view(),
+        name="opcionesdesecho"
+    ),
     #-----------------------P-----------------------
-    
+
+    path(
+        route="api/panelrenovado",
+        view=views_rest.PanelRenovadoApi.as_view(),
+        name="panelrenovado"
+    ),
+
+    path(
+        route="api/procesodesecho",
+        view=views_rest.ProcesoDesechoApi.as_view(),
+        name="procesodesecho"
+    ),
     #-----------------------Q-----------------------
 
     #-----------------------R-----------------------
@@ -587,10 +638,30 @@ urlpatterns = [
         view=views_rest.TireSearch.as_view(),
         name="tiresearch"
     ),
-
+      path(
+        route="api/tiresearchalmacen",
+        view=views_rest.TireSearchAlmacen.as_view(),
+        name="tiresearchalmacen"
+    ),
+    path(
+        route="api/tiresearchtaller",
+        view=views_rest.TireSearchTaller.as_view(),
+        name="tiresearchtaller"
+    ),
+    path(
+        route="api/vehicleandtiresearchtaller",
+        view=views_rest.VehicleAndTireSearchTaller.as_view(),
+        name="vehicleandtiresearchtaller"
+    ),
     #-----------------------U-----------------------
 
     #-----------------------V-----------------------
+    
+    path(
+        route="api/vaciadocarrito",
+        view=views_rest.VaciadoCarrito.as_view(),
+        name="vaciadocarrito"
+    ),
 
     #-----------------------W-----------------------
 

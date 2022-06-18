@@ -1,8 +1,11 @@
-import getTires from './getTires.js';
-import { setFilters, setValues } from './setFilters.js';
+import { removeFilters, setFilters, setValues } from "./getByEconomic.js";
+import { getCounter } from "./getCounter.js";
+import getTires from "./getTires.js";
 
 document.addEventListener('DOMContentLoaded', (e) => {
-  getTires(window.location.search);
   setFilters();
   setValues();
+  getTires(window.location.search);
+  getCounter();
+  removeFilters();
 });

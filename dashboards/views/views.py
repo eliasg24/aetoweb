@@ -1,6 +1,8 @@
 # Django
 from ctypes import alignment
+from functools import reduce
 from math import prod
+import operator
 from operator import or_
 from http.client import HTTPResponse
 import re
@@ -12,7 +14,8 @@ from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
-from django.db.models import Q, F
+from django.db.models import Q, F, ExpressionWrapper, IntegerField
+from django.forms import DateField, DateTimeField, DurationField
 from django.db.models.functions import Least
 from django.http import HttpResponseRedirect
 from django.http.response import JsonResponse, HttpResponse
@@ -31,6 +34,7 @@ from requests import request
 
 # Functions
 from dashboards.functions import functions, functions_ftp, functions_create, functions_excel
+from dashboards.functions.functions import DiffDays, CastDate
 from aeto import settings
 
 # Forms
@@ -38,10 +42,11 @@ from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, Lla
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, Producto, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, OrdenDesecho, Producto, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
 
 
 # Utilities
+import math
 from multi_form_view import MultiModelFormView
 import csv
 from datetime import date, datetime, timedelta
@@ -66,6 +71,8 @@ from spyne.server.wsgi import WsgiApplication
 from spyne.service import ServiceBase
 import statistics
 import xlwt
+
+from dashboards.views.views_rest import CarritoLlantasApi
 
 class LoginView(auth_views.LoginView):
     # Vista de Login
@@ -112,12 +119,13 @@ class HomeView(LoginRequiredMixin, TemplateView):
         perfil.taller.set(talleres)
         perfil.save()
         #Vaciado del carrito
-        try:
-            seleccionadas = LlantasSeleccionadas.objects.filter(perfil=perfil)
+        
+        seleccionadas = LlantasSeleccionadas.objects.filter(perfil=perfil)
+        if seleccionadas.count() > 0:
             for select in seleccionadas:
                 select.llantas.clear()
                 select.save()
-        except:
+        else:
             data = []
             inventarios = [
                 "Nueva", 
@@ -912,7 +920,7 @@ class diagramaView(LoginRequiredMixin, TemplateView):
             
         ejes = functions.acomodo_ejes(ejes_no_ordenados)
             
-        color = functions.entrada_correcta(vehiculo_actual)
+        color = functions.entrada_correcta(vehiculo_actual, None)
         #print(color)
         if color == 'good':
             style = 'good'
@@ -1316,30 +1324,8 @@ class diagramaView(LoginRequiredMixin, TemplateView):
                 llanta_actual.ultima_inspeccion.save()
                 llanta_actual.save()
             elementos += 1
-            
-        #CREACION DE BITACORA
-        """print(diferencias)
-        if len(diferencias) > 0:
-            if id_bitacora == None:
-                bitacora_cambios = Bitacora_Edicion.objects.create(
-                    vehiculo = llanta.vehiculo,
-                    tipo = 'edicion'
-                    )
-                bitacora_cambios.save()
-                id_bitacora = bitacora_cambios.id
-                
-            else:
-                try:
-                    bitacora_cambios = Bitacora_Edicion.objects.get(pk = id_bitacora)
-                except:
-                    pass
-            
-            for diferencia in diferencias:
-                registro = Registro_Bitacora.objects.create(
-                    bitacora = bitacora_cambios,
-                    evento = diferencia
-                )
-                registro.save()"""
+        #Diagrma obds
+        functions.observaciones_vehiculo(vehiculo)
                         
         return redirect('dashboards:detail', self.kwargs['pk'])
         #return redirect('dashboards:diagrama', self.kwargs['pk'])
@@ -1393,6 +1379,7 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
         print(request.POST)
         #print(self.kwargs['pk'])
         llanta = Llanta.objects.get(pk=self.kwargs['pk'])
+        llanta_actual_referencia = Llanta.objects.get(pk=self.kwargs['pk'])
         economico = request.POST.getlist('economico')[0]
         producto = request.POST.getlist('producto')[0]
         vida = request.POST.getlist('vida')[0]
@@ -1422,7 +1409,6 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
             cambios.append('producto')
             
         if llanta.vida != vida:
-            functions.cambio_de_vida(llanta)
             cambios.append('vida')
             llanta.vida = vida
             inspeccion_actual.vida = llanta.vida
@@ -1448,7 +1434,8 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
             inspeccion_actual.presion = presion
         llanta.save()
         inspeccion_actual.save()
-        
+        if 'vida' in cambios:
+            functions.cambio_de_vida(llanta_actual_referencia, llanta)
         if len(cambios) > 0:
             if inspeccion_actual.evento != None:
                 #print(inspeccion_actual.evento)
@@ -1614,6 +1601,8 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
             for observacion in llanta.observaciones.all():
                 llanta.ultima_inspeccion.observaciones.add(observacion)
             llanta.ultima_inspeccion.save()
+        #Tire Diagrama
+        functions.observaciones_vehiculo(llanta.vehiculo)
         return redirect('dashboards:tireDetail', self.kwargs['pk'])
 
 class inspeccionLlantaView(LoginRequiredMixin, TemplateView):
@@ -2194,7 +2183,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
             
         ejes = functions.acomodo_ejes(ejes_no_ordenados)
             
-        color = functions.entrada_correcta(vehiculo_actual)
+        color = functions.entrada_correcta(vehiculo_actual, None)
         #print(color)
         if color == 'good':
             style = 'good'
@@ -2334,7 +2323,6 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                 profundidad_derecha_post = (float(profundidad_derecha[elementos]) if profundidad_derecha[elementos]!='' else None)
                 presion_post = (presion[elementos] if presion[elementos] != '' else llanta_actual.presion_actual)
                 if vida_post != llanta_referencia.vida:
-                    functions.cambio_de_vida(llanta_referencia)
                     print('Cambio de vida')
                     cambios.append('1')
                 if str(profundidad_izquierda_post) != str(llanta_referencia.profundidad_izquierda):
@@ -2395,7 +2383,8 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                     llanta_actual.profundidad_central = profundidad_central_post
                     llanta_actual.profundidad_derecha = profundidad_derecha_post
                     llanta_actual.save()
-                    
+                    if 'vida' in cambios:
+                        functions.cambio_de_vida(llanta_referencia, llanta_actual)
                     if vehiculo.km != None:
                         if kilometraje[0] != vehiculo_referencia.km:
                             if llanta_actual.km_montado == None:
@@ -2563,32 +2552,9 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                 llanta_actual.ultima_inspeccion.save()
                 llanta_actual.save()
             elementos += 1
-                    
-            
-            
-        #CREACION DE BITACORA
-        """print(diferencias)
-        if len(diferencias) > 0:
-            if id_bitacora == None:
-                ""bitacora_cambios = Bitacora_Edicion.objects.create(
-                    vehiculo = llanta_ref.vehiculo,
-                    tipo = 'inspeccion'
-                    )
-                bitacora_cambios.save()
-                id_bitacora = bitacora_cambios.id
-                
-            else:
-                try:
-                    bitacora_cambios = Bitacora_Edicion.objects.get(pk = id_bitacora)
-                except:
-                    pass""
-            
-            for diferencia in diferencias:
-                registro = Registro_Bitacora.objects.create(
-                    bitacora = bitacora_cambios,
-                    evento = diferencia
-                )
-                registro.save()"""
+            #Inspeccion      
+        functions.observaciones_vehiculo(vehiculo)
+        Vehiculo.objects.filter(pk=vehiculo.id).update(fecha_ultima_inspeccion = date.today())
         return redirect('dashboards:detail', self.kwargs['pk'])
         #return redirect('dashboards:inspeccionVehiculo', self.kwargs['pk'])
 
@@ -3725,7 +3691,7 @@ class reporteVehiculoView(LoginRequiredMixin, TemplateView):
         llantas = Llanta.objects.filter(vehiculo = vehiculo, inventario="Rodante")
         
         objetivo = vehiculo.compania.objetivo
-        color1 = functions.entrada_correcta(bitacora)
+        color1 = functions.entrada_correcta(bitacora, None)
         color2 = functions.salida_correcta(bitacora)
         if color1 == "good":
             signo1 = "icon-checkmark"
@@ -3891,21 +3857,20 @@ class reporteVehiculoView(LoginRequiredMixin, TemplateView):
         #functions.send_mail(bitacora, tipo_bit)
         return context   
  
-class reporteLlantaView(LoginRequiredMixin, DetailView):
+class reporteLlantaView(LoginRequiredMixin, TemplateView):
     # Vista de reporteLlantaView
           
     template_name = "reporteLlanta.html"
-    slug_field = "bitacora"
-    slug_url_kwarg = "bitacora"
-    queryset = Bitacora.objects.all()
     context_object_name = "bitacora"
 
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
         if self.kwargs['pulpo'] == 'pulpo':
+            print("hola")
             bitacora = Bitacora.objects.get(pk=self.kwargs['pk'])
         elif self.kwargs['pulpo'] == 'pulpopro':
+            print("hola2")
             bitacora = Bitacora_Pro.objects.get(pk=self.kwargs['pk'])
         #bitacora = Bitacora.objects.get(id=self.kwargs['pk'])
         llanta = Llanta.objects.get(id=self.kwargs['llanta'])
@@ -4107,7 +4072,7 @@ class configuracionVehiculoView(LoginRequiredMixin, TemplateView):
                 print('00---00')
             
             
-        color = functions.entrada_correcta(vehiculo_actual)
+        color = functions.entrada_correcta(vehiculo_actual, None)
         #print(color)
         if color == 'good':
             style = 'good'
@@ -4138,6 +4103,110 @@ class configuracionLlantaView(LoginRequiredMixin, TemplateView):
 
     template_name = "configuracionLlanta.html" 
 
+class carritoStockView(LoginRequiredMixin, TemplateView):
+    # Vista de carritoStockView
+
+    template_name = "carrito-stock.html" 
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #Obtencion datos del usuario
+        user = self.request.user
+        perfil = Perfil.objects.get(user = user)
+        #Obtencion del inventario
+        inventario = self.request.GET.get('inventario').replace('_', ' ')
+        print(inventario)
+        #Lista de colores
+        azul = []
+        amarillo = []
+        rojo = []
+        morado = []
+        #Obtencion del carrito y las llantas
+        carrito = LlantasSeleccionadas.objects.get(perfil=perfil, inventario=inventario)
+        llantas = carrito.llantas.all()
+        llantas_dict = []
+        for llanta in llantas:
+            status = functions.color_observaciones(llanta.observaciones.all())
+            if status == 'good':
+                azul.append(1)
+            elif status == 'yellow':
+                amarillo.append(1)
+            elif status == 'bad':
+                rojo.append(1)
+            elif status == 'purple':
+                morado.append(1)
+                
+            llantas_dict.append( {
+                'id': llanta.id,
+                'eco': llanta.numero_economico,
+                'producto': llanta.producto.producto,
+                'fecha': f'{llanta.fecha_de_entrada_inventario.day}/{llanta.fecha_de_entrada_inventario.month}/{llanta.fecha_de_entrada_inventario.year}',
+                'status': status
+            })
+        opciones = functions.opciones_redireccion(inventario)
+        #Paso del contexto
+        context['inventario'] = inventario
+        context['llantas_dict'] = llantas_dict
+        context['opciones'] = opciones
+        context['azul'] = len(azul)
+        context['rojo'] = len(rojo)
+        context['amarillo'] = len(amarillo)
+        context['morado'] = len(morado)
+        context['total'] = len(azul) + len(rojo) + len(amarillo) + len(morado)
+        return context
+    
+    
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        #Obtencion datos del usuario
+        user = self.request.user
+        perfil = Perfil.objects.get(user = user)
+        #Obtencion del inventario
+        inventario = request.POST.getlist('inventario')[0].replace('_', ' ')
+        
+        if 'vaciar' in request.POST:
+    
+            functions.eliminarCarrito(inventario, perfil)
+            url = f"%s?inventario={inventario}" % reverse('dashboards:carritoStock')
+            return redirect(url)
+        
+        #Se verifica si se quiere eliminar un elento del carrito
+        if 'eliminar' in request.POST:
+            id = int(request.POST.getlist('eliminar')[0])
+            inventario = request.POST.getlist('inventario')[0].replace('_', ' ')
+            functions.eliminarElementoCarrito(id, inventario, perfil)
+            url = f"%s?inventario={inventario}" % reverse('dashboards:carritoStock')
+            return redirect(url)
+            
+            
+       
+        #En caso que no se elimina nade continua
+        print('-------------')
+        print(inventario)
+        destino = request.POST.getlist('destino')[0]
+        carrito = LlantasSeleccionadas.objects.get(perfil=perfil, inventario=inventario).llantas.all()
+        ids = []
+        for llanta in carrito:
+            ids.append(llanta.id)
+
+        ids = str(ids).replace(" ", "")
+        if destino == 'Taller Destino':
+            url = f"%s?ids={ids}&inventario={inventario}" % reverse('dashboards:tallerDestino')
+            
+        elif destino == 'Panel de Renovado':
+            url = f"%s?ids={ids}" % reverse('dashboards:procesoRenovado')
+            
+        elif destino == 'Enviar con renovador':
+            url = f"%s?ids={ids}" % reverse('dashboards:ordenSalidaRen')
+        
+        elif destino == 'Stock Destino':
+            url = f"%s?ids={ids}&inventario={inventario}" % reverse('dashboards:stockDestino')
+        
+        elif destino == 'Panel de Desecho':
+            url = f"%s?ids={ids}&inventario={inventario}" % reverse('dashboards:procesoDesecho')
+            
+            
+        return redirect(url)
 class almacenView(LoginRequiredMixin, TemplateView, View):
     # Vista de almacenView
 
@@ -4198,7 +4267,16 @@ class antesDesecharView(LoginRequiredMixin, TemplateView):
     # Vista de antesDesecharView
 
     template_name = "antesDesechar.html"
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        renovadores = Renovador.objects.filter(compania=compania)
+        context['renovadores'] = renovadores
+        return context
+    
 class antesRenovarView(LoginRequiredMixin, TemplateView):
     # Vista de antesRenovarView
 
@@ -4222,11 +4300,20 @@ class antesRenovarView(LoginRequiredMixin, TemplateView):
         if form == 'tallerDestino':
             url = f"%s?ids={ids}" % reverse('dashboards:tallerDestino')
         return redirect(url)
+    
 class conRenovadorView(LoginRequiredMixin, TemplateView):
     # Vista de conRenovadorView
 
     template_name = "conRenovador.html"
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        renovadores = Renovador.objects.filter(compania=compania)
+        context['renovadores'] = renovadores
+        return context
 class desechoFinalView(LoginRequiredMixin, TemplateView):
     # Vista de desechoFinalView
 
@@ -4272,7 +4359,16 @@ class renovadaView(LoginRequiredMixin, TemplateView):
     # Vista de renovadaView
 
     template_name = "renovada.html"
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        renovadores = Renovador.objects.filter(compania=compania)
+        context['renovadores'] = renovadores
+        return context
+    
 class servicioView(LoginRequiredMixin, TemplateView):
     # Vista de servicioView
 
@@ -4296,7 +4392,59 @@ class procesoDesechoView(LoginRequiredMixin, TemplateView):
     # Vista de procesoDesechoView
 
     template_name = "procesoDesecho.html"
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        context['perfil'] = perfil.id
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        print(request.POST)
+        print(request.FILES)
+        condicion = request.POST.getlist('condicion')[0]
+        zona = request.POST.getlist('zona')[0]
+        razon = request.POST.getlist('razon')[0]
+        profundidad = request.POST.getlist('profundidad')[0]
+        id = request.POST.getlist('id')[0]
+        image = request.FILES.getlist('image')[0]
+        print(condicion)
+        print(zona)
+        print(razon)
+        print(profundidad)
+        print(id)
+        print(image)
+        hoy = date.today()
+        llanta = Llanta.objects.get(pk = id)
+        desecho = Desecho.objects.get(compania = compania, condicion = condicion, zona_de_llanta = zona, razon = razon)
+        orden = OrdenDesecho.objects.create(
+            llanta = llanta,
+            compania = compania,
+            fecha = hoy,
+            min_profundidad = profundidad,
+            desecho = desecho,
+            imagen = image,
+        )
+        folio = str('OD' + str(perfil) + str(hoy.year)+ str(hoy.month)+ str(hoy.day) + str(orden.id))
+        orden.folio = folio
+        orden.perfil = perfil
+        orden.save()
+        min_prof = functions.min_profundidad(llanta)
+        if llanta.profundidad_derecha == min_prof:
+            llanta.profundidad_derecha = int(profundidad)
+        if llanta.profundidad_central == min_prof:
+            llanta.profundidad_central = int(profundidad)
+        if llanta.profundidad_izquierda == min_prof:
+            llanta.profundidad_izquierda = int(profundidad)
+        llanta.inventario = 'Desecho final'
+        llanta.save()
+        #Borrar llanta del carrito
+        LlantasSeleccionadas.objects.get(perfil=perfil, inventario = 'Antes de Desechar').llantas.remove(llanta)
+        return redirect('dashboards:almacen')
 class ordenSalidaRenView(LoginRequiredMixin, TemplateView):
     # Vista de ordenSalidaRenView
     template_name = "ordenSalidaRen.html"
@@ -4346,8 +4494,11 @@ class ordenSalidaRenView(LoginRequiredMixin, TemplateView):
         productos = functions.get_product_list(productos)
         hoy = date.today()
         renovador = Renovador.objects.get(pk = int(renovador[0]))
+        print('--------------------------')
         print(renovador)
         print(productos)
+        print('--------------------------')
+        
         data = []
         for producto in productos:
             list_temp = []
@@ -4373,7 +4524,7 @@ class ordenSalidaRenView(LoginRequiredMixin, TemplateView):
             "folio": folio, 
             "usuario": str(perfil),
             "fecha": str(datetime.today()), 
-            "renovador": "taller carlos", 
+            "renovador": str(renovador), 
             "productos": data
             })
         orden.folio = folio
@@ -4382,20 +4533,288 @@ class ordenSalidaRenView(LoginRequiredMixin, TemplateView):
         for llanta in llantas:
             llanta.inventario = 'Con renovador'
             llanta.fecha_de_entrada_inventario = date.today()
+            llanta.renovador = renovador
             llanta.save()
         print(datos)
         print(ids)
         print(llantas)
-    
+        
+        #Vaciado del carrito
+        carrito = LlantasSeleccionadas.objects.get(perfil=perfil, inventario='Antes de Renovar')
+        carrito.llantas.clear()
         return redirect('dashboards:conRenovador')
     
 def ordenSalidaRenDef(request):   
     return redirect('dashboards:conRenovador')
+
 class ordenEntradaView(LoginRequiredMixin, TemplateView):
     # Vista de ordenEntradaView
 
     template_name = "ordenEntrada.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        id = self.request.GET.get('id', None)
+        if id != None:
+            orden = Orden.objects.get(pk=int(id))
+            print('Muestra')
+            print(orden.datos)
+            evento_raw = orden.datos
+            evento_raw = evento_raw.replace("\'", "\"")
+            datos = json.loads(evento_raw)
+            context['folio'] = orden.folio
+            context['renovador'] = orden.renovador
+            context['hoy'] = orden.fecha
+            context['status'] = datos['status']
+            context['taller'] = datos['taller']
+            context['total'] = datos['total']
+            try:
+                context['producto'] = datos['producto']
+            except:
+                context['razon'] = datos['razon']
+            context['llantas_list'] = datos['llantas']
+            context['solovista'] = True
+            return context
+        status = self.request.GET.get('status')
+        producto = self.request.GET.get('producto', None)
+        razon = self.request.GET.get('razon', None)
+        taller = self.request.GET.get('taller')
+        ids = self.request.GET.get('ids')
+        ids = ids.split(',')
+        ids = functions.int_list_element(ids)
+        total = len(ids)
+        hoy = date.today()
+        print(status)
+        print(producto)
+        print(taller)
+        print(ids)
+        print(total)
+        
+        llantas = Llanta.objects.filter(id__in = ids)
+        llantas_list = list(llantas.annotate(
+            dias_fuera = DiffDays(CastDate(Now())-CastDate(F('fecha_de_entrada_inventario')), output_field=IntegerField()) + 1
+        ).values('numero_economico', 'producto__producto', 'vida', 'dias_fuera', 'taller__nombre'))
+        print(llantas_list)
+        renovador = llantas[0].renovador
+        
+        context["renovador"] = renovador
+        context["ids"] = ids
+        context["hoy"] = hoy
+        context["llantas_list"] = llantas_list
+        if producto != None:
+            context["producto"] = producto
+        else:
+            context['razon'] = razon
+        context["status"] = status
+        context["taller"] = taller
+        context["total"] = total
+        context["user"] = self.request.user
+        return context
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        usuario = request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        
+        ids = request.POST.getlist('ids')[0]
+        ids = functions.int_list_element(ids.replace('[', '').replace(']', '').split(','))
+        try:
+            producto = request.POST.getlist('producto')[0]
+        except:
+            razon = request.POST.getlist('razon')[0]
+        taller = request.POST.getlist('taller')[0]
+        status = request.POST.getlist('status')[0]
+        #Llantas
+        llantas = Llanta.objects.filter(id__in = ids)
+        llantas_list = llantas.annotate(
+            dias_fuera = DiffDays(CastDate(Now())-CastDate(F('fecha_de_entrada_inventario')), output_field=IntegerField()) + 1
+        ).values('numero_economico', 'producto__producto', 'vida', 'dias_fuera', 'taller__nombre')
+        hoy = date.today()
+        print(llantas_list)
+        renovador = llantas[0].renovador
+        #! Guarda la orden
+        data = []
+        
+        for llanta in llantas_list:
+            data.append(
+                {
+                    'numero_economico': llanta['numero_economico'],
+                    'producto__producto': llanta['producto__producto'],
+                    'vida': llanta['vida'],
+                    'dias_fuera': llanta['dias_fuera'],
+                    'taller__nombre': llanta['taller__nombre'],
+                }
+            )
 
+        orden = Orden.objects.create(
+            status = 'ConRenovador',
+            renovador = renovador,
+            compania = compania,
+            fecha = date.today()
+        )
+
+        folio = str('CR' + str(perfil) + str(hoy.year)+ str(hoy.month)+ str(hoy.day) + str(orden.id))
+        if status == 'aprobado':
+            datos = str({
+                "folio": folio, 
+                "usuario": str(perfil),
+                "fecha": str(datetime.today()),
+                "total": str(len(ids)),
+                "status": status,
+                "taller": taller,
+                "producto": producto,
+                "llantas": data
+                })
+        else:
+            datos = str({
+                "folio": folio, 
+                "usuario": str(perfil),
+                "fecha": str(datetime.today()),
+                "total": str(len(ids)),
+                "status": status,
+                "taller": taller,
+                "razon": razon,
+                "llantas": data
+                })
+        orden.folio = folio
+        orden.datos = datos
+        orden.save()
+        #!Cambia los datos de la llanta (Vida Incluida)
+        taller = Taller.objects.get(nombre=taller)
+        if status == 'aprobado':
+            producto = Producto.objects.get(producto=producto)
+        for llanta in llantas:
+            llanta.taller = taller
+            if status == 'aprobado':
+                llanta.producto = producto
+                functions.cambio_de_vida(llanta, llanta)
+                llanta.vida = functions.actualizar_vida(llanta)
+            if status == 'aprobado':
+                llanta.inventario = 'Renovada'
+            else:
+                llanta.inventario = 'Antes de Desechar'
+            
+        Llanta.objects.bulk_update(llantas, ['taller', 'producto', 'vida', 'inventario'])
+        #! Elimina del carrito solo los ids actuales
+        carrito = LlantasSeleccionadas.objects.get(perfil = perfil, inventario = 'Con renovador')
+        for id in ids:
+            carrito.llantas.remove(id)
+                
+        #!Si hay ids regresar al panel de renovado
+        #!Si no hay ids, regresar al panel de almacenes
+        current_id = []
+        for llanta in carrito.llantas.all():
+            print(llanta.id)
+            current_id.append(llanta.id)
+        current_id = str(current_id).replace(' ', '').replace("\'", "")
+        if carrito.llantas.all().count() > 0:
+            url = f"%s?ids={current_id}" % reverse("dashboards:procesoRenovado")
+            return redirect(url)
+        else:
+            return redirect("dashboards:almacen")
+        
+
+class ordenEntradaTallerView(LoginRequiredMixin, TemplateView):
+    # Vista de ordenEntradaTallerView
+
+    template_name = "orden-entrada-taller.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        orden = Orden.objects.get(pk=self.kwargs['pk'])
+        print(orden)
+        orden_raw = orden.datos
+        orden_raw = orden_raw.replace("\'", "\"")
+        datos = json.loads(orden_raw)
+        print('----')
+        print(datos)
+        fecha = datos['fecha']
+        usuario = datos['usuario']
+        taller_destino = datos['taller_destino']
+        total_llantas = datos['total_llantas']
+        data = datos['data']
+        
+        context['folio'] = orden.folio
+        context['fecha'] = fecha
+        context['usuario'] = usuario
+        context['taller_destino'] = taller_destino
+        context['total_llantas'] = total_llantas
+        context['data'] = data
+        return context
+    
+class ordenEntradaStockView(LoginRequiredMixin, TemplateView):
+    # Vista de ordenEntradaTallerView
+
+    template_name = "orden-entrada-stock.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        orden = Orden.objects.get(pk=self.kwargs['pk'])
+        print(orden)
+        orden_raw = orden.datos
+        orden_raw = orden_raw.replace("\'", "\"")
+        datos = json.loads(orden_raw)
+        print('----')
+        print(datos)
+        fecha = datos['fecha']
+        usuario = datos['usuario']
+        stock_destino = datos['inventario_destino']
+        total_llantas = datos['total_llantas']
+        data = datos['data']
+        
+        context['folio'] = orden.folio
+        context['fecha'] = fecha
+        context['usuario'] = usuario
+        context['stock_destino'] = stock_destino
+        context['total_llantas'] = total_llantas
+        context['data'] = data
+        return context
+
+class reporteDesechoView(LoginRequiredMixin, TemplateView):
+    # Vista de reporteDesechoView
+
+    template_name = "reporte-desecho.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #Obtener id
+        fecha = self.request.GET.get('fecha')
+        ids = str(self.request.GET.get('ids')).replace('[', '').replace(']', '').split(',')
+        ordenes = OrdenDesecho.objects.filter(id__in = ids)
+        print(ordenes)
+        context['fecha'] = fecha
+        context['total'] = ordenes.count()
+        context['ordenes'] = ordenes
+        
+        return context
+
+class historialDesechoView(LoginRequiredMixin, TemplateView):
+    # Vista de historialDesechoView
+
+    template_name = "historial-desecho.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        ordenes = OrdenDesecho.objects.select_related().filter(compania = compania).order_by('id').values('id', 'fecha')
+        fechas = OrdenDesecho.objects.select_related().filter(compania = compania).values('fecha').distinct('fecha')
+        ordenes_list =  []
+        
+        for fecha in fechas:
+            temp = []
+            for orden in ordenes:
+                if fecha['fecha'] == orden['fecha']:
+                    temp.append(orden['id'])
+            ordenes_list.append({
+                'fecha': fecha['fecha'],
+                'ids': temp
+            })
+        
+        for orden in ordenes_list:
+            print(orden)
+            print(orden['fecha'])
+            print(orden['ids'])
+        context['ordenes_list'] = ordenes_list
+        return context
 class ordenLlantaView(LoginRequiredMixin, TemplateView):
     # Vista de ordenLlantaView
 
@@ -4525,41 +4944,492 @@ class tallerDestinoView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         
         context = super().get_context_data(**kwargs)
+        #Ontencion de la data
         fecha = date.today()
         usuario = self.request.user
         perfil = Perfil.objects.get(user = usuario)
-        origen = functions.origen_option(self.request.GET.get('origen', ''))
+        talleres_context = perfil.taller.all()
+        talleres_select = Taller.objects.filter(compania = perfil.compania).exclude(id__in = talleres_context)
+        inventario = self.request.GET.get('inventario', [])
+        
+        #Formateo de los id
         ids = self.request.GET.get('ids', [])
         ids = str(ids).replace("[", "")
         ids = str(ids).replace("]", "")
+        ids_list = ids
         ids = str(ids).split(',')
         ids = functions.int_list_element(ids)
+        
+        #Obtencion de las llantas
         llantas = Llanta.objects.filter(pk__in = ids)
+        #Obtencion de los talleres
+        talleres = llantas.values('taller__nombre').distinct()
+        talleres_list = []
+        for taller in talleres:
+            talleres_list.append(taller['taller__nombre'])
+        
+        #Generacion de la data del template
+        llantas_list = []
+        for taller in talleres_list:
+            temp = []
+            for llanta in llantas:
+                if llanta.taller.nombre == taller:
+                    temp.append(llanta.numero_economico)
+            llantas_list.append(
+                {
+                    'taller': taller,
+                    'ecos': temp
+                }
+            )
+        
+        #Envio del contexto
         context['fecha'] = fecha
+        context['inventario'] = inventario
+        context['ids_list'] = ids_list
+        context['talleres_select'] = talleres_select
         context['perfil'] = perfil
-        context['llantas'] = llantas
+        context['llantas_list'] = llantas_list
         return context
+    
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        #Obtencion de la data
+        hoy = date.today()
+        user = request.user
+        perfil = Perfil.objects.get(user = user)
+        inventario = request.POST.getlist('inventario')[0]
+        taller = request.POST.getlist('taller')[0]
+        taller_destino = Taller.objects.get(nombre=taller)
+        ids = request.POST.getlist('ids')[0]
+        ids = ids.split(',')
+        ids = functions.int_list_element(ids)
+        
+        #Obtencion de las llantas
+        llantas = Llanta.objects.filter(id__in = ids)
+        
+        #Generacion de la lista de los datos de las llantas
+        llanta_data = []
+        for llanta in llantas:
+            llanta_data.append(
+                {
+                    'num_eco': llanta.numero_economico,
+                    'producto': llanta.producto.producto,
+                    'taller_origen': llanta.taller.nombre
+                }
+            )
+        
+        #Generacion del campo datos
+        data = str({
+            'fecha': str(date.today()),
+            'usuario': str(user),
+            'taller_destino': taller,
+            'total_llantas': len(ids),
+            'data': llanta_data
+        })
+        
+        #Creacion de la orden
+        orden = Orden.objects.create(
+            status = 'CambioTaller',
+            datos = data,
+            compania = perfil.compania,
+            fecha = hoy
+        )
+        
+        folio = str('CT' + str(perfil) + str(hoy.year)+ str(hoy.month)+ str(hoy.day) + str(orden.id))
+        orden.folio = folio
+        orden.save()
+        
+        #Cambio de taller
+        for llanta in llantas:
+            llanta.taller = taller_destino
+            llanta.fecha_de_entrada_inventario = date.today()
+        Llanta.objects.bulk_update(llantas, ['taller', 'fecha_de_entrada_inventario'])
+        
+        #Vaciado del carrito
+        carrito = LlantasSeleccionadas.objects.get(perfil=perfil, inventario=inventario)
+        carrito.llantas.clear()
+        carrito.save()
+        
+        return redirect('dashboards:almacen')
+        
+        
 class stockDestinoView(LoginRequiredMixin, TemplateView):
 # Vista de stockDestinoView
 
     template_name = "stockDestino.html"
 
+    def get_context_data(self, **kwargs):
+        
+        context = super().get_context_data(**kwargs)
+        #Obtencion de la data
+        stock = self.request.GET.get('inventario', [])
+        ids = self.request.GET.get('ids', [])
+        
+        #Estructuracion de los id
+        ids = str(ids).replace("[", "")
+        ids = str(ids).replace("]", "")
+        ids_list = ids
+        ids = str(ids).split(',')
+        ids = functions.int_list_element(ids)
+        
+        #Llantas
+        llantas = Llanta.objects.filter(id__in = ids)
+        #Obtecion de la lista de destinos
+        inventarios = functions.inventario_list(stock)
+        
+        #Paso del contexto
+        context['stock'] = stock
+        context['ids_list'] = ids_list
+        context['llantas'] = llantas
+        context['inventarios'] = inventarios
+        return context
+    def post(self, request):
+        print(request.POST)
+        #Obtencion de la data
+        hoy = date.today()
+        user = request.user
+        perfil = Perfil.objects.get(user = user)
+        inventario = request.POST.getlist('inventario')[0]
+        inventario_destino = request.POST.getlist('inventario_destino')[0]
+        ids = request.POST.getlist('ids')[0]
+        ids = ids.split(',')
+        ids = functions.int_list_element(ids)
+        
+        #Obtencion de las llantas
+        llantas = Llanta.objects.filter(id__in = ids)
+        
+        #Generacion de la lista de los datos de las llantas
+        llanta_data = []
+        for llanta in llantas:
+            llanta_data.append(
+                {
+                    'num_eco': llanta.numero_economico,
+                    'producto': llanta.producto.producto,
+                    'stock_origen': llanta.inventario
+                }
+            )
+        
+        #Generacion del campo datos
+        data = str({
+            'fecha': str(date.today()),
+            'usuario': str(user),
+            'inventario_destino': inventario_destino,
+            'total_llantas': len(ids),
+            'data': llanta_data
+        })
+        
+        #Creacion de la orden
+        orden = Orden.objects.create(
+            status = 'CambioStock',
+            datos = data,
+            compania = perfil.compania,
+            fecha = hoy
+        )
+        
+        folio = str('CS' + str(perfil) + str(hoy.year)+ str(hoy.month)+ str(hoy.day) + str(orden.id))
+        orden.folio = folio
+        orden.save()
+        
+        #Cambio de taller
+        for llanta in llantas:
+            llanta.inventario = inventario_destino
+            llanta.fecha_de_entrada_inventario = date.today()
+        Llanta.objects.bulk_update(llantas, ['inventario', 'fecha_de_entrada_inventario'])
+        
+        #Vaciado del carrito
+        carrito = LlantasSeleccionadas.objects.get(perfil=perfil, inventario=inventario)
+        carrito.llantas.clear()
+        carrito.save()
+        
+        return redirect('dashboards:almacen')
 
 class procesoRenovadoView(LoginRequiredMixin, TemplateView):
 # Vista de procesoRenovadoView
 
     template_name = "procesoRenovado.html"
+    
+    def get_context_data(self, **kwargs):
+        
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.get('ids', [])
+        ids = str(ids).replace("[", "")
+        ids = str(ids).replace("]", "")
+        ids_list = ids
+        ids = str(ids).split(',')
+        print(ids)
+        ids = functions.int_list_element(ids)
+        print(ids)
+        context["ids"] = ids
+        return context
+
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        status = self.request.POST.get("status")
+        producto = self.request.POST.get("producto", None)
+        razon = self.request.POST.get("razon", None)
+        taller = str(self.request.POST.get("taller"))
+        ids = self.request.POST.getlist("tire-id")
+        ids = (str(ids).replace(' ', '')).replace("\'", '').replace('[', '').replace(']', '')
+        print(status)
+        print(producto)
+        print(taller)
+        print(ids)
+        #folio = str('CS' + str(perfil) + str(hoy.year)+ str(hoy.month)+ str(hoy.day) + str(orden.id))
+        if producto != None:
+            url = f"%s?status={status}&producto={producto}&taller={taller}&ids={ids}" % reverse("dashboards:ordenEntrada")
+        else:
+            url = f"%s?status={status}&razon={razon}&taller={taller}&ids={ids}" % reverse("dashboards:ordenEntrada")
+        return redirect(url)
 
 class calendarView(LoginRequiredMixin, TemplateView):
 # Vista de calendarView
 
     template_name = "calendar/calendar.html"
 
-class planTrabajoView(LoginRequiredMixin, TemplateView):
-# Vista de planTrabajoView
+class planTallerView(LoginRequiredMixin, TemplateView):
+# Vista de planTallerView
 
-    template_name = "planTrabajo.html"
+    template_name = "planTaller.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #? Se obtiene el vehiculo
+        vehiculo = Vehiculo.objects.filter(pk=self.kwargs['pk'])
+        print(vehiculo)
+        #? Se convirte el id en una lista(Por convenvion de las funciones)
+        ids_vehiculo = functions.list_vehicle_id(vehiculo.values('id'))
+        #? Se obtiene las llantas 
+        llantas = Llanta.objects.filter(vehiculo__id__in = ids_vehiculo, inventario = 'Rodante')
+        #? Se acomodan las llantas
+        vehiculos_llantas_acomodadas = functions.acomodo_de_llantas_por_vehiculo(llantas, ids_vehiculo)
+        acomodo_ejes_vehicle = functions.acomodo_ejes_vehicle(vehiculos_llantas_acomodadas)
+        acomodo_posicion_ejes_vehicle = functions.acomodo_pocisiones_vehicle(acomodo_ejes_vehicle)
+        vehiculo_acomodado = acomodo_posicion_ejes_vehicle
+        
+        talleres = Taller.objects.filter(compania = vehiculo[0].compania)
+        
+        context['vehiculo_acomodado'] = vehiculo_acomodado
+        context['talleres'] = talleres
+        return context
+    
+    def post(self, request, pk):
+        print(request.POST)
+        dataPOST = json.loads(request.POST.getlist('data')[0])
+        print('---------------')
+        for data in dataPOST:
+            if data['tipoServicio'] == 'desmontaje':
+                print('Desmontaje')
+                #? Se llama la llanta actual
+                llanta = Llanta.objects.get(pk=data['llantaId'])
+                vehiculo = llanta.vehiculo
+                ubicacion = llanta.ubicacion
+                aplicacion = llanta.aplicacion
+                tipo_eje = llanta.tipo_de_eje
+                eje = llanta.eje
+                posicion = llanta.posicion
+                
+                #? Se llama la llanta a montar
+                nuevaLlanta = data['nuevaLlanta']
+                llanta_nueva = Llanta.objects.get(numero_economico = nuevaLlanta)
+                
+                #? Se obtienen los datos del desmontaje
+                razon = data['razon']
+                almacen_desmontaje = data['almacen_desmontaje']
+                taller_desmontaje = Taller.objects.get(id = int(data['taller_desmontaje']))
+                
+                #? Se desmonta la llanta
+                llanta.inventario = almacen_desmontaje
+                llanta.taller = taller_desmontaje
+                
+                #?Montaje de la nueva llanta
+                llanta_nueva.vehiculo = vehiculo
+                llanta_nueva.posicion = posicion
+                llanta_nueva.ubicacion = ubicacion
+                llanta_nueva.aplicacion = aplicacion
+                llanta_nueva.tipo_de_eje = tipo_eje
+                llanta_nueva.eje = eje
+                llanta_nueva.inventario = 'Rodante'
+                
+                #? Se actualizan las llantas respectivamente
+                Llanta.objects.bulk_update([llanta_nueva], [
+                    'vehiculo',
+                    'posicion',
+                    'ubicacion',
+                    'aplicacion',
+                    'tipo_de_eje',
+                    'eje',
+                    'inventario'
+                    ])
+                
+                Llanta.objects.bulk_update([llanta], [
+                    'taller', 'inventario'
+                    ])
+                
+                print('---------------')
+                
+        for data in dataPOST:
+            if data['tipoServicio'] == 'sr':
+                print('Servicio')
+                #?Se llama la llanta
+                llanta = Llanta.objects.get(pk=data['llantaId'])                
+                #? Se verifican que servicios se realizaron
+                inflar = True if data['inflar'] == 'on' else False
+                balancear = True if data['balancear'] == 'on' else False
+                reparar = True if data['reparar'] == 'on' else False
+                valvula = True if data['valvula'] != 'no' else False
+                costado = True if data['costado'] != 'no' else False
+                
+                rotar = data['rotar'] if data['rotar'] != 'no' else False
+                
+                
+                print(f'inflar:{inflar}')
+                print(f'balancear:{balancear}')
+                print(f'reparar:{reparar}')
+                print(f'valvula:{valvula}')
+                print(f'costado:{costado}')
+                
+                print(f'rotar:{rotar}')
+                
+                if inflar:
+                    print('Se inflo')
+                    presion_establecida = functions.presion_establecida(llanta)
+                    llanta.presion_actual = presion_establecida
+                if balancear:
+                    print('Se balanceo')
+                    llanta.fecha_de_balanceado = date.today()
+                if reparar:
+                    print('Se reparo')
+                    obj_penetrado = Observacion.objects.get(observacion = 'Objeto penetrado')
+                    llanta.observaciones.remove(obj_penetrado)
+                if valvula:
+                    print('Se reparo valvula')
+                    valvula_fuga = Observacion.objects.get(observacion = 'Válvula fugando')
+                    valvula_inaccesible = Observacion.objects.get(observacion = 'Válvula inaccesible')
+                    llanta.observaciones.remove(valvula_fuga)
+                    llanta.observaciones.remove(valvula_inaccesible)
+                if costado:
+                    print('Se reparo costado')
+                    costado = Observacion.objects.get(observacion = 'Ruptura en costado')
+                    llanta.observaciones.remove(costado)
+                    
+                Llanta.objects.bulk_update([llanta], [
+                    'presion_actual', 
+                    'fecha_de_balanceado'
+                    ])
+                print('---------------')
+    
+    
+class vehicleListView(LoginRequiredMixin, TemplateView):
+# Vista de vehicleListView
 
+    template_name = "vehicleList.html"
+    
+    def get(self, *args, **kwargs):
+        #Obtencion de la informacion del usuario
+        user = self.request.user
+        perfil = Perfil.objects.get(user = user)
+        compania = perfil.compania
+        
+        #Obtencion de los filtros
+        filtro = self.request.GET.get('filtro', None)
+        filtro_query = ({'observaciones_llanta__id__in': filtro.split(',')} if filtro != '' and  filtro != None else {})
+        exclude = self.request.GET.get('exclude', None)
+        exclude_query = ({'observaciones_llanta__id__in': exclude.split(',')} if exclude != '' and  exclude != None else {})
+        ejes = self.request.GET.get('ejes', None)
+        
+        #Se obtienen los vehiculos de la compañia
+        vehiculos = Vehiculo.objects.select_related().filter(
+            compania = compania,
+            **filtro_query,
+            ).exclude(
+                **exclude_query
+                ).exclude(configuracion=None).values('id').order_by('id')
+        if ejes != None:
+            clauses = (Q(configuracion__icontains=p) for p in ejes.split(','))
+            query = reduce(operator.or_, clauses)
+            vehiculos = vehiculos.filter(query)
+        print(vehiculos)
+        vehiculos = functions.ordenar_por_status(vehiculos)
+        ids_vehiculo = functions.list_vehicle_id(vehiculos)
+        
+        #Obtencion de los parametros iniciales de la paginación
+        size = (int(self.request.GET['size']) if 'size' in self.request.GET else 12)
+        page = (int(self.request.GET['page']) if 'page' in self.request.GET else 1)
+        #Se ejecuta la paguinacion para poder trabajar solo en el fragmento que se mostrara
+        datos = vehiculos.count()  
+        pages = (math.ceil(datos/size))
+        limit = page * size
+        offset = limit - size
+        
+        
+        print(f'datos: {datos}')
+        print(f'pages: {pages}')
+        print(f'page: {page}')
+        print(f'limit: {limit}')
+        print(f'offset: {offset}')
+        
+        
+        #Se verifica que el page se encuentre dentro de un rango valido
+        #if page < 1:
+        #    url = f"%s?page=1" % reverse('dashboards:vehicleList')
+        #    return redirect(url)
+        #if page > pages:
+        #    url = f"%s?page={pages}" % reverse('dashboards:vehicleList')
+        #    return redirect(url)
+        
+        #pagination = functions.pagination(page, pages)
+        url_complemento = functions.pagination_url(filtro, exclude, ejes)
+        prev = functions.pagination_prev(page, pages, url_complemento)
+        next = functions.pagination_next(page, pages, url_complemento)
+        
+        
+        self.limit = limit
+        self.offset = offset
+        self.prev = prev
+        self.next = next
+        self.ids_vehiculo = ids_vehiculo
+        self.ejes = ejes
+        self.exclude = exclude
+        self.filtro = filtro
+        
+        print(f'prev: {prev}')
+        print(f'next: {next}')
+        
+        return super().get(*args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #Se realiza la obtencion de la rebajada para obtener las llantas
+        current_vehiculos = self.ids_vehiculo[self.offset:self.limit]
+        llantas = Llanta.objects.filter(vehiculo__id__in = current_vehiculos, inventario = 'Rodante')
+        
+        #Se acomodan las llantas por vehiculo.
+        vehiculos_llantas_acomodadas = functions.acomodo_de_llantas_por_vehiculo(llantas, current_vehiculos)
+        acomodo_ejes_vehicle = functions.acomodo_ejes_vehicle(vehiculos_llantas_acomodadas)
+        acomodo_posicion_ejes_vehicle = functions.acomodo_pocisiones_vehicle(acomodo_ejes_vehicle)
+        vehiculos = acomodo_posicion_ejes_vehicle
+        
+        """print(llantas.count())
+        print(len(current_vehiculos))"""
+
+        context['ejes'] = self.ejes
+        context['exclude'] = self.exclude
+        context['filtro'] = self.filtro
+        context['prev'] = self.prev
+        context['next'] = self.next
+        context['llantas_acomodadas'] = vehiculos
+        return context
+
+    def post(self, request):
+        print(request.POST)
+        lista_observaciones = functions.lista_de_id_observaciones(request.POST)
+        lista_observaciones_exclude = functions.lista_de_id_observaciones_exclude(request.POST)
+        lista_ejes = functions.lista_de_ejes(request.POST)
+        #vehiculos = Vehiculo.objects.filter(observaciones_llanta__id__in = lista_observaciones)
+        url = f'%s?filtro={lista_observaciones}&exclude={lista_observaciones_exclude}&ejes={lista_ejes}' % reverse('dashboards:vehicleList')
+        return redirect(url)
+    
+    
 class dashboardOperativoView(LoginRequiredMixin, TemplateView):
 # Vista de dashboardOperativoView
 
@@ -4759,7 +5629,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions_excel.excel_productos()
         #functions_excel.excel_observaciones()
         #functions_create.borrar_ultima_inspeccion_vehiculo()
-        #functions_create.convertir_vehiculos()
+        #functions_create.crear_llantas()
         #functions_create.borrar_km_actuales()
         #functions_ftp.ftp_diario()
         ultimo_mes = hoy - timedelta(days=31)
@@ -4819,11 +5689,9 @@ class PulpoView(LoginRequiredMixin, ListView):
         entrada_correcta_contar_barras_mes4 = functions.contar_entrada_correcta(vehiculo_fecha_barras_4)
         entrada_correcta_contar_barras_mes5 = functions.contar_entrada_correcta(vehiculo_fecha_barras_5)
 
-
-        doble_entrada = functions.doble_entrada(bitacora) 
+        doble_entrada = functions.doble_entrada(bitacora, bitacora_pro) 
         doble_mala_entrada = functions.doble_mala_entrada(bitacora, vehiculo)
 
-        doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro)
         doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
         vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
@@ -4896,7 +5764,6 @@ class PulpoView(LoginRequiredMixin, ListView):
         context["clases_mas_frecuentes_infladas"] = functions.clases_mas_frecuentes(vehiculo_fecha_total, self.request.user.perfil.compania)
         context["compania"] = self.request.user.perfil.compania
         context["doble_entrada"] = doble_entrada
-        context["doble_entrada_pro"] = doble_entrada_pro
         context["flotas"] = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         context["hoy"] = hoy
         context["mes_1"] = mes_1
@@ -5028,14 +5895,12 @@ def buscar(request):
     entrada_correcta_contar_barras_mes4 = functions.contar_entrada_correcta(vehiculo_fecha_barras_4)
     entrada_correcta_contar_barras_mes5 = functions.contar_entrada_correcta(vehiculo_fecha_barras_5)
 
-
-    doble_entrada = functions.doble_entrada(bitacora)
+    doble_entrada = functions.doble_entrada(bitacora, bitacora_pro)
     doble_mala_entrada = functions.doble_mala_entrada(bitacora, vehiculo)
 
-    doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro) 
     doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
-    vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
+    vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
     vehiculo_periodo_status = {}
     mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo) | functions.mala_entrada_pro(vehiculo_periodo)
     for v in vehiculo_periodo:
@@ -5051,7 +5916,6 @@ def buscar(request):
 
     vehiculo_malos_status = {}
     mala_entrada = functions.mala_entrada(vehiculo) | functions.mala_entrada_pro(vehiculo)
-    print(doble_entrada_pro)
     print(doble_mala_entrada_pro)
     for v in vehiculo:
         try:
@@ -5097,7 +5961,6 @@ def buscar(request):
                                         "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha_total, request.user.perfil.compania),
                                         "compania": request.user.perfil.compania,
                                         "doble_entrada": doble_entrada,
-                                        "doble_entrada_pro": doble_entrada_pro,
                                         "fecha1":fecha1,
                                         "fecha2":fecha2,
                                         "fecha_con_formato1":fecha_con_formato1,
@@ -5571,8 +6434,7 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         bitacora_normal = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
 
-        entradas_correctas = functions.entrada_correcta(bitacora)
-        entradas_correctas_pro = functions.entrada_correcta_pro(bitacora_pro)
+        entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
 
         print(f'bitacora_normal: {bitacora_normal}')
         print(f'bitacora_pro: {bitacora_pro}')
@@ -5602,7 +6464,6 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         hoy6 = mes_6.strftime("%m")
         hoy7 = mes_7.strftime("%m")
         hoy8 = mes_8.strftime("%m")
-
 
         color = functions.entrada_correcta_actual(vehiculo)
 
@@ -5642,10 +6503,9 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         mala_entrada_contar_mes7 += functions.contar_mala_entrada_pro(vehiculo_pro_mes7)
         mala_entrada_contar_mes8 += functions.contar_mala_entrada_pro(vehiculo_pro_mes8)
 
-        doble_entrada = functions.doble_entrada(bitacora)
+        doble_entrada = functions.doble_entrada(bitacora, bitacora_pro)
         doble_mala_entrada = functions.doble_mala_entrada(bitacora, vehiculo)
 
-        doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro)
         doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
         filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones)
@@ -5708,14 +6568,14 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         desgaste_mensual = functions.desgaste_mensual(inspecciones_llanta)
 
         context["bitacoras"] = bitacora
-        context["cantidad_doble_entrada_mes1"] = doble_entrada[1]["mes1"] + doble_entrada_pro[1]["mes1"]
-        context["cantidad_doble_entrada_mes2"] = doble_entrada[1]["mes2"] + doble_entrada_pro[1]["mes2"]
-        context["cantidad_doble_entrada_mes3"] = doble_entrada[1]["mes3"] + doble_entrada_pro[1]["mes3"]
-        context["cantidad_doble_entrada_mes4"] = doble_entrada[1]["mes4"] + doble_entrada_pro[1]["mes4"]
-        context["cantidad_doble_entrada_mes5"] = doble_entrada[1]["mes5"] + doble_entrada_pro[1]["mes5"]
-        context["cantidad_doble_entrada_mes6"] = doble_entrada[1]["mes6"] + doble_entrada_pro[1]["mes6"]
-        context["cantidad_doble_entrada_mes7"] = doble_entrada[1]["mes7"] + doble_entrada_pro[1]["mes7"]
-        context["cantidad_doble_entrada_mes8"] = doble_entrada[1]["mes8"] + doble_entrada_pro[1]["mes8"]
+        context["cantidad_doble_entrada_mes1"] = doble_entrada[2]["mes1"] + doble_entrada[3]["mes1"]
+        context["cantidad_doble_entrada_mes2"] = doble_entrada[2]["mes2"] + doble_entrada[3]["mes2"]
+        context["cantidad_doble_entrada_mes3"] = doble_entrada[2]["mes3"] + doble_entrada[3]["mes3"]
+        context["cantidad_doble_entrada_mes4"] = doble_entrada[2]["mes4"] + doble_entrada[3]["mes4"]
+        context["cantidad_doble_entrada_mes5"] = doble_entrada[2]["mes5"] + doble_entrada[3]["mes5"]
+        context["cantidad_doble_entrada_mes6"] = doble_entrada[2]["mes6"] + doble_entrada[3]["mes6"]
+        context["cantidad_doble_entrada_mes7"] = doble_entrada[2]["mes7"] + doble_entrada[3]["mes7"]
+        context["cantidad_doble_entrada_mes8"] = doble_entrada[2]["mes8"] + doble_entrada[3]["mes8"]
         context["cantidad_entrada_mes1"] = mala_entrada_contar_mes1
         context["cantidad_entrada_mes2"] = mala_entrada_contar_mes2
         context["cantidad_entrada_mes3"] = mala_entrada_contar_mes3
@@ -5733,7 +6593,6 @@ class tireDetailView(LoginRequiredMixin, DetailView):
             pass
         context["desgaste_mensual"] = desgaste_mensual
         context["entradas"] = entradas_correctas
-        context["entradas_pro"] = entradas_correctas_pro
         context["hoy"] = hoy
         context["inspecciones"] = inspecciones_llanta
         context["km_proyectado"] = km_proyectado
@@ -6059,10 +6918,9 @@ class DetailView(LoginRequiredMixin, DetailView):
             mala_entrada_contar_mes7 += functions.contar_mala_entrada_pro(vehiculo_pro_mes7)
             mala_entrada_contar_mes8 += functions.contar_mala_entrada_pro(vehiculo_pro_mes8)
 
-            doble_entrada = functions.doble_entrada(bitacora)
+            doble_entrada = functions.doble_entrada(bitacora, bitacora_pro)
             doble_mala_entrada = functions.doble_mala_entrada2(bitacora, vehiculo)
 
-            doble_entrada_pro = functions.doble_entrada_pro(bitacora_pro)
             doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
             try:
                 if doble_mala_entrada:
@@ -6076,12 +6934,10 @@ class DetailView(LoginRequiredMixin, DetailView):
                 pass
 
             print("doble_entrada", doble_entrada)
-            print("doble_entrada_pro", doble_entrada_pro)
             print("doble_mala_entrada", doble_mala_entrada)
 
             print("message_pro", message_pro)
             print("message", message)
-
 
             configuracion = vehiculo.configuracion
             cantidad_llantas = functions.cantidad_llantas(configuracion)
@@ -6128,14 +6984,14 @@ class DetailView(LoginRequiredMixin, DetailView):
             reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual.items() if v != 0}
 
             context["bitacoras"] = bitacora
-            context["cantidad_doble_entrada_mes1"] = doble_entrada[1]["mes1"] + doble_entrada_pro[1]["mes1"]
-            context["cantidad_doble_entrada_mes2"] = doble_entrada[1]["mes2"] + doble_entrada_pro[1]["mes2"]
-            context["cantidad_doble_entrada_mes3"] = doble_entrada[1]["mes3"] + doble_entrada_pro[1]["mes3"]
-            context["cantidad_doble_entrada_mes4"] = doble_entrada[1]["mes4"] + doble_entrada_pro[1]["mes4"]
-            context["cantidad_doble_entrada_mes5"] = doble_entrada[1]["mes5"] + doble_entrada_pro[1]["mes5"]
-            context["cantidad_doble_entrada_mes6"] = doble_entrada[1]["mes6"] + doble_entrada_pro[1]["mes6"]
-            context["cantidad_doble_entrada_mes7"] = doble_entrada[1]["mes7"] + doble_entrada_pro[1]["mes7"]
-            context["cantidad_doble_entrada_mes8"] = doble_entrada[1]["mes8"] + doble_entrada_pro[1]["mes8"]
+            context["cantidad_doble_entrada_mes1"] = doble_entrada[2]["mes1"] + doble_entrada[3]["mes1"]
+            context["cantidad_doble_entrada_mes2"] = doble_entrada[2]["mes2"] + doble_entrada[3]["mes2"]
+            context["cantidad_doble_entrada_mes3"] = doble_entrada[2]["mes3"] + doble_entrada[3]["mes3"]
+            context["cantidad_doble_entrada_mes4"] = doble_entrada[2]["mes4"] + doble_entrada[3]["mes4"]
+            context["cantidad_doble_entrada_mes5"] = doble_entrada[2]["mes5"] + doble_entrada[3]["mes5"]
+            context["cantidad_doble_entrada_mes6"] = doble_entrada[2]["mes6"] + doble_entrada[3]["mes6"]
+            context["cantidad_doble_entrada_mes7"] = doble_entrada[2]["mes7"] + doble_entrada[3]["mes7"]
+            context["cantidad_doble_entrada_mes8"] = doble_entrada[2]["mes8"] + doble_entrada[3]["mes8"]
             context["cantidad_entrada_mes1"] = mala_entrada_contar_mes1
             context["cantidad_entrada_mes2"] = mala_entrada_contar_mes2
             context["cantidad_entrada_mes3"] = mala_entrada_contar_mes3
@@ -7614,3 +8470,12 @@ def redireccionOrden(request, id):
                             'historico': True
                           }
                       )
+    elif status == 'CambioTaller':
+        return redirect('dashboards:ordenEntradaTaller', orden.id)
+    
+    elif status == 'CambioStock':
+        return redirect('dashboards:ordenEntradaStock', orden.id)
+    
+    elif status == 'ConRenovador':
+        url = f"%s?id={orden.id}" % reverse('dashboards:ordenEntrada')
+        return redirect(url)

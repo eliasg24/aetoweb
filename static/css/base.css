@@ -9,7 +9,7 @@
   --colorv05: #dbc002;
   --colorv06: #8a2be2;
   --colorv07: #f0412c;
-  --colorv08: #2e8b57;
+  --colorv08: #009345;
   --colorv09: #ff1493;
   --colorv10: #23252b;
   --colorv11: #2f5161;
@@ -37,7 +37,7 @@
   --colorv33: #0071bc;
   --colorv34: #ddd;
   --colorv35: #9147ff;
-  --colorv36 :rgb(255, 255, 255, 0.25);
+  --colorv36: rgb(255, 255, 255, 0.25);
   --colorv37: #333;
   --colorv38: #646464;
   --colorv39: #353535;
@@ -46,7 +46,10 @@
   --colorv42: #4caf50;
   --colorv43: #555;
   --colorv44: #f1f1f1;
-  --font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  --colorv45: #242424;
+  --colorv46: #fff;
+  --colorv47: #213944;
+  --font-family: "Poppins", Arial, Helvetica, sans-serif;
   --font-size: 16px;
   --font-size-button: 1.25rem;
 }
@@ -60,7 +63,7 @@
 html {
   background-color: var(--colorv00);
   color: var(--colorv02);
-  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
   word-wrap: break-word;
 }
 
@@ -348,7 +351,7 @@ h6 {
 
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
-  content: '';
+  content: "";
   position: absolute;
   display: none;
 }
@@ -403,7 +406,7 @@ h6 {
   align-items: center;
   background-color: var(--colorv09);
   border-radius: 50%;
-  color: var(--colorv02);
+  color: #fff; /*No cambia*/
   display: flex;
   justify-content: center;
   padding: 0.75rem;
@@ -420,7 +423,7 @@ h6 {
 .btn-danger {
   align-items: center;
   border-radius: 50%;
-  color: var(--colorv02);
+  color: #fff; /* No cambia*/
   display: flex;
   font-size: 1.25rem;
   justify-content: center;
@@ -548,11 +551,11 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type='number'] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type='search']::-webkit-search-cancel-button {
+input[type="search"]::-webkit-search-cancel-button {
   /* Remove default */
   -webkit-appearance: none;
 }
@@ -627,6 +630,7 @@ input[type='search']::-webkit-search-cancel-button {
 
 .circle span {
   font-size: 1.5rem;
+  color: #fff; /*No cambia*/
 }
 
 .alert__container {
@@ -671,7 +675,7 @@ input[type='search']::-webkit-search-cancel-button {
   pointer-events: all;
 }
 
-input[type='date']::-webkit-inner-spin-button,
+input[type="date"]::-webkit-inner-spin-button,
 ::-webkit-calendar-picker-indicator {
   filter: invert(100%);
 }
@@ -703,4 +707,8 @@ input[type='date']::-webkit-inner-spin-button,
   .circle span {
     font-size: 2rem;
   }
+}
+
+.icon-file-pdf {
+  color: var(--colorv02);
 }

@@ -13,7 +13,7 @@ html {
 body {
   margin: 0;
   font-family: Arial;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   background-color: var(--colorv00);
   overflow-x: hidden;
   display: grid;
@@ -64,13 +64,13 @@ hr {
 }
 
 .btn-success {
-  background-color: var(--colorv08);
-  color: var(--colorv02);
+  background-color: #009345; /*No cambia*/
+  color: #fff; /*No cambia*/
 }
 
 .btn-danger {
-  background-color: var(--colorv22);
-  color: var(--colorv02);
+  background-color: #ff0000; /*No cambia*/
+  color: #fff; /*No cambia*/
 }
 
 .all-cont {
@@ -103,23 +103,30 @@ hr {
   justify-content: end;
 }
 
-.fecha{
-  background: var(--colorv00);
-  font-size: 1.5rem;
-  text-align: center;
-  color: var(--colorv23);
-  width: 50%;
-}
-
-.almohadilla{
+.fecha {
   font-size: 1.5rem;
   color: var(--colorv23);
   width: 50%;
 }
 
-.list{
+.almohadilla {
+  font-size: 1.5rem;
+  color: var(--colorv23);
+  width: 50%;
+}
+
+.list {
   list-style: disc;
   margin-left: 1rem;
   font-size: 1.5rem;
   color: var(--colorv23);
+}
+
+select {
+  border-radius: 0.25rem;
+  background-color: var(--colorv00);
+  color: var(--colorv02);
+  font-size: 1rem;
+  border: none;
+  padding: 0.25rem;
 }

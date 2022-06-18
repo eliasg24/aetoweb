@@ -238,7 +238,27 @@ def asignar_ubicaciones():
         vehiculo.save()
 
 def asignar_aplicaciones():
-    
+
+    vehiculos_aplicacion = Vehiculo.objects.filter(aplicacion__nombre="Abierto4Mex", compania=Compania.objects.get(compania="TDR"))
+    list_vehiculos_aplicacion = list(vehiculos_aplicacion)
+    print(list_vehiculos_aplicacion)
+    for vehiculo in vehiculos_aplicacion:
+        if vehiculo.aplicacion:
+            vehiculo.aplicacion = None
+            vehiculo.save()
+
+    aplicaciones = Aplicacion.objects.filter(nombre="Abierto4Mex", compania=Compania.objects.get(compania="TDR"))
+    i = 0
+    for u in aplicaciones:
+        i += 1
+        if i < aplicaciones.count():
+            u.delete()
+        
+    aplicacion = Aplicacion.objects.get(nombre="Abierto4Mex", compania=Compania.objects.get(compania="TDR"))
+    for vehiculo in list_vehiculos_aplicacion:
+        vehiculo.aplicacion = aplicacion
+        vehiculo.save()
+
     """vehiculos_aplicacion = Vehiculo.objects.filter(aplicacion__nombre="Abierto3Qro", compania=Compania.objects.get(compania="TDR"))
     list_vehiculos_aplicacion = list(vehiculos_aplicacion)
     print(list_vehiculos_aplicacion)
@@ -1074,115 +1094,67 @@ def crear_configuracion2():
     
 
 def crear_llantas():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="New Pick"))
     for vehiculo in vehiculos:
         posiciones = []
-        ejes = vehiculo.configuracion.split(".")
-        if vehiculo.configuracion == "T4.T4.SP1":
-            posiciones.append("1LO")
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("1RO")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LI")
-        if vehiculo.configuracion == "T4.T4.SP2":
-            posiciones.append("1LO")
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("1RO")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-        if vehiculo.configuracion == "S2.C4.D4":
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-            posiciones.append("3RO")
-        if vehiculo.configuracion == "S2.D4.D4.SP1":
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-            posiciones.append("3RO")
-            posiciones.append("4LI")
-        if vehiculo.configuracion == "T4.T4.T4.SP2":
-            posiciones.append("1LO")
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("1RO")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-            posiciones.append("3RO")
-            posiciones.append("4LI")
-            posiciones.append("4RI")
-        if vehiculo.configuracion == "T4.T4":
-            posiciones.append("1LO")
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("1RO")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-        if vehiculo.configuracion == "T4.T4.T4":
-            posiciones.append("1LO")
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("1RO")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-            posiciones.append("3RO")
-        for i in range(vehiculo.numero_de_llantas):
-            posicion = posiciones[i]
+        try:
+            ejes = vehiculo.configuracion.split(".")
+            if vehiculo.configuracion == "S2.C4.D4":
+                posiciones.append("1LI")
+                posiciones.append("1RI")
+                posiciones.append("2LO")
+                posiciones.append("2LI")
+                posiciones.append("2RI")
+                posiciones.append("2RO")
+                posiciones.append("3LO")
+                posiciones.append("3LI")
+                posiciones.append("3RI")
+                posiciones.append("3RO")
+            if vehiculo.configuracion == "T4.T4":
+                posiciones.append("1LO")
+                posiciones.append("1LI")
+                posiciones.append("1RI")
+                posiciones.append("1RO")
+                posiciones.append("2LO")
+                posiciones.append("2LI")
+                posiciones.append("2RI")
+                posiciones.append("2RO")
+            if vehiculo.configuracion == "S2.D4.D4":
+                posiciones.append("1LI")
+                posiciones.append("1RI")
+                posiciones.append("2LO")
+                posiciones.append("2LI")
+                posiciones.append("2RI")
+                posiciones.append("2RO")
+                posiciones.append("3LO")
+                posiciones.append("3LI")
+                posiciones.append("3RI")
+                posiciones.append("3RO")
+            for i in range(vehiculo.numero_de_llantas):
+                posicion = posiciones[i]
 
-            if ejes[int(posicion[0]) - 1][0] == "S":
-                nombre_de_eje = "Dirección"
-            if ejes[int(posicion[0]) - 1][0] == "D":
-                nombre_de_eje = "Tracción"
-            if ejes[int(posicion[0]) - 1][0] == "T":
-                nombre_de_eje = "Arrastre"
-            if ejes[int(posicion[0]) - 1][0] == "C":
-                nombre_de_eje = "Loco"
-            if ejes[int(posicion[0]) - 1][0] == "L":
-                nombre_de_eje = "Retractil"
+                if ejes[int(posicion[0]) - 1][0] == "S":
+                    nombre_de_eje = "Dirección"
+                if ejes[int(posicion[0]) - 1][0] == "D":
+                    nombre_de_eje = "Tracción"
+                if ejes[int(posicion[0]) - 1][0] == "T":
+                    nombre_de_eje = "Arrastre"
+                if ejes[int(posicion[0]) - 1][0] == "C":
+                    nombre_de_eje = "Loco"
+                if ejes[int(posicion[0]) - 1][0] == "L":
+                    nombre_de_eje = "Retractil"
 
-            Llanta.objects.create(numero_economico=f"{vehiculo}-{i}",
-                                compania=vehiculo.compania,
-                                vehiculo=vehiculo,
-                                tipo_de_eje=ejes[int(posicion[0]) - 1],
-                                eje=posicion[0],
-                                posicion=posicion,
-                                nombre_de_eje=nombre_de_eje,
-                                fecha_de_entrada_inventario=date.today()
-            )
-
+                Llanta.objects.create(numero_economico=f"{vehiculo}-{i}",
+                                    compania=vehiculo.compania,
+                                    vehiculo=vehiculo,
+                                    tipo_de_eje=ejes[int(posicion[0]) - 1],
+                                    eje=posicion[0],
+                                    posicion=posicion,
+                                    nombre_de_eje=nombre_de_eje,
+                                    fecha_de_entrada_inventario=date.today()
+                )
+        except:
+            pass
 
 def crear_nombre_de_eje():
     """llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania="Compania Prueba"))
