@@ -41,6 +41,7 @@ from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVe
 # Utilities
 from multi_form_view import MultiModelFormView
 import csv
+from datetime import date, datetime, timedelta
 import datetime  
 from ftplib import FTP as fileTP
 import json
@@ -1073,6 +1074,209 @@ class VehicleAndTireSearchTaller(LoginRequiredMixin, View):
             'pagination': pagination,
             'vehiculos_list': vehiculos_list,
             'llantas': llantas_list,
+        }
+
+        json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
+
+        return HttpResponse(json_context, content_type='application/json')
+
+class PulpoApiView(View):
+    # Vista del dashboard pulpo
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, user):
+
+        my_profile = Perfil.objects.get(user__username=self.kwargs['user'])
+        compania = Compania.objects.get(compania=my_profile.compania)
+
+        vehiculo = Vehiculo.objects.filter(compania=compania)
+        bitacora = Bitacora.objects.filter(compania=compania)
+        bitacora_pro = Bitacora_Pro.objects.filter(compania=compania)
+        hoy = date.today()
+
+        #functions_create.crear_de_bitacora_el_vehiculo()
+        #functions_create.crear_inspecciones(self.request.my_profile)
+        #functions_excel.excel_productos()
+        #functions_excel.excel_observaciones()
+        #functions_create.borrar_ultima_inspeccion_vehiculo()
+        #functions_create.convertir_vehiculos()
+        #functions_create.borrar_km_actuales()
+        #functions_ftp.ftp_diario()
+        ultimo_mes = hoy - timedelta(days=31)
+
+        #functions_create.tirecheck_llanta()
+        #functions_create.borrar_ultima_inspeccion_vehiculo()
+        #functions_excel.excel_vehiculos()
+        #functions_excel.excel_llantas(User.objects.get(username="equipo-logistico"))
+        #functions_excel.excel_inspecciones()
+
+        mes_1 = hoy.strftime("%b")
+        mes_2 = functions.mes_anterior(hoy)
+        mes_3 = functions.mes_anterior(mes_2)
+        mes_4 = functions.mes_anterior(mes_3)
+        mes_5 = functions.mes_anterior(mes_4)
+
+        hoy1 = hoy.strftime("%m")
+        hoy2 = mes_2.strftime("%m")
+        hoy3 = mes_3.strftime("%m")
+        hoy4 = mes_4.strftime("%m")
+        hoy5 = mes_5.strftime("%m")
+
+        vehiculo_fecha = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_pro = vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_total = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
+        vehiculo_fecha_barras_1 = vehiculo.filter(fecha_de_inflado__month=hoy1) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy1)
+        vehiculo_fecha_barras_2 = vehiculo.filter(fecha_de_inflado__month=hoy2) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy2)
+        vehiculo_fecha_barras_3 = vehiculo.filter(fecha_de_inflado__month=hoy3) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy3)
+        vehiculo_fecha_barras_4 = vehiculo.filter(fecha_de_inflado__month=hoy4) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy4)
+        vehiculo_fecha_barras_5 = vehiculo.filter(fecha_de_inflado__month=hoy5) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__month=hoy5)
+        
+        vehiculo_mes1 = bitacora.filter(fecha_de_inflado__month=hoy1)
+        vehiculo_mes2 = bitacora.filter(fecha_de_inflado__month=hoy2)
+        vehiculo_mes3 = bitacora.filter(fecha_de_inflado__month=hoy3)
+        vehiculo_mes4 = bitacora.filter(fecha_de_inflado__month=hoy4)
+
+        vehiculo_pro_mes1 = bitacora_pro.filter(fecha_de_inflado__month=hoy1)
+        vehiculo_pro_mes2 = bitacora_pro.filter(fecha_de_inflado__month=hoy2)
+        vehiculo_pro_mes3 = bitacora_pro.filter(fecha_de_inflado__month=hoy3)
+        vehiculo_pro_mes4 = bitacora_pro.filter(fecha_de_inflado__month=hoy4)
+
+        entrada_correcta_contar = functions.contar_entrada_correcta(vehiculo_fecha)
+        entrada_correcta_contar += functions.contar_entrada_correcta_pro(vehiculo_fecha_pro)
+        mala_entrada_contar_mes1 = functions.contar_mala_entrada(vehiculo_mes1)
+        mala_entrada_contar_mes2 = functions.contar_mala_entrada(vehiculo_mes2)
+        mala_entrada_contar_mes3 = functions.contar_mala_entrada(vehiculo_mes3)
+        mala_entrada_contar_mes4 = functions.contar_mala_entrada(vehiculo_mes4)
+
+        mala_entrada_contar_mes1 += functions.contar_mala_entrada_pro(vehiculo_pro_mes1)
+        mala_entrada_contar_mes2 += functions.contar_mala_entrada_pro(vehiculo_pro_mes2)
+        mala_entrada_contar_mes3 += functions.contar_mala_entrada_pro(vehiculo_pro_mes3)
+        mala_entrada_contar_mes4 += functions.contar_mala_entrada_pro(vehiculo_pro_mes4)
+
+        entrada_correcta_contar_barras_mes1 = functions.contar_entrada_correcta(vehiculo_fecha_barras_1)
+        entrada_correcta_contar_barras_mes2 = functions.contar_entrada_correcta(vehiculo_fecha_barras_2)
+        entrada_correcta_contar_barras_mes3 = functions.contar_entrada_correcta(vehiculo_fecha_barras_3)
+        entrada_correcta_contar_barras_mes4 = functions.contar_entrada_correcta(vehiculo_fecha_barras_4)
+        entrada_correcta_contar_barras_mes5 = functions.contar_entrada_correcta(vehiculo_fecha_barras_5)
+
+        doble_entrada = functions.doble_entrada(bitacora, bitacora_pro) 
+        doble_mala_entrada = functions.doble_mala_entrada(bitacora, vehiculo)
+
+        doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
+
+        vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
+        vehiculo_periodo_status = {}
+        mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo) | functions.mala_entrada_pro(vehiculo_periodo)
+        for v in vehiculo_periodo:
+            v = {"id":v.id, "numero_economico":v.numero_economico, "clase":v.clase}
+            v = json.dumps(v)
+            try:
+                if v in doble_mala_entrada or v in doble_mala_entrada_pro:
+                    vehiculo_periodo_status[v] = "Doble Entrada"
+                elif v in mala_entrada_periodo:
+                    vehiculo_periodo_status[v] = "Mala Entrada"
+                else:
+                    vehiculo_periodo_status[v] = "Entrada Correctas"
+            except:
+                vehiculo_periodo_status[v] = "Entrada Correctas"
+
+        vehiculo_malos_status = {}
+        mala_entrada = functions.mala_entrada(vehiculo) | functions.mala_entrada_pro(vehiculo)
+        for v in vehiculo:
+            v = {"id":v.id, "numero_economico":v.numero_economico, "clase":v.clase}
+            v = json.dumps(v)
+            try:
+                if v in doble_mala_entrada or v in doble_mala_entrada_pro:
+                    vehiculo_malos_status[v] = "Doble Entrada"
+                elif v in mala_entrada:
+                    vehiculo_malos_status[v] = "Mala Entrada"
+            except:
+                pass
+
+
+        radar_min = functions.radar_min(vehiculo_fecha_total, my_profile.compania)
+        radar_max = functions.radar_max(vehiculo_fecha_total, my_profile.compania)
+        radar_min_resta = functions.radar_min_resta(radar_min, radar_max)
+
+        """functions.crear_1(numero_economico="P5",
+        compania="pruebacal",
+        ubicacion="DOS",
+        aplicacion="FORANEO",
+        clase="CAMIONETA",
+        configuracion="S2.D2", 
+        tiempo_de_inflado=2.5,
+        presion_de_entrada=100,
+        presion_de_salida=100,
+        presion_establecida=100)"""
+
+        #functions.crear_3(Vehiculo.objects.get(numero_economico="P5"))
+
+        try:
+            aplicaciones = list(functions.aplicaciones_mas_frecuentes(vehiculo_fecha_total, vehiculo, my_profile.compania))
+        except:
+            aplicaciones = []
+
+        try:
+            vehiculos_fecha_total = list(vehiculo_fecha_total)
+        except:
+            vehiculos_fecha_total = []
+
+        try:
+            vehiculos = str(list(vehiculo.values("id", "fecha_de_inflado", "ultima_bitacora_pro")))
+        except:
+            vehiculos = []
+
+        print(vehiculos)
+
+        dict_context = {
+            "aplicaciones_mas_frecuentes_infladas": aplicaciones,
+            "bitacoras": bitacora,
+            "bitacoras_pro": bitacora_pro,
+            "boton_intuitivo": "Vehículos Vencidos",
+            "cantidad_inflado": vehiculo_fecha_total.count(),
+            "cantidad_inflado_1": vehiculo_fecha_barras_1.count(),
+            "cantidad_inflado_2": vehiculo_fecha_barras_2.count(),
+            "cantidad_inflado_3": vehiculo_fecha_barras_3.count(),
+            "cantidad_inflado_4": vehiculo_fecha_barras_4.count(),
+            "cantidad_inflado_5": vehiculo_fecha_barras_5.count(),
+            "cantidad_entrada": entrada_correcta_contar,
+            "cantidad_entrada_barras_mes1": entrada_correcta_contar_barras_mes1,
+            "cantidad_entrada_barras_mes2": entrada_correcta_contar_barras_mes2,
+            "cantidad_entrada_barras_mes3": entrada_correcta_contar_barras_mes3,
+            "cantidad_entrada_barras_mes4": entrada_correcta_contar_barras_mes4,
+            "cantidad_entrada_barras_mes5": entrada_correcta_contar_barras_mes5,
+            "cantidad_entrada_mes1": mala_entrada_contar_mes1,
+            "cantidad_entrada_mes2": mala_entrada_contar_mes2,
+            "cantidad_entrada_mes3": mala_entrada_contar_mes3,
+            "cantidad_entrada_mes4": mala_entrada_contar_mes4,
+            "cantidad_total": vehiculo.count(),
+            "clases_compania": functions.clases_mas_frecuentes(vehiculo, my_profile.compania),
+            "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha_total, my_profile.compania),
+            "compania": my_profile.compania,
+            "doble_entrada": doble_entrada,
+            "flotas": Ubicacion.objects.filter(compania=compania),
+            "hoy": hoy,
+            "mes_1": mes_1,
+            "mes_2": mes_2.strftime("%b"),
+            "mes_3": mes_3.strftime("%b"),
+            "mes_4": mes_4.strftime("%b"),
+            "mes_5": mes_5.strftime("%b"),
+            "porcentaje_inflado": functions.porcentaje(vehiculo_fecha_total.count(), vehiculo.count()),
+            "porcentaje_entrada_correcta": functions.porcentaje(entrada_correcta_contar, vehiculo_fecha_total.count()),
+            "radar_min": radar_min_resta,
+            "radar_max": radar_max,
+            "rango_1": my_profile.compania.periodo1_inflado,
+            "rango_2": my_profile.compania.periodo2_inflado,
+            "rango_3": my_profile.compania.periodo1_inflado + 1,
+            "rango_4": my_profile.compania.periodo2_inflado + 1,
+            "tiempo_promedio": functions.inflado_promedio(vehiculo_fecha_total),
+            "vehiculos": vehiculos_fecha_total,
+            "vehiculos_malos": vehiculo_malos_status,
+            "vehiculos_periodo": vehiculo_periodo_status,
+            "vehiculos_todos": vehiculos
         }
 
         json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)

@@ -19,6 +19,7 @@
 (() => {
     const saveData = [];
     document.addEventListener('submit', (e) => {
+        var _a, _b;
         const target = e.target;
         if (target.matches('#taller-form'))
             return;
@@ -28,6 +29,9 @@
             const data = Object.fromEntries(new FormData(form));
             const formHidden = document.getElementById('hoja-servicio');
             formHidden.value = JSON.stringify(data);
+            (_a = document
+                .querySelector('.alert__success')) === null || _a === void 0 ? void 0 : _a.classList.add('active');
+            setTimeout(() => { var _a; return (_a = document.querySelector('.alert__success')) === null || _a === void 0 ? void 0 : _a.classList.remove('active'); }, 2000);
             return;
         }
         e.preventDefault();
@@ -174,14 +178,24 @@
         saveData.push(data);
         const formHidden = document.getElementById('data-taller');
         formHidden.value = JSON.stringify(saveData);
+        (_b = document
+            .querySelector('.alert__success')) === null || _b === void 0 ? void 0 : _b.classList.add('active');
+        setTimeout(() => { var _a; return (_a = document.querySelector('.alert__success')) === null || _a === void 0 ? void 0 : _a.classList.remove('active'); }, 2000);
     });
     document.addEventListener('change', (e) => {
         const target = e.target;
-        if (target.matches('#alinearVehiculo')) {
+        if (target.matches('[data-vehicleFix]')) {
             const formHidden = document.getElementById('vehiculo-data');
-            formHidden.value = JSON.stringify([{
-                    alinearVehiculo: target.value,
-                }]);
+            const form = document.getElementById('vehicle-form');
+            const formData = Object.fromEntries(new FormData(form));
+            if (target.checked) {
+                target.value = 'on';
+            }
+            else {
+                target.value = '';
+            }
+            console.log(formData);
+            formHidden.value = JSON.stringify(formData);
         }
         if (target.name === 'rotar') {
             switch (target.value) {
@@ -192,12 +206,11 @@
                     break;
                 case 'mismo':
                     document.querySelectorAll(`[data-rotar-id="${target.dataset.radioid}"]`)[0].style.display = 'none';
-                    document.querySelectorAll(`[data-rotar-id="${target.dataset.radioid}"]`)[1].style.display = 'block';
+                    document.querySelectorAll(`[data-rotar-id="${target.dataset.radioid}"]`)[1].style.display = 'flex';
                     break;
                 case 'otro':
-                    document
-                        .querySelectorAll(`[data-rotar-id="${target.dataset.radioid}"]`)
-                        .forEach((label) => (label.style.display = 'block'));
+                    document.querySelectorAll(`[data-rotar-id="${target.dataset.radioid}"]`)[0].style.display = 'block';
+                    document.querySelectorAll(`[data-rotar-id="${target.dataset.radioid}"]`)[1].style.display = 'none';
                     break;
                 default:
                     break;
@@ -280,28 +293,28 @@
     });
 })();
 (() => {
+    /* Listening for a change event on the radio buttons. */
     document.addEventListener('change', (e) => {
         const target = e.target;
         const origen = document.getElementById(`origen-llanta-${target.dataset.radioid}`);
         const vehiculoOrigen = document.getElementById(`origen-vehiculo-${target.dataset.radioid}`);
+        /* Filtering the array of objects and returning the objects that do not have the same id as the
+        target.dataset.radioid. */
         if (target.value === 'mismo') {
             let data = Array.from(document.querySelectorAll('[data-pos]'));
+            /* Creating an array of objects. */
             const positions = data.map((item) => {
                 return {
                     position: item.getAttribute('data-pos'),
                     id: item.getAttribute('data-id'),
                 };
             });
+            /* Filtering out the item that was clicked on. */
             let allPos = positions.filter((item) => item.id !== target.dataset.radioid);
-            if (origen) {
-                origen.innerHTML = `<option value="">Seleccione una llanta</option>`;
-                origen.innerHTML += allPos
-                    .map((item) => {
-                    return `<option value="${item.id}">${item.position}</option>`;
-                })
-                    .join('');
-            }
+            const tires = document.querySelector(`[data-rotar-id="${target.dataset.radioid}"] input[value="${target.dataset.radioid}"]`);
+            tires.disabled = true;
         }
+        /* Fetching data from an API and populating a select element with the data. */
         if (target.value === 'otro') {
             origen.innerHTML = `<option value="">Seleccione una llanta</option>`;
             fetch('/api/vehicleandtiresearchtaller')

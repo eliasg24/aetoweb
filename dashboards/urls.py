@@ -447,6 +447,11 @@ urlpatterns = [
         name="planTaller"
     ),
     path(
+        route="reporte-taller",
+        view=views.reporteTallerView.as_view(),
+        name="reporteTaller"
+    ),
+    path(
         route="calendario",
         view=views.calendarView.as_view(),
         name="calendario"
@@ -619,11 +624,15 @@ urlpatterns = [
         view=views_rest.PanelRenovadoApi.as_view(),
         name="panelrenovado"
     ),
-
     path(
         route="api/procesodesecho",
         view=views_rest.ProcesoDesechoApi.as_view(),
         name="procesodesecho"
+    ),
+    path(
+        route="api/pulpoapi/<str:user>",
+        view=views_rest.PulpoApiView.as_view(),
+        name="pulpoapi"
     ),
     #-----------------------Q-----------------------
 

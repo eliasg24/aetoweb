@@ -1,5 +1,10 @@
 <div class="modal__bg" data-modal="{{ llanta.llanta.id }}">
   <form class="modal__form">
+    <nav class="flex-row">
+      <button class="btn-submit">Guardar</button>
+      <button type="button" role="menu" class="close-modal">Cerrar</button>
+    </nav>
+
     <header class="flex-row">
       <label for="sr-{{ llanta.llanta.id }}" class="label-check">
         <input
@@ -94,7 +99,7 @@
               />
               <div class="btn-filter rotar">No rotar</div>
             </label>
-            <label for="t-vehicle-{{ llanta.llanta.id }}" class="label-check">
+            <label for="t-vehicle-{{ llanta.llanta.id }}" data-="" class="label-check">
               <input
                 type="radio"
                 name="rotar"
@@ -116,34 +121,31 @@
             </label>
           </div>
 
-          <div>
-            <label
-              for="origen-vehiculo-{{ llanta.llanta.id }}"
-              style="display: none"
-              data-rotar-id="{{ llanta.llanta.id }}"
-            >
-              Vehiculo origen
-              <select
-                name="otroVehiculo"
-                id="origen-vehiculo-{{ llanta.llanta.id }}"
-              >
-                <option value="">Elige un vehículo...</option>
-              </select>
-            </label>
+          <div style="margin: 1rem 0;">
 
-            <label
-              for="origen-llanta-{{ llanta.llanta.id }}"
-              style="display: none"
-              data-rotar-id="{{ llanta.llanta.id }}"
-            >
-              Llanta de origen
-              <select
-                name="llantaOrigen"
-                id="origen-llanta-{{ llanta.llanta.id }}"
-              >
-                <option value="">Elige una llanta...</option>
-              </select>
-            </label>
+            <div style="display: none" data-rotar-id="{{ llanta.llanta.id }}">
+              <label for="origen-vehiculo-{{ llanta.llanta.id }}">
+                Vehiculo origen
+                <select
+                  name="otroVehiculo"
+                  id="origen-vehiculo-{{ llanta.llanta.id }}"
+                >
+                  <option value="">Elige un vehículo...</option>
+                </select>
+              </label>
+
+              <label for="origen-llanta-{{ llanta.llanta.id }}">
+                Llanta de origen
+                <select
+                  name="llantaOrigen"
+                  id="origen-llanta-{{ llanta.llanta.id }}"
+                >
+                  <option value="">Elige una llanta...</option>
+                </select>
+              </label>
+            </div>
+
+            {% include 'taller/config-modal.html' %}
           </div>
         </fieldset>
       </section>
@@ -176,7 +178,7 @@
         <option value="razon 4">Razón 4</option>
         <option value="razon 5">Razón 5</option>
       </select>
-      
+
       <label for="">Almacen de retiro</label>
       <select name="almacen_desmontaje" id="">
         <option value="">Seleccione una razón...</option>
@@ -189,16 +191,10 @@
       <select name="taller_desmontaje" id="">
         <option value="">Seleccione una razón...</option>
         {% for taller in talleres %}
-          <option value="{{taller.id}}">{{taller.nombre}}</option>
-        {% endfor %}  
+        <option value="{{taller.id}}">{{taller.nombre}}</option>
+        {% endfor %}
       </select>
-
     </div>
-
-    <nav class="flex-row">
-      <button class="btn-submit">Guardar</button>
-      <button type="button" role="menu" class="close-modal">Cerrar</button>
-    </nav>
 
     <input type="hidden" name="llantaId" value="{{ llanta.llanta.id }}" />
   </form>

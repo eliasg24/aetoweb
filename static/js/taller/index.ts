@@ -54,7 +54,17 @@
       const formHidden = document.getElementById(
         'hoja-servicio'
       ) as unknown as HTMLInputElement;
-      formHidden.value = JSON.stringify( data );
+      formHidden.value = JSON.stringify(data);
+
+      document
+        .querySelector('.alert__success')
+        ?.classList.add('active') as unknown as HTMLDivElement;
+
+      setTimeout(
+        () =>
+          document.querySelector('.alert__success')?.classList.remove('active'),
+        2000
+      );
       return;
     }
 
@@ -232,26 +242,47 @@
       'data-taller'
     ) as unknown as HTMLInputElement;
     formHidden.value = JSON.stringify(saveData);
+
+    document
+      .querySelector('.alert__success')
+      ?.classList.add('active') as unknown as HTMLDivElement;
+
+    setTimeout(
+      () =>
+        document.querySelector('.alert__success')?.classList.remove('active'),
+      2000
+    );
   });
 
   document.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
 
-    if (target.matches('#alinearVehiculo')) {
+    if (target.matches('[data-vehicleFix]')) {
       const formHidden = document.getElementById(
         'vehiculo-data'
       ) as unknown as HTMLInputElement;
 
-      formHidden.value = JSON.stringify([{
-        alinearVehiculo: target.value,
-      }]);
+      const form = document.getElementById('vehicle-form') as HTMLFormElement;
+      const formData = Object.fromEntries(new FormData(form));
+
+      if (target.checked) {
+        target.value = 'on';
+      } else {
+        target.value = '';
+      }
+
+      console.log(formData);
+
+      formHidden.value = JSON.stringify(formData);
     }
 
     if (target.name === 'rotar') {
       switch (target.value) {
         case 'no':
           document
-            .querySelectorAll<HTMLInputElement>(`[data-rotar-id="${target.dataset.radioid}"]`)
+            .querySelectorAll<HTMLInputElement>(
+              `[data-rotar-id="${target.dataset.radioid}"]`
+            )
             .forEach((label) => (label.style.display = 'none'));
           break;
 
@@ -261,13 +292,16 @@
           )[0].style.display = 'none';
           document.querySelectorAll<HTMLInputElement>(
             `[data-rotar-id="${target.dataset.radioid}"]`
-          )[1].style.display = 'block';
+          )[1].style.display = 'flex';
           break;
 
         case 'otro':
-          document
-            .querySelectorAll<HTMLInputElement>(`[data-rotar-id="${target.dataset.radioid}"]`)
-            .forEach((label) => (label.style.display = 'block'));
+          document.querySelectorAll<HTMLInputElement>(
+            `[data-rotar-id="${target.dataset.radioid}"]`
+          )[0].style.display = 'block';
+          document.querySelectorAll<HTMLInputElement>(
+            `[data-rotar-id="${target.dataset.radioid}"]`
+          )[1].style.display = 'none';
           break;
 
         default:
@@ -283,7 +317,9 @@
 
         target.classList.add('active');
         document
-          .querySelectorAll<HTMLDivElement>(`[data-view="${target.dataset.nav}"]`)
+          .querySelectorAll<HTMLDivElement>(
+            `[data-view="${target.dataset.nav}"]`
+          )
           .forEach((view) => (view.style.display = 'none'));
 
         document.querySelectorAll<HTMLDivElement>(
@@ -291,12 +327,16 @@
         )[1].style.display = 'block';
       } else {
         document
-          .querySelectorAll<HTMLDivElement>(`[data-view="${target.dataset.nav}"]`)
+          .querySelectorAll<HTMLDivElement>(
+            `[data-view="${target.dataset.nav}"]`
+          )
           .forEach((item) => item.classList.remove('active'));
 
         target.classList.add('active');
         document
-          .querySelectorAll<HTMLDivElement>(`[data-view="${target.dataset.nav}"]`)
+          .querySelectorAll<HTMLDivElement>(
+            `[data-view="${target.dataset.nav}"]`
+          )
           .forEach((view) => (view.style.display = 'none'));
 
         document.querySelectorAll<HTMLDivElement>(
@@ -305,7 +345,6 @@
       }
     }
   });
-
 })();
 
 (() => {
@@ -373,6 +412,7 @@
 })();
 
 (() => {
+  /* Listening for a change event on the radio buttons. */
   document.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
     const origen = document.getElementById(
@@ -382,8 +422,14 @@
       `origen-vehiculo-${target.dataset.radioid}`
     ) as HTMLInputElement;
 
+    /* Filtering the array of objects and returning the objects that do not have the same id as the
+    target.dataset.radioid. */
     if (target.value === 'mismo') {
-      let data = Array.from(document.querySelectorAll('[data-pos]'));
+      let data = Array.from(
+        document.querySelectorAll<HTMLDivElement>('[data-pos]')
+      );
+
+      /* Creating an array of objects. */
       const positions = data.map((item) => {
         return {
           position: item.getAttribute('data-pos'),
@@ -391,20 +437,18 @@
         };
       });
 
+      /* Filtering out the item that was clicked on. */
       let allPos = positions.filter(
         (item) => item.id !== target.dataset.radioid
       );
 
-      if (origen) {
-        origen.innerHTML = `<option value="">Seleccione una llanta</option>`;
-        origen.innerHTML += allPos
-          .map((item) => {
-            return `<option value="${item.id}">${item.position}</option>`;
-          })
-          .join('');
-      }
+      const tires = document.querySelector(
+        `[data-rotar-id="${target.dataset.radioid}"] input[value="${target.dataset.radioid}"]`
+      ) as HTMLInputElement;
+      tires.disabled = true;
     }
 
+    /* Fetching data from an API and populating a select element with the data. */
     if (target.value === 'otro') {
       origen.innerHTML = `<option value="">Seleccione una llanta</option>`;
 

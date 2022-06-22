@@ -25,6 +25,10 @@
   color: #fff;
 }
 
+.label-check input:checked ~ .tire {
+  color: orange;
+}
+
 .label-check input:checked ~ .btn-filter.rotar,
 .btn-filter.rotar:hover {
   background-color: var(--colorv04);
@@ -42,8 +46,10 @@
   width: 100%;
 }
 
-.label-check input:disabled ~ .btn-filter {
+.label-check input:disabled ~ .btn-filter,
+.label-check input:disabled ~ .tire {
   filter: brightness(0.75);
+  cursor: not-allowed;
 }
 
 .label-check input:checked ~ .btn-filter,
@@ -80,6 +86,57 @@
   background-color: var(--colorv45);
   border-radius: 0.25rem;
 }
+
+/* ! Service page */
+
+.service-page {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.5rem;
+}
+
+.form__row input,
+.service-page .flex-row input {
+  background: transparent;
+  border: thin solid #fff;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.service-page .flex-row * {
+  flex: 1 1 auto;
+}
+
+.btn-taller {
+  background-color: var(--colorv04);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.alert__success {
+  background-color: seagreen;
+  border-radius: 0.25rem;
+  bottom: 2vh;
+  color: #fff;
+  padding: 0.75rem;
+  position: fixed;
+  right: 2vw;
+  transition: all ease-in-out 0.2s;
+  transform: translateY(300%);
+}
+
+.alert__success.active {
+  transform: translateY(0);
+}
+
+/* ! */
 
 .tire-list {
   display: flex;
@@ -197,6 +254,7 @@
   background-color: var(--colorv45);
   border-radius: 0.25rem;
   gap: 1rem;
+  overflow: auto;
 }
 
 .modal__form label,
@@ -218,7 +276,8 @@
   margin-bottom: 0.5rem;
 }
 
-.card__config {
+.card__config,
+.card__config-modal {
   align-items: center;
   display: flex;
   flex-flow: column nowrap;
@@ -234,6 +293,7 @@
   flex-flow: row nowrap;
   position: relative;
   justify-content: space-between;
+  width: 100%;
 }
 
 .config__row.double-shaft {
@@ -401,6 +461,16 @@
 
   .config__row .icon-llanta-outline {
     font-size: 10rem;
+  }
+
+  .card__config-modal .config__row .icon-llanta-outline {
+    font-size: 5rem;
+  }
+
+  .card__config-modal .tire .tag__middle .pos {
+    font-size: 0.75rem;
+    height: 2rem;
+    width: 2rem;
   }
 
   .tire .tag__middle .pos {

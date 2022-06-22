@@ -1,12 +1,5 @@
 <div class="card__config">
 
-  <label for="alinearVehiculo" class="label-check">
-    <input type="checkbox" name="alinearVehiculo" id="alinearVehiculo">
-    <div class="btn-filter">
-      Alinear Vehículo
-    </div>
-  </label>
-
     {% for eje in vehiculo.ejes %}
       <!--Si el eje es de 2-->
         {% if eje|length == 2 %}
@@ -21,7 +14,7 @@
               >
 
                 <span class="tag top {{eje.0.color_presion}}">
-                  0
+                  {{eje.0.llanta.presion_actual}}
                 </span>
 
                 <div class="tag__middle">
@@ -32,7 +25,7 @@
 
                 <div class="icon-llanta-outline"></div>
                 <span class="tag bottom {{eje.0.color_profundidad}}">
-                  1
+                  {{eje.0.llanta.min_profundidad}}
                 </span>
               </div>
 
@@ -49,7 +42,7 @@
                 data-dimension="{{ eje.1.llanta.producto.dimension }}"
               >
                 <span class="tag top {{eje.1.color_presion}}">
-                  1
+                  {{eje.1.llanta.presion_actual}}
                 </span>
 
                 <div class="tag__middle">
@@ -60,7 +53,7 @@
 
                 <div class="icon-llanta-outline"></div>
                 <span class="tag bottom {{eje.1.color_profundidad}}">
-                  1
+                  {{eje.1.llanta.min_profundidad}}
                 </span>
               </div>
             </div>
@@ -79,7 +72,7 @@
                   data-dimension="{{ eje.0.llanta.producto.dimension }}"
                 >
                   <span class="tag top {{eje.0.color_presion}}">
-                    1
+                    {{eje.0.llanta.presion_actual}}
                   </span>
 
                   <div class="tag__middle">
@@ -90,7 +83,7 @@
 
                   <div class="icon-llanta-outline"></div>
                   <span class="tag bottom {{eje.0.color_profundidad}}">
-                    1
+                    {{eje.0.llanta.min_profundidad}}
                   </span>
                 </div>
 
@@ -101,7 +94,7 @@
                   data-dimension="{{ eje.1.llanta.producto.dimension }}"
                 > 
                   <span class="tag top {{eje.1.color_presion}}">
-                    1
+                    {{eje.1.llanta.presion_actual}}
                   </span>
 
                   <div class="tag__middle">
@@ -112,7 +105,7 @@
 
                   <div class="icon-llanta-outline"></div>
                   <span class="tag bottom {{eje.1.color_profundidad}}">
-                    1
+                    {{eje.1.llanta.min_profundidad}}
                   </span>
                 </div>
               </div>
@@ -131,7 +124,7 @@
                   data-dimension="{{ eje.2.llanta.producto.dimension }}"
                 >              
                   <span class="tag top {{eje.2.color_presion}}">
-                    1
+                    {{eje.2.llanta.presion_actual}}
                   </span>
 
                   <div class="tag__middle">
@@ -142,7 +135,7 @@
 
                   <div class="icon-llanta-outline"></div>
                   <span class="tag bottom {{eje.2.color_profundidad}}">
-                    1
+                    {{eje.2.llanta.min_profundidad}}
                   </span>
                 </div>
                 <div 
@@ -152,7 +145,7 @@
                   data-dimension="{{ eje.3.llanta.producto.dimension }}"
                 >                
                   <span class="tag top {{eje.3.color_presion}}">
-                    1
+                    {{eje.3.llanta.presion_actual}}
                   </span>
 
                   <div class="tag__middle">
@@ -163,14 +156,11 @@
 
                   <div class="icon-llanta-outline"></div>
                   <span class="tag bottom {{eje.3.color_profundidad}}">
-                    1
+                    {{eje.3.llanta.min_profundidad}}
                   </span>
                 </div>
               </div>
             </div>
-
         {% endif %}
-
         {% endfor %}
-
-  </div>
+</div>
