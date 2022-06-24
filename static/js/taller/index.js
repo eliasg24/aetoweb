@@ -21,8 +21,23 @@
     document.addEventListener('submit', (e) => {
         var _a, _b;
         const target = e.target;
-        if (target.matches('#taller-form'))
+        if (target.matches('#taller-form')) {
+            const date = document.querySelector('input[type="date"]'), time = document.querySelector('input[type="time"]');
+            if (date.value === '' || time.value === '') {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Los campos de fecha y/o hora estan vacíos',
+                    icon: 'error',
+                    backdrop: true,
+                    showDenyButton: false,
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                });
+                return;
+            }
             return;
+        }
         if (target.matches('.service-page')) {
             e.preventDefault();
             const form = e.target;
@@ -183,7 +198,17 @@
         setTimeout(() => { var _a; return (_a = document.querySelector('.alert__success')) === null || _a === void 0 ? void 0 : _a.classList.remove('active'); }, 2000);
     });
     document.addEventListener('change', (e) => {
+        var _a;
         const target = e.target;
+        if (target.type === 'date' || target.type === 'time') {
+            const form = document.querySelector('.service-page');
+            const data = Object.fromEntries(new FormData(form));
+            const formHidden = document.getElementById('hoja-servicio');
+            formHidden.value = JSON.stringify(data);
+            (_a = document
+                .querySelector('.alert__success')) === null || _a === void 0 ? void 0 : _a.classList.add('active');
+            setTimeout(() => { var _a; return (_a = document.querySelector('.alert__success')) === null || _a === void 0 ? void 0 : _a.classList.remove('active'); }, 2000);
+        }
         if (target.matches('[data-vehicleFix]')) {
             const formHidden = document.getElementById('vehiculo-data');
             const form = document.getElementById('vehicle-form');

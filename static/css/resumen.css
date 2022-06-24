@@ -1,0 +1,22 @@
+.main-header {
+  background-color: var(--colorv01);
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.table-container {
+  padding: 1rem;
+}
+
+.resumen-table {
+  border: 1px solid #fff;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.resumen-table th,
+.resumen-table td {
+  border: 1px solid #fff;
+  padding: 0.5rem;
+  text-align: center;
+}

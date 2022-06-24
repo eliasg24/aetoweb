@@ -3,7 +3,7 @@ from django.urls import path
 from django.views.generic.base import View
 
 # Views
-from dashboards.views import views, views_rest
+from dashboards.views import views, views_rest, views_pbi
 
 urlpatterns = [
     path(
@@ -442,6 +442,11 @@ urlpatterns = [
         name="vehicleList"
     ),
     path(
+        route="resumen",
+        view=views.resumenView.as_view(),
+        name="resumen"
+    ),
+    path(
         route="taller/<int:pk>",
         view=views.planTallerView.as_view(),
         name="planTaller"
@@ -679,6 +684,37 @@ urlpatterns = [
     #-----------------------Y-----------------------
 
     #-----------------------Z-----------------------
-
-
+    
+    
+    #? Power BI API
+    path(
+        route="api/vehiculos/<str:usuario>",
+        view=views_pbi.VehicleData.as_view(),
+        name="vehiculosapi"
+    ),
+    path(
+        route="api/compania/<str:usuario>",
+        view=views_pbi.CompaniaData.as_view(),
+        name="companiaapi"
+    ),
+    path(
+        route="api/sucursales/<str:usuario>",
+        view=views_pbi.SucursalData.as_view(),
+        name="sucursalapi"
+    ),
+    path(
+        route="api/aplicaciones/<str:usuario>",
+        view=views_pbi.AplicacionData.as_view(),
+        name="aplicacionapi"
+    ),
+    path(
+        route="api/talleres/<str:usuario>",
+        view=views_pbi.TallerData.as_view(),
+        name="tallerapi"
+    ),
+    path(
+        route="api/perfil/<str:usuario>",
+        view=views_pbi.PerfilData.as_view(),
+        name="perfilapi"
+    ),
 ]

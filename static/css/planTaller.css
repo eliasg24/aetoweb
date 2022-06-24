@@ -1,3 +1,7 @@
+.head-cont {
+  justify-content: space-between;
+}
+
 /* BUTTONS */
 
 .btn-filter {
@@ -113,6 +117,15 @@
 
 .btn-taller {
   background-color: var(--colorv04);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.close-modal {
+  background-color: var(--colorv07);
   color: #fff;
   font-family: inherit;
   font-size: 1rem;

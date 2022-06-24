@@ -584,6 +584,46 @@ class Servicio(models.Model):
     fecha_real = models.DateField(null=True, blank=True)
     horario_real = models.TimeField(null=True, blank=True)
 
+
+class ServicioVehiculo(models.Model):
+    folio = models.CharField(max_length=200)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fecha_real = models.DateField(null=True, blank=True)
+    horario_real = models.TimeField(null=True, blank=True)
+    ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
+    aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
+    configuracion = models.CharField(max_length=5000)
+    alineacion = models.BooleanField(default=False)
+
+class ServicioLlanta(models.Model):
+    serviciovehiculo = models.ForeignKey(ServicioVehiculo, null=True, on_delete=models.SET_NULL)
+    llanta = models.ForeignKey(Llanta, null=True, on_delete=models.SET_NULL)
+    inflado = models.BooleanField(default=False)
+    balanceado = models.BooleanField(default=False)
+    reparado = models.BooleanField(default=False)
+    valvula_reparada = models.BooleanField(default=False)
+    costado_reparado = models.BooleanField(default=False)
+    rotar = models.BooleanField(default=False)
+    rotar_mismo = models.BooleanField(default=False)
+    rotar_otro = models.BooleanField(default=False)
+    desmontaje = models.BooleanField(default=False)
+    llanta_cambio = models.ForeignKey(Llanta, null=True, on_delete=models.SET_NULL, related_name='NuevaLlanta')
+    opciones_de_inventario = (("Nueva", "Nueva"),
+                        ("Antes de Renovar", "Antes de Renovar"),
+                        ("Antes de Desechar", "Antes de Desechar"),
+                        ("Renovada", "Renovada"),
+                        ("Con renovador", "Con renovador"),
+                        ("Desecho final", "Desecho final"),
+                        ("Servicio", "Servicio"),
+                        ("Rodante", "Rodante"),
+                        ("Archivado", "Archivado")
+                )
+    inventario_de_desmontaje = models.CharField(max_length=200, choices=opciones_de_inventario, null=True, blank=True)
+    taller_de_desmontaje = models.ForeignKey(Taller, on_delete=models.SET_NULL, blank=True, null=True)
+    razon_de_desmontaje = models.CharField(max_length=200, null=True, blank=True)
+    
+            
 class TareasServicio(models.Model):
     folio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
     
@@ -653,20 +693,3 @@ class LlantasSeleccionadas(models.Model):
         verbose_name_plural = "LlantasSeleccionadas"
 
 
-"""
-class Bitacora_Edicion(models.Model):
-    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now=True)
-    tipo = models.CharField(max_length=500)
-    
-    def __str__(self):
-        # Retorna el número económico
-        return f"{self.tipo} |{self.id} | {self.vehiculo} | {self.fecha.strftime('%Y %m %d')}"
-
-class Registro_Bitacora(models.Model):
-    bitacora = models.ForeignKey(Bitacora_Edicion, on_delete=models.CASCADE)
-    evento = models.CharField(max_length=500)
-    def __str__(self):
-        # Retorna el número económico
-        return f"{self.id} | {self.bitacora.vehiculo} | {self.evento}"
-"""

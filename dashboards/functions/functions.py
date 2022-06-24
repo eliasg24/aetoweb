@@ -18,7 +18,7 @@ from django.utils import timezone
 
 
 # Utilities
-from dashboards.models import Aplicacion, Bitacora, Bitacora_Pro, Compania, HistoricoLlanta, Inspeccion, Llanta, LlantasSeleccionadas, Observacion, Perfil, Ubicacion, Vehiculo, Producto, FTP
+from dashboards.models import Aplicacion, Bitacora, Bitacora_Pro, Compania, HistoricoLlanta, Inspeccion, Llanta, LlantasSeleccionadas, Observacion, Perfil, ServicioLlanta, ServicioVehiculo, Taller, Ubicacion, Vehiculo, Producto, FTP
 from datetime import date, datetime, timedelta
 from heapq import nlargest
 from itertools import count
@@ -68,7 +68,7 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
         vehiculos_llantas_acomodadas (list): _description_
 
     Returns:
-        _type_: _description_
+        list: Lista que contiene los diccionarios de los vehiculos acomodados
     """
     vehiculos_acomodados = []
     #Check de presion y profundidades
@@ -89,13 +89,15 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
     for vehiculo in vehiculos_llantas_acomodadas:
         vehiculo_actual = None
         ejes = []
+        dias_sin_inflar = []
         #Saco una lista con los diversas cantidades de ejes
         for llanta in vehiculo:
             ejes.append(llanta.eje)
+            if llanta.fecha_de_inflado != None:
+                dias_sin_inflar.append(llanta.fecha_de_inflado)
         ejes = list(set(ejes))
         ejes_total = []
         #Itero sobre eesos ejes
-        print(ejes)
         for eje in ejes:
             temp_ejes = []
             #Itero sobre las llantas para buscar coincidencia de ejes
@@ -146,8 +148,8 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
                         'max_presion': round(max_presion(llanta)),
                     })
             ejes_total.append(temp_ejes)
-            dias_sin_inspeccion = 'Sin informacón'
-            dias_sin_alinear = 'Sin informacón'
+            dias_sin_inspeccion = 'N/A'
+            dias_sin_alinear = 'N/A'
             
             color_dias_inspenccion = 'good'
             color_dias_alinear = 'good'
@@ -178,7 +180,7 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
                         color_dias_alinear = 'yellow'
                 except:
                     pass 
-            
+        dias_sin_inflar = is_valid_dias_sin_inflar(dias_sin_inflar)
         vehiculos_acomodados.append(
             {
                 'vehiculo': vehiculo_actual,
@@ -187,9 +189,26 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
                 'dias_sin_alinear': dias_sin_alinear,
                 'color_dias_inspenccion': color_dias_inspenccion,
                 'color_dias_alinear': color_dias_alinear,
+                'dias_sin_inflar': dias_sin_inflar
             }
         )
     return vehiculos_acomodados
+
+
+def is_valid_dias_sin_inflar(dias_sin_inflar: list):
+    """Funcion que determina si la lista de dias sin inflar es valisa(Que no este vacia)
+
+    Args:
+        dias_sin_inflar (list): Lista de los dias con inflado
+
+    Returns:
+        _type_: Cadena o fecha que resulto
+    """
+    if dias_sin_inflar:
+        return (date.today() - max(dias_sin_inflar)).days
+        #return max(dias_sin_inflar)
+    else:
+        return 'N/A'
 
 
 def acomodo_pocisiones_vehicle(vehiculos):
@@ -238,7 +257,9 @@ def acomodo_pocisiones_vehicle(vehiculos):
             'dias_sin_inspeccion': vehiculo['dias_sin_inspeccion'],
             'dias_sin_alinear': vehiculo['dias_sin_alinear'],
             'color_dias_inspenccion': vehiculo['color_dias_inspenccion'],
-            'color_dias_alinear': vehiculo['color_dias_alinear']
+            'color_dias_alinear': vehiculo['color_dias_alinear'],
+            'dias_sin_inflar': vehiculo['dias_sin_inflar']
+            
         })
     return vehiculos_ejes_acomodados
 
@@ -3551,6 +3572,143 @@ def send_mail(bitacora, tipo):
     print('Crear hilo')
     thread.start()
 
+
+
+def bitacora_servicios(pk: int, request, acciones_vehiculo: list, dataPOST: list, llantas_desmontadas: list):
+    """Esta funcion junta todas las demas que tienen que ver con la bitacora de servicio
+
+    Args:
+        pk (int): Id del vehiculo
+        request (_type_): Objeto request de Django
+        acciones_vehiculo (list): Acciones que se realizaran a nivel vehiculo
+        dataPOST (list): Datos de las  acciones a nivel llanta 
+        llantas_desmontadas (list): Lista de las llantas desmontadas
+    """
+    servicio_de_vehiculo = servicio_vehiculo(pk, request, acciones_vehiculo)
+    servicio_llanta_desmomtaje(dataPOST, servicio_de_vehiculo)
+    servicio_llanta_servicio(dataPOST, llantas_desmontadas, servicio_de_vehiculo)
+
+
+def servicio_vehiculo(pk: int, request, acciones_vehiculo: list):
+    """Esta funcion realiza las funciones del guardado del servicio a nivel vehiculo
+
+    Args:
+        pk (int): Id del vehiculo 
+        request (WSGIRequest): Request
+        acciones_vehiculo (list): Lista de las acciones del vehiculo
+
+    Returns:
+        ServicioVehiculo: Es el servicio que se creo
+    """
+    vehiculo = Vehiculo.objects.get(pk=pk)
+    vehiculo_acomodado = vehiculo_con_ejes_acomodados(pk)
+    servicio = ServicioVehiculo.objects.create(
+        vehiculo = vehiculo,
+        usuario = request.user,
+        fecha_real = date.today(),
+        horario_real = datetime.now().time(),
+        ubicacion = vehiculo.ubicacion,
+        aplicacion = vehiculo.aplicacion,
+        configuracion = str(vehiculo_acomodado),
+    )
+    
+    folio = f'SRP{date.today().year}{date.today().month}{date.today().day}{servicio.id}-{vehiculo.id}'
+    servicio.folio = folio
+    
+    #? Guardado de las acciones del vehiculo  
+    if 'alinearVehiculo' in acciones_vehiculo:
+        servicio.alineacion = True
+    servicio.save()
+    return servicio
+
+
+def servicio_llanta_desmomtaje(dataPOST, servicio_vehiculo_id):
+    for data in dataPOST:
+        if data['tipoServicio'] == 'desmontaje':
+            #? Se llama la llanta actual
+            llanta = Llanta.objects.get(pk=data['llantaId'])
+            
+            #? Se llama la llanta a montar
+            nuevaLlanta = data['nuevaLlanta']
+            llanta_nueva = Llanta.objects.get(numero_economico = nuevaLlanta)
+            
+            #? Se obtienen los datos del desmontaje
+            razon = data['razon']
+            almacen_desmontaje = data['almacen_desmontaje']
+            taller_desmontaje = Taller.objects.get(id = int(data['taller_desmontaje']))
+            
+           
+            ServicioLlanta.objects.create(
+                serviciovehiculo = servicio_vehiculo_id,
+                llanta = llanta,
+                desmontaje = True,
+                llanta_cambio = llanta_nueva,
+                inventario_de_desmontaje = almacen_desmontaje,
+                taller_de_desmontaje = taller_desmontaje,
+                razon_de_desmontaje = razon
+            )
+
+
+def servicio_llanta_servicio(dataPOST, llantas_desmontadas, servicio_vehiculo_id):
+        llantas_rotadas = []
+        for data in dataPOST:
+            if data['tipoServicio'] == 'sr':
+                #?Se llama la llanta
+                llanta = Llanta.objects.get(pk=data['llantaId'])
+                #? Se verifican que servicios se realizaron
+                inflar = True if data['inflar'] == 'on' else False
+                balancear = True if data['balancear'] == 'on' else False
+                reparar = True if data['reparar'] == 'on' else False
+                valvula = True if data['valvula'] == 'on' else False
+                costado = True if data['costado'] == 'on' else False
+                rotar = data['rotar'] if data['rotar'] != 'no' else False
+                rotar_bool = True if rotar == 'mismo' or rotar == 'otro' else False
+                rotar_mismo = False
+                rotar_otro = False
+                llanta_rotar = None
+                #? Rotar en el mismo vehiculo
+                if rotar == 'mismo':
+                    id_llanta_rotar = int(data['origenLlanta'])
+                    llanta_rotar = Llanta.objects.get(id = id_llanta_rotar)
+                    
+                    if llanta_rotar in llantas_rotadas or llanta_rotar in llantas_desmontadas:
+                        llanta_rotar = None
+                        continue
+                    
+                    rotar_mismo = True
+                    
+                    llantas_rotadas.append(llanta)
+                    llantas_rotadas.append(llanta_rotar)
+                    
+                #? Rotar en diferente vehiculo
+                if rotar == 'otro':
+                    id_llanta_rotar = int(data['llantaOrigen'])
+                    llanta_rotar = Llanta.objects.get(id = id_llanta_rotar)
+                    
+                    if llanta_rotar in llantas_rotadas or llanta_rotar in llantas_desmontadas:
+                        llanta_rotar = None
+                        continue
+                    
+                    rotar_otro = True
+                    
+                    llantas_rotadas.append(llanta)
+                    llantas_rotadas.append(llanta_rotar)
+                    
+                ServicioLlanta.objects.create(
+                    serviciovehiculo = servicio_vehiculo_id,
+                    llanta = llanta,
+                    inflado = inflar,
+                    balanceado = balancear,
+                    reparado = reparar,
+                    valvula_reparada = valvula,
+                    costado_reparado = costado,
+                    rotar = rotar_bool,
+                    rotar_mismo = rotar_mismo,
+                    rotar_otro = rotar_otro,
+                    llanta_cambio = llanta_rotar
+                )
+
+
 def mail(bitacora, tipo):
     vehiculo = Vehiculo.objects.get(pk = bitacora.numero_economico.id)
     llantas = Llanta.objects.filter(vehiculo = vehiculo, inventario="Rodante")
@@ -3799,6 +3957,35 @@ def signo_pulpo_pro(bitacora, num_llanta, num_eje):
         return 'icon-checkmark good-text'
     else:
         return 'icon-cross bad-text'
+
+
+def vehiculo_con_ejes_acomodados(pk):
+    """Funcion que obtiene un vehiculo y acomoda sus ejes internos
+
+    Args:
+        pk (int): Id del vehiculo
+
+    Returns:
+        list: Lista de diccionarios de los ejes
+    """
+    #? Se obtiene el vehiculo con un filter, por convicciones de la funcion
+    vehiculo = Vehiculo.objects.filter(pk=pk)
+    print(vehiculo)
+    #? Se convirte el id en una lista(Por convenvion de las funciones)
+    ids_vehiculo = list_vehicle_id(vehiculo.values('id'))
+    #? Se obtiene las llantas 
+    llantas = Llanta.objects.filter(
+        vehiculo__id__in = ids_vehiculo,
+        inventario = 'Rodante'
+        ).annotate(
+            min_profundidad=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")
+            ) 
+    #? Se acomodan las llantas
+    vehiculos_llantas_acomodadas = acomodo_de_llantas_por_vehiculo(llantas, ids_vehiculo)
+    acomodo_ejes_vehiculo = acomodo_ejes_vehicle(vehiculos_llantas_acomodadas)
+    acomodo_posicion_ejes_vehicle = acomodo_pocisiones_vehicle(acomodo_ejes_vehiculo)
+    return acomodo_posicion_ejes_vehicle
+
 
 def vehiculo_amarillo(llantas):
     vehiculos_amarillos = []

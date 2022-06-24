@@ -42,7 +42,7 @@ from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, Lla
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, OrdenDesecho, Producto, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, OrdenDesecho, Producto, ServicioLlanta, ServicioVehiculo, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
 
 
 # Utilities
@@ -182,6 +182,7 @@ class TireDBView(LoginRequiredMixin, TemplateView):
         bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), numero_economico__in=vehiculo)
         llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        ultimas_inspecciones = inspecciones.values("llanta")
         hoy = date.today()
         
         periodo_2 = hoy - timedelta(days=self.request.user.perfil.compania.periodo2_inspeccion)
@@ -5186,6 +5187,11 @@ class calendarView(LoginRequiredMixin, TemplateView):
 
     template_name = "calendar/calendar.html"
 
+class resumenView(LoginRequiredMixin, TemplateView):
+# Vista de resumenView
+
+    template_name = "resumen.html"
+
 class planTallerView(LoginRequiredMixin, TemplateView):
 # Vista de planTallerView
 
@@ -5222,7 +5228,22 @@ class planTallerView(LoginRequiredMixin, TemplateView):
     
     def post(self, request, pk):
         print(request.POST)
-        dataPOST = json.loads(request.POST.getlist('data')[0])
+        #? Acciones del vehiculo
+        vehiculo = Vehiculo.objects.get(pk = pk)
+        try:
+            acciones_vehiculo = json.loads(request.POST.getlist('vehiculo')[0])
+        except:
+            acciones_vehiculo = []
+        if 'alinearVehiculo' in acciones_vehiculo:
+            vehiculo.fecha_ultima_alineacion = date.today()
+        
+        Vehiculo.objects.bulk_update([vehiculo], ['fecha_ultima_alineacion'])
+        
+        #? Acciones de llanta
+        try:
+            dataPOST = json.loads(request.POST.getlist('data')[0])
+        except:
+            dataPOST = []
         llantas_desmontadas = []
         llantas_rotadas = []
         print('---------------')
@@ -5306,6 +5327,8 @@ class planTallerView(LoginRequiredMixin, TemplateView):
                     print('Se inflo')
                     presion_establecida = functions.presion_establecida(llanta)
                     llanta.presion_actual = presion_establecida
+                    presion = Observacion.objects.get(observacion = 'Baja presión')
+                    llanta.observaciones.remove(presion)
                 if balancear:
                     print('Se balanceo')
                     llanta.fecha_de_balanceado = date.today()
@@ -5406,7 +5429,12 @@ class planTallerView(LoginRequiredMixin, TemplateView):
                     llantas_rotadas.append(llanta)
                     llantas_rotadas.append(llanta_rotar)
                 print('---------------')
-                    
+                
+        #? Guardado de la bitacora
+        functions.bitacora_servicios(pk, request, acciones_vehiculo, dataPOST, llantas_desmontadas)
+        
+        
+        
         return redirect('dashboards:planTaller', pk)
     
 class reporteTallerView(LoginRequiredMixin, TemplateView):
@@ -5440,7 +5468,7 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
             **search_query
             ).exclude(
                 **exclude_query
-                ).values('id').order_by('id')
+                ).exclude(configuracion=None).values('id').order_by('id')
         if ejes != None:
             clauses = (Q(configuracion__icontains=p) for p in ejes.split(','))
             query = reduce(operator.or_, clauses)

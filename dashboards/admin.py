@@ -6,7 +6,7 @@ from django.contrib import admin
 # Models
 from django.contrib.auth.models import User
 from django.db.models.fields.related import RelatedField
-from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, HistoricoLlanta, InspeccionVehiculo, LlantasSeleccionadas, OrdenDesecho, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller, Orden
+from dashboards.models import Aplicacion, Bitacora_Pro, Compania, Excel, FTP, HistoricoLlanta, InspeccionVehiculo, LlantasSeleccionadas, OrdenDesecho, ServicioLlanta, ServicioVehiculo, Tendencias, Ubicacion, Vehiculo, Perfil, Bitacora, Llanta, Inspeccion, Producto, Renovador, Desecho, Observacion, Rechazo, Taller, Orden
 
 @admin.register(Bitacora)
 class BitacorasAdmin(admin.ModelAdmin):
@@ -157,6 +157,20 @@ class LlantasSeleccionadasAdmin(admin.ModelAdmin):
     # Admin del Perfil
     list_display = ('id', 'perfil', 'inventario')
     search_fields= ('id', 'perfil', 'inventario')
+
+
+@admin.register(ServicioVehiculo)
+class ServicioVehiculoAdmin(admin.ModelAdmin):
+    # Admin del Perfil
+    list_display = ('folio', 'vehiculo', 'usuario', 'alineacion')
+
+
+@admin.register(ServicioLlanta)
+class ServicioLlantaAdmin(admin.ModelAdmin):
+    # Admin del Perfil
+    list_display = ('serviciovehiculo', 'llanta', 'llanta', 'inflado', 'balanceado', 'reparado',
+                    'valvula_reparada', 'rotar', 'rotar_mismo', 'rotar_otro', 'desmontaje')
+
 
 class ProfileInline(admin.StackedInline):
     # Alinear el admin del perfil con el de User de Django

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/resumen.css' %}">
+  <title>Resumen</title>
+{% endblock head %}
+
+{% block content %}
+  <main class="main-cont">
+    <header class="main-header">
+      <h1>Resumen</h1>
+    </header>
+
+    <section class="table-container">
+      <table class="resumen-table">
+        <thead>
+          <tr>
+            <th>No sé que va aquí xd</th>
+            <th>De Relleno</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Aquí menos</td>
+            <td>Apenas que me diga Carlos</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+{% endblock content %}

@@ -1168,33 +1168,33 @@ class PulpoApiView(View):
         doble_mala_entrada_pro = functions.doble_mala_entrada_pro(bitacora_pro, vehiculo)
 
         vehiculo_periodo = vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes) | vehiculo.filter(fecha_de_inflado=None).filter(ultima_bitacora_pro=None) | vehiculo.filter(fecha_de_inflado__lte=ultimo_mes).filter(ultima_bitacora_pro__fecha_de_inflado__lte=ultimo_mes)
-        vehiculo_periodo_status = {}
+        vehiculo_periodo_status = []
         mala_entrada_periodo = functions.mala_entrada(vehiculo_periodo) | functions.mala_entrada_pro(vehiculo_periodo)
         for v in vehiculo_periodo:
             v = {"id":v.id, "numero_economico":v.numero_economico, "clase":v.clase}
-            v = json.dumps(v)
             try:
                 if v in doble_mala_entrada or v in doble_mala_entrada_pro:
-                    vehiculo_periodo_status[v] = "Doble Entrada"
+                    v["status"] = "Doble Entrada"
                 elif v in mala_entrada_periodo:
-                    vehiculo_periodo_status[v] = "Mala Entrada"
+                    v["status"] = "Mala Entrada"
                 else:
-                    vehiculo_periodo_status[v] = "Entrada Correctas"
+                    v["status"] = "Entrada Correctas"
             except:
-                vehiculo_periodo_status[v] = "Entrada Correctas"
+                v["status"] = "Entrada Correctas"
+            vehiculo_periodo_status.append(v)
 
-        vehiculo_malos_status = {}
+        vehiculo_malos_status = []
         mala_entrada = functions.mala_entrada(vehiculo) | functions.mala_entrada_pro(vehiculo)
         for v in vehiculo:
             v = {"id":v.id, "numero_economico":v.numero_economico, "clase":v.clase}
-            v = json.dumps(v)
             try:
                 if v in doble_mala_entrada or v in doble_mala_entrada_pro:
-                    vehiculo_malos_status[v] = "Doble Entrada"
+                    v["status"] = "Doble Entrada"
                 elif v in mala_entrada:
-                    vehiculo_malos_status[v] = "Mala Entrada"
+                    v["status"] = "Mala Entrada"
             except:
                 pass
+            vehiculo_malos_status.append(v)
 
 
         radar_min = functions.radar_min(vehiculo_fecha_total, my_profile.compania)
@@ -1220,21 +1220,37 @@ class PulpoApiView(View):
             aplicaciones = []
 
         try:
-            vehiculos_fecha_total = list(vehiculo_fecha_total)
+            bitacoras = list(bitacora.values("id", "fecha_de_inflado"))
         except:
-            vehiculos_fecha_total = []
+            bitacoras = []
 
         try:
-            vehiculos = str(list(vehiculo.values("id", "fecha_de_inflado", "ultima_bitacora_pro")))
+            bitacoras_pro = list(bitacora_pro.values("id", "fecha_de_inflado"))
+        except:
+            bitacoras_pro = []
+
+        try:
+            vehiculos = list(vehiculo.values("id", "fecha_de_inflado", "ultima_bitacora_pro__fecha_de_inflado"))
         except:
             vehiculos = []
 
-        print(vehiculos)
+        clases_compania_list = []
+        clases_compania = functions.clases_mas_frecuentes(vehiculo, my_profile.compania)
+        for c in clases_compania:
+            clase_compania = {"clase": c, "porcentaje": clases_compania[c]}
+            clases_compania_list.append(clase_compania)
+
+        clases_mas_frecuentes_infladas_list = []
+        clases_mas_frecuentes_infladas = functions.clases_mas_frecuentes(vehiculo_fecha_total, my_profile.compania)
+        for c in clases_mas_frecuentes_infladas:
+            clase_mas_frecuente = {"clase": c, "porcentaje": clases_mas_frecuentes_infladas[c]}
+            clases_mas_frecuentes_infladas_list.append(clase_mas_frecuente)
+
 
         dict_context = {
             "aplicaciones_mas_frecuentes_infladas": aplicaciones,
-            "bitacoras": bitacora,
-            "bitacoras_pro": bitacora_pro,
+            "bitacoras": bitacoras,
+            "bitacoras_pro": bitacoras_pro,
             "boton_intuitivo": "Vehículos Vencidos",
             "cantidad_inflado": vehiculo_fecha_total.count(),
             "cantidad_inflado_1": vehiculo_fecha_barras_1.count(),
@@ -1253,11 +1269,11 @@ class PulpoApiView(View):
             "cantidad_entrada_mes3": mala_entrada_contar_mes3,
             "cantidad_entrada_mes4": mala_entrada_contar_mes4,
             "cantidad_total": vehiculo.count(),
-            "clases_compania": functions.clases_mas_frecuentes(vehiculo, my_profile.compania),
-            "clases_mas_frecuentes_infladas": functions.clases_mas_frecuentes(vehiculo_fecha_total, my_profile.compania),
+            "clases_compania": clases_compania_list,
+            "clases_mas_frecuentes_infladas": clases_mas_frecuentes_infladas_list,
             "compania": my_profile.compania,
-            "doble_entrada": doble_entrada,
-            "flotas": Ubicacion.objects.filter(compania=compania),
+            "doble_entrada": [doble_entrada[2], doble_entrada[3]],
+            "flotas": list(Ubicacion.objects.filter(compania=compania)),
             "hoy": hoy,
             "mes_1": mes_1,
             "mes_2": mes_2.strftime("%b"),
@@ -1273,7 +1289,6 @@ class PulpoApiView(View):
             "rango_3": my_profile.compania.periodo1_inflado + 1,
             "rango_4": my_profile.compania.periodo2_inflado + 1,
             "tiempo_promedio": functions.inflado_promedio(vehiculo_fecha_total),
-            "vehiculos": vehiculos_fecha_total,
             "vehiculos_malos": vehiculo_malos_status,
             "vehiculos_periodo": vehiculo_periodo_status,
             "vehiculos_todos": vehiculos

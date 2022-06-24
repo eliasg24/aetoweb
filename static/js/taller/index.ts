@@ -20,31 +20,34 @@
 })();
 
 (() => {
-  interface Form {
-    balancear: string;
-    inflar: string;
-    llantaId: string;
-    llantaOrigen: string | null;
-    otroVehiculo: string | null;
-    llantaOrigenPos: string | null;
-    llantaPos: string | null;
-    nuevaLlanta: string;
-    razon: string;
-    reparar: string;
-    rotar: string;
-    valvula: string;
-    costado: string;
-    stock: string;
-    tipoServicio: 'desmontaje' | 'sr';
-  }
-
-  interface Event {}
-
   const saveData: any[] = [];
 
   document.addEventListener('submit', (e) => {
     const target = e.target as HTMLFormElement;
-    if (target.matches('#taller-form')) return;
+    if (target.matches('#taller-form')) {
+      const date = document.querySelector(
+          'input[type="date"]'
+        ) as unknown as HTMLInputElement,
+        time = document.querySelector(
+          'input[type="time"]'
+        ) as unknown as HTMLInputElement;
+
+      if (date.value === '' || time.value === '') {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Error',
+          text: 'Los campos de fecha y/o hora estan vacíos',
+          icon: 'error',
+          backdrop: true,
+          showDenyButton: false,
+          allowOutsideClick: true,
+          allowEscapeKey: true,
+        });
+        return;
+      }
+
+      return;
+    }
 
     if (target.matches('.service-page')) {
       e.preventDefault();
@@ -256,6 +259,26 @@
 
   document.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
+
+    if (target.type === 'date' || target.type === 'time') {
+      const form = document.querySelector('.service-page') as HTMLFormElement;
+      const data = Object.fromEntries(new FormData(form));
+
+      const formHidden = document.getElementById(
+        'hoja-servicio'
+      ) as unknown as HTMLInputElement;
+      formHidden.value = JSON.stringify(data);
+
+      document
+        .querySelector('.alert__success')
+        ?.classList.add('active') as unknown as HTMLDivElement;
+
+      setTimeout(
+        () =>
+          document.querySelector('.alert__success')?.classList.remove('active'),
+        2000
+      );
+    }
 
     if (target.matches('[data-vehicleFix]')) {
       const formHidden = document.getElementById(

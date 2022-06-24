@@ -3,6 +3,8 @@
 {% block head %}
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/planTaller.css' %}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
   <title>Taller</title>
 {% endblock head %}
 {% block content %}
@@ -17,7 +19,7 @@
         <input type="hidden" name="data" value="" id="data-taller">
         <input type="hidden" name="vehiculo" value="" id="vehiculo-data">
         <input type="hidden" name="vehiculoId" value="{{vehiculo_acomodado.0.vehiculo.id}}">
-        <button type="submit">
+        <button type="submit" class="btn btn-success">
           <span class="icon-checkmark"></span>
         </button>
       </form>
@@ -29,33 +31,25 @@
           <div class="form__row">
             <input type="text" name="folio" value="123456789" placeholder="Folio" readonly>
           </div>
-          <div class="form__row">
-            <input type="datetime-local" name="fecha" placeholder="Fecha" value="2022-06-12T19:30">
-            <!-- <input
-              type="datetime-local"
-              id="meeting-time"
-              name="meeting-time"
-              value="2018-06-12T19:30"
-              min="2018-06-07T00:00"
-              max="2018-06-14T00:00"
-            > -->
-          </div>
-          <div class="form__row">
+
+          <div class="flex-row">
             <input type="text" name="usuario" value="{{request.user}}" placeholder="Usuario">
-          </div>
-          <div class="form__row">
             <input type="text" name="vehiculoEconomico" value="{{vehiculo.0}}" placeholder="Número económico" readonly>
           </div>
           <div class="flex-row">
             <input type="text" name="sucursal" value="{{vehiculo.0.ubicacion}}" placeholder="Sucursal" readonly>
             <input type="text" name="aplicacion" value="{{vehiculo.0.aplicacion}}" placeholder="Aplicación" readonly>
           </div>
+          <div class="flex-row">
+            <input type="date" name="fecha" id="" required>
+            <input type="time" name="hora" id="" required>
+          </div>
 
-          <div class="form__row">
+          <!-- <div class="form__row">
             <button type="submit" class="btn btn-taller">
               Guardar
             </button>
-          </div>
+          </div> -->
 
         </form>
 

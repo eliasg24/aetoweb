@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block head %} {% load static %}
+{% extends 'base.html' %} 
+{% block head %} 
+{% load static %}
 <link rel="stylesheet" href="{% static 'css/pulpo.css' %}" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,7 +34,8 @@
 <script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_provence.js"></script>
 <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
 <title>AETO WEB</title>
-{% endblock head %} {% block content %}
+{% endblock head %} 
+{% block content %}
 <div class="all-cont animate__animated animate__fadeIn">
   <header class="head-cont">
     <div class="logo">
@@ -1550,10 +1553,10 @@
 
   function getData() {
   return [
-      ['{{mes_4}}', mes_4, {{cantidad_entrada_mes4}}, {{doble_entrada.1.mes4}} + {{doble_entrada.3.mes4}}],
-      ['{{mes_3}}', mes_3, {{cantidad_entrada_mes3}}, {{doble_entrada.1.mes3}} + {{doble_entrada.3.mes3}}],
-      ['{{mes_2}}', mes_2, {{cantidad_entrada_mes2}}, {{doble_entrada.1.mes2}} + {{doble_entrada.3.mes2}}],
-      ['{{mes_1}}', mes_1, {{cantidad_entrada_mes1}}, {{doble_entrada.1.mes1}} + {{doble_entrada.3.mes1}}],
+      ['{{mes_4}}', mes_4, {{cantidad_entrada_mes4}}, {{doble_entrada.2.mes4}} + {{doble_entrada.3.mes4}}],
+      ['{{mes_3}}', mes_3, {{cantidad_entrada_mes3}}, {{doble_entrada.2.mes3}} + {{doble_entrada.3.mes3}}],
+      ['{{mes_2}}', mes_2, {{cantidad_entrada_mes2}}, {{doble_entrada.2.mes2}} + {{doble_entrada.3.mes2}}],
+      ['{{mes_1}}', mes_1, {{cantidad_entrada_mes1}}, {{doble_entrada.2.mes1}} + {{doble_entrada.3.mes1}}],
   ]
   }
 
