@@ -404,7 +404,22 @@
                                                     </td>
                                                 </tr>
 
+                                                {% elif evento.2 == 'servicio'%}  
+                                            
+                                                <tr id="paragraph {{evento.1.id}}">
+                                                    <td class="td-table4"><span class="icon-ruler3"></span></td>
+                                                    <td class="td-table4">{{evento.1.fecha_inicio.day}}/{{evento.1.fecha_inicio.month}}/{{evento.1.fecha_inicio.year}}</td>
+                                                    <td class="td-table4"><span class="{{evento.3}}"></span></td>
+                                                    <td class="td-table4">{{evento.1.id}}</td>
+                                                    <td class="td-table4">
+                                                        <a href="{% url 'dashboards:reporteTaller' evento.1.id %}" rel="noopener" target="_blank">
+                                                            <span class="icon-file-pdf" ></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+
                                             {% else %}
+                                            
                                             {% endif %}
                                         {% endfor %}
 
@@ -1040,6 +1055,24 @@ anychart.onDocumentReady(function () {
             .enabled(true)
             .fontSize(13)
             .padding([0, 0, 10, 0]);
+    
+            // set chart axes settings
+    // adjust x axis
+    chart.xAxis()
+            .title('')
+            .stroke("#fff")
+            .labels().fontColor("#fff");
+            
+    // adjust y axis       
+    chart.yAxis()
+            .title('')
+            .stroke("#fff")
+            .labels().fontColor("#fff");
+
+var legend = chart.legend();
+    legend.enabled(true)
+            .fontColor("#fff")
+            .fontSize(12);
 
     // set container id for the chart
     chart.container('spline-chart');
@@ -1111,6 +1144,19 @@ var title = chart.title();
 chart.xAxis().title("");
 chart.yAxis().title("");
 
+// set chart axes settings
+// adjust x axis
+chart.xAxis()
+        .title('')
+        .stroke("#fff")
+        .labels().fontColor("#fff");
+
+// adjust y axis       
+chart.yAxis()
+        .title('')
+        .stroke("#fff")
+        .labels().fontColor("#fff");
+
 // set function to format y axis labels
 var yLabels = chart.yAxis(0).labels();
 yLabels.format("{%value}{groupsSeparator:\\,, decimalsCount:3}");
@@ -1170,6 +1216,20 @@ var title = chart1.title();
 chart1.yScale().ticks().interval(10);
 chart1.xAxis().title("");
 chart1.yAxis().title("");
+
+// set chart axes settings
+// adjust x axis
+chart1.xAxis()
+        .title('')
+        .stroke("#fff")
+        .labels().fontColor("#fff");
+        
+// adjust y axis       
+chart1.yAxis()
+        .title('')
+        .stroke("#fff")
+        .labels().fontColor("#fff");
+
 
 // set function to format y axis labels
 var yLabels = chart1.yAxis(0).labels();
@@ -1234,6 +1294,12 @@ series.name('Posición');
 chart.xGrid(true);
 chart.yGrid(true);
 
+
+// set grid stroke appearance
+chart.xGrid().stroke({color: "#fff"});
+// set grid stroke appearance
+chart.yGrid().stroke({color: "#fff"});
+
 //turn on chart animation
 chart.animation(true);
   
@@ -1246,6 +1312,19 @@ title.fontWeight(600);
 
 var tooltip = chart.tooltip();
 tooltip.positionMode("point");
+
+// set chart axes settings
+// adjust x axis
+chart.xAxis()
+        .title('')
+        .stroke("#fff")
+        .labels().fontColor("#fff");
+        
+// adjust y axis       
+chart.yAxis()
+        .title('')
+        .stroke("#fff")
+        .labels().fontColor("#fff");
 
 // set the container id
 chart.container("chart-scatter");

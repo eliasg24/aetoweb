@@ -386,7 +386,6 @@ class Llanta(models.Model):
                 )
     inventario = models.CharField(max_length=200, choices=opciones_de_inventario, null=True, blank=True, default="Rodante")
     fecha_de_entrada_inventario = models.DateField(null=True, blank=True)
-    desecho = models.ForeignKey("Desecho", on_delete=models.SET_NULL, null=True, blank=True)
     rechazo = models.ForeignKey("Rechazo", on_delete=models.SET_NULL, null=True, blank=True)
     observaciones = models.ManyToManyField("Observacion", null=True, blank=True, limit_choices_to={'nivel': "Llanta"})
     tirecheck = models.BooleanField(default=False)
@@ -532,6 +531,22 @@ class Desecho(models.Model):
     condicion = models.CharField(max_length=200)
     razon = models.CharField(max_length=200)
 
+class Bitacora_Desecho(models.Model):
+    # Modelo de la Bitácora del Desecho
+    desecho = models.ForeignKey(Desecho, on_delete=models.CASCADE, null=True, blank=True)
+    fecha = models.DateTimeField()
+    llanta = models.ForeignKey(Llanta, on_delete=models.CASCADE, null=True, blank=True)
+    porcentaje_util_desechado = models.FloatField()
+    mm_desechados = models.FloatField()
+    valor_casco = models.FloatField()
+    valor_banda_rodamiento = models.FloatField()
+    profundidad_de_desecho = models.FloatField()
+    perdida_total = models.FloatField()
+    foto = models.URLField()
+
+    class Meta:
+        verbose_name_plural = "Bitacoras Desecho"
+
 class Observacion(models.Model):
     # Modelo de la Observación
     icono = models.CharField(max_length=200, null=True, blank=True)
@@ -589,8 +604,10 @@ class ServicioVehiculo(models.Model):
     folio = models.CharField(max_length=200)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    fecha_real = models.DateField(null=True, blank=True)
-    horario_real = models.TimeField(null=True, blank=True)
+    fecha_inicio = models.DateField(null=True, blank=True)
+    horario_inicio = models.TimeField(null=True, blank=True)
+    fecha_final = models.DateField(null=True, blank=True)
+    horario_final = models.TimeField(null=True, blank=True)
     ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE, blank=True, null=True)
     aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
     configuracion = models.CharField(max_length=5000)
@@ -692,4 +709,14 @@ class LlantasSeleccionadas(models.Model):
     class Meta:
         verbose_name_plural = "LlantasSeleccionadas"
 
-
+class Rendimiento(models.Model):
+    # Modelo de la Bitácora del Desecho
+    mes = models.ForeignKey(Desecho, on_delete=models.CASCADE, null=True, blank=True)
+    llanta = models.ForeignKey(Llanta, on_delete=models.CASCADE, null=True, blank=True)
+    mm_desgastados = models.FloatField()
+    porcentaje_de_desgaste = models.FloatField()
+    km_x_mm = models.FloatField()
+    km_proyectado = models.FloatField()
+    analizada = models.FloatField()
+    cpk_proyectado = models.FloatField()
+    cpk_real = models.FloatField()

@@ -447,12 +447,17 @@ urlpatterns = [
         name="resumen"
     ),
     path(
+        route="serviciosAbiertos",
+        view=views.serviciosAbiertosView.as_view(),
+        name="serviciosAbiertos"
+    ),
+    path(
         route="taller/<int:pk>",
         view=views.planTallerView.as_view(),
         name="planTaller"
     ),
     path(
-        route="reporte-taller",
+        route="reporte-taller/<int:pk>",
         view=views.reporteTallerView.as_view(),
         name="reporteTaller"
     ),
@@ -688,11 +693,6 @@ urlpatterns = [
     
     #? Power BI API
     path(
-        route="api/vehiculos/<str:usuario>",
-        view=views_pbi.VehicleData.as_view(),
-        name="vehiculosapi"
-    ),
-    path(
         route="api/compania/<str:usuario>",
         view=views_pbi.CompaniaData.as_view(),
         name="companiaapi"
@@ -716,5 +716,75 @@ urlpatterns = [
         route="api/perfil/<str:usuario>",
         view=views_pbi.PerfilData.as_view(),
         name="perfilapi"
+    ),
+    path(
+        route="api/vehiculos/<str:usuario>",
+        view=views_pbi.VehicleData.as_view(),
+        name="vehiculosapi"
+    ),
+    path(
+        route="api/llantas/<str:usuario>",
+        view=views_pbi.LlantaData.as_view(),
+        name="llantasapi"
+    ),
+    path(
+        route="api/productos/<str:usuario>",
+        view=views_pbi.ProductoData.as_view(),
+        name="productosapi"
+    ),
+    path(
+        route="api/desechos/<str:usuario>",
+        view=views_pbi.DesechoData.as_view(),
+        name="desechosapi"
+    ),
+    path(
+        route="api/rendimientos/<str:usuario>",
+        view=views_pbi.RendimientoData.as_view(),
+        name="rendimientosapi"
+    ),
+    path(
+        route="api/inspeccionesvehiculo/<str:usuario>",
+        view=views_pbi.InspeccionesVehiculoData.as_view(),
+        name="inspeccionesvehiculoapi"
+    ),
+    path(
+        route="api/inspeccionesllanta/<str:usuario>",
+        view=views_pbi.InspeccionesLlantaData.as_view(),
+        name="inspeccionesllantaapi"
+    ),
+    path(
+        route="api/observacionesinspeccion/<str:usuario>",
+        view=views_pbi.ObservacionesInspeccionData.as_view(),
+        name="observacionesinspeccionapi"
+    ),
+    path(
+        route="api/observacionesllanta/<str:usuario>",
+        view=views_pbi.ObservacionesLlantaData.as_view(),
+        name="observacionesllantaapi"
+    ),
+    path(
+        route="api/observacionesvehiculo/<str:usuario>",
+        view=views_pbi.ObservacionesVehiculoData.as_view(),
+        name="observacionesvehiculoapi"
+    ),
+    path(
+        route="api/bitacoras/<str:usuario>",
+        view=views_pbi.BitacorasData.as_view(),
+        name="bitacorasapi"
+    ),
+    path(
+        route="api/bitacoraspro/<str:usuario>",
+        view=views_pbi.BitacorasProData.as_view(),
+        name="bitacorasproapi"
+    ),
+    path(
+        route="api/acciones/<str:usuario>",
+        view=views_pbi.AccionData.as_view(),
+        name="accionesapi"
+    ),
+    path(
+        route="api/reemplazos/<str:usuario>",
+        view=views_pbi.ReemplazoData.as_view(),
+        name="reemplazosapi"
     ),
 ]

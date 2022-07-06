@@ -1,5 +1,6 @@
 #Python
 from concurrent.futures import thread
+import json
 import threading
 
 # Django
@@ -15,6 +16,7 @@ from django.db.models import FloatField, F, Q, Case, When, Value, IntegerField, 
 from django.db.models.functions import Cast, ExtractMonth, ExtractDay, Now, Round, Substr, ExtractYear, Least, Greatest
 from django.forms import DurationField
 from django.utils import timezone
+from calendario.models import Calendario
 
 
 # Utilities
@@ -89,12 +91,9 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
     for vehiculo in vehiculos_llantas_acomodadas:
         vehiculo_actual = None
         ejes = []
-        dias_sin_inflar = []
         #Saco una lista con los diversas cantidades de ejes
         for llanta in vehiculo:
             ejes.append(llanta.eje)
-            if llanta.fecha_de_inflado != None:
-                dias_sin_inflar.append(llanta.fecha_de_inflado)
         ejes = list(set(ejes))
         ejes_total = []
         #Itero sobre eesos ejes
@@ -153,16 +152,17 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
             
             color_dias_inspenccion = 'good'
             color_dias_alinear = 'good'
+            color_dias_inflado = 'good'
             hoy = date.today()
             if vehiculo_actual.fecha_ultima_inspeccion != None:
                 #print(vehiculo_actual.fecha_ultima_inspeccion)
                 dias_sin_inspeccion = (hoy - vehiculo_actual.fecha_ultima_inspeccion).days
-            if vehiculo_actual.dias_inspeccion != 0:
-                #print(vehiculo_actual.dias_inspeccion)
+            if vehiculo_actual.compania.periodo2_inspeccion != 0:
+                #print(vehiculo_actual.compania.periodo2_inspeccion)
                 try:
-                    if dias_sin_inspeccion >= (vehiculo_actual.dias_inspeccion * 2):
+                    if dias_sin_inspeccion > (vehiculo_actual.compania.periodo2_inspeccion * 2):
                         color_dias_inspenccion = 'bad'
-                    elif dias_sin_inspeccion >= vehiculo_actual.dias_inspeccion:
+                    elif dias_sin_inspeccion > vehiculo_actual.compania.periodo2_inspeccion:
                         color_dias_inspenccion = 'yellow'
                 except:
                     pass
@@ -174,13 +174,22 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
             if vehiculo_actual.dias_alinear != 0:
                 #print(vehiculo_actual.dias_alinear)
                 try:
-                    if dias_sin_alinear >= (vehiculo_actual.dias_alinear * 2):
+                    if dias_sin_alinear > (vehiculo_actual.dias_alinear * 2):
                         color_dias_alinear = 'bad'
-                    elif dias_sin_alinear >= vehiculo_actual.dias_alinear:
+                    elif dias_sin_alinear > vehiculo_actual.dias_alinear:
                         color_dias_alinear = 'yellow'
                 except:
                     pass 
-        dias_sin_inflar = is_valid_dias_sin_inflar(dias_sin_inflar)
+        dias_sin_inflar = is_valid_dias_sin_inflar(vehiculo_actual)
+        if vehiculo_actual.compania.periodo2_inflado != 0:
+            try:
+                if dias_sin_inflar > (vehiculo_actual.compania.periodo2_inflado * 2):
+                    color_dias_inflado = 'bad'
+                elif dias_sin_inflar > vehiculo_actual.compania.periodo2_inflado:
+                    color_dias_inflado = 'yellow'
+            except:
+                pass
+            
         vehiculos_acomodados.append(
             {
                 'vehiculo': vehiculo_actual,
@@ -189,13 +198,14 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
                 'dias_sin_alinear': dias_sin_alinear,
                 'color_dias_inspenccion': color_dias_inspenccion,
                 'color_dias_alinear': color_dias_alinear,
-                'dias_sin_inflar': dias_sin_inflar
+                'dias_sin_inflar': dias_sin_inflar,
+                'color_dias_inflado': color_dias_inflado
             }
         )
     return vehiculos_acomodados
 
 
-def is_valid_dias_sin_inflar(dias_sin_inflar: list):
+def is_valid_dias_sin_inflar(vehiculo_actual):
     """Funcion que determina si la lista de dias sin inflar es valisa(Que no este vacia)
 
     Args:
@@ -204,8 +214,10 @@ def is_valid_dias_sin_inflar(dias_sin_inflar: list):
     Returns:
         _type_: Cadena o fecha que resulto
     """
-    if dias_sin_inflar:
-        return (date.today() - max(dias_sin_inflar)).days
+    print("Vehiculo: ", vehiculo_actual)
+
+    if vehiculo_actual.fecha_de_inflado != None:
+        return (date.today() - vehiculo_actual.fecha_de_inflado).days
         #return max(dias_sin_inflar)
     else:
         return 'N/A'
@@ -258,7 +270,8 @@ def acomodo_pocisiones_vehicle(vehiculos):
             'dias_sin_alinear': vehiculo['dias_sin_alinear'],
             'color_dias_inspenccion': vehiculo['color_dias_inspenccion'],
             'color_dias_alinear': vehiculo['color_dias_alinear'],
-            'dias_sin_inflar': vehiculo['dias_sin_inflar']
+            'dias_sin_inflar': vehiculo['dias_sin_inflar'],
+            'color_dias_inflado': vehiculo['color_dias_inflado']
             
         })
     return vehiculos_ejes_acomodados
@@ -474,16 +487,38 @@ def check_presion_pulpo(llanta, min_presion, max_presion):
     presion = int(llanta.presion_actual)
     alta = Observacion.objects.get(observacion='Alta presion')
     baja = Observacion.objects.get(observacion='Baja presión')
+    mala_entrada = Observacion.objects.get(observacion='Mala entrada')
+    doble_mala_entrada = Observacion.objects.get(observacion='Doble mala entrada')
     llanta.observaciones.remove(alta)
     llanta.observaciones.remove(baja)
     print(presion)
     if presion < min_presion:
         llanta.observaciones.add(baja)
         llanta.vehiculo.observaciones_llanta.add(baja)
-    if presion > max_presion:
+        if mala_entrada in llanta.vehiculo.observaciones_llanta or doble_mala_entrada in llanta.vehiculo.observaciones_llanta :
+            llanta.vehiculo.observaciones_llanta.add(doble_mala_entrada)
+            llanta.observaciones.add(doble_mala_entrada)
+        else:
+            llanta.vehiculo.observaciones_llanta.add(mala_entrada)
+            llanta.observaciones.add(mala_entrada)
+            
+    elif presion > max_presion:
         llanta.observaciones.add(alta)
         llanta.vehiculo.observaciones_llanta.add(alta)
+        if mala_entrada in llanta.vehiculo.observaciones_llanta or doble_mala_entrada in llanta.vehiculo.observaciones_llanta :
+            llanta.vehiculo.observaciones_llanta.add(doble_mala_entrada)
+            llanta.observaciones.add(doble_mala_entrada)
+        else:
+            llanta.vehiculo.observaciones_llanta.add(mala_entrada)
+            llanta.observaciones.add(mala_entrada)
         
+    else:
+        llanta.observaciones.remove(doble_mala_entrada)
+        llanta.vehiculo.observaciones_llanta.remove(doble_mala_entrada)
+        
+        llanta.observaciones.remove(mala_entrada)
+        llanta.vehiculo.observaciones_llanta.remove(mala_entrada)
+          
     llanta.save()
 
 
@@ -518,6 +553,13 @@ def aplicaciones_mas_frecuentes(vehiculo_fecha, vehiculos, compania):
         return aplicaciones
     except:
         return None
+
+def cant_ejes(vehiculo_acomodado):
+    ejes = 0
+    for eje in vehiculo_acomodado[0]['ejes']:
+        ejes += 1
+    return ejes
+
 
 def cantidad_llantas(configuracion):
     try:
@@ -1963,7 +2005,7 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
         for r in fecha_llanta:
             resta = abs(r["fecha_hora"] - primera_fecha["primera_fecha"]).days
             x.append(resta)
-        profundidades = regresion.filter(llanta=llanta["llanta"]).values("min_profundidad")
+        profundidades = regresion.filter(llanta=llanta["llanta"]).annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).values("min_profundidad")
         for p in profundidades:
             y.append(p["min_profundidad"])
         
@@ -1972,21 +2014,26 @@ def embudo_vidas_con_regresion(inspecciones, ubicacion, days):
 
         if len(x) > 2:
             dia = x[-1]
+        
+            try:
 
-            f = np.polyfit(x, y, 3)
-            p = np.poly1d(f)
-            termino = []
-            for numero in p:
-                numero = round(numero, 4)
-                termino.append(numero)
-            regresion_resultado = (termino[0]*(dia**2))+(termino[1]*dia)+termino[2]
-            resta = y[0]-regresion_resultado
-            diario = resta/dia
-            dias_30 = resta - (diario * 30)
-            dias_60 = resta - diario * 60
-            dias_90 = resta - diario * 90
-            
-            vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+                f = np.polyfit(x, y, 3)
+                p = np.poly1d(f)
+                termino = []
+                for numero in p:
+                    numero = round(numero, 4)
+                    termino.append(numero)
+                regresion_resultado = (termino[0]*(dia**2))+(termino[1]*dia)+termino[2]
+                resta = y[0]-regresion_resultado
+                diario = resta/dia
+                dias_30 = resta - (diario * 30)
+                dias_60 = resta - diario * 60
+                dias_90 = resta - diario * 90
+
+            except:
+                pass
+
+            #vehiculos_sospechosos = regresion.filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
     duplicadas = inspecciones.select_related("llanta").values("llanta").annotate(count=Count("llanta")).filter(count__lte=2, count__gt=0)
     sin_regresion = inspecciones.select_related("llanta__vehiculo__compania").annotate(poli=Case(When(llanta__in=duplicadas.values("llanta"), then=1), default=0, output_field=IntegerField())).filter(poli=1)
     llantas = sin_regresion.values("llanta").distinct()
@@ -2452,6 +2499,81 @@ def exist_context(user):
 def folio():
     pass
 
+def inflado_inicio(POST):
+    #? Lista de ids
+    fecha = ''
+    list_fechas_str = []
+    if 'inflado-inicio' in POST and POST['inflado-inicio'] != '' and POST['inflado-inicio'] != None:
+        fecha = POST['inflado-inicio']
+    fecha = str(fecha).replace(' ', '').replace('\'', '')
+    return fecha
+
+
+def inflado_final(POST):
+    #? Lista de ids
+    fecha = ''
+    if 'inflado-final' in POST and POST['inflado-final'] != '' and POST['inflado-final'] != None:
+        fecha = POST['inflado-final']
+    fecha = str(fecha).replace(' ', '').replace('\'', '')
+    return fecha
+
+
+def inspeccion_inicio(POST):
+    #? Lista de ids
+    fecha = ''
+    if 'inspeccion-inicio' in POST and POST['inspeccion-inicio'] != '' and POST['inspeccion-inicio'] != None:
+        fecha = POST['inspeccion-inicio']
+    fecha = str(fecha).replace(' ', '').replace('\'', '')
+    return fecha
+
+
+def inspeccion_final(POST):
+    #? Lista de ids
+    fecha = ''
+    if 'inspeccion-final' in POST and POST['inspeccion-final'] != '' and POST['inspeccion-final'] != None:
+        fecha = POST['inspeccion-final']
+    fecha = str(fecha).replace(' ', '').replace('\'', '')
+    return fecha
+
+
+def alineacion_inicio(POST):
+    #? Lista de ids
+    fecha = ''
+    if 'alineacion-inicio' in POST and POST['alineacion-inicio'] != '' and POST['alineacion-inicio'] != None:
+        fecha = POST['alineacion-inicio']
+    fecha = str(fecha).replace(' ', '').replace('\'', '')
+    return fecha
+
+
+def alineacion_final(POST):
+    #? Lista de ids
+    fecha = ''
+    if 'alineacion-final' in POST and POST['alineacion-final'] != '' and POST['alineacion-final'] != None:
+        fecha = POST['alineacion-final']
+    fecha = str(fecha).replace(' ', '').replace('\'', '')
+    return fecha
+
+
+
+def inflado_inicio_get(GET):
+    return GET.get('inflado_inicio', '')
+
+def inflado_final_get(GET):
+    return GET.get('inflado_final', '')
+
+def inspeccion_inicio_get(GET):
+    return GET.get('inspeccion_inicio', '')
+
+def inspeccion_final_get(GET):
+    return GET.get('inspeccion_final', '')
+
+def alineacion_inicio_get(GET):
+    return GET.get('alineacion_inicio', '')
+
+def alineacion_final_get(GET):
+    return GET.get('alineacion_final', '')
+
+
 
 def get_product_list(productos):
     list_temp = []
@@ -2852,6 +2974,43 @@ def km_max_template(inspeccion_vehiculo):
     else:
         return inspeccion_vehiculo.km
     
+
+
+def lista_problemas_taller(servicios_llanta, servicio):
+    problemas = []
+    if servicio.alineacion == True:
+        problemas.append({'posicion':f'Vehiculo {servicio.vehiculo}', 'icono': '', 'accion': f'El vehiculo se alineo'})
+    for servicio in servicios_llanta:
+        if servicio.inflado == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se inflo la llanta'})
+        if servicio.balanceado == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se balanceo la llanta'})
+        if servicio.reparado == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se reparo la llanta'})
+        if servicio.valvula_reparada == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se reparo la valvula'})
+        if servicio.costado_reparado == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se reparo el costado de la llanta'})
+        if servicio.rotar == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se roto la llanta por {servicio.llanta_cambio}-{servicio.llanta_cambio.producto}'})
+        if servicio.desmontaje == True:
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Esta llanta se desmonto por la {servicio.llanta_cambio}-{servicio.llanta_cambio.producto}'})
+    return problemas
+
+def list_vehicles_valid_filter(vehiculos, filtro, query2):
+    ids_vehiculos_validos = []
+    ids = list_vehicle_id(vehiculos)
+    filtro_query = ({'observaciones__id__in': filtro.split(',')} if filtro != '' and  filtro != None else {})
+    
+    for id in ids:
+        llantas = Llanta.objects.filter(vehiculo__id = id, inventario = 'Rodante')
+        llantas = llantas.filter(query2, **filtro_query)
+        num_llantas =  llantas.count()
+        if num_llantas > 0:
+            ids_vehiculos_validos.append(id)
+            
+    return ids_vehiculos_validos
+
 
 def list_vehicle_id(vehiculos):
     """AI is creating summary for list_vehicle_id
@@ -3357,7 +3516,16 @@ def pagination(page, pages):
         
     return pagination
 
-def pagination_url(filtro, exclude, ejes, search):
+def pagination_url(filtro, 
+                    exclude, 
+                    ejes, 
+                    search, 
+                    inflado_inicio,
+                    inflado_final,
+                    inspeccion_inicio,
+                    inspeccion_final,
+                    alineacion_inicio,
+                    alineacion_final):
     """Funcion que recibe los parametros de los filtros u devuelve una cadena para poder respetarlos
 
     Args:
@@ -3369,9 +3537,32 @@ def pagination_url(filtro, exclude, ejes, search):
     Returns:
         str: Cadena concatenada de los diferentes filtros
     """
-    if (filtro == None and exclude == None and ejes == None and search == None) or (filtro == '' and exclude == '' and ejes == '' and search == ''):
+    if (
+        filtro == None 
+        and exclude == None 
+        and ejes == None 
+        and search == None 
+        and inflado_inicio == None 
+        and inflado_final == None 
+        and inspeccion_inicio == None 
+        and inspeccion_final == None 
+        and alineacion_inicio == None 
+        and alineacion_final == None
+        ) or (
+        filtro == '' 
+        and exclude == '' 
+        and ejes == '' 
+        and search == ''
+        and inflado_inicio == '' 
+        and inflado_final == '' 
+        and inspeccion_inicio == '' 
+        and inspeccion_final == '' 
+        and alineacion_inicio == '' 
+        and alineacion_final == ''):
         return ''
-    return f'&filtro={filtro}&exclude={exclude}&ejes={ejes}&search={search}'
+    if search == None:
+        search=''
+    return f'&filtro={filtro}&exclude={exclude}&ejes={ejes}&search={search}&inflado_inicio={inflado_inicio}&inflado_final={inflado_final}&inspeccion_inicio={inspeccion_inicio}&inspeccion_final={inspeccion_final}&alineacion_inicio={alineacion_inicio}&alineacion_final={alineacion_final}'
 
 def pagination_prev(page, pages, url_complemento):
     if (page - 1) >= 1:
@@ -3459,6 +3650,28 @@ def punto_de_retiro(llanta_actual):
     elif "L" in llanta_actual.tipo_de_eje:
         punto_retiro = compania.punto_retiro_eje_retractil
     return(punto_retiro)
+
+
+
+def quitar_desgaste(llanta, llanta_rotar):
+    d_alta_presion = Observacion.objects.get(observacion = 'Desgaste alta presión') #?Amarillo
+    d_costilla_interna = Observacion.objects.get(observacion = 'Desgaste  costilla interna') #?Amarillo
+    d_inclinado_derecha = Observacion.objects.get(observacion = 'Desgaste inclinado a la derecha') #?Amarillo
+    d_inclinado_izquierda = Observacion.objects.get(observacion = 'Desgaste inclinado a la izquierda') #?Amarillo
+
+    
+    #? Llanta
+    llanta.observaciones.remove(d_alta_presion)
+    llanta.observaciones.remove(d_costilla_interna)
+    llanta.observaciones.remove(d_inclinado_derecha)
+    llanta.observaciones.remove(d_inclinado_izquierda)
+    
+    #? Llanta rotada
+    llanta_rotar.observaciones.remove(d_alta_presion)
+    llanta_rotar.observaciones.remove(d_costilla_interna)
+    llanta_rotar.observaciones.remove(d_inclinado_derecha)
+    llanta_rotar.observaciones.remove(d_inclinado_izquierda)
+
 
 def radar_min(vehiculo_fecha, compania):
     try:
@@ -3572,6 +3785,33 @@ def send_mail(bitacora, tipo):
     print('Crear hilo')
     thread.start()
 
+def eje_a_str(vehiculo_acomodado):
+    vehiculo_id = vehiculo_acomodado[0]['vehiculo'].id
+    vehiculo_acomodado[0]['vehiculo'] = vehiculo_id
+    for eje in vehiculo_acomodado[0]['ejes']:
+        for llanta in eje:
+            id_llanta = llanta['llanta'].id
+            llanta['llanta'] = id_llanta
+    return str(vehiculo_acomodado)
+
+
+def eje_a_list(configuracion):
+    #? Se obtiene la configuracion y se convierte a una lista de diccionarios
+    orden_raw = configuracion
+    orden_raw = orden_raw.replace("\'", "\"")
+    configuracion = json.loads(orden_raw)
+    #? Se obtiene el id del vehiculo y se cambia en la lista
+    vehiculo_id = configuracion[0]['vehiculo']
+    vehiculo = Vehiculo.objects.get(pk =vehiculo_id )
+    configuracion[0]['vehiculo'] = vehiculo
+    #? Se cambian las llantas
+    for eje in configuracion[0]['ejes']:
+        for llanta in eje:
+            id_llanta = llanta['llanta']
+            llanta_ = Llanta.objects.get(pk = id_llanta)
+            llanta['llanta'] = llanta_
+    return configuracion
+    
 
 
 def bitacora_servicios(pk: int, request, acciones_vehiculo: list, dataPOST: list, llantas_desmontadas: list):
@@ -3602,14 +3842,29 @@ def servicio_vehiculo(pk: int, request, acciones_vehiculo: list):
     """
     vehiculo = Vehiculo.objects.get(pk=pk)
     vehiculo_acomodado = vehiculo_con_ejes_acomodados(pk)
+    #? Se obtiene la fecha y la hora
+    hoja = request.POST['hoja']
+    hoja = json.loads(hoja)
+    dateString = f"{hoja['fecha']}, {hoja['hora']}:00"
+    dateFormatter = "%Y-%m-%d, %H:%M:%S"
+    fecha = datetime.strptime(dateString, dateFormatter)
+    
+    dateStringEnd = f"{hoja['fecha_end']}, {hoja['hora_end']}:00"
+    dateFormatterEnd = "%Y-%m-%d, %H:%M:%S"
+    fecha_end = datetime.strptime(dateStringEnd, dateFormatterEnd)
+    
+    
+    #? Se guardan los servicios
     servicio = ServicioVehiculo.objects.create(
         vehiculo = vehiculo,
         usuario = request.user,
-        fecha_real = date.today(),
-        horario_real = datetime.now().time(),
+        fecha_inicio = fecha.date(),
+        horario_inicio = fecha.time(),
+        fecha_final = fecha_end.date(),
+        horario_final = fecha_end.time(),
         ubicacion = vehiculo.ubicacion,
         aplicacion = vehiculo.aplicacion,
-        configuracion = str(vehiculo_acomodado),
+        configuracion = eje_a_str(vehiculo_acomodado),
     )
     
     folio = f'SRP{date.today().year}{date.today().month}{date.today().day}{servicio.id}-{vehiculo.id}'
@@ -3619,7 +3874,26 @@ def servicio_vehiculo(pk: int, request, acciones_vehiculo: list):
     if 'alinearVehiculo' in acciones_vehiculo:
         servicio.alineacion = True
     servicio.save()
+    calendarioTaller(servicio)
     return servicio
+
+
+def calendarioTaller(servicio):
+    titulo = f'Servicio al vehiculo {servicio.vehiculo}'
+    horario_start_str = str(servicio.fecha_inicio) + 'T' + str(servicio.horario_inicio) + '-05:00'
+    horario_end_str = str(servicio.fecha_final) + 'T' + str(servicio.horario_final) + '-05:00'
+    Calendario.objects.create(
+        servicio = servicio,
+        vehiculo = servicio.vehiculo,
+        start = servicio.fecha_inicio,
+        horario_start = servicio.horario_inicio,
+        end = servicio.fecha_final,
+        horario_end = servicio.horario_final,
+        title = titulo,
+        horario_start_str = horario_start_str,
+        horario_end_str = horario_end_str,
+        compania = servicio.vehiculo.compania
+    )
 
 
 def servicio_llanta_desmomtaje(dataPOST, servicio_vehiculo_id):
@@ -4184,7 +4458,7 @@ def vehiculo_sospechoso_llanta(inspecciones):
                 diferencia_dias = dia-x[-2]
                 prediccion = diario*diferencia_dias
                 desgaste_normal = prediccion*2.5
-                llantas_sospechosas = regresion.annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__gt=desgaste_normal).values("llanta__vehiculo").distinct()
+                llantas_sospechosas = regresion.annotate(p1=Case(When(Q(profundidad_central=None) & Q(profundidad_derecha=None), then=Value(1)), When(Q(profundidad_izquierda=None) & Q(profundidad_derecha=None), then=Value(2)), When(Q(profundidad_izquierda=None) & Q(profundidad_central=None), then=Value(3)), When(Q(profundidad_izquierda=None), then=Value(4)), When(Q(profundidad_central=None), then=Value(5)), When(Q(profundidad_derecha=None), then=Value(6)), default=0, output_field=IntegerField())).annotate(min_profundidad=Case(When(p1=0, then=Least("profundidad_izquierda", "profundidad_central", "profundidad_derecha")), When(p1=1, then=F("profundidad_izquierda")), When(p1=2, then=F("profundidad_central")), When(p1=3, then=F("profundidad_derecha")), When(p1=4, then=Least("profundidad_central", "profundidad_derecha")), When(p1=5, then=Least("profundidad_izquierda", "profundidad_derecha")), When(p1=6, then=Least("profundidad_izquierda", "profundidad_central")), output_field=FloatField())).filter(min_profundidad__gt=desgaste_normal).values("llanta__numero_economico").distinct()
             except:
                 pass
     # En un futuro poner el parámetro sospechoso para cuando es 1 inspección

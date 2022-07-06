@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
-from django.db.models import Q, F, ExpressionWrapper, IntegerField
+from django.db.models import Q, F, ExpressionWrapper, IntegerField, Value
 from django.forms import DateField, DateTimeField, DurationField
 from django.db.models.functions import Least
 from django.http import HttpResponseRedirect
@@ -1356,7 +1356,7 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
         observaciones_todas=Observacion.objects.all()
         llantas_actuales = Llanta.objects.filter(pk=self.kwargs['pk'])
         num_eco_comp = functions.all_num_eco_compania(llanta.compania, llantas_actuales)
-        color_observaciones = functions.color_observaciones_all_one(llanta.ultima_inspeccion)
+        color_observaciones = functions.color_observaciones_all_one(llanta)
         context['llanta'] = llanta
         context['punto_de_retiro'] = punto_de_retiro
         context['min_presion'] = min_presion
@@ -1540,16 +1540,22 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
                 diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
                 llanta.observaciones.add(diferencia_presion_duales)
                 dual_llanta.observaciones.add(diferencia_presion_duales)
-                dual_llanta.ultima_inspeccion.observaciones.add(diferencia_presion_duales)
                 dual_llanta.save()
-                dual_llanta.ultima_inspeccion.save()
+                try:
+                    dual_llanta.ultima_inspeccion.observaciones.add(diferencia_presion_duales)
+                    dual_llanta.ultima_inspeccion.save()
+                except:
+                    pass
                 print(diferencia_presion_duales)
             else:
                 diferencia_presion_duales = Observacion.objects.get(observacion = 'Diferencia de presión entre los duales')
                 dual_llanta.observaciones.remove(diferencia_presion_duales)
-                dual_llanta.ultima_inspeccion.observaciones.remove(diferencia_presion_duales)
                 dual_llanta.save()
-                dual_llanta.ultima_inspeccion.save()     
+                try:
+                    dual_llanta.ultima_inspeccion.observaciones.remove(diferencia_presion_duales)
+                    dual_llanta.ultima_inspeccion.save()     
+                except:
+                    pass
             
             if (
                 (functions.min_profundidad(llanta) - functions.min_profundidad(dual_llanta)) >= compania.mm_de_diferencia_entre_duales
@@ -1560,16 +1566,22 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
                 desdualización = Observacion.objects.get(observacion = 'Desdualización')
                 llanta.observaciones.add(desdualización)
                 dual_llanta.observaciones.add(desdualización)
-                dual_llanta.ultima_inspeccion.observaciones.add(desdualización)
                 dual_llanta.save()
-                dual_llanta.ultima_inspeccion.save()
+                try:
+                    dual_llanta.ultima_inspeccion.observaciones.add(desdualización)
+                    dual_llanta.ultima_inspeccion.save()
+                except:
+                    pass
                 print(desdualización)
             else:
                 desdualización = Observacion.objects.get(observacion = 'Desdualización')
                 dual_llanta.observaciones.remove(desdualización)
-                dual_llanta.ultima_inspeccion.observaciones.remove(desdualización)
                 dual_llanta.save()
-                dual_llanta.ultima_inspeccion.save()
+                try:
+                    dual_llanta.ultima_inspeccion.observaciones.remove(desdualización)
+                    dual_llanta.ultima_inspeccion.save()
+                except:
+                    pass
             
         if "S" in llanta.tipo_de_eje:
             punto_retiro = compania.punto_retiro_eje_direccion
@@ -1598,10 +1610,13 @@ class tireDiagramaView(LoginRequiredMixin, TemplateView):
 
         
         llanta.save()
-        if len(llanta.observaciones.all()) > 0:
-            for observacion in llanta.observaciones.all():
-                llanta.ultima_inspeccion.observaciones.add(observacion)
-            llanta.ultima_inspeccion.save()
+        try:
+            if len(llanta.observaciones.all()) > 0:
+                for observacion in llanta.observaciones.all():
+                    llanta.ultima_inspeccion.observaciones.add(observacion)
+                llanta.ultima_inspeccion.save()
+        except:
+            pass
         #Tire Diagrama
         functions.observaciones_vehiculo(llanta.vehiculo)
         return redirect('dashboards:tireDetail', self.kwargs['pk'])
@@ -4423,6 +4438,7 @@ class procesoDesechoView(LoginRequiredMixin, TemplateView):
         llanta = Llanta.objects.get(pk = id)
         desecho = Desecho.objects.get(compania = compania, condicion = condicion, zona_de_llanta = zona, razon = razon)
         orden = OrdenDesecho.objects.create(
+            usuario = usuario,
             llanta = llanta,
             compania = compania,
             fecha = hoy,
@@ -5187,11 +5203,197 @@ class calendarView(LoginRequiredMixin, TemplateView):
 
     template_name = "calendar/calendar.html"
 
+class serviciosAbiertosView(LoginRequiredMixin, TemplateView):
+# Vista de serviciosAbiertosView
+
+    template_name = "serviciosAbiertos.html"
+
 class resumenView(LoginRequiredMixin, TemplateView):
 # Vista de resumenView
 
     template_name = "resumen.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        perfil = Perfil.objects.get(user=user)
+        compania = perfil.compania
+        vehiculos = Vehiculo.objects.select_related().filter(compania = compania).exclude(configuracion=None).values('id').order_by('id')
+        current_vehiculos = functions.list_vehicle_id(vehiculos)
+        llantas = Llanta.objects.filter(vehiculo__id__in = current_vehiculos, inventario = 'Rodante')
+
+        alta_presion = [5]
+        baja_presion = [4]
+        baja_profundidad = [7]
+        en_punto_retiro = [8]
+        desgaste_irregular = [10, 11, 12, 13]
+        dualizacion = [9]
+        
+        libre = 'C'
+        direccion = 'S'
+        traccion = 'D'
+        retractil = 'L'
+        arrastre = 'T'
+        #? Query's
+        clauses_direccion = (Q(tipo_de_eje__icontains=p) for p in [direccion])
+        query_direccion = reduce(operator.or_, clauses_direccion)
+        
+        clauses_libre = (Q(tipo_de_eje__icontains=p) for p in [libre])
+        query_libre = reduce(operator.or_, clauses_libre)
+        
+        clauses_retractil = (Q(tipo_de_eje__icontains=p) for p in [retractil])
+        query_retractil = reduce(operator.or_, clauses_retractil)
+        
+        clauses_traccion = (Q(tipo_de_eje__icontains=p) for p in [traccion])
+        query_traccion = reduce(operator.or_, clauses_traccion)
+        
+        clauses_arrastre = (Q(tipo_de_eje__icontains=p) for p in [arrastre])
+        query_arrastre = reduce(operator.or_, clauses_arrastre)
+        
+        #? Problemas Query's
+        query_baja_presion = ({'observaciones__id__in': baja_presion})
+        query_alta_presion = ({'observaciones__id__in': alta_presion})
+        query_baja_profundidad = ({'observaciones__id__in': baja_profundidad})
+        query_desgaste_irregular = ({'observaciones__id__in': desgaste_irregular})
+        query_dualizacion = ({'observaciones__id__in': dualizacion})
+        
+        #? Listas
+        
+        direccion_baja_presion = llantas.filter(query_direccion, **query_baja_presion).count()
+        direccion_alta_presion = llantas.filter(query_direccion, **query_alta_presion).count()
+        direccion_baja_profundidad = llantas.filter(query_direccion, **query_baja_profundidad).count()
+        direccion_desgaste_irregular = llantas.filter(query_direccion, **query_desgaste_irregular).count()
+        
+        
+        libre_baja_presion = llantas.filter(query_libre, **query_baja_presion).count()
+        libre_alta_presion = llantas.filter(query_libre, **query_alta_presion).count()
+        libre_baja_profundidad = llantas.filter(query_libre, **query_baja_profundidad).count()
+        libre_desgaste_irregular = llantas.filter(query_libre, **query_desgaste_irregular).count()
+        
+        retractil_baja_presion = llantas.filter(query_retractil, **query_baja_presion).count()
+        retractil_alta_presion = llantas.filter(query_retractil, **query_alta_presion).count()
+        retractil_baja_profundidad = llantas.filter(query_retractil, **query_baja_profundidad).count()
+        retractil_desgaste_irregular = llantas.filter(query_retractil, **query_desgaste_irregular).count()
+        
+        traccion_baja_presion = llantas.filter(query_traccion, **query_baja_presion).count()
+        traccion_alta_presion = llantas.filter(query_traccion, **query_alta_presion).count()
+        traccion_baja_profundidad = llantas.filter(query_traccion, **query_baja_profundidad).count()
+        traccion_desgaste_irregular = llantas.filter(query_traccion, **query_desgaste_irregular).count()
+        
+        arrastre_baja_presion = llantas.filter(query_arrastre, **query_baja_presion).count()
+        arrastre_alta_presion = llantas.filter(query_arrastre, **query_alta_presion).count()
+        arrastre_baja_profundidad = llantas.filter(query_arrastre, **query_baja_profundidad).count()
+        arrastre_desgaste_irregular = llantas.filter(query_arrastre, **query_desgaste_irregular).count()
+        
+        
+        #Sumas
+        
+        total_alta_presion = (
+                                libre_baja_presion +
+                                retractil_baja_presion +
+                                traccion_baja_presion +
+                                arrastre_baja_presion
+                                )
+        
+        total_baja_presion = (
+                                libre_alta_presion +
+                                retractil_alta_presion +
+                                traccion_alta_presion +
+                                arrastre_alta_presion
+                                )
+        total_baja_profundidad = (
+                                    libre_baja_profundidad +
+                                    retractil_baja_profundidad +
+                                    traccion_baja_profundidad +
+                                    arrastre_baja_profundidad
+                                    )
+        total_desgaste_irregular = (
+                                    libre_desgaste_irregular +
+                                    retractil_desgaste_irregular +
+                                    traccion_desgaste_irregular +
+                                    arrastre_desgaste_irregular
+                                    )
+        duales_impares = round(llantas.filter(**query_dualizacion).count() / 2)
+        hoy = datetime.today()
+        
+        vehiculos_sin_alineacion = vehiculos.annotate(
+            dias_sin_alinear=DiffDays(
+                hoy-F('fecha_ultima_alineacion'), output_field=IntegerField()
+                )).exclude(
+                    dias_alinear=0
+                    ).exclude(
+                        dias_alinear=None
+                        ).exclude(
+                            dias_sin_alinear__lte=F('dias_alinear')
+                            ).count()
+
+        vehiculos_sin_inspeccion = vehiculos.annotate(
+            dias_sin_inspeccion=DiffDays(
+                hoy-F('fecha_ultima_inspeccion'), output_field=IntegerField()
+                )).exclude(
+                    compania__periodo2_inspeccion=0
+                    ).exclude(
+                        compania__periodo2_inspeccion=None
+                        ).exclude(
+                            dias_sin_inspeccion__lte=F('compania__periodo2_inspeccion')
+                            ).values('numero_economico').count()
+        
+        vehiculos_sin_inflado = vehiculos.annotate(
+            dias_sin_inflado=DiffDays(
+                hoy-F('fecha_de_inflado'), output_field=IntegerField()
+                )).exclude(
+                    compania__periodo2_inflado=0
+                    ).exclude(
+                        compania__periodo2_inflado=None
+                        ).exclude(
+                            dias_sin_inflado__lte=F('compania__periodo2_inflado')
+                            ).count()
+        
+        #? Contexto
+        
+        #* Eje-Direccion
+        context['direccion_baja_presion'] = direccion_baja_presion
+        context['direccion_alta_presion'] = direccion_alta_presion
+        context['direccion_baja_profundidad'] = direccion_baja_profundidad
+        context['direccion_desgaste_irregular'] = direccion_desgaste_irregular
+        
+        #* Eje-Libre
+        context['libre_baja_presion'] = libre_baja_presion
+        context['libre_alta_presion'] = libre_alta_presion
+        context['libre_baja_profundidad'] = libre_baja_profundidad
+        context['libre_desgaste_irregular'] = libre_desgaste_irregular
+        
+        #* Eje-Retractil
+        context['retractil_baja_presion'] = retractil_baja_presion
+        context['retractil_alta_presion'] = retractil_alta_presion
+        context['retractil_baja_profundidad'] = retractil_baja_profundidad
+        context['retractil_desgaste_irregular'] = retractil_desgaste_irregular
+        
+        #* Eje-Traccion
+        context['traccion_baja_presion'] = traccion_baja_presion
+        context['traccion_alta_presion'] = traccion_alta_presion
+        context['traccion_baja_profundidad'] = traccion_baja_profundidad
+        context['traccion_desgaste_irregular'] = traccion_desgaste_irregular
+        
+        #* Eje-Arrastre
+        context['arrastre_baja_presion'] = arrastre_baja_presion
+        context['arrastre_alta_presion'] = arrastre_alta_presion
+        context['arrastre_baja_profundidad'] = arrastre_baja_profundidad
+        context['arrastre_desgaste_irregular'] = arrastre_desgaste_irregular
+        
+        #* Totales
+        context['total_alta_presion'] = total_alta_presion
+        context['total_baja_presion'] = total_baja_presion
+        context['total_baja_profundidad'] = total_baja_profundidad
+        context['total_desgaste_irregular'] = total_desgaste_irregular
+        
+        #* Datos individuales
+        context['vehiculos_sin_alineacion'] = vehiculos_sin_alineacion
+        context['vehiculos_sin_inspeccion'] = vehiculos_sin_inspeccion
+        context['vehiculos_sin_inflado'] = vehiculos_sin_inflado
+        context['duales_impares'] = duales_impares
+        return context
+    
 class planTallerView(LoginRequiredMixin, TemplateView):
 # Vista de planTallerView
 
@@ -5380,6 +5582,9 @@ class planTallerView(LoginRequiredMixin, TemplateView):
                     llanta_rotar.eje = eje_llanta_montada
                     llanta_rotar.tipo_de_eje = tipo_de_eje_llanta_montada
                     
+                    #? Quitar observaciones                  
+                    functions.quitar_desgaste(llanta, llanta_rotar)
+                    
                     Llanta.objects.bulk_update([llanta, llanta_rotar], [
                         'posicion', 
                         'tipo_de_eje', 
@@ -5420,6 +5625,9 @@ class planTallerView(LoginRequiredMixin, TemplateView):
                     llanta_rotar.eje = eje_llanta_montada
                     llanta_rotar.tipo_de_eje = tipo_de_eje_llanta_montada
                     
+                    #? Quitar observaciones                  
+                    functions.quitar_desgaste(llanta, llanta_rotar)
+                    
                     Llanta.objects.bulk_update([llanta, llanta_rotar], [
                         'vehiculo',
                         'posicion', 
@@ -5440,7 +5648,24 @@ class planTallerView(LoginRequiredMixin, TemplateView):
 class reporteTallerView(LoginRequiredMixin, TemplateView):
     # Vista del reporteTallerView
     template_name = "reporte-taller.html"
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #? LLamada de los 
+        servicio = ServicioVehiculo.objects.get(pk = kwargs['pk'])
+        servicios_llanta = ServicioLlanta.objects.filter(serviciovehiculo__id = servicio.id)
+        vehiculo_acomodado = functions.eje_a_list(servicio.configuracion)
+        cant_ejes = functions.cant_ejes(vehiculo_acomodado)
+        
+        problemas = functions.lista_problemas_taller(servicios_llanta, servicio)
+        context['vehiculo_acomodado'] = vehiculo_acomodado
+        context['cant_ejes'] = cant_ejes
+        context['problemas'] = problemas
+        context['vehiculo'] = servicio.vehiculo
+        context['folio'] = servicio.folio
+        context['fecha'] = servicio.fecha_inicio
+        return context
+    
 class vehicleListView(LoginRequiredMixin, TemplateView):
 # Vista de vehicleListView
 
@@ -5460,20 +5685,68 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
         ejes = self.request.GET.get('ejes', None)
         search = self.request.GET.get('search', None)
         search_query = ({'numero_economico__icontains': search} if search != '' and  search != None else {})
+        dateFormatter = "%Y-%m-%d"
         
+        #? Infaldo
+        inflado_inicio = self.request.GET.get('inflado_inicio', None)
+        inflado_inicio_query = ({'fecha_de_inflado__gte': datetime.strptime(inflado_inicio, dateFormatter)} if inflado_inicio != '' and  inflado_inicio != None else {})
+
+        inflado_final = self.request.GET.get('inflado_final', None)
+        inflado_final_query = ({'fecha_de_inflado__lte': datetime.strptime(inflado_final, dateFormatter)} if inflado_final != '' and  inflado_final != None else {})
+
+        #? Inspeccion
+        inspeccion_inicio = self.request.GET.get('inspeccion_inicio', None)
+        inspeccion_inicio_query = ({'fecha_ultima_inspeccion__gte': datetime.strptime(inspeccion_inicio, dateFormatter)} if inspeccion_inicio != '' and  inspeccion_inicio != None else {})
+
+        inspeccion_final = self.request.GET.get('inspeccion_final', None)
+        inspeccion_final_query = ({'fecha_ultima_inspeccion__lte': datetime.strptime(inspeccion_final, dateFormatter)} if inspeccion_final != '' and  inspeccion_final != None else {})
+
+        #? Alineacion
+        alineacion_inicio = self.request.GET.get('alineacion_inicio', None)
+        alineacion_inicio_query = ({'fecha_ultima_alineacion__gte': datetime.strptime(alineacion_inicio, dateFormatter)} if alineacion_inicio != '' and  alineacion_inicio != None else {})
+
+        alineacion_final = self.request.GET.get('alineacion_final', None)
+        alineacion_final_query = ({'fecha_ultima_alineacion__lte': datetime.strptime(alineacion_final, dateFormatter)} if alineacion_final != '' and  alineacion_final != None else {})
+
         #Se obtienen los vehiculos de la compañia
-        vehiculos = Vehiculo.objects.select_related().filter(
-            compania = compania,
-            **filtro_query,
-            **search_query
-            ).exclude(
-                **exclude_query
-                ).exclude(configuracion=None).values('id').order_by('id')
-        if ejes != None:
+        if ejes == None or ejes == '':
+            vehiculos = Vehiculo.objects.select_related().filter(
+                compania = compania,
+                **filtro_query,
+                **inflado_inicio_query,
+                **inflado_final_query,
+                **inspeccion_inicio_query,
+                **inspeccion_final_query,
+                **alineacion_inicio_query,
+                **alineacion_final_query
+                ).filter(
+                    **search_query).exclude(
+                        **exclude_query
+                        ).exclude(configuracion=None).values('id').order_by('id')
+        else:
+            vehiculos = Vehiculo.objects.select_related().filter(
+                compania = compania,
+                #! **filtro_query,
+                #! **search_query
+                ).exclude(
+                    **exclude_query
+                    ).exclude(configuracion=None).values('id').order_by('id')
+                
             clauses = (Q(configuracion__icontains=p) for p in ejes.split(','))
             query = reduce(operator.or_, clauses)
             vehiculos = vehiculos.filter(query)
-        vehiculos = vehiculos.distinct()
+            
+            clauses2 = (Q(tipo_de_eje__icontains=p) for p in ejes.split(','))
+            query2 = reduce(operator.or_, clauses2)
+            vehiculos_validos = functions.list_vehicles_valid_filter(vehiculos, filtro, query2)
+            vehiculos = vehiculos.filter(id__in = vehiculos_validos,
+                                        **inflado_inicio_query,
+                                        **inflado_final_query,
+                                        **inspeccion_inicio_query,
+                                        **inspeccion_final_query,
+                                        **alineacion_inicio_query,
+                                        **alineacion_final_query)
+        vehiculos = vehiculos.filter(**search_query).distinct()
         print(vehiculos)
         vehiculos = functions.ordenar_por_status(vehiculos)
         ids_vehiculo = functions.list_vehicle_id(vehiculos)
@@ -5504,7 +5777,17 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
         #    return redirect(url)
         
         #pagination = functions.pagination(page, pages)
-        url_complemento = functions.pagination_url(filtro, exclude, ejes, search)
+        url_complemento = functions.pagination_url(filtro, 
+                                                   exclude, 
+                                                   ejes, 
+                                                   search, 
+                                                   inflado_inicio,
+                                                   inflado_final,
+                                                   inspeccion_inicio,
+                                                   inspeccion_final,
+                                                   alineacion_inicio,
+                                                   alineacion_final)
+        
         prev = functions.pagination_prev(page, pages, url_complemento)
         next = functions.pagination_next(page, pages, url_complemento)
         
@@ -5518,6 +5801,12 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
         self.exclude = exclude
         self.filtro = filtro
         self.search = search
+        self.inflado_inicio =  inflado_inicio
+        self.inflado_final =  inflado_final
+        self.inspeccion_inicio =  inspeccion_inicio
+        self.inspeccion_final =  inspeccion_final
+        self.alineacion_inicio =  alineacion_inicio
+        self.alineacion_final =  alineacion_final
         
         print(f'prev: {prev}')
         print(f'next: {next}')
@@ -5548,6 +5837,12 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
         context['next'] = self.next
         context['llantas_acomodadas'] = vehiculos
         context['search'] = self.search
+        context['inflado_inicio'] = self.inflado_inicio
+        context['inflado_final'] = self.inflado_final
+        context['inspeccion_inicio'] = self.inspeccion_inicio
+        context['inspeccion_final'] = self.inspeccion_final
+        context['alineacion_inicio'] = self.alineacion_inicio
+        context['alineacion_final'] = self.alineacion_final
         return context
 
     def post(self, request):
@@ -5559,14 +5854,34 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
             lista_observaciones = functions.lista_de_id_observaciones_get(request.GET)
             lista_observaciones_exclude = functions.lista_de_id_observaciones_exclude_get(request.GET)
             lista_ejes = functions.lista_de_ejes_get(request.GET)
+            
+            inflado_inicio = functions.inflado_inicio_get(request.GET)
+            inflado_final = functions.inflado_final_get(request.GET)
+
+            inspeccion_inicio = functions.inspeccion_inicio_get(request.GET)
+            inspeccion_final = functions.inspeccion_final_get(request.GET)
+
+            alineacion_inicio = functions.alineacion_inicio_get(request.GET)
+            alineacion_final = functions.alineacion_final_get(request.GET)
+            
             vehiculo_search = request.POST['search']
-            url = f'%s?filtro={lista_observaciones}&exclude={lista_observaciones_exclude}&ejes={lista_ejes}&search={vehiculo_search}' % reverse('dashboards:vehicleList')
+            url = f'%s?filtro={lista_observaciones}&exclude={lista_observaciones_exclude}&ejes={lista_ejes}&inflado_inicio={inflado_inicio}&inflado_final={inflado_final}&inspeccion_inicio={inspeccion_inicio}&inspeccion_final={inspeccion_final}&alineacion_inicio={alineacion_inicio}&alineacion_final={alineacion_final}&search={vehiculo_search}' % reverse('dashboards:vehicleList')
             return redirect(url)
         lista_observaciones = functions.lista_de_id_observaciones(request.POST)
         lista_observaciones_exclude = functions.lista_de_id_observaciones_exclude(request.POST)
         lista_ejes = functions.lista_de_ejes(request.POST)
+        
+        inflado_inicio = functions.inflado_inicio(request.POST)
+        inflado_final = functions.inflado_final(request.POST)
+        
+        inspeccion_inicio = functions.inspeccion_inicio(request.POST)
+        inspeccion_final = functions.inspeccion_final(request.POST)
+        
+        alineacion_inicio = functions.alineacion_inicio(request.POST)
+        alineacion_final = functions.alineacion_final(request.POST)
+
         #vehiculos = Vehiculo.objects.filter(observaciones_llanta__id__in = lista_observaciones)
-        url = f'%s?filtro={lista_observaciones}&exclude={lista_observaciones_exclude}&ejes={lista_ejes}' % reverse('dashboards:vehicleList')
+        url = f'%s?filtro={lista_observaciones}&exclude={lista_observaciones_exclude}&ejes={lista_ejes}&inflado_inicio={inflado_inicio}&inflado_final={inflado_final}&inspeccion_inicio={inspeccion_inicio}&inspeccion_final={inspeccion_final}&alineacion_inicio={alineacion_inicio}&alineacion_final={alineacion_final}' % reverse('dashboards:vehicleList')
         return redirect(url)
     
     
@@ -5624,6 +5939,7 @@ class PulpoProAPI(View):
     def post(self, request):
         jd = json.loads(request.body)
         vehiculo = Vehiculo.objects.get(numero_economico=jd['numero_economico'], compania=Compania.objects.get(compania=jd['compania']))
+        vehiculo.fecha_de_inflado=date.today()
         llantas = Llanta.objects.filter(vehiculo=vehiculo)
         presiones_de_entrada = eval(jd['presiones_de_entrada'])
         presiones_de_salida = eval(jd['presiones_de_salida'])
@@ -5774,7 +6090,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions_ftp.ftp_diario()
         ultimo_mes = hoy - timedelta(days=31)
 
-        #functions_create.tirecheck_llanta()
+        #functions_create.crear_llantas()
         #functions_create.borrar_ultima_inspeccion_vehiculo()
         #functions_excel.excel_vehiculos()
         #functions_excel.excel_llantas(User.objects.get(username="equipo-logistico"))
@@ -6563,6 +6879,8 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         llanta = self.get_object()
         inspecciones_llanta = Inspeccion.objects.filter(llanta=llanta)
         vehiculo = llanta.vehiculo
+        if llanta.vehiculo == None:
+            return print('hola')
         llantas = Llanta.objects.filter(vehiculo=vehiculo)
         inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
 
@@ -6570,10 +6888,13 @@ class tireDetailView(LoginRequiredMixin, DetailView):
             bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         except:
             bitacora = None
-
-        bitacora_normal = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-        bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-
+        try:
+            bitacora_normal = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+            bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+        except:
+            bitacora_normal = None 
+            bitacora_pro = None
+            
         entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
 
         print(f'bitacora_normal: {bitacora_normal}')
@@ -6650,13 +6971,17 @@ class tireDetailView(LoginRequiredMixin, DetailView):
 
         filtro_sospechoso = functions.vehiculo_sospechoso_llanta(inspecciones)
         llantas_sospechosas = llantas.filter(numero_economico__in=filtro_sospechoso)
-
+        print('----------')
+        print(filtro_sospechoso)
+        print(llantas_sospechosas)
+        
+        
         filtro_rojo = functions.vehiculo_rojo_llanta(llantas)
         llantas_rojas = llantas.filter(numero_economico__in=filtro_rojo).exclude(id__in=llantas_sospechosas)
-        
+
         filtro_amarillo = functions.vehiculo_amarillo_llanta(llantas)
         llantas_amarillas = llantas.filter(numero_economico__in=filtro_amarillo).exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas)
-        
+
         llantas_azules = llantas.exclude(id__in=llantas_sospechosas).exclude(id__in=llantas_rojas).exclude(id__in=llantas_amarillas)
         
         if llanta in llantas_sospechosas:
@@ -6759,7 +7084,7 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         
         #Generacion de ejes dinamico
         vehiculo_actual = vehiculo
-        llantas_actuales = llantas
+        llantas_actuales = llantas.filter(inventario = 'Rodante')
         inspecciones_actuales = inspecciones
         llanta_actual = Llanta.objects.get(pk=self.kwargs['pk'])
         
@@ -6859,6 +7184,10 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         numero_eje_check = None
         for eje in ejes:
             for ej in eje:
+                print(llanta_actual)
+                print(ej)
+                print(eje)
+                print(ejes)
                 if llanta_actual in ej:
                     numero_llanta_check = numero_llanta
                     numero_eje_check = numero_eje
@@ -6968,6 +7297,9 @@ class DetailView(LoginRequiredMixin, DetailView):
         bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
+        servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo).order_by('-id')
+        print(vehiculo)
+        print(servicios)
         if vehiculo.fecha_de_inflado:
             inflado = 1
         else:
@@ -6993,10 +7325,12 @@ class DetailView(LoginRequiredMixin, DetailView):
             inspecciones_list.append([inspeccion.fecha, inspeccion, 'inspeccion', signo])
         inspecciones_list = sorted(inspecciones_list, key=lambda x:x[1].id, reverse=True)
         for ins in inspecciones_list:
-            print(ins)
             eventos.append([ins[0].date(), ins[1], ins[2], ins[3]])
+        for servicio in servicios:
+            eventos.append([servicio.fecha_inicio, servicio, 'servicio', 'icon-checkmark good-text'])
         eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
         context["eventos"] = eventos
+        print(eventos)
         hoy = date.today()
 
         mes_1 = hoy.strftime("%b")

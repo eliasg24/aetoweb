@@ -1074,7 +1074,7 @@ def crear_configuracion2():
     
 
 def crear_llantas():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Cervecería Hondureña S.A."))
     for vehiculo in vehiculos:
         posiciones = []
         ejes = vehiculo.configuracion.split(".")
@@ -1099,7 +1099,12 @@ def crear_llantas():
             posiciones.append("2RO")
             posiciones.append("3LI")
             posiciones.append("3RI")
-        if vehiculo.configuracion == "S2.C4.D4":
+        if vehiculo.configuracion == "S2.D2":
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+        if vehiculo.configuracion == "S2.D4.D4":
             posiciones.append("1LI")
             posiciones.append("1RI")
             posiciones.append("2LO")
@@ -1110,18 +1115,13 @@ def crear_llantas():
             posiciones.append("3LI")
             posiciones.append("3RI")
             posiciones.append("3RO")
-        if vehiculo.configuracion == "S2.D4.D4.SP1":
+        if vehiculo.configuracion == "S2.D4":
             posiciones.append("1LI")
             posiciones.append("1RI")
             posiciones.append("2LO")
             posiciones.append("2LI")
             posiciones.append("2RI")
             posiciones.append("2RO")
-            posiciones.append("3LO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-            posiciones.append("3RO")
-            posiciones.append("4LI")
         if vehiculo.configuracion == "T4.T4.T4.SP2":
             posiciones.append("1LO")
             posiciones.append("1LI")

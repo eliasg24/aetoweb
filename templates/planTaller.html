@@ -19,6 +19,9 @@
         <input type="hidden" name="data" value="" id="data-taller">
         <input type="hidden" name="vehiculo" value="" id="vehiculo-data">
         <input type="hidden" name="vehiculoId" value="{{vehiculo_acomodado.0.vehiculo.id}}">
+        <button class="btn btn-success">
+          <i class="icon-calendar1"></i>
+        </button>
         <button type="submit" class="btn btn-success">
           <span class="icon-checkmark"></span>
         </button>
@@ -43,6 +46,10 @@
           <div class="flex-row">
             <input type="date" name="fecha" id="" required>
             <input type="time" name="hora" id="" required>
+          </div>
+          <div class="flex-row">
+            <input type="date" name="fecha_end" id="" required>
+            <input type="time" name="hora_end" id="" required>
           </div>
 
           <!-- <div class="form__row">
