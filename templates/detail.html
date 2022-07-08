@@ -23,10 +23,12 @@
                 <span class="icon-truck"></span>
                 Vehículo
             </button>
+            {% if grupo != "Pulpo Manager" %}
             <button class="btn btn-aeto-crunch" id="btn-chart">
                 <span class="icon-tireeye"></span>
                 Tire Eye
             </button>
+            {% endif %}
             <button class="btn btn-aeto-crunch" id="btn-pulpo">
                 <span class="icon-pulpo"></span>
                 Pulpo
@@ -45,6 +47,7 @@
 
                 {% else %}
                     <div class="config__buttons">
+                        {% if grupo != "Pulpo Manager" %}
                         <a 
                             href="{% url 'dashboards:configuracionVehiculo' vehiculo.id %}" 
                             class="btn btn-download relative">
@@ -63,6 +66,7 @@
                             <span class="icon-magnifier"></span>
                             <div class="pop-out">Inspección</div>
                         </a> 
+                        {% endif %}
                     </div>
 
                     <h2 id="km-vehiculo">KM: {{vehiculo.km}}</h2> 
@@ -407,7 +411,7 @@
                                                 {% elif evento.2 == 'servicio'%}  
                                             
                                                 <tr id="paragraph {{evento.1.id}}">
-                                                    <td class="td-table4"><span class="icon-ruler3"></span></td>
+                                                    <td class="td-table4"><span class="icon-tools1"></span></td>
                                                     <td class="td-table4">{{evento.1.fecha_inicio.day}}/{{evento.1.fecha_inicio.month}}/{{evento.1.fecha_inicio.year}}</td>
                                                     <td class="td-table4"><span class="{{evento.3}}"></span></td>
                                                     <td class="td-table4">{{evento.1.id}}</td>
@@ -455,10 +459,12 @@
                                 </div>
                             </div>
                             <div class="score-card">
+                                {% if grupo != "Pulpo Manager" %}
                                 <h2>CPK del vehículo</h2>
                                 <div class="circle">
                                     <span>${{cpk_vehiculo}}</span>
                                 </div>
+                                {% endif %}
                             </div>
 
                         </div>

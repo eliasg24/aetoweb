@@ -257,6 +257,11 @@ urlpatterns = [
         name="usuarioFormulario"
     ),
     path(
+        route="nuevoVehiculo",
+        view=views.nuevoVehiculoView.as_view(),
+        name="nuevoVehiculo"
+    ),
+    path(
         route="aplicacionFormulario",
         view=views.aplicacionFormularioView.as_view(),
         name="aplicacionFormulario"

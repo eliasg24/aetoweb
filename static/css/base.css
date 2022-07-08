@@ -524,7 +524,7 @@ h6 {
   padding-bottom: 6px;
   font-weight: 700;
   border-width: 3px;
-  border-color: var(--colorv14);
+  border-color: var(--colorv08);
 }
 
 .form__field:focus ~ .form__label {
@@ -533,7 +533,7 @@ h6 {
   display: block;
   transition: 0.2s;
   font-size: 1rem;
-  color: var(--colorv14);
+  color: var(--colorv08);
   font-weight: 700;
 }
 

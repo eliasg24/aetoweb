@@ -28,11 +28,11 @@
   <label for="compania" class="form__label">
     Compañia
   </label>
-    <datalist id="compania">
-      {% for compania in companias %}
-        <option value="{{compania}}">{{compania}}</option>
-      {% endfor %}
-    </datalist>
+  <datalist id="compania">
+    {% for compania in companias %}
+      <option value="{{compania}}">{{compania}}</option>
+    {% endfor %}
+  </datalist>
 </div>
 <!-- End input -->
 
@@ -41,13 +41,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="rendimiento-nueva-1r"
+    placeholder="rendimiento de nueva a 1r"
     name="rendimiento_de_nueva"
     autocomplete="off"
     required
   />
-  <label for="rendimiento-nueva-1r" class="form__label">
-    Rendimiento nueva a 1R
+  <label for="rendimiento_de_nueva" class="form__label">
+    Rendimiento de nueva a 1R
   </label>
 </div>
 <!-- End input -->
@@ -57,13 +57,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="rendimiento-1r-2r"
+    placeholder="rendimiento de 1r a 2r"
     name="rendimiento_de_primera"
     autocomplete="off"
     required
   />
-  <label for="rendimiento-1r" class="form__label">
-    Rendimiento 1R a 2R
+  <label for="rendimiento_de_primera" class="form__label">
+    Rendimiento de 1R a 2R
   </label>
 </div>
 <!-- End input -->
@@ -73,13 +73,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="rendimiento-1r-2r"
+    placeholder="rendimiento de 2r a 3r"
     name="rendimiento_de_segunda"
     autocomplete="off"
     required
   />
-  <label for="rendimiento-1r" class="form__label">
-    Rendimiento 2R a 3R
+  <label for="rendimiento_de_segunda" class="form__label">
+    Rendimiento de 2R a 3R
   </label>
 </div>
 <!-- End input -->
@@ -89,13 +89,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="rendimiento-1r-2r"
+    placeholder="rendimiento de 3r a 4r"
     name="rendimiento_de_tercera"
     autocomplete="off"
     required
   />
-  <label for="rendimiento-1r" class="form__label">
-    Rendimiento 3R a 4R
+  <label for="rendimiento_de_tercera" class="form__label">
+    Rendimiento de 3R a 4R
   </label>
 </div>
 <!-- End input -->
@@ -105,13 +105,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="rendimiento-1r-2r"
+    placeholder="rendimiento de 4r a 5r"
     name="rendimiento_de_cuarta"
     autocomplete="off"
     required
   />
-  <label for="rendimiento-1r" class="form__label">
-    Rendimiento 4R a 5R
+  <label for="rendimiento_de_cuarta" class="form__label">
+    Rendimiento de 4R a 5R
   </label>
 </div>
 <!-- End input -->
@@ -121,13 +121,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="precio-promedio-llanta-direccion"
+    placeholder="precio promedio de llanta direccion"
     name="precio_nueva_direccion"
     autocomplete="off"
     required
   />
-  <label for="precio-promedio-llanta-direccion" class="form__label">
-    Precio promedio llanta dirección
+  <label for="precio_nueva_direccion" class="form__label">
+    Precio promedio de llanta direccion
   </label>
 </div>
 <!-- End input -->
@@ -137,13 +137,13 @@
   <input
     class="form__field"
     type="text"
-    placeholder="precio-promedio-llanta-nueva"
+    placeholder="precio promedio de llanta nueva"
     name="precio_nueva"
     autocomplete="off"
     required
   />
-  <label for="precio-promedio-llanta-nueva" class="form__label">
-    Precio promedio llanta nueva
+  <label for="precio_nueva" class="form__label">
+    precio promedio de llanta nueva
   </label>
 </div>
 <!-- End input -->
@@ -153,13 +153,19 @@
   <input
     class="form__field"
     type="text"
-    placeholder="precio-promedio-llanta-renovada"
+    placeholder="precio promedio de llanta renovada"
     name="precio_renovada"
     autocomplete="off"
     required
   />
-  <label for="precio-promedio-llanta-renovada" class="form__label">
-    Precio promedio llanta renovada
+  <label for="precio_renovada" class="form__label">
+    Precio promedio de llanta renovada
   </label>
 </div>
 <!-- End input -->
+
+<nav class="">
+  <button type="submit" class="btn btn-success">
+    <i class="icon-checkmark"></i>
+  </button>
+</nav>

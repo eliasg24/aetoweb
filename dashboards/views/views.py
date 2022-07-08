@@ -833,6 +833,13 @@ class hubView(LoginRequiredMixin, TemplateView):
     # Vista de hubView
 
     template_name = "hub.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        grupo = str(User.objects.get(username=self.request.user).groups.get())
+
+        context["grupo"] = grupo
+        return context
 
 class diagramaView(LoginRequiredMixin, TemplateView):
     # Vista de diagramaView
@@ -2078,6 +2085,11 @@ class usuarioFormularioView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("dashboards:config")
+
+class nuevoVehiculoView(LoginRequiredMixin, TemplateView):
+    # Vista de nuevoVehiculoView
+
+    template_name = "formularios/vehiculo.html"
 
 class aplicacionFormularioView(LoginRequiredMixin, CreateView):
     # Vista de aplicacionFormularioView
@@ -5429,6 +5441,11 @@ class planTallerView(LoginRequiredMixin, TemplateView):
         return context
     
     def post(self, request, pk):
+        print(request.POST.getlist('formulario')[0])
+        if request.POST.getlist('formulario')[0] == 'agendar':
+            servicio_vehiculo = functions.servicio_vehiculo_preguardado(pk, request)
+            functions.archivar_taller(request.POST, pk, servicio_vehiculo)
+            return redirect('dashboards:calendario')
         print(request.POST)
         #? Acciones del vehiculo
         vehiculo = Vehiculo.objects.get(pk = pk)
@@ -5825,11 +5842,13 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
         acomodo_posicion_ejes_vehicle = functions.acomodo_pocisiones_vehicle(acomodo_ejes_vehicle)
         vehiculos = acomodo_posicion_ejes_vehicle
         
+        grupo = str(User.objects.get(username=self.request.user).groups.get())
 
         
         """print(llantas.count())
         print(len(current_vehiculos))"""
 
+        context['grupo'] = grupo
         context['ejes'] = self.ejes
         context['exclude'] = self.exclude
         context['filtro'] = self.filtro
@@ -6090,7 +6109,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions_ftp.ftp_diario()
         ultimo_mes = hoy - timedelta(days=31)
 
-        #functions_create.crear_llantas()
+        #functions_create.tirecheck_llanta()
         #functions_create.borrar_ultima_inspeccion_vehiculo()
         #functions_excel.excel_vehiculos()
         #functions_excel.excel_llantas(User.objects.get(username="equipo-logistico"))
@@ -7246,6 +7265,7 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         inpecciones_llanta_act = Inspeccion.objects.filter(llanta = llanta_info[0])
         eventos = []
         inspecciones_list = []
+        servicios = ServicioLlanta.objects.filter(llanta = llanta_info[0]).order_by('-id')
         for bit in bitacora:
             signo = functions.signo_pulpo(bit, numero_eje_check)
             eventos.append([bit.fecha_de_inflado, bit, 'pulpo', signo])
@@ -7268,6 +7288,8 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         inspecciones_list = sorted(inspecciones_list, key=lambda x:x[1].id, reverse=True)
         for ins in inspecciones_list:
             eventos.append([ins[0].date(), ins[1], ins[2], ins[3]])
+        for servicio in servicios:
+            eventos.append([servicio.serviciovehiculo.fecha_inicio, servicio, 'servicio', 'icon-checkmark good-text'])
         eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
         
         context['eventos'] = eventos
@@ -7297,7 +7319,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
-        servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo).order_by('-id')
+        servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo).order_by('-id').exclude(estado='abierto')
         print(vehiculo)
         print(servicios)
         if vehiculo.fecha_de_inflado:
@@ -7308,8 +7330,10 @@ class DetailView(LoginRequiredMixin, DetailView):
         eventos = []
         inspecciones_list = []
         for bit in bitacora:
+            print("bit", bit.id)
             eventos.append([bit.fecha_de_inflado, bit, 'pulpo'])
         for bit in bitacora_pro:
+            print("bit", bit.id)
             eventos.append([bit.fecha_de_inflado, bit, 'pulpopro'])
 
         for inspeccion in inspecciones_vehiculo:
@@ -7457,6 +7481,8 @@ class DetailView(LoginRequiredMixin, DetailView):
             reemplazo_actual = functions.reemplazo_actual2(llantas)
             reemplazo_actual_ejes = {k: v for k, v in reemplazo_actual.items() if v != 0}
 
+            grupo = str(User.objects.get(username=self.request.user).groups.get())
+
             context["bitacoras"] = bitacora
             context["cantidad_doble_entrada_mes1"] = doble_entrada[2]["mes1"] + doble_entrada[3]["mes1"]
             context["cantidad_doble_entrada_mes2"] = doble_entrada[2]["mes2"] + doble_entrada[3]["mes2"]
@@ -7484,6 +7510,7 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["doble_entrada"] = doble_entrada
             context["entradas"] = entradas_correctas
             context["fecha"] = fecha
+            context["grupo"] = grupo
             context["hoy"] = hoy
             context["llantas"] = llantas
             context["mes_1"] = mes_1

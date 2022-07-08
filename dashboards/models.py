@@ -612,6 +612,15 @@ class ServicioVehiculo(models.Model):
     aplicacion = models.ForeignKey(Aplicacion, on_delete=models.CASCADE, blank=True, null=True)
     configuracion = models.CharField(max_length=5000)
     alineacion = models.BooleanField(default=False)
+    preguardado_vehiculo = models.CharField(max_length=5000, null=True, blank=True)
+    preguardado_llantas = models.CharField(max_length=5000, null=True, blank=True)
+    estatus = (
+        ("abierto", "abierto"),
+        ("programado", "programado"),
+        ("cerrado", "cerrado"),
+        )
+    estado = models.CharField(max_length=255, null=True, blank=True, choices=estatus)
+
 
 class ServicioLlanta(models.Model):
     serviciovehiculo = models.ForeignKey(ServicioVehiculo, null=True, on_delete=models.SET_NULL)

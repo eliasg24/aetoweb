@@ -22,7 +22,7 @@ class BitacorasAdmin(admin.ModelAdmin):
 class BitacorasProAdmin(admin.ModelAdmin):
     # Admin de las Bitácoras
     list_display = ('numero_economico', 'presion_de_entrada_1', 'presion_de_salida_1', 'compania', 'fecha_de_inflado')
-    search_fields= ('numero_economico',)
+    search_fields= ('numero_economico__numero_economico',)
     list_filter = ('fecha_de_inflado', 'compania')
     verbose_name_plural = "Bitacoras Pro"
 

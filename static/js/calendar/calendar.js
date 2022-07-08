@@ -16,7 +16,7 @@
             ...restEvent,
             start: event.horario_start_str,
             end: event.horario_end_str,
-          }
+          },
         ];
       }
 
@@ -34,13 +34,13 @@
 
     modalContainer.classList.add('active');
     modalContainer.querySelector('.modal-title').textContent = event.title;
-    
+
     closeBtn.addEventListener('click', (e) => {
       modalContainer.classList.remove('active');
     });
 
-    console.log(event)
-  }
+    console.log(event);
+  };
 
   const calendar = (calendarEvents = []) => {
     var calendarEl = document.getElementById('calendar');

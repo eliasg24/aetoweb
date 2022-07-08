@@ -1,10 +1,10 @@
-{% extends '../base.html' %}
+{% extends 'base.html' %}
 
 {% block head %}
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/formularios.css' %}">
-  <title>Sucursales</title>
-{% endblock %}
+  <title>Formulario de vehículo</title>
+{% endblock head %}
 
 {% block content %}
 
@@ -21,7 +21,7 @@
   <section class="form-body">
 
     <form action="" class="form-body_form">
-      {% include './forms/form-sucursal.html' %}
+      {% include './forms/formVehiculo.html' %}
     </form>
 
     <div class="table-container">
@@ -29,16 +29,22 @@
         <thead>
           <tr>
             <th>Acciones</th>
-            <th>Nombre</th>
-            <th>Compañia</th>
-            <th>Nueva a 1R</th>
-            <th>1R a 2R</th>
-            <th>2R a 3R</th>
-            <th>3R a 4R</th>
-            <th>4R a 5R</th>
-            <th>$ llanta de dirección</th>
-            <th>$ llanta de nueva</th>
-            <th>$ llanta de renovada</th>
+            <th>Número económico</th>
+            <th>Modelo</th>
+            <th>Marca</th>
+            <th>Aplicación</th>
+            <th>Clase</th>
+            <th>Configuración</th>
+            <th>Presión establecida 1</th>
+            <th>Presión establecida 2</th>
+            <th>Presión establecida 3</th>
+            <th>Presión establecida 4</th>
+            <th>Presión establecida 5</th>
+            <th>Presión establecida 6</th>
+            <th>Presión establecida 7</th>
+            <th>KM diario máximo</th>
+            <th>Estatus</th>
+            <th>Nuevo</th>
           </tr>
         </thead>
         <tbody>
@@ -63,22 +69,6 @@
             <td>data</td>
             <td>data</td>
             <td>data</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="flex-row" style="flex-wrap: nowrap;">
-                <a class="btn btn-download">
-                  <i class="icon-pencil"></i>
-                </a>
-                <button class="btn btn-danger">
-                  <i class="icon-trash"></i>
-                </button>
-              </div>
-            </td>
-            <td>data</td>
-            <td>data</td>
-            <td>data</td>
-            <td>data</td>
             <td>data</td>
             <td>data</td>
             <td>data</td>
@@ -96,4 +86,4 @@
 
 <script src="{% static 'js/inputChange.js' %}"></script>
 
-{% endblock %}
+{% endblock content %}

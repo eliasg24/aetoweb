@@ -18,25 +18,40 @@
     <h1>Formulario de aplicación</h1>
   </header>
 
-  <section class="form-container">
-    <form action="{% url 'dashboards:aplicacionFormulario' %}" class="form-content" method="POST">
+  <section class="form-body">
+    <form action="{% url 'dashboards:aplicacionFormulario' %}" class="form-body_form" method="POST">
       {% csrf_token %}
-      <fieldset class="flex-row space-between">
-        <h2 class="form-title">Nueva aplicación</h2>
-
-        <nav class="flex-row">
-          <button class="btn btn-success disabled" type="submit">
-            <span class="icon-checkmark"></span>
-          </button>
-          <button class="btn btn-danger" type="reset">
-            <span class="icon-cross"></span>
-          </button>
-        </nav>
-      </fieldset>
-      <article class="form-content__flex">
-        {% include './forms/form-aplicacion.html' %}
-      </article>
+      {% include './forms/form-aplicacion.html' %}
     </form>
+    <div class="table-container">
+      <table class="main-table">
+        <thead>
+          <tr>
+            <th>Acciones</th>
+            <th>Nombre</th>
+            <th>Compañia</th>
+            <th>Sucursal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="flex-row" style="flex-wrap: nowrap; justify-content: center;">
+                <a class="btn btn-download">
+                  <i class="icon-pencil"></i>
+                </a>
+                <button class="btn btn-danger">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </td>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
 </main>

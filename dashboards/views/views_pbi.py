@@ -317,8 +317,14 @@ class BitacorasData(View):
         perfil = Perfil.objects.get(user = user)
         compania = perfil.compania
         bitacoras = Bitacora.objects.filter(compania=compania)
+        bitacoras_pro = Bitacora_Pro.objects.filter(compania=compania)
+
+        entradas_correctas = functions.entrada_correcta(bitacoras, bitacoras_pro)
+
         #Serializar data
-        bitacoras = list(bitacoras.values())
+
+        whens = [When(id=k, then=Value(str(v))) for k, v in entradas_correctas.items()]
+        bitacoras = list(bitacoras.annotate(estatus_pulpo=Case(*whens, output_field=CharField())).values())
         
         dict_context = {
             'bitacoras': bitacoras,
@@ -335,9 +341,14 @@ class BitacorasProData(View):
         user = User.objects.get(username = usuario)
         perfil = Perfil.objects.get(user = user)
         compania = perfil.compania
+        bitacoras = Bitacora.objects.filter(compania=compania)
         bitacoras_pro = Bitacora_Pro.objects.filter(compania=compania)
+
+        entradas_correctas = functions.entrada_correcta(bitacoras, bitacoras_pro)
+
         #Serializar data
-        bitacoras_pro = list(bitacoras_pro.values())
+        whens = [When(id=k, then=Value(str(v))) for k, v in entradas_correctas.items()]
+        bitacoras_pro = list(bitacoras_pro.annotate(estatus_pulpo=Case(*whens, output_field=CharField())).values())
         
         dict_context = {
             'bitacoras_pro': bitacoras_pro,

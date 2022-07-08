@@ -37,6 +37,7 @@
           <h2>PULPO</h2>
         </a>
       </div>
+      {% if grupo != "Pulpo Manager" %}
       <div class="dashboard">
         <a class="dashboard-link" href="{% url 'dashboards:tireDB1' %}">
           <h2>ESTATUS DE FLOTA</h2>
@@ -57,6 +58,7 @@
           <h2>DASHBOARD OPERATIVO</h2>
         </a>
       </div>
+      {% endif %}
     </div>
   </div>
 </div>
