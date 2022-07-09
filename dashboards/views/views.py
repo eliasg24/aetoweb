@@ -2137,11 +2137,25 @@ class tallerFormularioEditView(LoginRequiredMixin, DetailView, UpdateView):
         context["talleres"] = talleres
 
         return context
-
-    def get_success_url(self):
-        print("hola")
-        print(self.request.POST)
-        return reverse_lazy("dashboards:tallerFormulario")
+    
+    def post(self, request, pk):
+        print(request.POST)
+        nombre = request.POST.getlist('nombre')[0]
+        compania = request.POST.getlist('compania')[0]
+        compania = Compania.objects.get(compania=compania)
+        codigo = request.POST.getlist('codigo')[0]
+        taller = Taller.objects.get(pk=pk)
+        
+        taller.nombre = nombre
+        taller.compania = compania
+        taller.codigo = codigo
+        taller.save()
+        return redirect("dashboards:tallerFormularioEdit", pk)
+    
+    #def get_success_url(self):
+    #    print("hola")
+    #    print(self.request.POST)
+    #    return reverse_lazy("dashboards:tallerFormulario")
 
 def tallerFormularioDeleteView(request):
     if request.method =="POST":
@@ -4057,7 +4071,7 @@ class reporteVehiculoView(LoginRequiredMixin, TemplateView):
             tipo_bit = 'pulpopro'
         hoy = date.today()
         user = User.objects.get(username=self.request.user)
-        vehiculo = bitacora.vehiculo
+        vehiculo = bitacora.numero_economico
         llantas = Llanta.objects.filter(vehiculo = vehiculo, inventario="Rodante")
         
         objetivo = vehiculo.compania.objetivo
@@ -6447,7 +6461,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions_excel.excel_observaciones()
         #functions_create.borrar_ultima_inspeccion_vehiculo()
         #functions_create.convertir_vehiculos()
-        functions_create.asignar_ultima_fecha_de_inflado()
+        #functions_create.asignar_ultima_fecha_de_inflado()
         #functions_ftp.ftp_diario()
         ultimo_mes = hoy - timedelta(days=31)
 

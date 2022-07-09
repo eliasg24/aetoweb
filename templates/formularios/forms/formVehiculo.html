@@ -125,7 +125,6 @@
         name="presion_establecida_1"
         {% if vehiculo.presion_establecida_1 %}value="{{vehiculo.presion_establecida_1}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_1" class="form__label"> Presión establecida 1</label>
     </div>
@@ -140,7 +139,6 @@
         name="presion_establecida_2"
         {% if vehiculo.presion_establecida_2 %}value="{{vehiculo.presion_establecida_2}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_2" class="form__label"> Presión establecida 2</label>
     </div>
@@ -155,7 +153,6 @@
         name="presion_establecida_3"
         {% if vehiculo.presion_establecida_3 %}value="{{vehiculo.presion_establecida_3}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_3" class="form__label"> Presión establecida 3</label>
     </div>
@@ -170,7 +167,6 @@
         name="presion_establecida_4"
         {% if vehiculo.presion_establecida_4 %}value="{{vehiculo.presion_establecida_4}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_4" class="form__label"> Presión establecida 4</label>
     </div>
@@ -185,7 +181,6 @@
         name="presion_establecida_5"
         {% if vehiculo.presion_establecida_5 %}value="{{vehiculo.presion_establecida_5}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_5" class="form__label"> Presión establecida 5</label>
     </div>
@@ -200,7 +195,6 @@
         name="presion_establecida_6"
         {% if vehiculo.presion_establecida_6 %}value="{{vehiculo.presion_establecida_6}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_6" class="form__label"> Presión establecida 6</label>
     </div>
@@ -215,7 +209,6 @@
         name="presion_establecida_7"
         {% if vehiculo.presion_establecida_7 %}value="{{vehiculo.presion_establecida_7}}"{% endif %}
         autocomplete="off"
-        required
       />
       <label for="presion_establecida_7" class="form__label"> Presión establecida 7</label>
     </div>
@@ -256,12 +249,12 @@
 
   <label for="nuevo">
     Nuevo
-    <input type="radio" name="nuevo" id="nuevo" value="nuevo" {% if vehiculo.nuevo %}checked{% endif %} />
+    <input type="radio" name="nuevo" id="nuevo" value="nuevo" {% if vehiculo.nuevo %}checked{% endif %} required />
   </label>
 
   <label for="usado">
     Usado
-    <input type="radio" name="nuevo" id="usado" value="usado" {% if vehiculo.nuevo == False %}checked{% endif %} />
+    <input type="radio" name="nuevo" id="usado" value="usado" {% if vehiculo.nuevo == False %}checked{% endif %} required />
   </label>
 
   <nav style="margin-top: 1rem">

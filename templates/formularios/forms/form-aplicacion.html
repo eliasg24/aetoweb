@@ -21,7 +21,7 @@
 <!-- End input -->
 
 <!-- Start input -->
-<div class="form__group field">
+<!-- <div class="form__group field">
   <input
     class="form__field"
     type="text"
@@ -40,11 +40,20 @@
       <option value="{{compania}}">{{compania}}</option>
     {% endfor %}
   </datalist>
-</div>
+</div> -->
 <!-- End input -->
 
+<label for="compania" class="select-label">Compañia</label>
+<select name="compania" id="compania" required class="select-input">
+  <option value="">Seleccione una compañia...</option>
+  {% if aplicacion.compania %}<option value="{{aplicacion.compania}}" selected>{{aplicacion.compania}}</option>{% endif %}
+  {% for compania in companias %}
+    <option value="{{compania}}">{{compania}}</option>
+  {% endfor %}
+</select>
+
 <!-- Start input -->
-<div class="form__group field">
+<!-- <div class="form__group field">
   <input
     class="form__field"
     type="text"
@@ -63,14 +72,23 @@
       <option value="{{sucursal}}">{{sucursal}}</option>
     {% endfor %}
   </datalist>
-</div>
+</div> -->
 <!-- End input -->
+
+<label for="sucursal" class="select-label">Sucursal</label>
+<select name="ubicacion" id="sucursal" required class="select-input">
+  <option value="">Seleccione una sucursal...</option>
+  {% if aplicacion.sucursal %}<option value="{{aplicacion.sucursal}}" selected>{{aplicacion.sucursal}}</option>{% endif %}
+  {% for sucursal in sucursales %}
+    <option value="{{sucursal}}">{{sucursal}}</option>
+  {% endfor %}
+</select>
 
 <!-- Start input -->
 <div class="form__group field">
   <input
     class="form__field"
-    type="text"
+    type="number"
     placeholder="parametro_desgaste_direccion"
     name="parametro_desgaste_direccion"
     {% if aplicacion.parametro_desgaste_direccion %}value="{{aplicacion.parametro_desgaste_direccion}}"{% endif %}
@@ -87,7 +105,7 @@
 <div class="form__group field">
   <input
     class="form__field"
-    type="text"
+    type="number"
     placeholder="parametro_desgaste_traccion"
     name="parametro_desgaste_traccion"
     {% if aplicacion.parametro_desgaste_traccion %}value="{{aplicacion.parametro_desgaste_traccion}}"{% endif %}
@@ -104,7 +122,7 @@
 <div class="form__group field">
   <input
     class="form__field"
-    type="text"
+    type="number"
     placeholder="parametro_desgaste_arrastre"
     name="parametro_desgaste_arrastre"
     {% if aplicacion.parametro_desgaste_arrastre %}value="{{aplicacion.parametro_desgaste_arrastre}}"{% endif %}
@@ -121,7 +139,7 @@
 <div class="form__group field">
   <input
     class="form__field"
-    type="text"
+    type="number"
     placeholder="parametro_desgaste_loco"
     name="parametro_desgaste_loco"
     {% if aplicacion.parametro_desgaste_loco %}value="{{aplicacion.parametro_desgaste_loco}}"{% endif %}
@@ -138,7 +156,7 @@
 <div class="form__group field">
   <input
     class="form__field"
-    type="text"
+    type="number"
     placeholder="parametro_desgaste_retractil"
     name="parametro_desgaste_retractil"
     {% if aplicacion.parametro_desgaste_retractil %}value="{{aplicacion.parametro_desgaste_retractil}}"{% endif %}

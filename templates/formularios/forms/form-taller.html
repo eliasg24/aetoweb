@@ -21,7 +21,7 @@
 <!-- End input -->
 
 <!-- Start input -->
-<div class="form__group field">
+<!-- <div class="form__group field">
   <input
     class="form__field"
     type="text"
@@ -40,8 +40,17 @@
       <option value="{{compania}}">{{compania}}</option>
     {% endfor %}
   </datalist>
-</div>
+</div> -->
 <!-- End input -->
+
+<label for="compania" class="select-label">Compañia</label>
+<select name="compania" id="compania" required class="select-input">
+  <option value="">Seleccione una compañia...</option>
+  {% if taller.compania %}<option value="{{taller.compania}}" selected>{{taller.compania}}</option>{% endif %}
+  {% for compania in companias %}
+    <option value="{{compania}}">{{compania}}</option>
+  {% endfor %}
+</select>
 
 <!-- Start input -->
 <div class="form__group field">

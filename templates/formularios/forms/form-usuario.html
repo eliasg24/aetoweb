@@ -188,8 +188,9 @@
     {% endfor %}
     </ul>
 </div> 
+
 <!-- Start input -->
-<div class="form__group field">
+<!-- <div class="form__group field">
   <input
     class="form__field"
     type="text"
@@ -209,5 +210,17 @@
     <option value="Company Manager"></option>
     <option value="Fleet Manager"></option>
   </datalist>
-</div>
+</div> -->
 <!-- End input -->
+
+<label for="rol" class="select-label">Rol</label>
+<select name="groups" id="rol" class="select-input" required>
+  <option value="">Selecciona un rol...</option>
+  {% if usuario.groups.get %}
+  <option value="{{usuario.groups.get}}" selected>{{usuario.groups.get}}</option>
+  {% endif %}
+  <option value="Aeto Manager">Aeto Manager</option>
+  <option value="Galgo Manager">Galgo Manager</option>
+  <option value="Company Manager">Company Manager</option>
+  <option value="Fleet Manager">Fleet Manager</option>
+</select>

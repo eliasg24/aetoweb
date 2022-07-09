@@ -45,50 +45,52 @@
         </nav>
     </form>
     <div class="table-container">
-      <div class="relative absolute">
-        <table class="main-table">
-          <thead>
-            <tr>
-              <th>Acciones</th>
-              <th>Nombre</th>
-              <th>Compañia</th>
-              <th>Sucursal</th>
-              <th>Parámetro de desgaste de dirección</th>
-              <th>Parámetro de desgaste de tracción</th>
-              <th>Parámetro de desgaste de arrastre</th>
-              <th>Parámetro de desgaste de loco</th>
-              <th>Parámetro de desgaste de retractil</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for aplicacion in aplicaciones %}
-            <tr>
-              <td>
-                <div class="flex-row" style="flex-wrap: nowrap; justify-content: center;">
-                  <a href="{% url 'dashboards:aplicacionFormularioEdit' aplicacion.id %}" class="btn btn-download">
-                    <i class="icon-pencil"></i>
-                  </a>
-                  <form action="{% url "dashboards:aplicacionFormularioDelete" %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="id" value="{{aplicacion.id}}">
-                    <button class="btn btn-danger">
-                      <span class="icon-trash"></span>
-                    </button>
-                  </form>
-                </div>
-              </td>
-              <td>{{aplicacion}}</td>
-              <td>{{aplicacion.compania}}</td>
-              <td>{{aplicacion.ubicacion}}</td>
-              <td>{{aplicacion.parametro_desgaste_direccion}}</td>
-              <td>{{aplicacion.parametro_desgaste_traccion}}</td>
-              <td>{{aplicacion.parametro_desgaste_arrastre}}</td>
-              <td>{{aplicacion.parametro_desgaste_loco}}</td>
-              <td>{{aplicacion.parametro_desgaste_retractil}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="relative">
+        <div class="absolute">
+          <table class="main-table">
+            <thead>
+              <tr>
+                <th>Acciones</th>
+                <th>Nombre</th>
+                <th>Compañia</th>
+                <th>Sucursal</th>
+                <th>Parámetro de desgaste de dirección</th>
+                <th>Parámetro de desgaste de tracción</th>
+                <th>Parámetro de desgaste de arrastre</th>
+                <th>Parámetro de desgaste de loco</th>
+                <th>Parámetro de desgaste de retractil</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for aplicacion in aplicaciones %}
+              <tr>
+                <td>
+                  <div class="flex-row" style="flex-wrap: nowrap; justify-content: center;">
+                    <a href="{% url 'dashboards:aplicacionFormularioEdit' aplicacion.id %}" class="btn btn-download">
+                      <i class="icon-pencil"></i>
+                    </a>
+                    <form action="{% url "dashboards:aplicacionFormularioDelete" %}" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="id" value="{{aplicacion.id}}">
+                      <button class="btn btn-danger">
+                        <span class="icon-trash"></span>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+                <td>{{aplicacion}}</td>
+                <td>{{aplicacion.compania}}</td>
+                <td>{{aplicacion.ubicacion}}</td>
+                <td>{{aplicacion.parametro_desgaste_direccion}}</td>
+                <td>{{aplicacion.parametro_desgaste_traccion}}</td>
+                <td>{{aplicacion.parametro_desgaste_arrastre}}</td>
+                <td>{{aplicacion.parametro_desgaste_loco}}</td>
+                <td>{{aplicacion.parametro_desgaste_retractil}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>

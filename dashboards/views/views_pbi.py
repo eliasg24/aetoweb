@@ -16,10 +16,9 @@ class CompaniaData(View):
         usuario = kwargs['usuario']
         user = User.objects.get(username = usuario)
         perfil = Perfil.objects.get(user = user)
-        compania = perfil.compania
-        compania = Compania.objects.filter(compania=compania)
-        #Serializar data
+        compania = perfil.companias.all()
         print(compania)
+        #Serializar data
         compania = list(compania.values())
         print(compania)
         
