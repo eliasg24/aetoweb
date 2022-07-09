@@ -126,7 +126,7 @@ class VehicleData(View):
         user = User.objects.get(username = usuario)
         perfil = Perfil.objects.get(user = user)
         compania = perfil.compania
-        vehiculos = Vehiculo.objects.filter(compania=compania).select_related("compania").annotate(dias_sin_inspeccion=DiffDays(CastDate(Now())-CastDate(F('fecha_ultima_inspeccion')), output_field=IntegerField()), dias_sin_inflar=DiffDays(CastDate(Now())-CastDate(F('fecha_de_inflado')), output_field=IntegerField()), vencido=Case(When(dias_sin_inspeccion__gt=F("compania__periodo2_inspeccion"), then=True), When(fecha_ultima_inspeccion=None, then=True), default=False), estatus_pulpo=Case(When(observaciones_llanta__observacion__in=["Doble mala entrada"], then=Value("Doble mala entrada")), When(observaciones_llanta__observacion__in=["Mala entrada"], then=Value("Mala entrada")), default=Value("Entrada Correcta")))
+        vehiculos = Vehiculo.objects.filter(compania=compania).select_related("compania").annotate(dias_sin_inspeccion=DiffDays(CastDate(Now())-CastDate(F('fecha_ultima_inspeccion')), output_field=IntegerField()), dias_sin_inflar=DiffDays(CastDate(Now())-CastDate(F('fecha_de_inflado')), output_field=IntegerField())-1, vencido=Case(When(dias_sin_inspeccion__gt=F("compania__periodo2_inspeccion"), then=True), When(fecha_ultima_inspeccion=None, then=True), default=False), estatus_pulpo=Case(When(observaciones_llanta__observacion__in=["Doble mala entrada"], then=Value("Doble mala entrada")), When(observaciones_llanta__observacion__in=["Mala entrada"], then=Value("Mala entrada")), default=Value("Entrada Correcta")))
         #Serializar data
         vehiculos = list(vehiculos.values())
         
@@ -324,8 +324,14 @@ class BitacorasData(View):
         #Serializar data
 
         whens = [When(id=k, then=Value(str(v))) for k, v in entradas_correctas.items()]
-        bitacoras = list(bitacoras.annotate(estatus_pulpo=Case(*whens, output_field=CharField())).values())
-        
+        bitacoras = bitacoras.annotate(presion_de_entrada_1=F("presion_de_entrada"), presion_de_salida_1=F("presion_de_salida"), presion_de_entrada_2=Value(None, output_field=IntegerField()), presion_de_salida_2=Value(None, output_field=IntegerField()), presion_de_entrada_3=Value(None, output_field=IntegerField()), presion_de_salida_3=Value(None, output_field=IntegerField()), presion_de_entrada_4=Value(None, output_field=IntegerField()), presion_de_salida_4=Value(None, output_field=IntegerField()), presion_de_entrada_5=Value(None, output_field=IntegerField()), presion_de_salida_5=Value(None, output_field=IntegerField()), presion_de_entrada_6=Value(None, output_field=IntegerField()), presion_de_salida_6=Value(None, output_field=IntegerField()), presion_de_entrada_7=Value(None, output_field=IntegerField()), presion_de_salida_7=Value(None, output_field=IntegerField()), presion_de_entrada_8=Value(None, output_field=IntegerField()), presion_de_salida_8=Value(None, output_field=IntegerField()), presion_de_entrada_9=Value(None, output_field=IntegerField()), presion_de_salida_9=Value(None, output_field=IntegerField()), presion_de_entrada_10=Value(None, output_field=IntegerField()), presion_de_salida_10=Value(None, output_field=IntegerField()), presion_de_entrada_11=Value(None, output_field=IntegerField()), presion_de_salida_11=Value(None, output_field=IntegerField()), presion_de_entrada_12=Value(None, output_field=IntegerField()), presion_de_salida_12=Value(None, output_field=IntegerField())).annotate(estatus_pulpo=Case(*whens, output_field=CharField()))
+        bitacoras = list(bitacoras.values("id", "vehiculo__id", "compania__id", "fecha_de_inflado", "tiempo_de_inflado", "presion_de_entrada_1", "presion_de_salida_1", "presion_de_entrada_2", "presion_de_salida_2", "presion_de_entrada_3", "presion_de_salida_3", "presion_de_entrada_4", "presion_de_salida_4", "presion_de_entrada_5", "presion_de_salida_5", "presion_de_entrada_6", "presion_de_salida_6", "presion_de_entrada_7", "presion_de_salida_7", "presion_de_entrada_8", "presion_de_salida_8", "presion_de_entrada_9", "presion_de_salida_9", "presion_de_entrada_10", "presion_de_salida_10", "presion_de_entrada_11", "presion_de_salida_11", "presion_de_entrada_12", "presion_de_salida_12", "estatus_pulpo"))
+
+        whens = [When(id=k, then=Value(str(v))) for k, v in entradas_correctas.items()]
+        bitacoras_pro = list(bitacoras_pro.annotate(estatus_pulpo=Case(*whens, output_field=CharField())).values("id", "vehiculo__id", "compania__id", "fecha_de_inflado", "tiempo_de_inflado", "presion_de_entrada_1", "presion_de_salida_1", "presion_de_entrada_2", "presion_de_salida_2", "presion_de_entrada_3", "presion_de_salida_3", "presion_de_entrada_4", "presion_de_salida_4", "presion_de_entrada_5", "presion_de_salida_5", "presion_de_entrada_6", "presion_de_salida_6", "presion_de_entrada_7", "presion_de_salida_7", "presion_de_entrada_8", "presion_de_salida_8", "presion_de_entrada_9", "presion_de_salida_9", "presion_de_entrada_10", "presion_de_salida_10", "presion_de_entrada_11", "presion_de_salida_11", "presion_de_entrada_12", "presion_de_salida_12", "estatus_pulpo"))
+       
+        bitacoras.extend(bitacoras_pro)
+
         dict_context = {
             'bitacoras': bitacoras,
         }
@@ -334,30 +340,6 @@ class BitacorasData(View):
 
         return HttpResponse(json_context, content_type='application/json')
 
-class BitacorasProData(View):
-    def get(self, request , *args, **kwargs):
-        #Queryparams
-        usuario = kwargs['usuario']
-        user = User.objects.get(username = usuario)
-        perfil = Perfil.objects.get(user = user)
-        compania = perfil.compania
-        bitacoras = Bitacora.objects.filter(compania=compania)
-        bitacoras_pro = Bitacora_Pro.objects.filter(compania=compania)
-
-        entradas_correctas = functions.entrada_correcta(bitacoras, bitacoras_pro)
-
-        #Serializar data
-        whens = [When(id=k, then=Value(str(v))) for k, v in entradas_correctas.items()]
-        bitacoras_pro = list(bitacoras_pro.annotate(estatus_pulpo=Case(*whens, output_field=CharField())).values())
-        
-        dict_context = {
-            'bitacoras_pro': bitacoras_pro,
-        }
-
-        json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
-
-        return HttpResponse(json_context, content_type='application/json')
-    
 class AccionData(View):
     def get(self, request , *args, **kwargs):
         #Queryparams

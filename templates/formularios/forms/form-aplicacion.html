@@ -1,10 +1,16 @@
 <!-- Start input -->
 <div class="form__group field">
   <input
+    type="hidden"
+    name="id"
+    {% if aplicacion.id %}value="{{aplicacion.id}}"{% endif %}
+  />
+  <input
     class="form__field"
     type="text"
     placeholder="nombre"
     name="nombre"
+    {% if aplicacion.nombre %}value="{{aplicacion.nombre}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -22,6 +28,7 @@
     placeholder="company"
     name="compania"
     list="company"
+    {% if aplicacion.compania %}value="{{aplicacion.compania}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -44,6 +51,7 @@
     placeholder="sucursal"
     name="ubicacion"
     list="sucursal"
+    {% if aplicacion.ubicacion %}value="{{aplicacion.ubicacion}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -58,8 +66,87 @@
 </div>
 <!-- End input -->
 
-<nav>
-  <button type="submit" class="btn btn-success">
-    <i class="icon-checkmark"></i>
-  </button>
-</nav>
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
+    placeholder="parametro_desgaste_direccion"
+    name="parametro_desgaste_direccion"
+    {% if aplicacion.parametro_desgaste_direccion %}value="{{aplicacion.parametro_desgaste_direccion}}"{% endif %}
+    autocomplete="off"
+    required
+  />
+  <label for="sucursal" class="form__label">
+    Parámetro de desgaste de dirección
+  </label>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
+    placeholder="parametro_desgaste_traccion"
+    name="parametro_desgaste_traccion"
+    {% if aplicacion.parametro_desgaste_traccion %}value="{{aplicacion.parametro_desgaste_traccion}}"{% endif %}
+    autocomplete="off"
+    required
+  />
+  <label for="sucursal" class="form__label">
+    Parámetro de desgaste de traccion
+  </label>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
+    placeholder="parametro_desgaste_arrastre"
+    name="parametro_desgaste_arrastre"
+    {% if aplicacion.parametro_desgaste_arrastre %}value="{{aplicacion.parametro_desgaste_arrastre}}"{% endif %}
+    autocomplete="off"
+    required
+  />
+  <label for="sucursal" class="form__label">
+    Parámetro de desgaste de arrastre
+  </label>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
+    placeholder="parametro_desgaste_loco"
+    name="parametro_desgaste_loco"
+    {% if aplicacion.parametro_desgaste_loco %}value="{{aplicacion.parametro_desgaste_loco}}"{% endif %}
+    autocomplete="off"
+    required
+  />
+  <label for="sucursal" class="form__label">
+    Parámetro de desgaste de loco
+  </label>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
+    placeholder="parametro_desgaste_retractil"
+    name="parametro_desgaste_retractil"
+    {% if aplicacion.parametro_desgaste_retractil %}value="{{aplicacion.parametro_desgaste_retractil}}"{% endif %}
+    autocomplete="off"
+    required
+  />
+  <label for="sucursal" class="form__label">
+    Parámetro de desgaste de retractil
+  </label>
+</div>
+<!-- End input -->

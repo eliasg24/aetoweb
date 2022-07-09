@@ -38,7 +38,7 @@ from dashboards.functions.functions import DiffDays, CastDate
 from aeto import settings
 
 # Forms
-from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, LlantaForm, VehiculoForm, ProductoForm, RenovadorForm, DesechoForm, DesechoEditForm, ObservacionForm, ObservacionEditForm, RechazoForm, RechazoEditForm, SucursalForm, TallerForm, UsuarioForm, AplicacionForm, CompaniaForm, UsuarioEditForm
+from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, VehiculoForm, ProductoForm, RenovadorForm, DesechoForm, DesechoEditForm, ObservacionForm, ObservacionEditForm, RechazoForm, RechazoEditForm, SucursalForm, TallerForm, UsuarioForm, AplicacionForm, CompaniaForm, UsuarioEditForm, SucursalEditForm, TallerEditForm, AplicacionEditForm, VehiculoEditForm
 
 # Models
 from django.contrib.auth.models import User, Group
@@ -1728,10 +1728,7 @@ class catalogoProductoView(LoginRequiredMixin, MultiModelFormView):
         context["compania"] = compania
         context["productos"] = productos
 
-        print(self.request.POST)
         if self.request.method =='POST':
-            print("hola")
-            print("hola2")
             Producto.objects.create(producto=self.request.POST.get("producto"),
                                     compania=self.request.user.perfil.compania,
                                     marca=self.request.POST.get("marca"),
@@ -1744,7 +1741,6 @@ class catalogoProductoView(LoginRequiredMixin, MultiModelFormView):
                                     precio=self.request.POST.get("precio"),
                                     km_esperado=self.request.POST.get("km_esperado"),
             )
-            print("hola3")
 
         return context
     
@@ -1981,8 +1977,46 @@ class companyFormularioView(LoginRequiredMixin, CreateView):
     model = Compania
     fields = ["compania", "periodo1_inflado", "periodo2_inflado", "objetivo", "periodo1_inspeccion", "periodo2_inspeccion", "punto_retiro_eje_direccion", "punto_retiro_eje_traccion", "punto_retiro_eje_arrastre", "punto_retiro_eje_loco", "punto_retiro_eje_retractil", "mm_de_desgaste_irregular", "mm_de_diferencia_entre_duales", "mm_parametro_sospechoso", "unidades_presion", "unidades_distancia", "unidades_profundidad", "valor_casco_nuevo", "valor_casco_1r", "valor_casco_2r", "valor_casco_3r", "valor_casco_4r", "valor_casco_5r"]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = self.request.user.perfil.companias.all()
+        context["companias"] = companias
+
+        return context
+
     def get_success_url(self):
-        return reverse_lazy("dashboards:config")
+        user = self.request.user.perfil
+        user.companias.add(Compania.objects.get(compania=self.request.POST.get("compania")))
+        user.save()
+        return reverse_lazy("dashboards:companyFormulario")
+
+class companyFormularioEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoCompanyEditView
+
+    template_name = "formularios/company.html"
+    slug_field = "compania"
+    slug_url_kwarg = "compania"
+    queryset = Compania.objects.all()
+    context_object_name = "compania"
+    model = Compania
+    fields = ["id", "compania", "periodo1_inflado", "periodo2_inflado", "objetivo", "periodo1_inspeccion", "periodo2_inspeccion", "punto_retiro_eje_direccion", "punto_retiro_eje_traccion", "punto_retiro_eje_arrastre", "punto_retiro_eje_loco", "punto_retiro_eje_retractil", "mm_de_desgaste_irregular", "mm_de_diferencia_entre_duales", "mm_parametro_sospechoso", "unidades_presion", "unidades_distancia", "unidades_profundidad", "valor_casco_nuevo", "valor_casco_1r", "valor_casco_2r", "valor_casco_3r", "valor_casco_4r", "valor_casco_5r"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = self.request.user.perfil.companias.all()
+        context["companias"] = companias
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:companyFormulario")
+
+def companyFormularioDeleteView(request):
+    if request.method =="POST":
+        rechazo = Compania.objects.get(id=request.POST.get("id"))
+        rechazo.delete()
+        return redirect("dashboards:companyFormulario")
+    return redirect("dashboards:companyFormulario")
 
 class sucursalFormularioView(LoginRequiredMixin, CreateView):
     # Vista de sucursalFormularioView
@@ -1992,13 +2026,48 @@ class sucursalFormularioView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        companias = Compania.objects.all()
+        sucursales = self.request.user.perfil.ubicaciones.all()
+        companias = self.request.user.perfil.companias.all()
 
         context["companias"] = companias
+        context["sucursales"] = sucursales
         return context
 
     def get_success_url(self):
-        return reverse_lazy("dashboards:config")
+        user = self.request.user.perfil
+        user.ubicaciones.add(Ubicacion.objects.get(nombre=self.request.POST.get("nombre")))
+        user.save()
+        return reverse_lazy("dashboards:sucursalFormulario")
+
+class sucursalFormularioEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoSucursalesEditView
+
+    template_name = "formularios/sucursal.html"
+    slug_field = "sucursal"
+    slug_url_kwarg = "sucursal"
+    queryset = Ubicacion.objects.all()
+    context_object_name = "sucursal"
+    form_class = SucursalEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sucursales = self.request.user.perfil.ubicaciones.all()
+        companias = self.request.user.perfil.companias.all()
+        
+        context["companias"] = companias
+        context["sucursales"] = sucursales
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:sucursalFormulario")
+
+def sucursalFormularioDeleteView(request):
+    if request.method =="POST":
+        sucursal = Ubicacion.objects.get(id=request.POST.get("id"))
+        sucursal.delete()
+        return redirect("dashboards:sucursalFormulario")
+    return redirect("dashboards:sucursalFormulario")
 
 class inpeccionesView(TemplateView):
     # Vista de vehiculosView
@@ -2034,13 +2103,52 @@ class tallerFormularioView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        companias = Compania.objects.all()
+        talleres = self.request.user.perfil.talleres.all()
+        companias = self.request.user.perfil.companias.all()
 
         context["companias"] = companias
+        context["talleres"] = talleres
         return context
 
     def get_success_url(self):
-        return reverse_lazy("dashboards:config")
+        user = self.request.user.perfil
+        user.talleres.add(Taller.objects.get(nombre=self.request.POST.get("nombre")))
+        user.save()
+        return reverse_lazy("dashboards:tallerFormulario")
+
+class tallerFormularioEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoTalleresEditView
+
+    template_name = "formularios/taller.html"
+    slug_field = "taller"
+    slug_url_kwarg = "taller"
+    queryset = Taller.objects.all()
+    context_object_name = "taller"
+    form_class = TallerEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        talleres = self.request.user.perfil.talleres.all()
+        sucursales = self.request.user.perfil.ubicaciones.all()
+        companias = self.request.user.perfil.companias.all()
+
+        context["companias"] = companias
+        context["sucursales"] = sucursales
+        context["talleres"] = talleres
+
+        return context
+
+    def get_success_url(self):
+        print("hola")
+        print(self.request.POST)
+        return reverse_lazy("dashboards:tallerFormulario")
+
+def tallerFormularioDeleteView(request):
+    if request.method =="POST":
+        taller = Taller.objects.get(id=request.POST.get("id"))
+        taller.delete()
+        return redirect("dashboards:tallerFormulario")
+    return redirect("dashboards:tallerFormulario")
 
 class usuarioFormularioView(LoginRequiredMixin, CreateView):
     # Vista de usuarioFormularioView
@@ -2053,43 +2161,240 @@ class usuarioFormularioView(LoginRequiredMixin, CreateView):
         companias = Compania.objects.all()
         ubicaciones = Ubicacion.objects.all()
         aplicaciones = Aplicacion.objects.all()
+        talleres = Taller.objects.all()
+        usuarios = User.objects.all()
+        for usuario in usuarios:
+            print(usuario)
+            print(usuario.perfil.companias.all())
         context["aplicaciones"] = aplicaciones
         context["companias"] = companias
         context["sucursales"] = ubicaciones
+        context["talleres"] = talleres
+        context["usuarios"] = usuarios
         return context
 
     def form_valid(self, form):
         # Save form data
+        print(form.cleaned_data)
         c = {'form': form, }
         user = form.save(commit=False)
         groups = form.cleaned_data['groups']
         groups = Group.objects.get(name=groups)
-        compania = form.cleaned_data['compania']
-        compania = Compania.objects.get(compania=compania)
-        ubicacion = form.cleaned_data['ubicacion']
-        ubicacion = Ubicacion.objects.get(nombre=ubicacion)
-        aplicacion = form.cleaned_data['aplicacion']
-        aplicacion = Aplicacion.objects.get(nombre=aplicacion)
+        compania = self.request.POST.getlist("compania")
+        compania = Compania.objects.filter(compania__in=compania)
+        ubicacion = self.request.POST.getlist("ubicacion")
+        ubicacion = Ubicacion.objects.filter(nombre__in=ubicacion)
+        aplicacion = self.request.POST.getlist("aplicacion")
+        aplicacion = Aplicacion.objects.filter(nombre__in=aplicacion)
+        taller = self.request.POST.getlist("taller")
+        taller = Taller.objects.filter(nombre__in=taller)
         password = form.cleaned_data['password']
         repeat_password = form.cleaned_data['repeat_password']
+        print(compania)
+        print(ubicacion)
+        print(aplicacion)
         if password != repeat_password:
             messages.error(self.request, "Passwords do not Match", extra_tags='alert alert-danger')
             return render(self.request, self.template_name, c)
         user.set_password(password)
         user.save()
         
-        Perfil.objects.create(user=user, compania=compania, ubicacion=ubicacion, aplicacion=aplicacion)
+        perfil = Perfil.objects.create(user=user)
+        for comp in compania:
+            perfil.companias.add(comp)
+        for ubi in ubicacion:
+            perfil.ubicaciones.add(ubi)
+        for apli in aplicacion:
+            perfil.aplicaciones.add(apli)
+        for tall in taller:
+            perfil.talleres.add(tall)
         user.groups.add(groups)
-        
+        perfil.save()
         return super(usuarioFormularioView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy("dashboards:config")
+        return reverse_lazy("dashboards:usuarioFormulario")
 
-class nuevoVehiculoView(LoginRequiredMixin, TemplateView):
+class usuarioFormularioEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de usuarioFormularioEditView
+
+    template_name = "formularios/usuario.html"
+    slug_field = "usuario"
+    slug_url_kwarg = "usuario"
+    queryset = User.objects.all()
+    context_object_name = "usuario"
+    form_class = UsuarioEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = Compania.objects.all()
+        ubicaciones = Ubicacion.objects.all()
+        aplicaciones = Aplicacion.objects.all()
+        talleres = Taller.objects.all()
+        usuarios = User.objects.all()
+        context["aplicaciones"] = aplicaciones
+        context["companias"] = companias
+        context["sucursales"] = ubicaciones
+        context["talleres"] = talleres
+        context["usuarios"] = usuarios
+        return context
+
+    def form_valid(self, form):
+        # Save form data
+        print(form.cleaned_data)
+        c = {'form': form, }
+        user = form.save(commit=False)
+        groups = form.cleaned_data['groups']
+        groups = Group.objects.get(name=groups)
+        compania = self.request.POST.getlist("compania")
+        compania = Compania.objects.filter(compania__in=compania)
+        ubicacion = self.request.POST.getlist("ubicacion")
+        ubicacion = Ubicacion.objects.filter(nombre__in=ubicacion)
+        aplicacion = self.request.POST.getlist("aplicacion")
+        aplicacion = Aplicacion.objects.filter(nombre__in=aplicacion)
+        taller = self.request.POST.getlist("taller")
+        taller = Taller.objects.filter(nombre__in=taller)
+        password = form.cleaned_data['password']
+        repeat_password = form.cleaned_data['repeat_password']
+        print(compania)
+        print(ubicacion)
+        print(aplicacion)
+        if password != repeat_password:
+            messages.error(self.request, "Passwords do not Match", extra_tags='alert alert-danger')
+            return render(self.request, self.template_name, c)
+        user.set_password(password)
+        user.save()
+        
+        perfil = Perfil.objects.create(user=user)
+        for comp in compania:
+            perfil.companias.add(comp)
+        for ubi in ubicacion:
+            perfil.ubicaciones.add(ubi)
+        for apli in aplicacion:
+            perfil.aplicaciones.add(apli)
+        for tall in taller:
+            perfil.talleres.add(tall)
+        user.groups.add(groups)
+        perfil.save()
+        return super(usuarioFormularioEditView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:usuarioFormulario")
+
+def usuarioFormularioDeleteView(request):
+    if request.method =="POST":
+        usuario = User.objects.get(id=request.POST.get("id"))
+        usuario.delete()
+        return redirect("dashboards:usuarioFormulario")
+    return redirect("dashboards:usuarioFormulario")
+
+class nuevoVehiculoView(LoginRequiredMixin, CreateView):
     # Vista de nuevoVehiculoView
 
     template_name = "formularios/vehiculo.html"
+    form_class = VehiculoForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        aplicaciones = self.request.user.perfil.aplicaciones.all()
+        compania = self.request.user.perfil.compania
+        sucursales = self.request.user.perfil.ubicaciones.all()
+        clases = Vehiculo.opciones_clase
+        configuraciones = Vehiculo.opciones_configuracion
+        vehiculos = Vehiculo.objects.filter(compania=self.request.user.perfil.compania)
+
+        context["aplicaciones"] = aplicaciones
+        context["clases"] = clases
+        context["compania"] = compania
+        context["configuraciones"] = configuraciones
+        context["sucursales"] = sucursales
+        context["vehiculos"] = vehiculos
+
+        return context
+
+    def form_valid(self, form):
+        # Save form data
+        print("hola")
+        print(form.cleaned_data)
+        c = {'form': form, }
+        vehiculo = form.save(commit=False)
+        estatus_activo = form.cleaned_data['estatus_activo']
+        nuevo = form.cleaned_data['nuevo']
+        if estatus_activo == "activo":
+            vehiculo.estatus_activo = True
+        else:
+            vehiculo.estatus_activo = False
+        if nuevo == "nuevo":
+            vehiculo.nuevo = True
+        else:
+            vehiculo.nuevo = False
+        configuracion = vehiculo.configuracion
+        numero_de_llantas = functions.cantidad_llantas(configuracion)
+        vehiculo.numero_de_llantas = numero_de_llantas
+        vehiculo.save()
+        
+        return super(nuevoVehiculoView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:nuevoVehiculo")
+
+class nuevoVehiculoEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de nuevoVehiculoView
+
+    template_name = "formularios/vehiculo.html"
+    slug_field = "vehiculo"
+    slug_url_kwarg = "vehiculo"
+    queryset = Vehiculo.objects.all()
+    context_object_name = "vehiculo"
+    form_class = VehiculoEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        if self.request.method == 'POST':
+
+            vehiculo = Vehiculo.objects.get(id=self.kwargs['pk'])
+            estatus_activo = self.request.POST.get("estatus_activo")
+            nuevo = self.request.POST.get("nuevo")
+            if estatus_activo == "activo":
+                vehiculo.estatus_activo = True
+            else:
+                vehiculo.estatus_activo = False
+            if nuevo == "nuevo":
+                vehiculo.nuevo = True
+            else:
+                vehiculo.nuevo = False
+            configuracion = vehiculo.configuracion
+            numero_de_llantas = functions.cantidad_llantas(configuracion)
+            vehiculo.numero_de_llantas = numero_de_llantas
+            vehiculo.save()
+
+        aplicaciones = self.request.user.perfil.aplicaciones.all()
+        companias = self.request.user.perfil.companias.all()
+        sucursales = self.request.user.perfil.ubicaciones.all()
+        clases = Vehiculo.opciones_clase
+        configuraciones = Vehiculo.opciones_configuracion
+        vehiculos = Vehiculo.objects.filter(compania=self.request.user.perfil.compania)
+
+        context["aplicaciones"] = aplicaciones
+        context["clases"] = clases
+        context["companias"] = companias
+        context["configuraciones"] = configuraciones
+        context["sucursales"] = sucursales
+        context["vehiculos"] = vehiculos
+        return context
+        
+        return super(nuevoVehiculoEditView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:nuevoVehiculo")
+
+def nuevoVehiculoDeleteView(request):
+    if request.method =="POST":
+        vehiculo = Vehiculo.objects.get(id=request.POST.get("id"))
+        vehiculo.delete()
+        return redirect("dashboards:nuevoVehiculo")
+    return redirect("dashboards:nuevoVehiculo")
 
 class aplicacionFormularioView(LoginRequiredMixin, CreateView):
     # Vista de aplicacionFormularioView
@@ -2099,15 +2404,52 @@ class aplicacionFormularioView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        companias = Compania.objects.all()
-        ubicaciones = Ubicacion.objects.all()
+        companias = self.request.user.perfil.companias.all()
+        aplicaciones = self.request.user.perfil.aplicaciones.all()
+        sucursales = self.request.user.perfil.ubicaciones.all()
 
+        context["aplicaciones"] = aplicaciones
         context["companias"] = companias
-        context["sucursales"] = ubicaciones
+        context["sucursales"] = sucursales
         return context
 
     def get_success_url(self):
-        return reverse_lazy("dashboards:config")
+        user = self.request.user.perfil
+        user.aplicaciones.add(Aplicacion.objects.get(nombre=self.request.POST.get("nombre")))
+        user.save()
+        return reverse_lazy("dashboards:aplicacionFormulario")
+
+class aplicacionFormularioEditView(LoginRequiredMixin, DetailView, UpdateView):
+    # Vista de catalogoTalleresEditView
+
+    template_name = "formularios/aplicacion.html"
+    slug_field = "aplicacion"
+    slug_url_kwarg = "aplicacion"
+    queryset = Aplicacion.objects.all()
+    context_object_name = "aplicacion"
+    form_class = AplicacionEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companias = self.request.user.perfil.companias.all()
+        aplicaciones = self.request.user.perfil.aplicaciones.all()
+        sucursales = self.request.user.perfil.ubicaciones.all()
+
+        context["aplicaciones"] = aplicaciones
+        context["companias"] = companias
+        context["sucursales"] = sucursales
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("dashboards:aplicacionFormulario")
+
+def aplicacionFormularioDeleteView(request):
+    if request.method =="POST":
+        aplicacion = Aplicacion.objects.get(id=request.POST.get("id"))
+        aplicacion.delete()
+        return redirect("dashboards:aplicacionFormulario")
+    return redirect("dashboards:aplicacionFormulario")
 
 class perdidaRendimientoView(LoginRequiredMixin, TemplateView):
 # Vista de perdidaRendimientoView
@@ -3715,7 +4057,7 @@ class reporteVehiculoView(LoginRequiredMixin, TemplateView):
             tipo_bit = 'pulpopro'
         hoy = date.today()
         user = User.objects.get(username=self.request.user)
-        vehiculo = bitacora.numero_economico
+        vehiculo = bitacora.vehiculo
         llantas = Llanta.objects.filter(vehiculo = vehiculo, inventario="Rodante")
         
         objetivo = vehiculo.compania.objetivo
@@ -6105,7 +6447,7 @@ class PulpoView(LoginRequiredMixin, ListView):
         #functions_excel.excel_observaciones()
         #functions_create.borrar_ultima_inspeccion_vehiculo()
         #functions_create.convertir_vehiculos()
-        #functions_create.borrar_km_actuales()
+        functions_create.asignar_ultima_fecha_de_inflado()
         #functions_ftp.ftp_diario()
         ultimo_mes = hoy - timedelta(days=31)
 
@@ -6741,7 +7083,6 @@ class SearchView(LoginRequiredMixin, ListView):
     template_name = "buscar_vehiculos.html"
     model = Vehiculo
     ordering = ("-fecha_de_creacion")
-    form_class = VehiculoForm
 
     def get_context_data(self, **kwargs):
 

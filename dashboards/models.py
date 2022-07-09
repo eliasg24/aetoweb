@@ -398,7 +398,7 @@ class Llanta(models.Model):
 class Bitacora(models.Model):
     # Modelo de la Bitácora
 
-    numero_economico = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
     fecha_de_inflado = models.DateField(null=True, blank=True)
     tiempo_de_inflado = models.FloatField(blank=True, null=True, default=2)
@@ -412,7 +412,7 @@ class Bitacora(models.Model):
 class Bitacora_Pro(models.Model):
     # Modelo de la Bitácora del Pulpo Pro
 
-    numero_economico = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
     fecha_de_inflado = models.DateField(null=True, blank=True)
     tiempo_de_inflado = models.FloatField(blank=True, null=True)

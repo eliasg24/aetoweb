@@ -191,10 +191,30 @@ urlpatterns = [
         view=views.companyFormularioView.as_view(),
         name="companyFormulario"
     ),
+    path(
+        route="companyFormulario/<int:pk>/",
+        view=views.companyFormularioEditView.as_view(),
+        name="companyFormularioEdit"
+    ),
+    path(
+        route="companyFormulario/delete",
+        view=views.companyFormularioDeleteView,
+        name="companyFormularioDelete"
+    ),
      path(
         route="sucursalFormulario",
         view=views.sucursalFormularioView.as_view(),
         name="sucursalFormulario"
+    ),
+    path(
+        route="sucursalFormulario/<int:pk>/",
+        view=views.sucursalFormularioEditView.as_view(),
+        name="sucursalFormularioEdit"
+    ),
+    path(
+        route="sucursalFormulario/delete",
+        view=views.sucursalFormularioDeleteView,
+        name="sucursalFormularioDelete"
     ),
     path(
         route="sucursalView",
@@ -252,9 +272,29 @@ urlpatterns = [
         name="tallerFormulario"
     ),
     path(
+        route="tallerFormulario/<int:pk>/",
+        view=views.tallerFormularioEditView.as_view(),
+        name="tallerFormularioEdit"
+    ),
+    path(
+        route="tallerFormulario/delete",
+        view=views.tallerFormularioDeleteView,
+        name="tallerFormularioDelete"
+    ),
+    path(
         route="usuarioFormulario",
         view=views.usuarioFormularioView.as_view(),
         name="usuarioFormulario"
+    ),
+    path(
+        route="usuarioFormulario/<int:pk>/",
+        view=views.usuarioFormularioEditView.as_view(),
+        name="usuarioFormularioEdit"
+    ),
+    path(
+        route="usuarioFormulario/delete",
+        view=views.usuarioFormularioDeleteView,
+        name="usuarioFormularioDelete"
     ),
     path(
         route="nuevoVehiculo",
@@ -262,9 +302,29 @@ urlpatterns = [
         name="nuevoVehiculo"
     ),
     path(
+        route="nuevoVehiculo/<int:pk>/",
+        view=views.nuevoVehiculoEditView.as_view(),
+        name="nuevoVehiculoEdit"
+    ),
+    path(
+        route="nuevoVehiculo/delete",
+        view=views.nuevoVehiculoDeleteView,
+        name="nuevoVehiculoDelete"
+    ),
+    path(
         route="aplicacionFormulario",
         view=views.aplicacionFormularioView.as_view(),
         name="aplicacionFormulario"
+    ),
+    path(
+        route="aplicacionFormulario/<int:pk>/",
+        view=views.aplicacionFormularioEditView.as_view(),
+        name="aplicacionFormularioEdit"
+    ),
+    path(
+        route="aplicacionFormulario/delete",
+        view=views.aplicacionFormularioDeleteView,
+        name="aplicacionFormularioDelete"
     ),
     path(
         route="4umbrales",
@@ -776,11 +836,6 @@ urlpatterns = [
         route="api/bitacoras/<str:usuario>",
         view=views_pbi.BitacorasData.as_view(),
         name="bitacorasapi"
-    ),
-    path(
-        route="api/bitacoraspro/<str:usuario>",
-        view=views_pbi.BitacorasProData.as_view(),
-        name="bitacorasproapi"
     ),
     path(
         route="api/acciones/<str:usuario>",

@@ -19,38 +19,77 @@
   </header>
 
   <section class="form-body">
-    <form action="{% url 'dashboards:aplicacionFormulario' %}" class="form-body_form" method="POST">
+      {% if aplicacion.id %}
+        <form action="{% url 'dashboards:aplicacionFormularioEdit' aplicacion.id %}" class="form-body_form" method="POST">
+      {% else %}
+        <form action="{% url 'dashboards:aplicacionFormulario' %}" class="form-body_form" method="POST">
+      {% endif %}
       {% csrf_token %}
       {% include './forms/form-aplicacion.html' %}
+
+        <nav class="flex-row">
+          {% if aplicacion.id %}
+          <button class="btn btn-success">
+            <span class="icon-checkmark"></span>
+          </button>
+
+          <a href="{% url 'dashboards:aplicacionFormulario' %}" class="btn btn-danger">
+            <span class="icon-cross"></span>
+          </a>
+
+          {% else %}
+          <button class="btn btn-success">
+            <span class="icon-plus6"></span>
+          </button>
+          {% endif %}
+        </nav>
     </form>
     <div class="table-container">
-      <table class="main-table">
-        <thead>
-          <tr>
-            <th>Acciones</th>
-            <th>Nombre</th>
-            <th>Compañia</th>
-            <th>Sucursal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="flex-row" style="flex-wrap: nowrap; justify-content: center;">
-                <a class="btn btn-download">
-                  <i class="icon-pencil"></i>
-                </a>
-                <button class="btn btn-danger">
-                  <i class="icon-trash"></i>
-                </button>
-              </div>
-            </td>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="relative absolute">
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Acciones</th>
+              <th>Nombre</th>
+              <th>Compañia</th>
+              <th>Sucursal</th>
+              <th>Parámetro de desgaste de dirección</th>
+              <th>Parámetro de desgaste de tracción</th>
+              <th>Parámetro de desgaste de arrastre</th>
+              <th>Parámetro de desgaste de loco</th>
+              <th>Parámetro de desgaste de retractil</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for aplicacion in aplicaciones %}
+            <tr>
+              <td>
+                <div class="flex-row" style="flex-wrap: nowrap; justify-content: center;">
+                  <a href="{% url 'dashboards:aplicacionFormularioEdit' aplicacion.id %}" class="btn btn-download">
+                    <i class="icon-pencil"></i>
+                  </a>
+                  <form action="{% url "dashboards:aplicacionFormularioDelete" %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{aplicacion.id}}">
+                    <button class="btn btn-danger">
+                      <span class="icon-trash"></span>
+                    </button>
+                  </form>
+                </div>
+              </td>
+              <td>{{aplicacion}}</td>
+              <td>{{aplicacion.compania}}</td>
+              <td>{{aplicacion.ubicacion}}</td>
+              <td>{{aplicacion.parametro_desgaste_direccion}}</td>
+              <td>{{aplicacion.parametro_desgaste_traccion}}</td>
+              <td>{{aplicacion.parametro_desgaste_arrastre}}</td>
+              <td>{{aplicacion.parametro_desgaste_loco}}</td>
+              <td>{{aplicacion.parametro_desgaste_retractil}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 

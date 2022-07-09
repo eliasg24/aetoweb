@@ -1,10 +1,16 @@
 <!-- Start input -->
 <div class="form__group field">
   <input
+    type="hidden"
+    name="id"
+    {% if sucursal.id %}value="{{sucursal.id}}"{% endif %}
+  />
+  <input
     class="form__field"
     type="text"
     placeholder="nombre"
     name="nombre"
+    {% if sucursal.nombre %}value="{{sucursal.nombre}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -22,6 +28,7 @@
     placeholder="compania"
     name="compania"
     list="compania"
+    {% if sucursal.compania %}value="{{sucursal.compania}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -43,6 +50,7 @@
     type="text"
     placeholder="rendimiento de nueva a 1r"
     name="rendimiento_de_nueva"
+    {% if sucursal.rendimiento_de_nueva %}value="{{sucursal.rendimiento_de_nueva}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -59,6 +67,7 @@
     type="text"
     placeholder="rendimiento de 1r a 2r"
     name="rendimiento_de_primera"
+    {% if sucursal.rendimiento_de_primera %}value="{{sucursal.rendimiento_de_primera}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -75,6 +84,7 @@
     type="text"
     placeholder="rendimiento de 2r a 3r"
     name="rendimiento_de_segunda"
+    {% if sucursal.rendimiento_de_segunda %}value="{{sucursal.rendimiento_de_segunda}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -91,6 +101,7 @@
     type="text"
     placeholder="rendimiento de 3r a 4r"
     name="rendimiento_de_tercera"
+    {% if sucursal.rendimiento_de_tercera %}value="{{sucursal.rendimiento_de_tercera}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -107,6 +118,7 @@
     type="text"
     placeholder="rendimiento de 4r a 5r"
     name="rendimiento_de_cuarta"
+    {% if sucursal.rendimiento_de_cuarta %}value="{{sucursal.rendimiento_de_cuarta}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -123,6 +135,7 @@
     type="text"
     placeholder="precio promedio de llanta direccion"
     name="precio_nueva_direccion"
+    {% if sucursal.precio_nueva_direccion %}value="{{sucursal.precio_nueva_direccion}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -139,6 +152,7 @@
     type="text"
     placeholder="precio promedio de llanta nueva"
     name="precio_nueva"
+    {% if sucursal.precio_nueva %}value="{{sucursal.precio_nueva}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -155,6 +169,7 @@
     type="text"
     placeholder="precio promedio de llanta renovada"
     name="precio_renovada"
+    {% if sucursal.precio_renovada %}value="{{sucursal.precio_renovada}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -164,8 +179,19 @@
 </div>
 <!-- End input -->
 
-<nav class="">
-  <button type="submit" class="btn btn-success">
-    <i class="icon-checkmark"></i>
+<nav class="flex-row">
+  {% if sucursal.id %}
+  <button class="btn btn-success">
+    <span class="icon-checkmark"></span>
   </button>
+
+  <a href="{% url 'dashboards:sucursalFormulario' %}" class="btn btn-danger">
+    <span class="icon-cross"></span>
+  </a>
+
+  {% else %}
+  <button class="btn btn-success">
+    <span class="icon-plus6"></span>
+  </button>
+  {% endif %}
 </nav>

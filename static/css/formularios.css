@@ -104,7 +104,8 @@ input[type='date']::-webkit-inner-spin-button,
   height: fit-content;
   padding: 1rem;
   border-radius: 0.5rem;
-  min-width: 350px;
+  min-width: 400px;
+  height: 100%;
 }
 
 .input-catalogo {
@@ -174,6 +175,7 @@ select {
 }
 
 .select-input {
+  outline: none;
   padding: 0.75rem 0.5rem;
   margin-bottom: 0.5rem;
   width: 100%;
@@ -181,8 +183,37 @@ select {
   -moz-appearance: none;
 }
 
+.select-input option {
+  color: #000;
+}
+
+.dropdown {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.drop-btn {
+  font-size: 0.95rem;
+  padding: 1rem 0.25rem;
+}
+
+.relative {
+  position: relative;
+  height: 100%;
+  overflow: auto;
+}
+
+.absolute {
+  width: 100%;
+}
+
 @media screen and (min-width: 1024px) {
   .form-body {
     grid-template-columns: auto 1fr;
+  }
+
+  .absolute {
+    position: absolute;
+    padding-right: 1rem;
   }
 }

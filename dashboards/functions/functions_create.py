@@ -853,6 +853,19 @@ def configurar_producto():
         producto.dimension = dimension
         producto.save()
 
+def asignar_ultima_fecha_de_inflado():
+    vehiculos = Vehiculo.objects.all()
+    for v in vehiculos:
+        fecha_1 = v.fecha_de_inflado
+        try:
+            fecha_2 = v.ultima_bitacora_pro.fecha_de_inflado
+
+            if fecha_1 < fecha_2:
+                v.fecha_de_inflado = fecha_2
+                v.save()
+        except:
+            pass
+
 def crear_clase(clase):
     clases = Vehiculo.opciones_clase
     for c in clases:
@@ -1201,7 +1214,7 @@ def crear_nombre_de_eje():
 def crear_de_bitacora_el_vehiculo():
     bitacoras = Bitacora.objects.filter(compania=Compania.objects.get(compania="New Pick"))
     for b in bitacoras:
-        vehiculo = Vehiculo.objects.get(numero_economico=b.numero_economico)
+        vehiculo = Vehiculo.objects.get(numero_economico=b.vehiculo)
         vehiculo.fecha_de_inflado = b.fecha_de_inflado
         vehiculo.tiempo_de_inflado = b.tiempo_de_inflado
         vehiculo.presion_de_entrada = b.presion_de_entrada

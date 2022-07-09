@@ -1,10 +1,16 @@
 <!-- Start input -->
 <div class="form__group field">
   <input
+    type="hidden"
+    name="id"
+    {% if taller.id %}value="{{taller.id}}"{% endif %}
+  />
+  <input
     class="form__field"
     type="text"
     placeholder="nombre"
     name="nombre"
+    {% if taller.nombre %}value="{{taller.nombre}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -22,6 +28,7 @@
     placeholder="compania"
     name="compania"
     list="compania"
+    {% if taller.compania %}value="{{taller.compania}}"{% endif %}
     autocomplete="off"
     required
   />
@@ -33,5 +40,22 @@
       <option value="{{compania}}">{{compania}}</option>
     {% endfor %}
   </datalist>
+</div>
+<!-- End input -->
+
+<!-- Start input -->
+<div class="form__group field">
+  <input
+    class="form__field"
+    type="text"
+    placeholder="codigo"
+    name="codigo"
+    {% if taller.codigo %}value="{{taller.codigo}}"{% endif %}
+    autocomplete="off"
+    required
+  />
+  <label for="codigo" class="form__label">
+    Código
+  </label>
 </div>
 <!-- End input -->
