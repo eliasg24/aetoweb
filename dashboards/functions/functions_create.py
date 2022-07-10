@@ -1085,7 +1085,7 @@ def crear_configuracion2():
         inspeccion.save()
 
 def crear_llantas():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="PruebaBI")).exclude(numero_economico__in=["M-21", "M-22"])
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="pruebacarlos")).exclude(numero_economico__in=["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"])
     for vehiculo in vehiculos:
         posiciones = []
         ejes = vehiculo.configuracion.split(".")
@@ -1094,6 +1094,13 @@ def crear_llantas():
             posiciones.append("1RI")
             posiciones.append("2LI")
             posiciones.append("2RI")
+        if vehiculo.configuracion == "S2.D2.D2":
+            posiciones.append("1LI")
+            posiciones.append("1RI")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+            posiciones.append("3LI")
+            posiciones.append("3RI")
         if vehiculo.configuracion == "S2.D4":
             posiciones.append("1LI")
             posiciones.append("1RI")

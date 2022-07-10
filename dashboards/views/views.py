@@ -7133,6 +7133,8 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
         context["groups_names"] = groups_names
         return context
 
+
+
 class SearchView(LoginRequiredMixin, ListView):
     # Vista del dashboard buscar_vehiculos
     template_name = "buscar_vehiculos.html"
