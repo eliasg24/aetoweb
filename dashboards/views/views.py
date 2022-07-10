@@ -1716,11 +1716,6 @@ class catalogoProductoView(LoginRequiredMixin, MultiModelFormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        productos = Producto.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[::-1]
-        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
-        context["compania"] = compania
-        context["productos"] = productos
-
         if self.request.method =='POST':
             Producto.objects.create(producto=self.request.POST.get("producto"),
                                     compania=self.request.user.perfil.compania,
@@ -1734,6 +1729,11 @@ class catalogoProductoView(LoginRequiredMixin, MultiModelFormView):
                                     precio=self.request.POST.get("precio"),
                                     km_esperado=self.request.POST.get("km_esperado"),
             )
+
+        productos = Producto.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))[::-1]
+        compania = Compania.objects.get(compania=self.request.user.perfil.compania)
+        context["compania"] = compania
+        context["productos"] = productos
 
         return context
     
@@ -1925,9 +1925,10 @@ class catalogoRechazosView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
 
         rechazos = Rechazo.objects.all()[::-1]
-        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        companias = self.request.user.perfil.companias.all()
+
         context["rechazos"] = rechazos
-        context["llantas"] = llantas
+        context["companias"] = companias
 
         return context
     
@@ -1947,9 +1948,10 @@ class catalogoRechazosEditView(LoginRequiredMixin, DetailView, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         rechazos = Rechazo.objects.all()[::-1]
-        llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+        companias = self.request.user.perfil.companias.all()
+
         context["rechazos"] = rechazos
-        context["llantas"] = llantas
+        context["companias"] = companias
 
         return context
 
@@ -6471,7 +6473,6 @@ class TireEyeAPI(View):
         )
         return JsonResponse(jd)
 
-
 class PulpoView(LoginRequiredMixin, ListView):
     # Vista del dashboard pulpo
     template_name = "pulpo.html"
@@ -6497,7 +6498,7 @@ class PulpoView(LoginRequiredMixin, ListView):
 
         #functions_create.tirecheck_llanta()
         #functions_create.borrar_ultima_inspeccion_vehiculo()
-        #functions_excel.excel_vehiculos()
+        #functions_create.crear_llantas()
         #functions_excel.excel_llantas(User.objects.get(username="equipo-logistico"))
         #functions_excel.excel_inspecciones()
 

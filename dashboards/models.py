@@ -574,7 +574,6 @@ class Rechazo(models.Model):
     compania = models.ForeignKey(Compania, on_delete=models.CASCADE)
     razon = models.CharField(max_length=200)
 
-
 class HistoricoLlanta(models.Model):
     num_eco = models.ForeignKey(Llanta, on_delete=models.CASCADE)
     casco_nuevo	= models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="casco_nuevo", null=True)

@@ -77,19 +77,19 @@ class ObservacionEditForm(forms.ModelForm):
 
 class RechazoForm(forms.ModelForm):
     # Model form del Rechazo
-    llanta = forms.ModelChoiceField(queryset=Llanta.objects.all(), to_field_name = 'numero_economico')
+    compania = forms.ModelChoiceField(queryset=Compania.objects.all(), to_field_name = 'compania')
     class Meta:
         # Configuración del Form
         model = Rechazo
-        fields = ['llanta', 'razon']
+        fields = ['compania', 'razon']
 
 class RechazoEditForm(forms.ModelForm):
     # Model form del Rechazo
-    llanta = forms.ModelChoiceField(queryset=Llanta.objects.all(), to_field_name = 'numero_economico')
+    compania = forms.ModelChoiceField(queryset=Compania.objects.all(), to_field_name = 'compania')
     class Meta:
         # Configuración del Form
         model = Rechazo
-        fields = ['id', 'llanta', 'razon']
+        fields = ['id', 'compania', 'razon']
 
 class SucursalForm(forms.ModelForm):
     # Model form de la Sucursal

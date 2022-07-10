@@ -1078,41 +1078,30 @@ def crear_configuracion():
             vehiculo.numero_de_llantas = 6
             vehiculo.save()
 
-
 def crear_configuracion2():
     inspecciones = Inspeccion.objects.filter(id__in=range(1030, 1115))
     for inspeccion in inspecciones:
         inspeccion.fecha_hora = date(2022, 2, 2)
         inspeccion.save()
-    
 
 def crear_llantas():
-    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="Tramo"))
+    vehiculos = Vehiculo.objects.filter(compania=Compania.objects.get(compania="PruebaBI")).exclude(numero_economico__in=["M-21", "M-22"])
     for vehiculo in vehiculos:
         posiciones = []
         ejes = vehiculo.configuracion.split(".")
-        if vehiculo.configuracion == "T4.T4.SP1":
-            posiciones.append("1LO")
+        if vehiculo.configuracion == "S2.D2":
             posiciones.append("1LI")
             posiciones.append("1RI")
-            posiciones.append("1RO")
+            posiciones.append("2LI")
+            posiciones.append("2RI")
+        if vehiculo.configuracion == "S2.D4":
+            posiciones.append("1LI")
+            posiciones.append("1RI")
             posiciones.append("2LO")
             posiciones.append("2LI")
             posiciones.append("2RI")
             posiciones.append("2RO")
-            posiciones.append("3LI")
-        if vehiculo.configuracion == "T4.T4.SP2":
-            posiciones.append("1LO")
-            posiciones.append("1LI")
-            posiciones.append("1RI")
-            posiciones.append("1RO")
-            posiciones.append("2LO")
-            posiciones.append("2LI")
-            posiciones.append("2RI")
-            posiciones.append("2RO")
-            posiciones.append("3LI")
-            posiciones.append("3RI")
-        if vehiculo.configuracion == "S2.C4.D4":
+        if vehiculo.configuracion == "S2.D4.D4":
             posiciones.append("1LI")
             posiciones.append("1RI")
             posiciones.append("2LO")
@@ -1123,18 +1112,14 @@ def crear_llantas():
             posiciones.append("3LI")
             posiciones.append("3RI")
             posiciones.append("3RO")
-        if vehiculo.configuracion == "S2.D4.D4.SP1":
+        if vehiculo.configuracion == "S2.D4.SP1":
             posiciones.append("1LI")
             posiciones.append("1RI")
             posiciones.append("2LO")
             posiciones.append("2LI")
             posiciones.append("2RI")
             posiciones.append("2RO")
-            posiciones.append("3LO")
             posiciones.append("3LI")
-            posiciones.append("3RI")
-            posiciones.append("3RO")
-            posiciones.append("4LI")
         if vehiculo.configuracion == "T4.T4.T4.SP2":
             posiciones.append("1LO")
             posiciones.append("1LI")
