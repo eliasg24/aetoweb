@@ -109,8 +109,8 @@
                                 </div>
                             </div>
                         </div>
-                    {% endif %}
-    
+                    {% else %}
+
                     <div class="con" id="vehiculos">
                         <div class="con-title">
                             <h2 class="con-title__text">
@@ -136,9 +136,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row page" id="page-2">
                     <div class="con" id="llantas">
                         <div class="con-title">
                             <h2 class="con-title__text">
@@ -164,6 +162,65 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
+    
+                    {% if perms.compania.add_compania %}
+                    <div class="con" id="vehiculos">
+                        <div class="con-title">
+                            <h2 class="con-title__text">
+                                <span class="icon-upload-cloud"></span>
+                                ALTA VEHÍCULOS
+                            </h2>
+                        </div>
+                        <div class="wrapper">
+                            <div class="con-sec">
+                                <div class="buttons">
+                                    <div>
+                                        <form style="margin: 0" action="{% url 'dashboards:config' %}" method="POST" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="compania" value="{{user.perfil.compania}}">
+                                            <label>
+                                                <input type="file" name="file"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
+                                            </label>
+                                            <button class="btn btn-download w-100" value="excelform" type="submit">Continuar</button>
+                                        </form>
+                                    </div>
+                                    <a href="https://drive.google.com/uc?id=1AgjEnTFj8jZpS6zJcCJF1G_s8Wxu6ohp&export=download" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="row page" id="page-2">
+                    {% if perms.compania.add_compania %}
+                    <div class="con" id="llantas">
+                        <div class="con-title">
+                            <h2 class="con-title__text">
+                                <span class="icon-upload-cloud"></span>
+                                Alta de llantas rodantes
+                            </h2>
+                        </div>
+                        <div class="wrapper">
+                            <div class="con-sec">
+                                <div class="buttons">
+                                    <div>
+                                        <form style="margin: 0" action="{% url 'dashboards:config' %}"  method="POST" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="compania" value="{{user.perfil.compania}}">
+                                            <label>
+                                                <input type="file" name="file2"><p class="agregar">AGREGAR A LA LISTA DE EXCEL</p>
+                                            </label>
+                                            <button class="btn btn-download w-100" type="submit">Continuar</button>
+                                        </form>
+                                    </div>
+                                    <a href="https://drive.google.com/uc?id=1DtE-s-P6C47l6df30PIAQtzm4QzSAPCw&export=download" class="btn btn-redirect">DESCARGAR FORMATO EXCEL</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     <div class="con on-view" id="operacion" >
                         <div class="con-title">

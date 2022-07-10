@@ -42,7 +42,7 @@ from dashboards.forms.forms import EdicionManual, ExcelForm, InspeccionForm, Veh
 
 # Models
 from django.contrib.auth.models import User, Group
-from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, OrdenDesecho, Producto, ServicioLlanta, ServicioVehiculo, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
+from dashboards.models import Aplicacion, Bitacora_Pro, Inspeccion, InspeccionVehiculo, Llanta, LlantasSeleccionadas, Orden, OrdenDesecho, Producto, Servicio, ServicioLlanta, ServicioVehiculo, Taller, Ubicacion, Vehiculo, Perfil, Bitacora, Compania, Renovador, Desecho, Observacion, Rechazo, User, Observacion
 
 
 # Utilities
@@ -89,7 +89,13 @@ class HomeView(LoginRequiredMixin, TemplateView):
         usuario = self.request.user
         perfil = Perfil.objects.get(user = usuario)
         compania = perfil.compania
+        ubicacion = perfil.ubicacion.all()
+        aplicacion = perfil.aplicacion.all()
+        taller = perfil.taller.all()
         context["compania"] = compania
+        context["ubicacion"] = ubicacion
+        context["aplicacion"] = aplicacion
+        context["taller"] = taller
         return context
     
     def post(self, request, *args, **kwargs):
@@ -2631,7 +2637,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
         context['cant_ejes'] = cant_ejes
         context['llantas_actuales'] = llantas_actuales
         #Generacion de productos
-        productos = Producto.objects.all()
+        productos = Producto.objects.filter(compania=vehiculo_actual.compania)
         context['productos'] = productos
         context['vehiculo_actual'] = vehiculo_actual
         context['observaciones_manuales'] = observaciones_manuales
@@ -5825,6 +5831,12 @@ class planTallerView(LoginRequiredMixin, TemplateView):
         
         talleres = Taller.objects.filter(compania = vehiculo[0].compania)
         
+        
+        
+        #? Checar si existe un taller abierto
+        #servicios = Servicio.objects.filter(vehiculo = vehiculo, estado = 'abierto')
+        
+        
         context['vehiculo_acomodado'] = vehiculo_acomodado
         context['talleres'] = talleres
         context['vehiculo'] = vehiculo
@@ -6310,7 +6322,7 @@ class VehiculoAPI(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request):
+    def post(self, request):
         jd = json.loads(request.body)
         vehiculo = Vehiculo.objects.get(numero_economico=jd['numero_economico'], compania=Compania.objects.get(compania=jd['compania']))
         vehiculo.fecha_de_inflado=date.today()
@@ -6327,15 +6339,19 @@ class VehiculoAPI(View):
                 )
         bi.save()
         llantas = Llanta.objects.filter(vehiculo=vehiculo)
+        condicional = True
         for llanta in llantas:
-            llanta.fecha_de_inflado=date.today()
-            llanta.presion_de_entrada=jd['presion_de_entrada']
-            llanta.presion_de_salida=jd['presion_de_salida']
-            llanta.presion_actual=jd['presion_de_salida']
-            min_presion = functions.min_presion(llanta)
-            max_presion = functions.max_presion(llanta)
-            functions.check_presion_pulpo(llanta, min_presion, max_presion)
-            llanta.save()
+            if llanta.tipo_de_eje != "SP1":
+
+                llanta.fecha_de_inflado=date.today()
+                llanta.presion_de_entrada=jd['presion_de_entrada']
+                llanta.presion_de_salida=jd['presion_de_salida']
+                llanta.presion_actual=jd['presion_de_salida']
+                min_presion = functions.min_presion(llanta)
+                max_presion = functions.max_presion(llanta)
+                nueva_condicional = functions.check_presion_pulpo(llanta, min_presion, max_presion, condicional)
+                condicional = nueva_condicional
+                llanta.save()
         functions.send_mail(bi, 'pulpo')
         return JsonResponse(jd)
 
@@ -6354,18 +6370,23 @@ class PulpoProAPI(View):
         presiones_de_entrada = eval(jd['presiones_de_entrada'])
         presiones_de_salida = eval(jd['presiones_de_salida'])
         numero_de_llantas = vehiculo.numero_de_llantas
+        num_ejes = vehiculo.configuracion.split('.')
+        if num_ejes[-1] == "SP1":
+            numero_de_llantas = numero_de_llantas - 1
+
         if numero_de_llantas == len(presiones_de_entrada):
             num_ejes = vehiculo.configuracion.split('.')
             ejes_no_ordenados = []
             ejes = []
             eje = 1
             for num in num_ejes:
-                list_temp = []
-                for llanta in llantas:
-                    if llanta.eje == eje:
-                        list_temp.append([llanta])
-                eje += 1
-                ejes_no_ordenados.append(list_temp)
+                if num != "SP1":
+                    list_temp = []
+                    for llanta in llantas:
+                        if llanta.eje == eje:
+                            list_temp.append([llanta])
+                    eje += 1
+                    ejes_no_ordenados.append(list_temp)
             
             for eje in ejes_no_ordenados:
                 if len(eje) == 2:
@@ -6399,6 +6420,7 @@ class PulpoProAPI(View):
                     llanta[0].presion_de_entrada = presiones_de_entrada[loop_llantas]
                     llanta[0].presion_de_salida = presiones_de_salida[loop_llantas]
                     llanta[0].presion_actual = presiones_de_salida[loop_llantas]
+                    llanta[0].fecha_de_inflado=date.today()
                     llanta[0].save()
                     loop_llantas += 1
                     
@@ -6452,10 +6474,14 @@ class PulpoProAPI(View):
         
                 vehiculo.ultima_bitacora_pro= bi
                 vehiculo.save()
+                condicional = True
                 for llanta in llantas:
                     min_presion = functions.min_presion(llanta)
                     max_presion = functions.max_presion(llanta)
-                    functions.check_presion_pulpo(llanta, min_presion, max_presion)
+                    print("min_presion", min_presion)
+                    print("max_presion", max_presion)
+                    nueva_condicional = functions.check_presion_pulpo(llanta, min_presion, max_presion, condicional)
+                    condicional = nueva_condicional
                 functions.send_mail(bi, 'pulpopro')
                 return JsonResponse(jd)
 

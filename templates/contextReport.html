@@ -15,18 +15,22 @@
       <tbody>
         <tr>
           <td>
-            <div class="item">lorem</div>
+            <div class="item">{{compania}}</div>
           </td>
           <td>
-            <div class="item">lorem</div>
+            {% for i in ubicacion %}
+              <div class="item">{{i}}</div>
+            {% endfor %}
           </td>
           <td>
-            <div class="item">lorem</div>
-            <div class="item">lorem</div>
-            <div class="item">lorem</div>
+            {% for i in aplicacion %}
+              <div class="item">{{i}}</div>
+            {% endfor %}
           </td>
           <td>
-            <div class="item">lorem</div>
+            {% for i in taller %}
+              <div class="item">{{i}}</div>
+            {% endfor %}
           </td>
         </tr>
       </tbody>

@@ -58,7 +58,7 @@ class AplicacionData(View):
         user = User.objects.get(username = usuario)
         perfil = Perfil.objects.get(user = user)
         compania = perfil.compania
-        aplicaciones = Aplicacion.objects.filter(compania=compania).annotate(sucursal=F("ubicacion")).values("nombre", "compania", "sucursal", "parametro_desgaste_direccion", "parametro_desgaste_traccion", "parametro_desgaste_arrastre", "parametro_desgaste_loco", "parametro_desgaste_retractil")
+        aplicaciones = Aplicacion.objects.filter(compania=compania).annotate(sucursal=F("ubicacion")).values("id", "nombre", "compania", "sucursal", "parametro_desgaste_direccion", "parametro_desgaste_traccion", "parametro_desgaste_arrastre", "parametro_desgaste_loco", "parametro_desgaste_retractil")
         #Serializar data
         print(aplicaciones)
         aplicaciones = list(aplicaciones)
@@ -125,7 +125,7 @@ class VehicleData(View):
         user = User.objects.get(username = usuario)
         perfil = Perfil.objects.get(user = user)
         compania = perfil.compania
-        vehiculos = Vehiculo.objects.filter(compania=compania).select_related("compania").annotate(dias_sin_inspeccion=DiffDays(CastDate(Now())-CastDate(F('fecha_ultima_inspeccion')), output_field=IntegerField()), dias_sin_inflar=DiffDays(CastDate(Now())-CastDate(F('fecha_de_inflado')), output_field=IntegerField())-1, vencido=Case(When(dias_sin_inspeccion__gt=F("compania__periodo2_inspeccion"), then=True), When(fecha_ultima_inspeccion=None, then=True), default=False), estatus_pulpo=Case(When(observaciones_llanta__observacion__in=["Doble mala entrada"], then=Value("Doble mala entrada")), When(observaciones_llanta__observacion__in=["Mala entrada"], then=Value("Mala entrada")), default=Value("Entrada Correcta")))
+        vehiculos = Vehiculo.objects.filter(compania=compania).select_related("compania").annotate(dias_sin_inspeccion=DiffDays(CastDate(Now())-CastDate(F('fecha_ultima_inspeccion')), output_field=IntegerField()), dias_sin_inflar=DiffDays(CastDate(Now())-CastDate(F('fecha_de_inflado')), output_field=IntegerField()), vencido=Case(When(dias_sin_inspeccion__gt=F("compania__periodo2_inspeccion"), then=True), When(fecha_ultima_inspeccion=None, then=True), default=False), estatus_pulpo=Case(When(observaciones_llanta__observacion__in=["Doble mala entrada"], then=Value("Doble mala entrada")), When(observaciones_llanta__observacion__in=["Mala entrada"], then=Value("Mala entrada")), default=Value("Entrada Correcta")))
         #Serializar data
         vehiculos = list(vehiculos.values())
         
@@ -182,7 +182,7 @@ class DesechoData(View):
         user = User.objects.get(username = usuario)
         perfil = Perfil.objects.get(user = user)
         compania = perfil.compania
-        desechos = Desecho.objects.filter(llanta__compania=compania)
+        desechos = Desecho.objects.filter(compania=compania)
         #Serializar data
         desechos = list(desechos.values())
         
@@ -318,7 +318,7 @@ class BitacorasData(View):
         bitacoras = Bitacora.objects.filter(compania=compania)
         bitacoras_pro = Bitacora_Pro.objects.filter(compania=compania)
 
-        entradas_correctas = functions.entrada_correcta(bitacoras, bitacoras_pro)
+        entradas_correctas = functions.entrada_correcta_api(bitacoras, bitacoras_pro)
 
         #Serializar data
 
