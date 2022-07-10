@@ -1561,7 +1561,7 @@ def doble_entrada(bitacoras, bitacoras2):
 
     primera_bitacora = bitacoras.filter(id__in=dobles_entradas).values("id").annotate(max=Max("fecha_de_inflado")).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
     meses1 = primera_bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1)), mes2=Count("mes",filter=Q(mes=2)), mes3=Count("mes",filter=Q(mes=3)), mes4=Count("mes",filter=Q(mes=4)), mes5=Count("mes",filter=Q(mes=5)), mes6=Count("mes",filter=Q(mes=6)), mes7=Count("mes",filter=Q(mes=7)), mes8=Count("mes",filter=Q(mes=8)))
-    primera_bitacora = primera_bitacora.values("numero_economico")
+    primera_bitacora = primera_bitacora.values("vehiculo")
 
     bitacoras2 = bitacoras2.order_by("id")
     for bitacora in bitacoras2:
@@ -1747,7 +1747,7 @@ def doble_entrada(bitacoras, bitacoras2):
 
     segunda_bitacora = bitacoras2.filter(id__in=dobles_entradas).values("id").annotate(max=Max("fecha_de_inflado")).annotate(mes=(ExtractYear(Now()) - ExtractYear("max")) * 12 + (ExtractMonth(Now()) - ExtractMonth("max")) + 1)
     meses2 = segunda_bitacora.values("mes").aggregate(mes1=Count("mes",filter=Q(mes=1)), mes2=Count("mes",filter=Q(mes=2)), mes3=Count("mes",filter=Q(mes=3)), mes4=Count("mes",filter=Q(mes=4)), mes5=Count("mes",filter=Q(mes=5)), mes6=Count("mes",filter=Q(mes=6)), mes7=Count("mes",filter=Q(mes=7)), mes8=Count("mes",filter=Q(mes=8)))
-    segunda_bitacora = segunda_bitacora.values("numero_economico")
+    segunda_bitacora = segunda_bitacora.values("vehiculo")
 
     return primera_bitacora, segunda_bitacora, meses1, meses2
 
@@ -1804,7 +1804,7 @@ def doble_mala_entrada(bitacoras, vehiculos):
                 dobles_entradas.append(bitacora.id)
 
     try:
-        vehiculos = vehiculos.filter(id__in=Bitacora.objects.filter(id__in=dobles_entradas).values("numero_economico"))
+        vehiculos = vehiculos.filter(id__in=Bitacora.objects.filter(id__in=dobles_entradas).values("vehiculo"))
         return vehiculos
     except:
         if len(entradas) >= 1:
@@ -1863,7 +1863,7 @@ def doble_mala_entrada2(bitacoras, vehiculos):
                 dobles_entradas.append(bitacora.id)
 
     try:
-        vehiculos = vehiculos.filter(id__in=Bitacora.objects.filter(id__in=dobles_entradas).values("numero_economico"))
+        vehiculos = vehiculos.filter(id__in=Bitacora.objects.filter(id__in=dobles_entradas).values("vehiculo"))
         return vehiculos
     except:
         if len(entradas) >= 1:
@@ -2054,7 +2054,7 @@ def doble_mala_entrada_pro(bitacoras, vehiculos):
             if entradas[bitacora.vehiculo.id] >= 2 and mala_entrada:
                 dobles_entradas.append(bitacora.id)
     try:
-        vehiculos = vehiculos.filter(id__in=Bitacora_Pro.objects.filter(id__in=dobles_entradas[0]).values("numero_economico"))
+        vehiculos = vehiculos.filter(id__in=Bitacora_Pro.objects.filter(id__in=dobles_entradas[0]).values("vehiculo"))
         return vehiculos
     except:
         if dobles_entradas:
@@ -2728,17 +2728,17 @@ def juntar_bitacoras(vehiculos, bitacora, bitacora_pro):
         print(b)
 
 
-    vehiculos_bitacora = bitacora.values_list("numero_economico__numero_economico", flat=True).distinct()
-    vehiculos_bitacora_pro = bitacora_pro.values_list("numero_economico__numero_economico", flat=True).distinct()
+    vehiculos_bitacora = bitacora.values_list("vehiculo__numero_economico", flat=True).distinct()
+    vehiculos_bitacora_pro = bitacora_pro.values_list("vehiculo__numero_economico", flat=True).distinct()
     vehiculos = vehiculos.filter(numero_economico__in=vehiculos_bitacora) & vehiculos.filter(numero_economico__in=vehiculos_bitacora_pro)
 
     for vehiculo in vehiculos:
         print(vehiculo)
-        fecha_bitacora = bitacora.filter(numero_economico=vehiculo).order_by("fecha_de_inflado").values("fecha_de_inflado")
-        fecha_bitacora_pro = bitacora_pro.filter(numero_economico=vehiculo).order_by("fecha_de_inflado").values("fecha_de_inflado")
+        fecha_bitacora = bitacora.filter(vehiculo=vehiculo).order_by("fecha_de_inflado").values("fecha_de_inflado")
+        fecha_bitacora_pro = bitacora_pro.filter(vehiculo=vehiculo).order_by("fecha_de_inflado").values("fecha_de_inflado")
 
-        fecha_bitacora = bitacora.filter(numero_economico=vehiculo).order_by("fecha_de_inflado")[0].fecha_de_inflado
-        fecha_bitacora_pro = bitacora_pro.filter(numero_economico=vehiculo).order_by("fecha_de_inflado")[0].fecha_de_inflado
+        fecha_bitacora = bitacora.filter(vehiculo=vehiculo).order_by("fecha_de_inflado")[0].fecha_de_inflado
+        fecha_bitacora_pro = bitacora_pro.filter(vehiculo=vehiculo).order_by("fecha_de_inflado")[0].fecha_de_inflado
         print(fecha_bitacora)
         print(fecha_bitacora_pro)
 
@@ -3565,8 +3565,8 @@ def opciones_redireccion(inventario:str):
         ]
 
 def ordenar_por_status(vehiculos):
-    bitacora = Bitacora.objects.filter(numero_economico__in=vehiculos)
-    bitacora_pro = Bitacora_Pro.objects.filter(numero_economico__in=vehiculos)
+    bitacora = Bitacora.objects.filter(vehiculo__in=vehiculos)
+    bitacora_pro = Bitacora_Pro.objects.filter(vehiculo__in=vehiculos)
     llantas = Llanta.objects.filter(vehiculo__in=vehiculos, tirecheck=False)
     inspecciones = Inspeccion.objects.filter(llanta__in=llantas , llanta__tirecheck=False)
 

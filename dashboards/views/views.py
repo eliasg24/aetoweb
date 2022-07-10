@@ -34,7 +34,7 @@ from requests import request
 
 # Functions
 from dashboards.functions import functions, functions_ftp, functions_create, functions_excel
-from dashboards.functions.functions import DiffDays, CastDate
+from dashboards.functions.functions import DiffDays, CastDate, presion_establecida
 from aeto import settings
 
 # Forms
@@ -86,13 +86,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = User.objects.get(username=self.request.user)
-        flotas = Ubicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        aplicaciones = Aplicacion.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania))
-        functions.exist_context(user)
-        context["user"] = user
-        context["flotas"] = flotas
-        context["aplicaciones"] = aplicaciones
         return context
     
     def post(self, request, *args, **kwargs):
@@ -179,7 +172,7 @@ class TireDBView(LoginRequiredMixin, TemplateView):
         else:
             clases = vehiculo.values("clase").distinct()
 
-        bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), numero_economico__in=vehiculo)
+        bitacora = Bitacora.objects.filter(compania=Compania.objects.get(compania=self.request.user.perfil.compania), vehiculo__in=vehiculo)
         llantas = Llanta.objects.filter(vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         inspecciones = Inspeccion.objects.filter(llanta__vehiculo__compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         ultimas_inspecciones = inspecciones.values("llanta")
@@ -2368,8 +2361,45 @@ class nuevoVehiculoEditView(LoginRequiredMixin, DetailView, UpdateView):
         if self.request.method == 'POST':
 
             vehiculo = Vehiculo.objects.get(id=self.kwargs['pk'])
+            numero_economico = self.request.POST.get("numero_economico")
+            modelo = self.request.POST.get("modelo")
+            marca = self.request.POST.get("marca")
+            aplicacion = self.request.POST.get("aplicacion")
+            ubicacion = self.request.POST.get("ubicacion")
+            clase = self.request.POST.get("clase")
+            configuracion = self.request.POST.get("configuracion")
+            presion_establecida_1 = self.request.POST.get("presion_establecida_1")
+            presion_establecida_2 = self.request.POST.get("presion_establecida_2")
+            presion_establecida_3 = self.request.POST.get("presion_establecida_3")
+            presion_establecida_4 = self.request.POST.get("presion_establecida_4")
+            presion_establecida_5 = self.request.POST.get("presion_establecida_5")
+            presion_establecida_6 = self.request.POST.get("presion_establecida_6")
+            presion_establecida_7 = self.request.POST.get("presion_establecida_7")
+            km_diario_maximo = self.request.POST.get("km_diario_maximo")
             estatus_activo = self.request.POST.get("estatus_activo")
             nuevo = self.request.POST.get("nuevo")
+            vehiculo.numero_economico = numero_economico
+            vehiculo.modelo = modelo
+            vehiculo.marca = marca
+            vehiculo.aplicacion = Aplicacion.objects.get(nombre=aplicacion)
+            vehiculo.ubicacion = Ubicacion.objects.get(nombre=ubicacion)
+            vehiculo.clase = clase
+            vehiculo.configuracion = configuracion
+            if presion_establecida_1:
+                vehiculo.presion_establecida_1 = presion_establecida_1
+            if presion_establecida_2:
+                vehiculo.presion_establecida_2 = presion_establecida_2
+            if presion_establecida_3:
+                vehiculo.presion_establecida_3 = presion_establecida_3
+            if presion_establecida_4:
+                vehiculo.presion_establecida_4 = presion_establecida_4
+            if presion_establecida_5:
+                vehiculo.presion_establecida_5 = presion_establecida_5
+            if presion_establecida_6:
+                vehiculo.presion_establecida_6 = presion_establecida_6
+            if presion_establecida_7:
+                vehiculo.presion_establecida_7 = presion_establecida_7
+            vehiculo.km_diario_maximo = km_diario_maximo
             if estatus_activo == "activo":
                 vehiculo.estatus_activo = True
             else:
@@ -4071,7 +4101,7 @@ class reporteVehiculoView(LoginRequiredMixin, TemplateView):
             tipo_bit = 'pulpopro'
         hoy = date.today()
         user = User.objects.get(username=self.request.user)
-        vehiculo = bitacora.numero_economico
+        vehiculo = bitacora.vehiculo
         llantas = Llanta.objects.filter(vehiculo = vehiculo, inventario="Rodante")
         
         objetivo = vehiculo.compania.objetivo
@@ -6283,7 +6313,7 @@ class VehiculoAPI(View):
         vehiculo.presion_de_entrada=jd['presion_de_entrada']
         vehiculo.presion_de_salida=jd['presion_de_salida']
         vehiculo.save()
-        bi = Bitacora.objects.create(numero_economico=vehiculo,
+        bi = Bitacora.objects.create(vehiculo=vehiculo,
                 compania=Compania.objects.get(compania=jd['compania']),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=jd['tiempo_de_inflado'],
@@ -6367,7 +6397,7 @@ class PulpoProAPI(View):
                     llanta[0].save()
                     loop_llantas += 1
                     
-            bi = Bitacora_Pro.objects.create(numero_economico=vehiculo,
+            bi = Bitacora_Pro.objects.create(vehiculo=vehiculo,
                                     compania=Compania.objects.get(compania=jd['compania']),
                                     fecha_de_inflado=date.today(),
                                     tiempo_de_inflado=jd['tiempo_de_inflado'],
@@ -6674,8 +6704,8 @@ def buscar(request):
         vehiculo_fecha_pro = vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
         vehiculo_fecha_total = vehiculo.filter(fecha_de_inflado__range=[ultimo_mes, hoy]) | vehiculo.filter(ultima_bitacora_pro__fecha_de_inflado__range=[ultimo_mes, hoy])
     
-    bitacora = bitacora.filter(numero_economico__in=vehiculo)
-    bitacora_pro = bitacora_pro.filter(numero_economico__in=vehiculo)
+    bitacora = bitacora.filter(vehiculo__in=vehiculo)
+    bitacora_pro = bitacora_pro.filter(vehiculo__in=vehiculo)
 
 
     mes_1 = hoy.strftime("%b")
@@ -6851,6 +6881,11 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
         groups_names = Group.objects.all()
         compania = Compania.objects.get(compania=self.request.user.perfil.compania)
         
+        separador = os.path.sep
+        dir_actual = os.path.dirname(os.path.abspath(__file__))
+        dir = separador.join(dir_actual.split(separador)[:-2])
+        print(dir)
+
         if self.request.method=='POST' and 'periodo1_inflado' in self.request.POST:
             compania.periodo1_inflado = self.request.POST.get("periodo1_inflado")
             compania.periodo2_inflado = self.request.POST.get("periodo2_inflado")
@@ -6873,19 +6908,18 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
             user.save()
         elif self.request.method=='POST' and self.request.FILES.get("file"):
             file = self.request.FILES.get("file")
-            print("hola")
-            archivo = os.path.abspath(os.getcwd()) + r"\files.xlsx"
+            archivo = dir + r"\files.xlsx"
             fp = open(archivo,'wb')
             for chunk in file.chunks():
                 fp.write(chunk)
-            print("hola2")
   
-            wb_obj = openpyxl.load_workbook(archivo)
+            wb_obj = openpyxl.load_workbook(file)
             sheet_obj = wb_obj.active
             print("hola3")
             
             for i in range(sheet_obj.max_row):
                 numero_economico = sheet_obj.cell(row=i + 2, column=1).value
+                print(numero_economico)
                 try:
                     try:
                         vehiculo = Vehiculo.objects.get(numero_economico=numero_economico, compania=Compania.objects.get(compania=compania))
@@ -6989,7 +7023,7 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
             os.remove(os.path.abspath(archivo))
         elif self.request.method=='POST' and self.request.FILES.get("file2"):
             file = self.request.FILES.get("file2")
-            archivo = os.path.abspath(os.getcwd()) + r"\files.xlsx"
+            archivo = dir + r"\files.xlsx"
             fp = open(archivo,'wb')
             for chunk in file.chunks():
                 fp.write(chunk)
@@ -7259,12 +7293,12 @@ class tireDetailView(LoginRequiredMixin, DetailView):
         inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
 
         try:
-            bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
+            bitacora = Bitacora.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania))
         except:
             bitacora = None
         try:
-            bitacora_normal = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-            bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+            bitacora_normal = Bitacora.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+            bitacora_pro = Bitacora_Pro.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         except:
             bitacora_normal = None 
             bitacora_pro = None
@@ -7670,8 +7704,8 @@ class DetailView(LoginRequiredMixin, DetailView):
         llantas = Llanta.objects.filter(vehiculo=vehiculo, tirecheck=False, inventario = 'Rodante')
         inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
         inspecciones_vehiculo = InspeccionVehiculo.objects.filter(vehiculo=vehiculo)
-        bitacora = Bitacora.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-        bitacora_pro = Bitacora_Pro.objects.filter(numero_economico=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+        bitacora = Bitacora.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
+        bitacora_pro = Bitacora_Pro.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
         entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
         servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo).order_by('-id').exclude(estado='abierto')

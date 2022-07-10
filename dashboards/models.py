@@ -407,7 +407,7 @@ class Bitacora(models.Model):
 
     def __str__(self):
         # Retorna el número económico
-        return f"{self.numero_economico}"
+        return f"{self.vehiculo}"
 
 class Bitacora_Pro(models.Model):
     # Modelo de la Bitácora del Pulpo Pro
@@ -443,7 +443,7 @@ class Bitacora_Pro(models.Model):
 
     def __str__(self):
         # Retorna el número económico
-        return f"{self.numero_economico}"
+        return f"{self.vehiculo}"
     class Meta:
         verbose_name_plural = "Bitacoras Pro"
 

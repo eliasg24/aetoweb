@@ -1487,7 +1487,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.4,
@@ -1508,7 +1508,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.4,
@@ -1529,7 +1529,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.0,
@@ -1550,7 +1550,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.0,
@@ -1571,7 +1571,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.8,
@@ -1592,7 +1592,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.7,
@@ -1613,7 +1613,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.5,
@@ -1634,7 +1634,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.5,
@@ -1655,7 +1655,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.2,
@@ -1676,7 +1676,7 @@ def excel(user):
                                         presion_de_salida=100,
                                         presion_establecida=100
                                     )
-            Bitacora.objects.create(numero_economico=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
+            Bitacora.objects.create(vehiculo=Vehiculo.objects.get(numero_economico=f"AETO-{num}"),
                 compania=Compania.objects.get(compania=Compania.objects.get(compania="Compania Prueba")),
                 fecha_de_inflado=date.today(),
                 tiempo_de_inflado=2.6,
