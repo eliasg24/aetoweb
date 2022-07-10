@@ -193,6 +193,20 @@ h6 {
   }
 }
 
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: var(--colorv17);
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background-color: #292929;
+}
+
 /* End header */
 
 .logo {

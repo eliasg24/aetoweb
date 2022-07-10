@@ -359,7 +359,8 @@ class Llanta(models.Model):
                         ("Tracción", "Tracción"),
                         ("Arrastre", "Arrastre"),
                         ("Loco", "Loco"),
-                        ("Retractil", "Retractil")
+                        ("Retractil", "Retractil"),
+                        ("Refacción", "Refacción")
                 )
     nombre_de_eje = models.CharField(max_length=200, choices=opciones_de_eje, null=True, blank=True)
     presion_de_entrada = models.IntegerField(blank=True, null=True)

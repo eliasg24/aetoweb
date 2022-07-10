@@ -1297,3 +1297,25 @@ class PulpoApiView(View):
         json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
 
         return HttpResponse(json_context, content_type='application/json')
+
+
+class ClearContexto(LoginRequiredMixin, View):
+    # Vista del dashboard buscar_vehiculos
+
+    def get(self, request , *args, **kwargs):
+
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        perfil.compania = None
+        perfil.ubicacion.clear()
+        perfil.aplicacion.clear()
+        perfil.taller.clear()
+        perfil.save()
+                
+        dict_context = {
+            'status': 'ok',
+        }
+
+        json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
+
+        return HttpResponse(json_context, content_type='application/json')

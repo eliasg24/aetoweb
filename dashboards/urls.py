@@ -633,6 +633,12 @@ urlpatterns = [
         name="carritocountapi"
     ),
     
+    path(
+        route="api/clearcontexto",
+        view=views_rest.ClearContexto.as_view(),
+        name="clearcontexto"
+    ),
+    
     #-----------------------D-----------------------
     
     #-----------------------E-----------------------

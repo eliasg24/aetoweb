@@ -71,7 +71,7 @@ class VehiculosAdmin(admin.ModelAdmin):
 @admin.register(Llanta)
 class LlantasAdmin(admin.ModelAdmin):
     # Admin de las Llantas
-    list_display = ('numero_economico', "compania", "km_actual", "km_montado", "vehiculo", "producto", 'posicion', "profundidad_izquierda", "profundidad_central", "profundidad_derecha", "km_montado", "presion_de_entrada", "presion_de_salida", 'tirecheck', "km_montado", "vehiculo", 'producto', 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'vida', 'tipo_de_eje', 'eje')
+    list_display = ('numero_economico', "compania", "km_actual", "km_montado", "vehiculo", "producto", 'posicion', "profundidad_izquierda", "profundidad_central", "profundidad_derecha", 'tirecheck', "vehiculo", 'presion_de_entrada', 'presion_de_salida', 'fecha_de_inflado', 'ultima_inspeccion', 'nombre_de_eje', 'vida', 'tipo_de_eje', 'eje')
     search_fields= ('numero_economico',)
     list_filter = ('compania', "km_actual", "km_montado", "inventario", "vehiculo", 'tipo_de_eje')
     

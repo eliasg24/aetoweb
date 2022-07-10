@@ -143,7 +143,14 @@ input[type='date']::-webkit-inner-spin-button,
 
 .main-table {
   border-collapse: collapse;
+  position: relative;
   width: 100%;
+}
+
+.main-table thead {
+  background-color: var(--colorv01);
+  position: sticky;
+  top: 0;
 }
 
 .main-table th,

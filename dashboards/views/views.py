@@ -86,6 +86,10 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        perfil = Perfil.objects.get(user = usuario)
+        compania = perfil.compania
+        context["compania"] = compania
         return context
     
     def post(self, request, *args, **kwargs):
@@ -7057,7 +7061,9 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
                         aplicacion = Aplicacion.objects.get(nombre=aplicacion, compania=compania)
                         tipo_de_eje = vehiculo.configuracion.split(".")[int(posicion[0]) - 1]
                         eje = posicion[0]
-                        if tipo_de_eje[0] == "S":
+                        if tipo_de_eje == "SP1":
+                            nombre_de_eje = "Refacción"
+                        elif tipo_de_eje[0] == "S":
                             nombre_de_eje = "Dirección"
                         elif tipo_de_eje[0] == "D":
                             nombre_de_eje = "Tracción"
@@ -7067,7 +7073,7 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
                             nombre_de_eje = "Loco"
                         elif tipo_de_eje[0] == "L":
                             nombre_de_eje = "Retractil"
-                        producto = Producto.objects.get(producto=producto)
+                        producto = Producto.objects.get(producto=producto, compania=Compania.objects.get(compania=compania))
                         inventario = "Rodante"
 
                         try:
@@ -7902,7 +7908,6 @@ class DetailView(LoginRequiredMixin, DetailView):
             context["fecha"] = fecha
             context["grupo"] = grupo
             context["hoy"] = hoy
-            context["llantas"] = llantas
             context["mes_1"] = mes_1
             context["mes_2"] = mes_2.strftime("%b")
             context["mes_3"] = mes_3.strftime("%b")
@@ -8160,6 +8165,7 @@ class DetailView(LoginRequiredMixin, DetailView):
                 problemas.append([llanta.posicion, observacion, signo])
         print(vehiculo.observaciones.all())
         context['problemas'] = problemas
+        context["llantas"] = llantas
         return context
 
 class reporteEdicionLlanta(ListView):

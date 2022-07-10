@@ -20,8 +20,8 @@
   {% endif %}
       {% csrf_token %} 
       
-      <div class="relative" style="position: relative; height: 100%; overflow: auto;">
-        <div class="absolute" style="position: absolute; width: 100%; padding-right: 1rem;">
+      <div class="relative">
+        <div class="absolute">
           {% include './forms/form-company.html' %}
           {% if compania.id %}
           
