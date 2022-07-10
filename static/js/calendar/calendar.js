@@ -63,7 +63,7 @@
         Swal.fire({
           title: '¿Desea cerrar la orden?',
           showDenyButton: true,
-          showCancelButton: true,
+          showCancelButton: false,
           confirmButtonText: 'Guardar',
           denyButtonText: `Cancelar`,
         }).then((result) => {
@@ -89,7 +89,7 @@
                 );
               });
           } else if (result.isDenied) {
-            Swal.fire('Los orden no fue cerrar', '', 'info');
+            Swal.fire('Los orden no fue cerrada', '', 'info');
           }
         });
       });

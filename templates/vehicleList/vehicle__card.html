@@ -8,7 +8,10 @@
 
     <div class="flex-row">
       <a href="{% url 'dashboards:planTaller' vehiculo.vehiculo.id %}" class="btn btn-primary">
-        Taller
+        <i class="icon-tools1"></i>
+      </a>
+      <a href="{% url 'dashboards:inspeccionVehiculo' vehiculo.vehiculo.id %}" class="btn btn-primary">
+        <i class="icon-magnifier"></i>
       </a>
     </div>
   </header>
@@ -124,8 +127,14 @@
       </div>
     </div>
     <div class="footer__row fbottom {{vehiculo.color_dias_inflado}}">
-      <i class="icon-pulpo"></i>:
-      {{vehiculo.dias_sin_inflar}} / {{vehiculo.fecha_inflado}}
+      <div>
+        <i class="icon-pulpo"></i>:
+        {{vehiculo.dias_sin_inflar}}
+      </div>
+      
+      <div>
+        {{vehiculo.fecha_inflado}}
+      </div>
     </div>
   </footer>
 </div>

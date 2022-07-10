@@ -6199,8 +6199,7 @@ class vehicleListView(LoginRequiredMixin, TemplateView):
         
         prev = functions.pagination_prev(page, pages, url_complemento)
         next = functions.pagination_next(page, pages, url_complemento)
-        
-        
+
         self.limit = limit
         self.offset = offset
         self.prev = prev
@@ -7132,6 +7131,8 @@ class ConfigView(LoginRequiredMixin, MultiModelFormView):
         context["user"] = user
         context["groups_names"] = groups_names
         return context
+
+
 
 class SearchView(LoginRequiredMixin, ListView):
     # Vista del dashboard buscar_vehiculos
