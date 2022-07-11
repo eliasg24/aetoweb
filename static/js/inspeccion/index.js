@@ -89,7 +89,7 @@ const vehiculoManual = (item = '') => {
 
   observations.forEach((observation) => {
     observation.addEventListener('input', () => {
-      let container = document.querySelector('.observations__container');
+      let container = document.querySelector('.modal__container .observations__container');
       if (observation.checked) {
         container
           .querySelector(`[data-icon-type="${observation.value}"]`)

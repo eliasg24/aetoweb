@@ -24,6 +24,7 @@ from django.db.models.aggregates import Min, Max, Count
 from django.db.models.functions import Cast, ExtractMonth, ExtractDay, Now, Round, Substr, ExtractYear
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, TemplateView, DetailView, DeleteView, UpdateView, FormView
@@ -6326,14 +6327,14 @@ class VehiculoAPI(View):
     def post(self, request):
         jd = json.loads(request.body)
         vehiculo = Vehiculo.objects.get(numero_economico=jd['numero_economico'], compania=Compania.objects.get(compania=jd['compania']))
-        vehiculo.fecha_de_inflado=date.today()
+        vehiculo.fecha_de_inflado=datetime.now()
         vehiculo.tiempo_de_inflado=jd['tiempo_de_inflado']
         vehiculo.presion_de_entrada=jd['presion_de_entrada']
         vehiculo.presion_de_salida=jd['presion_de_salida']
         vehiculo.save()
         bi = Bitacora.objects.create(vehiculo=vehiculo,
                 compania=Compania.objects.get(compania=jd['compania']),
-                fecha_de_inflado=date.today(),
+                fecha_de_inflado=datetime.now(),
                 tiempo_de_inflado=jd['tiempo_de_inflado'],
                 presion_de_entrada=jd['presion_de_entrada'],
                 presion_de_salida=jd['presion_de_salida']
@@ -6344,7 +6345,7 @@ class VehiculoAPI(View):
         for llanta in llantas:
             if llanta.tipo_de_eje != "SP1":
 
-                llanta.fecha_de_inflado=date.today()
+                llanta.fecha_de_inflado=datetime.now()
                 llanta.presion_de_entrada=jd['presion_de_entrada']
                 llanta.presion_de_salida=jd['presion_de_salida']
                 llanta.presion_actual=jd['presion_de_salida']
@@ -6366,7 +6367,7 @@ class PulpoProAPI(View):
     def post(self, request):
         jd = json.loads(request.body)
         vehiculo = Vehiculo.objects.get(numero_economico=jd['numero_economico'], compania=Compania.objects.get(compania=jd['compania']))
-        vehiculo.fecha_de_inflado=date.today()
+        vehiculo.fecha_de_inflado=datetime.now()
         llantas = Llanta.objects.filter(vehiculo=vehiculo)
         presiones_de_entrada = eval(jd['presiones_de_entrada'])
         presiones_de_salida = eval(jd['presiones_de_salida'])
@@ -6421,13 +6422,13 @@ class PulpoProAPI(View):
                     llanta[0].presion_de_entrada = presiones_de_entrada[loop_llantas]
                     llanta[0].presion_de_salida = presiones_de_salida[loop_llantas]
                     llanta[0].presion_actual = presiones_de_salida[loop_llantas]
-                    llanta[0].fecha_de_inflado=date.today()
+                    llanta[0].fecha_de_inflado=datetime.now()
                     llanta[0].save()
                     loop_llantas += 1
                     
             bi = Bitacora_Pro.objects.create(vehiculo=vehiculo,
                                     compania=Compania.objects.get(compania=jd['compania']),
-                                    fecha_de_inflado=date.today(),
+                                    fecha_de_inflado=datetime.now(),
                                     tiempo_de_inflado=jd['tiempo_de_inflado'],
             )
             print("jd['presiones_de_entrada']", jd['presiones_de_entrada'])
@@ -7766,10 +7767,10 @@ class DetailView(LoginRequiredMixin, DetailView):
         inspecciones_list = []
         for bit in bitacora:
             print("bit", bit.id)
-            eventos.append([bit.fecha_de_inflado.date(), bit, 'pulpo'])
+            eventos.append([bit.fecha_de_inflado, bit, 'pulpo'])
         for bit in bitacora_pro:
             print("bit", bit.id)
-            eventos.append([bit.fecha_de_inflado.date(), bit, 'pulpopro'])
+            eventos.append([bit.fecha_de_inflado, bit, 'pulpopro'])
 
         for inspeccion in inspecciones_vehiculo:
             color_insp = functions.color_observaciones_all(inspeccion)
@@ -7784,9 +7785,9 @@ class DetailView(LoginRequiredMixin, DetailView):
             inspecciones_list.append([inspeccion.fecha, inspeccion, 'inspeccion', signo])
         inspecciones_list = sorted(inspecciones_list, key=lambda x:x[1].id, reverse=True)
         for ins in inspecciones_list:
-            eventos.append([ins[0].date(), ins[1], ins[2], ins[3]])
+            eventos.append([ins[0], ins[1], ins[2], ins[3]])
         for servicio in servicios:
-            eventos.append([servicio.fecha_inicio, servicio, 'servicio', 'icon-checkmark good-text'])
+            eventos.append([datetime.combine(servicio.fecha_inicio, datetime.min.time()), servicio, 'servicio', 'icon-checkmark good-text'])
         eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
         context["eventos"] = eventos
         print(eventos)
@@ -8041,7 +8042,7 @@ class DetailView(LoginRequiredMixin, DetailView):
             eje += 1
             ejes_no_ordenados.append(list_temp)
             numero += 1
-
+        
         ejes = functions.acomodo_ejes(ejes_no_ordenados)
         color = functions.entrada_correcta_actual(vehiculo_actual)
         #print(color)

@@ -292,6 +292,8 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
                     color_dias_inflado = 'yellow'
             except:
                 pass
+        
+        sp1 = is_sp1(vehiculo_actual)
             
         vehiculos_acomodados.append(
             {
@@ -303,11 +305,23 @@ def acomodo_ejes_vehicle(vehiculos_llantas_acomodadas:list):
                 'color_dias_alinear': color_dias_alinear,
                 'dias_sin_inflar': dias_sin_inflar,
                 'color_dias_inflado': color_dias_inflado,
-                'fecha_inflado': vehiculo_actual.fecha_de_inflado
+                'fecha_inflado': vehiculo_actual.fecha_de_inflado,
+                'sp1': sp1
             }
         )
     return vehiculos_acomodados
 
+def is_sp1(vehiculo_actual):
+    configuracion = vehiculo_actual.configuracion
+    if 'SP1' in configuracion:
+        print(vehiculo_actual)
+        print(True)
+        return True
+    else:
+        print(vehiculo_actual)
+        print(False)
+        return False
+    
 
 def is_valid_dias_sin_inflar(vehiculo_actual):
     """Funcion que determina si la lista de dias sin inflar es valisa(Que no este vacia)
@@ -374,9 +388,11 @@ def acomodo_pocisiones_vehicle(vehiculos):
             'color_dias_alinear': vehiculo['color_dias_alinear'],
             'dias_sin_inflar': vehiculo['dias_sin_inflar'],
             'color_dias_inflado': vehiculo['color_dias_inflado'],
-            'fecha_inflado': vehiculo['fecha_inflado']
+            'fecha_inflado': vehiculo['fecha_inflado'],
+            'sp1': vehiculo['sp1']
             
         })
+        
     return vehiculos_ejes_acomodados
 
 

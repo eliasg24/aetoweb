@@ -112,7 +112,13 @@
       {% endif %}
 
     {% endfor %}
-
+    {% if vehiculo.sp1 == True %}
+      <div class="sp1">
+        <span class="icon-tire2"></span>
+      </div>
+    {% else %}
+    {% endif %}
+      
   </div>
 
   <footer class="card__footer">
@@ -133,7 +139,7 @@
       </div>
       
       <div>
-        {{vehiculo.fecha_inflado}}
+        {{vehiculo.fecha_inflado__date}}
       </div>
     </div>
   </footer>
