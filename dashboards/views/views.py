@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
 from django.db.models import Q, F, ExpressionWrapper, IntegerField, Value
 from django.forms import DateField, DateTimeField, DurationField
+from django.db.models import FloatField, F, Q, Case, When, Value, IntegerField, CharField, ExpressionWrapper, Func
 from django.db.models.functions import Least
 from django.http import HttpResponseRedirect
 from django.http.response import JsonResponse, HttpResponse
@@ -7738,9 +7739,20 @@ class DetailView(LoginRequiredMixin, DetailView):
         llantas = Llanta.objects.filter(vehiculo=vehiculo, tirecheck=False, inventario = 'Rodante')
         inspecciones = Inspeccion.objects.filter(llanta__in=llantas)
         inspecciones_vehiculo = InspeccionVehiculo.objects.filter(vehiculo=vehiculo)
-        bitacora = Bitacora.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-        bitacora_pro = Bitacora_Pro.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("-id")
-        entradas_correctas = functions.entrada_correcta(bitacora, bitacora_pro)
+        bitacora = Bitacora.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("id")
+        bitacora_pro = Bitacora_Pro.objects.filter(vehiculo=Vehiculo.objects.get(numero_economico=vehiculo.numero_economico, compania=Compania.objects.get(compania=self.request.user.perfil.compania)), compania=Compania.objects.get(compania=self.request.user.perfil.compania)).order_by("id")
+
+        bitacoras = bitacora.annotate(presion_de_entrada_1=F("presion_de_entrada"), presion_de_salida_1=F("presion_de_salida"), presion_de_entrada_2=Value(None, output_field=IntegerField()), presion_de_salida_2=Value(None, output_field=IntegerField()), presion_de_entrada_3=Value(None, output_field=IntegerField()), presion_de_salida_3=Value(None, output_field=IntegerField()), presion_de_entrada_4=Value(None, output_field=IntegerField()), presion_de_salida_4=Value(None, output_field=IntegerField()), presion_de_entrada_5=Value(None, output_field=IntegerField()), presion_de_salida_5=Value(None, output_field=IntegerField()), presion_de_entrada_6=Value(None, output_field=IntegerField()), presion_de_salida_6=Value(None, output_field=IntegerField()), presion_de_entrada_7=Value(None, output_field=IntegerField()), presion_de_salida_7=Value(None, output_field=IntegerField()), presion_de_entrada_8=Value(None, output_field=IntegerField()), presion_de_salida_8=Value(None, output_field=IntegerField()), presion_de_entrada_9=Value(None, output_field=IntegerField()), presion_de_salida_9=Value(None, output_field=IntegerField()), presion_de_entrada_10=Value(None, output_field=IntegerField()), presion_de_salida_10=Value(None, output_field=IntegerField()), presion_de_entrada_11=Value(None, output_field=IntegerField()), presion_de_salida_11=Value(None, output_field=IntegerField()), presion_de_entrada_12=Value(None, output_field=IntegerField()), presion_de_salida_12=Value(None, output_field=IntegerField())).order_by("id")
+        bitacoras = list(bitacoras.values("id", "vehiculo__id", "vehiculo__configuracion", "compania__id", "fecha_de_inflado", "tiempo_de_inflado", "presion_de_entrada_1", "presion_de_salida_1", "presion_de_entrada_2", "presion_de_salida_2", "presion_de_entrada_3", "presion_de_salida_3", "presion_de_entrada_4", "presion_de_salida_4", "presion_de_entrada_5", "presion_de_salida_5", "presion_de_entrada_6", "presion_de_salida_6", "presion_de_entrada_7", "presion_de_salida_7", "presion_de_entrada_8", "presion_de_salida_8", "presion_de_entrada_9", "presion_de_salida_9", "presion_de_entrada_10", "presion_de_salida_10", "presion_de_entrada_11", "presion_de_salida_11", "presion_de_entrada_12", "presion_de_salida_12", "vehiculo__presion_establecida_1", "vehiculo__presion_establecida_2", "vehiculo__presion_establecida_3", "vehiculo__presion_establecida_4", "vehiculo__presion_establecida_5", "vehiculo__presion_establecida_6", "vehiculo__presion_establecida_7"))
+
+        bitacoras_pro = list(bitacora_pro.values("id", "vehiculo__id", "vehiculo__configuracion", "compania__id", "fecha_de_inflado", "tiempo_de_inflado", "presion_de_entrada_1", "presion_de_salida_1", "presion_de_entrada_2", "presion_de_salida_2", "presion_de_entrada_3", "presion_de_salida_3", "presion_de_entrada_4", "presion_de_salida_4", "presion_de_entrada_5", "presion_de_salida_5", "presion_de_entrada_6", "presion_de_salida_6", "presion_de_entrada_7", "presion_de_salida_7", "presion_de_entrada_8", "presion_de_salida_8", "presion_de_entrada_9", "presion_de_salida_9", "presion_de_entrada_10", "presion_de_salida_10", "presion_de_entrada_11", "presion_de_salida_11", "presion_de_entrada_12", "presion_de_salida_12", "vehiculo__presion_establecida_1", "vehiculo__presion_establecida_2", "vehiculo__presion_establecida_3", "vehiculo__presion_establecida_4", "vehiculo__presion_establecida_5", "vehiculo__presion_establecida_6", "vehiculo__presion_establecida_7"))
+       
+        bitacoras.extend(bitacoras_pro)
+
+        bitacoras = sorted(bitacoras, key=lambda x:x["fecha_de_inflado"], reverse=False)
+
+        entradas_correctas = functions.entrada_correcta_ambas(bitacoras)
+        print(entradas_correctas)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
         servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo).order_by('-id').exclude(estado='abierto')
         print(vehiculo)
@@ -7754,10 +7766,10 @@ class DetailView(LoginRequiredMixin, DetailView):
         inspecciones_list = []
         for bit in bitacora:
             print("bit", bit.id)
-            eventos.append([bit.fecha_de_inflado, bit, 'pulpo'])
+            eventos.append([bit.fecha_de_inflado.date(), bit, 'pulpo'])
         for bit in bitacora_pro:
             print("bit", bit.id)
-            eventos.append([bit.fecha_de_inflado, bit, 'pulpopro'])
+            eventos.append([bit.fecha_de_inflado.date(), bit, 'pulpopro'])
 
         for inspeccion in inspecciones_vehiculo:
             color_insp = functions.color_observaciones_all(inspeccion)
