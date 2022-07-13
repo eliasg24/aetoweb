@@ -83,7 +83,8 @@ def archivar_taller(POST, pk, servicio_vehiculo):
                 'llanta': llanta.id,
                 'llanta_nueva': llanta_nueva.id,
                 'razon': razon,
-                'taller_desmontaje': taller_desmontaje.id
+                'taller_desmontaje': taller_desmontaje.id,
+                'almacen_desmontaje': almacen_desmontaje
                 })
         
      
@@ -410,7 +411,7 @@ def acomodo_ejes(ejes_no_ordenados):
             ejes.append(lista_temp)
             print(' 0---0')
         
-        else:
+        elif len(eje) == 4:
             lista_temp = ['', '', '', '']
             for llanta_act in eje:
                 if 'LO' in llanta_act[0].posicion:
@@ -423,6 +424,13 @@ def acomodo_ejes(ejes_no_ordenados):
                     lista_temp[3] = llanta_act
             ejes.append(lista_temp)
             print('00---00')
+        elif len(eje) == 1:
+            lista_temp = ['']
+            for llanta_act in eje:
+                if 'SP1' in llanta_act[0].posicion:
+                    lista_temp[0] = llanta_act
+            ejes.append(lista_temp)
+            print('---0---')
     return ejes
 
 def actualizar_km_actual(llanta_actual, llanta_referencia, vehiculo, vehiculo_referencia):
@@ -4409,6 +4417,10 @@ def eje_a_str(vehiculo_acomodado):
         for llanta in eje:
             id_llanta = llanta['llanta'].id
             llanta['llanta'] = id_llanta
+    if vehiculo_acomodado[0]['sp1'] == True:
+        vehiculo_acomodado[0]['sp1'] = 'True'
+    elif vehiculo_acomodado[0]['sp1'] == False:
+        vehiculo_acomodado[0]['sp1'] = 'False'
     return str(vehiculo_acomodado)
 
 

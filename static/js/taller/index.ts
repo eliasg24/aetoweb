@@ -73,14 +73,20 @@
 
     e.preventDefault();
     const form: HTMLFormElement = e.target as HTMLFormElement;
-    const data = Object.fromEntries(new FormData(form));
+    const dataForm = new FormData(form);
+    dataForm.append('id_servicio', String(Math.floor(Math.random() * 10000)));
+    const data = Object.fromEntries(dataForm);
     const eventList = document.querySelector('.tire-list') as HTMLElement;
 
-    switch (data.tipoServicio) {
+    /* switch (data.tipoServicio) {
       case 'desmontaje':
         const $div = document.createElement('div');
         $div.classList.add('tire-item');
+        $div.setAttribute('data-servicioid', String(data.id_servicio));
         $div.innerHTML = `
+          <span data-delete="${data.id_servicio}">
+            &times;
+          </span>
           <div class="service__img">
             <span class="icon-llanta-outline"></span>
           </div>
@@ -93,6 +99,7 @@
             </p>
             <p><strong>Nueva llanta</strong>: ${data.nuevaLlanta}</p>
             <p><strong>Stock origen</strong>: ${data.stock}</p>
+            <p><strong>Stock origen</strong>: ${data.almacen_desmontaje}</p>
           </div>
         `;
 
@@ -233,11 +240,12 @@
 
       default:
         break;
-    }
-
+    } */
+    [{"tipoServicio":"sr","inflar":"","balancear":"","reparar":"","valvula":"","costado":"on","rotar":"no","otroVehiculo":"","llantaOrigen":"","stock":"","nuevaLlanta":"","razon":"","almacen_desmontaje":"","taller_desmontaje":"","llantaId":"18968","id_servicio":"4461"},
+    {"tipoServicio":"sr","inflar":"","balancear":"","reparar":"","valvula":"","costado":"","rotar":"no","otroVehiculo":"","llantaOrigen":"","stock":"","nuevaLlanta":"","razon":"","almacen_desmontaje":"","taller_desmontaje":"","llantaId":"18964","id_servicio":"504"}]
     form
-      .querySelectorAll('input, select, .btn-submit')
-      .forEach((input) => input.setAttribute('disabled', ''));
+      .querySelectorAll<HTMLInputElement>('.btn-taller')
+      .forEach((input) => input.disabled = true);
 
     saveData.push(data);
 
@@ -382,7 +390,6 @@
           fetch('/api/tiresearchtaller?inventario=Nueva')
             .then((res) => res.json())
             .then((json) => {
-              console.log(json);
               let options = `<option value="">Seleccione una llanta</option>`;
 
               json.result.forEach((item: any) => {
@@ -398,7 +405,6 @@
           fetch('/api/tiresearchtaller?inventario=Renovada')
             .then((res) => res.json())
             .then((json) => {
-              console.log(json);
               let options = `<option value="">Seleccione una llanta</option>`;
 
               json.result.forEach((item: any) => {
@@ -414,7 +420,6 @@
           fetch('/api/tiresearchtaller?inventario=Servicio')
             .then((res) => res.json())
             .then((json) => {
-              console.log(json);
               let options = `<option value="">Seleccione una llanta</option>`;
 
               json.result.forEach((item: any) => {
@@ -502,5 +507,112 @@
           .catch((error) => console.error(error));
       });
     }
+  });
+})();
+
+/*
+ * Delete event
+ */
+
+(() => {
+  interface Llanta {
+    id_servicio: string;
+  }
+
+  document.addEventListener('click', (e) => {
+    const event = e.target as HTMLDivElement;
+
+    if (event?.matches('[data-delete]')) {
+      let input = document.getElementById('data-taller') as HTMLInputElement;
+      let data = JSON.parse(input.value || '');
+      console.log(event.dataset.delete);
+
+      data = data.filter(
+        (item: Llanta) => item.id_servicio !== event.dataset.delete
+      );
+      input.value = JSON.stringify(data);
+    }
+  });
+})();
+
+(() => {
+  interface Servicio {
+    almacen_desmontaje: string;
+    balancear: string;
+    costado: string;
+    id_servicio: string;
+    inflar: string;
+    llantaId: string;
+    llantaOrigen: string;
+    nuevaLlanta: string;
+    otroVehiculo: string;
+    razon: string;
+    reparar: string;
+    rotar: string;
+    stock: string;
+    taller_desmontaje: string;
+    tipoServicio: string;
+    valvula: string;
+  }
+
+  document.addEventListener('submit', (e) => {
+    // const event = e.target as HTMLInputElement;
+    const input = document.getElementById('data-taller') as HTMLInputElement;
+
+    if (input.value.length === 0) return;
+
+    let services = JSON.parse(input.value) as Servicio[];
+    const container = document.querySelector('.tire-list') as HTMLDivElement;
+    // console.log(services.find(item => item))
+
+    services.forEach((item) => {
+      container.innerHTML = '';
+      container.innerHTML += `
+      <div class="tire-item" data-servicioid="${item.id_servicio}" >
+          <span data-delete="${item.id_servicio}">
+              &times;
+            </span>
+            <div class="service__img">
+              <span class="icon-llanta-outline"></span>
+            </div>
+            <div>
+              <h3>
+                ${item.tipoServicio === 'desmontaje' ? 'Desmontaje' : ''}
+                ${item.inflar !== '' ? 'inflar' : ''}
+                ${item.balancear !== '' ? 'balancear' : ''}
+                ${item.reparar !== '' ? 'reparar' : ''}
+                ${item.valvula !== '' ? 'valvula' : ''}
+              </h3>
+              <p><strong>Llanta ID:</strong> ${item.llantaId}
+              </p>
+              ${
+                item.razon.length >= 1
+                  ? `
+              <p>
+                <strong>Razón de desmontaje:</strong> 
+                ${item.razon}
+              </p>
+              `
+                  : ''
+              }
+              ${
+                item.nuevaLlanta.length >= 1
+                  ? `<p><strong>Nueva llanta</strong>: ${item.nuevaLlanta}</p>`
+                  : ''
+              }
+              ${
+                item.stock.length >= 1
+                  ? `<p><strong>Stock origen</strong>: ${item.stock}</p>`
+                  : ''
+              }
+              ${
+                item.almacen_desmontaje.length >= 1
+                  ? `<p><strong>Stock origen</strong>: ${item.almacen_desmontaje}</p>`
+                  : ''
+              }
+            </div>
+        </div>
+        `
+    });
   });
 })();

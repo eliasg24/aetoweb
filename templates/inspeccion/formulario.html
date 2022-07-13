@@ -196,6 +196,8 @@
 
             <div class="form__prof" data-punto-retiro="{{ ej.6.punto_retiro }}" data-profundidad-id="{{ ej.0.id }}">
 
+            {% if ej.0.tipo_de_eje != 'SP1'  %}
+
               <div class="form__group field">
                 <input
                   class="form__field"
@@ -243,6 +245,59 @@
                   {{ej.0.profundidad_derecha}} (Derecha)
                 </label>
               </div>
+
+            {% else %}
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="number"
+                  max = {{ ej.6.min_izquierda }}
+                  min="0"
+                  step="any"
+                  placeholder="Profundidad izquierda"
+                  name="profundidad_izquierda"
+                  autocomplete="off"
+                  value = {{ej.0.profundidad_izquierda}}
+                />
+                <label for="min_profundidad" class="form__label">
+                  {{ej.0.profundidad_izquierda}}(Izquierda)
+                </label>
+              </div>
+
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="number"
+                  min="0"
+                  max = {{ ej.6.min_central }}
+                  step="any"
+                  placeholder="Profundidad central"
+                  name="profundidad_central"
+                  autocomplete="off" 
+                  value = {{ej.0.profundidad_central}}
+                />
+                <label for="min_profundidad" class="form__label">
+                  {{ej.0.profundidad_central}}(Central)
+                </label>
+              </div>
+            
+              <div class="form__group field">
+                <input
+                  class="form__field"
+                  type="number"
+                  min="0"
+                  max = {{ ej.6.min_derecha }}
+                  step="any"
+                  placeholder="Profundidad derecha"
+                  name="profundidad_derecha"
+                  autocomplete="off"   
+                  value = {{ej.0.profundidad_derecha}}               
+                />
+                <label for="min_profundidad" class="form__label">
+                  {{ej.0.profundidad_derecha}} (Derecha)
+                </label>
+              </div>
+            {% endif %}
               
             </div>
 
@@ -336,9 +391,9 @@
             <input type="hidden" name="id" value="">
             
           </div>
-          {% endfor %}
         {% endfor %}
-        {% csrf_token %}
+      {% endfor %}
+      {% csrf_token %}
         </div>
       </div>
     </div>

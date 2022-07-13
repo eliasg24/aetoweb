@@ -51,145 +51,178 @@
         }
         e.preventDefault();
         const form = e.target;
-        const data = Object.fromEntries(new FormData(form));
+        const dataForm = new FormData(form);
+        dataForm.append('id_servicio', String(Math.floor(Math.random() * 10000)));
+        const data = Object.fromEntries(dataForm);
         const eventList = document.querySelector('.tire-list');
-        switch (data.tipoServicio) {
-            case 'desmontaje':
-                const $div = document.createElement('div');
-                $div.classList.add('tire-item');
-                $div.innerHTML = `
-          <div class="service__img">
-            <span class="icon-llanta-outline"></span>
-          </div>
-          <div>
-            <h3>Desmontaje</h3>
-            <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-            <p>
-              <strong>Razón de desmontaje:</strong> 
-              ${data.razon}
-            </p>
-            <p><strong>Nueva llanta</strong>: ${data.nuevaLlanta}</p>
-            <p><strong>Stock origen</strong>: ${data.stock}</p>
-          </div>
-        `;
-                eventList.appendChild($div);
-                break;
-            case 'sr':
-                if (data.inflar) {
-                    const $div = document.createElement('div');
-                    $div.classList.add('tire-item');
-                    $div.innerHTML = `
-            <div class="service__img">
-              <span class="icon-llanta-outline"></span>
-            </div>
-            <div>
-              <h3>Inflado</h3>
-              <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-            </div>
-          `;
-                    eventList.appendChild($div);
-                }
-                if (data.balancear) {
-                    const $div = document.createElement('div');
-                    $div.classList.add('tire-item');
-                    $div.innerHTML = `
-            <div class="service__img">
-              <span class="icon-llanta-outline"></span>
-            </div>
-            <div>
-              <h3>Balanceado</h3>
-              <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-            </div>
-          `;
-                    eventList.appendChild($div);
-                }
-                if (data.reparar) {
-                    const $div = document.createElement('div');
-                    $div.classList.add('tire-item');
-                    $div.innerHTML = `
-            <div class="service__img">
-              <span class="icon-llanta-outline"></span>
-            </div>
-            <div>
-              <h3>Reparación</h3>
-              <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-            </div>
-          `;
-                    eventList.appendChild($div);
-                }
-                if (data.costado) {
-                    const $div = document.createElement('div');
-                    $div.classList.add('tire-item');
-                    $div.innerHTML = `
-            <div class="service__img">
-              <span class="icon-llanta-outline"></span>
-            </div>
-            <div>
-              <h3>Reparación de costado</h3>
-              <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-            </div>
-          `;
-                    eventList.appendChild($div);
-                }
-                if (data.valvula) {
-                    const $div = document.createElement('div');
-                    $div.classList.add('tire-item');
-                    $div.innerHTML = `
-            <div class="service__img">
-              <span class="icon-llanta-outline"></span>
-            </div>
-            <div>
-              <h3>Reparación de valvula</h3>
-              <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-            </div>
-          `;
-                    eventList.appendChild($div);
-                }
-                if (data.rotar) {
-                    let $div = document.createElement('div');
-                    $div.classList.add('tire-item');
-                    switch (data.rotar) {
-                        case 'no':
-                            break;
-                        case 'mismo':
-                            $div.innerHTML = `
+        /* switch (data.tipoServicio) {
+          case 'desmontaje':
+            const $div = document.createElement('div');
+            $div.classList.add('tire-item');
+            $div.setAttribute('data-servicioid', String(data.id_servicio));
+            $div.innerHTML = `
+              <span data-delete="${data.id_servicio}">
+                &times;
+              </span>
+              <div class="service__img">
+                <span class="icon-llanta-outline"></span>
+              </div>
+              <div>
+                <h3>Desmontaje</h3>
+                <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
+                <p>
+                  <strong>Razón de desmontaje:</strong>
+                  ${data.razon}
+                </p>
+                <p><strong>Nueva llanta</strong>: ${data.nuevaLlanta}</p>
+                <p><strong>Stock origen</strong>: ${data.stock}</p>
+                <p><strong>Stock origen</strong>: ${data.almacen_desmontaje}</p>
+              </div>
+            `;
+    
+            eventList.appendChild($div);
+    
+            break;
+    
+          case 'sr':
+            if (data.inflar) {
+              const $div = document.createElement('div');
+              $div.classList.add('tire-item');
+    
+              $div.innerHTML = `
                 <div class="service__img">
                   <span class="icon-llanta-outline"></span>
                 </div>
                 <div>
-                  <h3>Rotación</h3>
+                  <h3>Inflado</h3>
                   <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-                  <p><strong>Rotada por:</strong> ${data.llantaOrigen}</p>
                 </div>
               `;
-                            eventList.appendChild($div);
-                            break;
-                        case 'otro':
-                            console.log(data);
-                            $div.innerHTML = `
+    
+              eventList.appendChild($div);
+            }
+    
+            if (data.balancear) {
+              const $div = document.createElement('div');
+              $div.classList.add('tire-item');
+    
+              $div.innerHTML = `
                 <div class="service__img">
                   <span class="icon-llanta-outline"></span>
                 </div>
                 <div>
-                  <h3>Rotación entre vehiculos</h3>
+                  <h3>Balanceado</h3>
                   <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
-                  <p><strong>Vehiculo origen:</strong> ${data.otroVehiculo}</p>
-                  <p><strong>Rotada por:</strong> ${data.llantaOrigen}</p>
                 </div>
               `;
-                            eventList.appendChild($div);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                break;
-            default:
-                break;
-        }
+    
+              eventList.appendChild($div);
+            }
+    
+            if (data.reparar) {
+              const $div = document.createElement('div');
+              $div.classList.add('tire-item');
+    
+              $div.innerHTML = `
+                <div class="service__img">
+                  <span class="icon-llanta-outline"></span>
+                </div>
+                <div>
+                  <h3>Reparación</h3>
+                  <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
+                </div>
+              `;
+    
+              eventList.appendChild($div);
+            }
+    
+            if (data.costado) {
+              const $div = document.createElement('div');
+              $div.classList.add('tire-item');
+    
+              $div.innerHTML = `
+                <div class="service__img">
+                  <span class="icon-llanta-outline"></span>
+                </div>
+                <div>
+                  <h3>Reparación de costado</h3>
+                  <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
+                </div>
+              `;
+    
+              eventList.appendChild($div);
+            }
+    
+            if (data.valvula) {
+              const $div = document.createElement('div');
+              $div.classList.add('tire-item');
+    
+              $div.innerHTML = `
+                <div class="service__img">
+                  <span class="icon-llanta-outline"></span>
+                </div>
+                <div>
+                  <h3>Reparación de valvula</h3>
+                  <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
+                </div>
+              `;
+    
+              eventList.appendChild($div);
+            }
+    
+            if (data.rotar) {
+              let $div = document.createElement('div');
+              $div.classList.add('tire-item');
+              switch (data.rotar) {
+                case 'no':
+                  break;
+                case 'mismo':
+                  $div.innerHTML = `
+                    <div class="service__img">
+                      <span class="icon-llanta-outline"></span>
+                    </div>
+                    <div>
+                      <h3>Rotación</h3>
+                      <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
+                      <p><strong>Rotada por:</strong> ${data.llantaOrigen}</p>
+                    </div>
+                  `;
+    
+                  eventList.appendChild($div);
+                  break;
+    
+                case 'otro':
+                  console.log(data);
+                  $div.innerHTML = `
+                    <div class="service__img">
+                      <span class="icon-llanta-outline"></span>
+                    </div>
+                    <div>
+                      <h3>Rotación entre vehiculos</h3>
+                      <p><strong>Llanta ID:</strong> ${data.llantaId}</p>
+                      <p><strong>Vehiculo origen:</strong> ${data.otroVehiculo}</p>
+                      <p><strong>Rotada por:</strong> ${data.llantaOrigen}</p>
+                    </div>
+                  `;
+    
+                  eventList.appendChild($div);
+                  break;
+    
+                default:
+                  break;
+              }
+            }
+    
+            break;
+    
+          default:
+            break;
+        } */
+        [{ "tipoServicio": "sr", "inflar": "", "balancear": "", "reparar": "", "valvula": "", "costado": "on", "rotar": "no", "otroVehiculo": "", "llantaOrigen": "", "stock": "", "nuevaLlanta": "", "razon": "", "almacen_desmontaje": "", "taller_desmontaje": "", "llantaId": "18968", "id_servicio": "4461" },
+            { "tipoServicio": "sr", "inflar": "", "balancear": "", "reparar": "", "valvula": "", "costado": "", "rotar": "no", "otroVehiculo": "", "llantaOrigen": "", "stock": "", "nuevaLlanta": "", "razon": "", "almacen_desmontaje": "", "taller_desmontaje": "", "llantaId": "18964", "id_servicio": "504" }];
         form
-            .querySelectorAll('input, select, .btn-submit')
-            .forEach((input) => input.setAttribute('disabled', ''));
+            .querySelectorAll('.btn-taller')
+            .forEach((input) => input.disabled = true);
         saveData.push(data);
         const formHidden = document.getElementById('data-taller');
         formHidden.value = JSON.stringify(saveData);
@@ -276,7 +309,6 @@
                     fetch('/api/tiresearchtaller?inventario=Nueva')
                         .then((res) => res.json())
                         .then((json) => {
-                        console.log(json);
                         let options = `<option value="">Seleccione una llanta</option>`;
                         json.result.forEach((item) => {
                             options += `<option value="${item.numero_economico}">${item.numero_economico} - ${item.producto__dimension}</option>`;
@@ -289,7 +321,6 @@
                     fetch('/api/tiresearchtaller?inventario=Renovada')
                         .then((res) => res.json())
                         .then((json) => {
-                        console.log(json);
                         let options = `<option value="">Seleccione una llanta</option>`;
                         json.result.forEach((item) => {
                             options += `<option value="${item.numero_economico}">${item.numero_economico} - ${item.producto__dimension}</option>`;
@@ -302,7 +333,6 @@
                     fetch('/api/tiresearchtaller?inventario=Servicio')
                         .then((res) => res.json())
                         .then((json) => {
-                        console.log(json);
                         let options = `<option value="">Seleccione una llanta</option>`;
                         json.result.forEach((item) => {
                             options += `<option value="${item.numero_economico}">${item.numero_economico} - ${item.producto__dimension}</option>`;
@@ -366,6 +396,73 @@
                     .catch((error) => console.error(error));
             });
         }
+    });
+})();
+/*
+ * Delete event
+ */
+(() => {
+    document.addEventListener('click', (e) => {
+        const event = e.target;
+        if (event === null || event === void 0 ? void 0 : event.matches('[data-delete]')) {
+            let input = document.getElementById('data-taller');
+            let data = JSON.parse(input.value || '');
+            console.log(event.dataset.delete);
+            data = data.filter((item) => item.id_servicio !== event.dataset.delete);
+            input.value = JSON.stringify(data);
+        }
+    });
+})();
+(() => {
+    document.addEventListener('submit', (e) => {
+        // const event = e.target as HTMLInputElement;
+        const input = document.getElementById('data-taller');
+        if (input.value.length === 0)
+            return;
+        let services = JSON.parse(input.value);
+        const container = document.querySelector('.tire-list');
+        // console.log(services.find(item => item))
+        services.forEach((item) => {
+            container.innerHTML = '';
+            container.innerHTML += `
+      <div class="tire-item" data-servicioid="${item.id_servicio}" >
+          <span data-delete="${item.id_servicio}">
+              &times;
+            </span>
+            <div class="service__img">
+              <span class="icon-llanta-outline"></span>
+            </div>
+            <div>
+              <h3>
+                ${item.tipoServicio === 'desmontaje' ? 'Desmontaje' : ''}
+                ${item.inflar !== '' ? 'inflar' : ''}
+                ${item.balancear !== '' ? 'balancear' : ''}
+                ${item.reparar !== '' ? 'reparar' : ''}
+                ${item.valvula !== '' ? 'valvula' : ''}
+              </h3>
+              <p><strong>Llanta ID:</strong> ${item.llantaId}
+              </p>
+              ${item.razon.length >= 1
+                ? `
+              <p>
+                <strong>Razón de desmontaje:</strong> 
+                ${item.razon}
+              </p>
+              `
+                : ''}
+              ${item.nuevaLlanta.length >= 1
+                ? `<p><strong>Nueva llanta</strong>: ${item.nuevaLlanta}</p>`
+                : ''}
+              ${item.stock.length >= 1
+                ? `<p><strong>Stock origen</strong>: ${item.stock}</p>`
+                : ''}
+              ${item.almacen_desmontaje.length >= 1
+                ? `<p><strong>Stock origen</strong>: ${item.almacen_desmontaje}</p>`
+                : ''}
+            </div>
+        </div>
+        `;
+        });
     });
 })();
 //# sourceMappingURL=index.js.map

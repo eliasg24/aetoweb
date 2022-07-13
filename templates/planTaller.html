@@ -8,6 +8,8 @@
   <title>Taller</title>
 {% endblock head %}
 {% block content %}
+
+
   <main class="all-cont">
     <div class="head-cont">
       <div class="logo">
@@ -89,14 +91,23 @@
 
       </div>
     </div>
-
-    {% for vehiculo in vehiculo_acomodado %}
-      {% for eje in vehiculo.ejes %}
-        {% for llanta in eje %}
-          {% include 'taller/modal.html' %}
-        {% endfor %} 
+    {% if servicios > 0 %}
+      
+      {% for llanta in servicio %}
+        {% include 'taller/modal-full.html' %}
       {% endfor %}
-    {% endfor %}
+
+    {% else %}
+
+      {% for vehiculo in vehiculo_acomodado %}
+        {% for eje in vehiculo.ejes %}
+          {% for llanta in eje %}
+            {% include 'taller/modal.html' %}
+          {% endfor %} 
+        {% endfor %}
+      {% endfor %}
+
+    {% endif %}
     
   </main>
 

@@ -59,7 +59,7 @@
                 </div>
               </div>
 
-            {% else %}
+            {% elif eje|length == 4 %}
 
               <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
                 <div class="double-tire" data-mm-dif="{{mm_dif}}">
@@ -151,6 +151,37 @@
                   </div>
                 </div>
               </div>
+            
+
+
+            {% elif eje|length == 1 %}
+
+              <div class="par-llantas ejes__{{cant_ejes|safe}}">
+                <div class="tire" data-tire-id="{{eje.0.0.id}}">
+                  <div class="tire__top">
+                    <span 
+                      class="tire__data" 
+                      data-tag-id="{{ eje.0.0.id }}" 
+                    >
+                      -
+                    </span>
+                  </div>
+
+                  <div class="tire__medium {{eje.0.3}}">
+                    <span class="tire__data">
+                      {{eje.0.0.posicion}}
+                    </span>
+                  </div>
+                  
+                  <span class="icon-tire2"></span>
+                  
+                  <div class="tire__bottom">
+                      <span class="tire__data" data-prof-tag="profundidad-{{ eje.0.0.id }}"> - </span>
+                  </div>
+                </div>     
+                
+              </div>
+
 
             {% endif %}
 

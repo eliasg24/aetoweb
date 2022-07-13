@@ -5836,13 +5836,39 @@ class planTallerView(LoginRequiredMixin, TemplateView):
         
         
         #? Checar si existe un taller abierto
-        #servicios = Servicio.objects.filter(vehiculo = vehiculo, estado = 'abierto')
-        
+        servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo[0], estado = 'abierto').count()
+        try:
+            evento_raw = ServicioVehiculo.objects.get(vehiculo = vehiculo[0], estado = 'abierto').preguardado_llantas
+            evento_raw = evento_raw.replace("\'", "\"")
+            servicio_actual = json.loads(evento_raw)
+            
+            servicio = []
+            for vehiculo in vehiculo_acomodado:
+                for eje in vehiculo['ejes']:
+                    for llanta in eje:
+                        servicio.append({'llanta': llanta['llanta'].id})
+            contador = 0
+            for llanta in servicio:
+                for tire in servicio_actual:
+                    try:
+                        if llanta['llanta'] == tire['llanta']:
+                            servicio[contador] = tire
+                    except:
+                        pass
+                contador += 1
+            for llanta in servicio:
+                print(type(llanta))
+        except:
+            servicio = None
+
+        print(servicio)
         
         context['vehiculo_acomodado'] = vehiculo_acomodado
         context['talleres'] = talleres
         context['vehiculo'] = vehiculo
         context['fecha'] = datetime.now()
+        context['servicios'] = servicios
+        context['servicio'] = servicio
         print(datetime.now())
         return context
     
@@ -7753,7 +7779,6 @@ class DetailView(LoginRequiredMixin, DetailView):
         bitacoras = sorted(bitacoras, key=lambda x:x["fecha_de_inflado"], reverse=False)
 
         entradas_correctas = functions.entrada_correcta_ambas(bitacoras)
-        print(entradas_correctas)
         fecha = functions.convertir_fecha(str(vehiculo.fecha_de_inflado))
         servicios = ServicioVehiculo.objects.filter(vehiculo = vehiculo).order_by('-id').exclude(estado='abierto')
         print(vehiculo)
@@ -7787,7 +7812,7 @@ class DetailView(LoginRequiredMixin, DetailView):
         for ins in inspecciones_list:
             eventos.append([ins[0], ins[1], ins[2], ins[3]])
         for servicio in servicios:
-            eventos.append([datetime.combine(servicio.fecha_inicio, datetime.min.time()), servicio, 'servicio', 'icon-checkmark good-text'])
+            eventos.append([datetime.combine(servicio.fecha_inicio, datetime.min.time(), timezone.utc), servicio, 'servicio', 'icon-checkmark good-text'])
         eventos = sorted(eventos, key=lambda x:x[0], reverse=True)
         context["eventos"] = eventos
         print(eventos)
@@ -8043,8 +8068,17 @@ class DetailView(LoginRequiredMixin, DetailView):
             ejes_no_ordenados.append(list_temp)
             numero += 1
         
+        print('---------------------------------------')
+        for i in ejes_no_ordenados:
+            print(i)
+        print('---------------------------------------')
+        
         ejes = functions.acomodo_ejes(ejes_no_ordenados)
         color = functions.entrada_correcta_actual(vehiculo_actual)
+        print('---------------------------------------')
+        for i in ejes:
+            print(i)
+        print('---------------------------------------')
         #print(color)
         if bitacora:
             if doble_mala_entrada:

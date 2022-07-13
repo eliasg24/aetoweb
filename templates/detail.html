@@ -138,7 +138,7 @@
                                             </a>
                                         </div>
                                         
-                                    {% else %}
+                                    {% elif eje|length == 4 %}
 
                                         <div class="par-doble-llanta ejes__{{cant_ejes|safe}}">
                             
@@ -240,8 +240,33 @@
 
                                         </div>
 
-                                    {% endif %}
+                                    {% else %}
+                                        <div class="par-llantas ejes__{{cant_ejes|safe}}">
+                                            <a href="{% url 'dashboards:tireDetail' eje.0.0.id %}" class="tire">
+                                                <div class="tire__top {{eje.0.2}}">
+                                                    <span class="tire__data">
+                                                        {{eje.0.0.presion_actual}}
+                                                    </span>
+                                                </div>
 
+                                                <div class="tire__medium {{eje.0.4}}">
+                                                    <span class="tire__data">
+                                                        {{eje.0.0.posicion}}
+                                                    </span>
+                                                </div>
+                                                
+                                                <span class="icon-tire2"></span>
+                                                
+                                                <div class="tire__bottom {{eje.0.1}}">
+                                                    <span class="tire__data">
+                                                        {{eje.0.3}}
+                                                    </span>
+                                                </div>
+                                            </a>
+                                            
+                                        </div>
+                                    {% endif %}
+                                    
                                 
                                 {% endfor %}
                                         <!-- <div class="sp1">
