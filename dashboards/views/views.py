@@ -2589,7 +2589,7 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                 mm_dif = llanta.vehiculo.compania.mm_de_diferencia_entre_duales
                 context['mm_dif'] = mm_dif
                 try:
-                    km_max = functions.km_max_template(llanta.ultima_inspeccion.inspeccion_vehiculo)
+                    km_max = ''
                 except:
                     km_max = ''
                 context['km_max'] = km_max
@@ -2813,10 +2813,11 @@ class inspeccionVehiculo(LoginRequiredMixin, TemplateView):
                     llanta_actual.save()
                     if 'vida' in cambios:
                         functions.cambio_de_vida(llanta_referencia, llanta_actual)
+                    inspecciones_vehiculos = InspeccionVehiculo.objects.filter(vehiculo = llanta_actual.vehiculo)
                     if vehiculo.km != None:
                         if kilometraje[0] != vehiculo_referencia.km:
                             if llanta_actual.km_montado == None:
-                                inspecciones = Inspeccion.objects.filter(llanta = llanta_actual)
+                                inspecciones = Inspeccion.objects.filter(llanta = llanta_actual, inspeccion_vehiculo__in = inspecciones_vehiculos)
                                 if len(inspecciones) >= 2:
                                     print('Sin km de montado pero con inspecciones suficinetes')
                                     print(llanta_actual.id)

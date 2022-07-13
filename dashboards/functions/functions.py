@@ -3617,9 +3617,9 @@ def lista_problemas_taller(servicios_llanta, servicio):
         if servicio.costado_reparado == True:
             problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se reparo el costado de la llanta'})
         if servicio.rotar == True:
-            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Se roto la llanta por {servicio.llanta_cambio}-{servicio.llanta_cambio.producto}'})
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'{servicio.llanta}-{servicio.llanta.producto} roto la llanta por {servicio.llanta_cambio}-{servicio.llanta_cambio.producto}'})
         if servicio.desmontaje == True:
-            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'Esta llanta se desmonto por la {servicio.llanta_cambio}-{servicio.llanta_cambio.producto}'})
+            problemas.append({'posicion': servicio.llanta.posicion, 'icono': '', 'accion': f'{servicio.llanta}-{servicio.llanta.producto} llanta se desmonto por la {servicio.llanta_cambio}-{servicio.llanta_cambio.producto}'})
     return problemas
 
 def list_vehicles_valid_filter(vehiculos, filtro, query2):
@@ -5166,7 +5166,7 @@ def vehiculo_sospechoso_llanta(inspecciones):
         if llanta_sospechosa:
             if not(llanta_sospechosa[0]["llanta"] in llantas_lista):
                 if llantas_sospechosas_iteracion:
-                    llantas_sospechosas = llantas_sospechosas | llanta_sospechosa
+                    llantas_sospechosas = llantas_sospechosas | llanta_sospechosa.values("llanta__numero_economico")
                 else:
                     llantas_sospechosas = llanta_sospechosa
                     llantas_sospechosas_iteracion = True
