@@ -75,9 +75,6 @@ const diferenciaDual = (duales = document.documentElement) => {
 
 const dual = () => {
   const duales = document.querySelectorAll('.double-tire');
-  const mmDiferencia = document
-    .querySelector('.double-tire')
-    .getAttribute('data-mm-dif');
 
   duales.forEach((dual) => {
     diferenciaDual(dual);
@@ -235,3 +232,16 @@ const onSelectTire = () => {
     }
   });
 })();
+
+(() => {
+  document.addEventListener('submit', (e) => {
+    const campos = e.target.querySelectorAll('[data-required]');
+
+    campos.forEach(item => {
+      if (item.value.length <= 0) {
+        Swal.fire('Error en el formulario', `El campo ${item.name} de la posición ${ item.dataset.vehiculo } esta vacío`, 'error');
+        return;
+      }
+    })
+  })
+})()

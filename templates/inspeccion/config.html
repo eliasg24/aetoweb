@@ -1,6 +1,10 @@
 <div class="config__container">
-  <header class="config__header">
+  <header class="config__header flex-row">
     <h1>VEHÍCULO {{vehiculo_actual}}</h1>
+
+    <button class="btn modal" type="button">
+      <i class="icon-truck"></i>
+    </button>
   </header>
   <div class="relative config__wrapper">
     <div class="absolute">
@@ -21,7 +25,7 @@
                     </span>
                   </div>
 
-                  <div class="tire__medium {{eje.0.3}}">
+                  <div class="tire__medium {{eje.0.7}}">
                     <span class="tire__data">
                       {{eje.0.0.posicion}}
                     </span>
@@ -34,8 +38,10 @@
                   </div>
                 </div>
         
-                <div class="axle">
-                  <span class="axle-white"></span>
+                <div class="eje">
+                  <span>{{eje.0.6.presion_minima}} - {{eje.0.6.presion_maxima}}</span>
+                      <div class="axle"></div>
+                  <span class="axle__prof">{{eje.0.0.producto.dimension}}</span>
                 </div>
         
                 <div class="tire" data-tire-id="{{eje.1.0.id}}">
@@ -45,7 +51,7 @@
                     </span>
                   </div>
 
-                  <div class="tire__medium {{eje.1.3}}">
+                  <div class="tire__medium {{eje.1.7}}">
                     <span class="tire__data">
                       {{eje.1.0.posicion}}
                     </span>
@@ -73,7 +79,7 @@
                       </span>
                     </div>
 
-                    <div class="tire__medium {{eje.0.3}}">
+                    <div class="tire__medium {{eje.0.7}}">
                       <span class="tire__data">
                         {{eje.0.0.posicion}}
                       </span>
@@ -92,7 +98,7 @@
                       </span>
                     </div>
 
-                    <div class="tire__medium {{eje.1.3}}">
+                    <div class="tire__medium {{eje.1.7}}">
                       <span class="tire__data">
                         {{eje.1.0.posicion}}
                       </span>
@@ -105,9 +111,13 @@
                     </div>
                   </div>
                 </div>
-        
-                <div class="axle"></div>
-        
+         
+                <div class="eje">
+                  <span>{{eje.0.6.presion_minima}} - {{eje.0.6.presion_maxima}}</span>
+                      <div class="axle"></div>
+                  <span class="axle__prof">{{eje.0.0.producto.dimension}}</span>
+                </div>
+
                 <div class="double-tire" data-mm-dif="{{mm_dif}}">
                   <div class="tire" data-tire-id="{{eje.2.0.id}}">
                     <div class="tire__top">
@@ -116,7 +126,7 @@
                       </span>
                     </div>
 
-                    <div class="tire__medium {{eje.2.3}}">
+                    <div class="tire__medium {{eje.2.7}}">
                       <span class="tire__data">
                         {{eje.2.0.posicion}}
                       </span>
@@ -135,7 +145,7 @@
                       </span>
                     </div>
 
-                    <div class="tire__medium {{eje.3.3}}">
+                    <div class="tire__medium {{eje.3.7}}">
                       <span class="tire__data">
                         {{eje.3.0.posicion}}
                       </span>
@@ -167,7 +177,7 @@
                     </span>
                   </div>
 
-                  <div class="tire__medium {{eje.0.3}}">
+                  <div class="tire__medium {{eje.0.7}}">
                     <span class="tire__data">
                       {{eje.0.0.posicion}}
                     </span>

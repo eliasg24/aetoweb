@@ -1,3 +1,29 @@
+select {
+  appearance: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: none;
+  border: 2px solid lightgray;
+  color: var(--colorv02);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+select option {
+  color: #000;
+}
+
+label {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
 .head-cont {
   justify-content: space-between;
 }
@@ -88,26 +114,32 @@
 .main-cont,
 .right-cont {
   background-color: var(--colorv45);
-  border-radius: 0.25rem;
+  border-radius: 0.75rem;
 }
 
-/* ! Service page */
+/* * Service page */
 
 .service-page {
   display: grid;
   gap: 0.45rem;
-  padding: 0.5rem;
+  /* padding: 1rem; */
+  margin-top: 1rem;
 }
 
 .form__row input,
 .service-page .flex-row input {
-  background: var(--colorv00);
-  border: thin solid var(--colorv02);
+  border-radius: 0.5rem;
+  background: transparent;
+  border: none;
+  border: 2px solid lightgray;
   color: var(--colorv02);
+  cursor: pointer;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 500;
   outline: none;
   padding: 0.5rem;
+  transition: all 0.3s ease;
   width: 100%;
 }
 
@@ -181,11 +213,33 @@
 .tire-item {
   align-items: center;
   background-color: var(--colorv00);
+  border-radius: 0.5rem;
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   height: min-content;
   justify-content: space-evenly;
-  padding: 0.75rem;
+  padding: 1rem;
+  position: relative;
+}
+
+.tire-item .delete {
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  font-size: 1.75rem;
+  font-weight: 500;
+  height: 2.5rem;
+  justify-content: center;
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  transition: all 0.3s ease;
+  width: 2.5rem;
+}
+
+.delete:hover {
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 .service__img span {
@@ -205,8 +259,17 @@
   align-items: center;
   display: flex;
   justify-content: space-around;
-  padding: 1rem;
+  /* padding: 1rem; */
   gap: 1.25rem;
+  overflow: hidden;
+}
+
+.container-header {
+  color: #fff;
+  background-color: var(--colorv04);
+  padding: 1rem;
+  text-align: center;
+  width: 100%;
 }
 
 .head__services {
@@ -459,13 +522,44 @@
   width: auto;
 }
 
+.service__body {
+  flex: 1 1 auto;
+}
+
+.service__title {
+  font-size: 1.5rem;
+}
+
+details {
+  background-color: var(--colorv01);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+summary {
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.economic-number {
+  text-align: center;
+  color: var(--colorv04);
+}
+
+.modal__title {
+  font-size: 2rem;
+  color: var(--colorv04);
+}
+
 @media screen and (min-width: 1024px) {
   .flex-row {
     flex-flow: row nowrap;
   }
 
   .container {
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 400px 1fr;
   }
 
   .card__config {
@@ -515,5 +609,9 @@
 @media screen and (min-width: 1440px) {
   .card__config {
     width: 60%;
+  }
+
+  .container {
+    grid-template-columns: 500px 1fr;
   }
 }

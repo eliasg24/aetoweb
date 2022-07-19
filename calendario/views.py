@@ -34,6 +34,8 @@ class CalendarioApi(LoginRequiredMixin, View):
                     When( servicio__estado='cerrado', then='servicio__id'),
                     When( servicio__estado='abierto', then=Value(0))
                     ),
+            title = F('vehiculo__numero_economico'),
+            
             )
         calendarios = list(calendarios.values('id', 'horario_start_str', 'horario_end_str', 'title', 'estado', 'color', 'reporte', 'id_servicio'))
         

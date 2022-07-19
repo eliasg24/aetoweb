@@ -639,6 +639,13 @@ urlpatterns = [
         name="clearcontexto"
     ),
     
+    path(
+        route="api/copiargalgo",
+        view=views_rest.CopiarGalgo.as_view(),
+        name="copiargalgo"
+    ),
+
+    
     #-----------------------D-----------------------
     
     #-----------------------E-----------------------

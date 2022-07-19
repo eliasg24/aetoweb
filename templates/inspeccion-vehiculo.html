@@ -190,8 +190,6 @@ const emptyProfs = () => {
     }
   });
 
-  console.log(counter);
-
   if (counter >= inputs.length) {
     return true;
   }
@@ -207,7 +205,6 @@ const confirmAlert = () => {
     const duplicate = noDoubleValues('llanta');
     const empty = emptyProfs();
     const economic = validateEconomic();
-    console.log('economic', economic)
 
     if (duplicate) return;
 

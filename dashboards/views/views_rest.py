@@ -339,15 +339,24 @@ class TireSearch(LoginRequiredMixin, View):
         amarillos = []
         azules = []
         
-        for llanta in llantas:
-            color = functions.color_observaciones_all_one(llanta)            
-            if color == 'bad':
-                rojos.append(llanta.id)
-            elif color == 'yellow':
-                amarillos.append(llanta.id)
-            else:
-                azules.append(llanta.id)
-                
+        if inventario != 'Servicio':
+            for llanta in llantas:
+                color = functions.color_observaciones_all_one(llanta)            
+                if color == 'bad':
+                    rojos.append(llanta.id)
+                elif color == 'yellow':
+                    amarillos.append(llanta.id)
+                else:
+                    azules.append(llanta.id)
+        else:
+            for llanta in llantas:
+                color = functions.color_observaciones_servicio(llanta)          
+                if color == 'bad':
+                    rojos.append(llanta.id)
+                elif color == 'yellow':
+                    amarillos.append(llanta.id)
+                else:
+                    azules.append(llanta.id)
         #Resultado final
         search_first = llantas.filter(
             **eco_query,
@@ -874,7 +883,7 @@ class PanelRenovadoApi(LoginRequiredMixin, View):
             llantas_json = []
 
         try:
-            productos = list(Producto.objects.filter(compania=self.request.user.perfil.compania).values("producto"))
+            productos = list(Producto.objects.filter(compania=self.request.user.perfil.compania, vida='Renovada').values("producto"))
         except:
             productos = []
         try:
@@ -1017,6 +1026,7 @@ class VehicleAndTireSearchTaller(LoginRequiredMixin, View):
         
         id_seletct = (request.GET['id_select'] if 'id_select' in request.GET else -1)
         id_seletct_query = ({'vehiculo__id': id_seletct})
+        vehiculo_select = ({'pk': id_seletct})
         print(id_seletct)
         print(id_seletct_query)
         
@@ -1041,7 +1051,8 @@ class VehicleAndTireSearchTaller(LoginRequiredMixin, View):
         #Llantas
         
         llantas = Llanta.objects.filter(
-            **id_seletct_query
+            **id_seletct_query,
+            inventario = 'Rodante'
         )
 
         #Color de llanta
@@ -1064,6 +1075,20 @@ class VehicleAndTireSearchTaller(LoginRequiredMixin, View):
                 max_profundidad=Greatest("profundidad_izquierda", "profundidad_central", "profundidad_derecha")
                 ) 
        
+       
+        #Obtencion del km max
+        km_max = ''
+        vehiculo = Vehiculo.objects.filter(**vehiculo_select)
+        if vehiculo.count() > 0:
+            km_max = functions.km_max(vehiculo[0])
+       
+        km_min = ''
+        try:
+            if vehiculo[0].km != None:
+                km_min = vehiculo[0].km
+        except:
+            pass
+       
         #Serializar data
         vehiculos_list = list(vehiculos[offset:limit])
         
@@ -1074,6 +1099,8 @@ class VehicleAndTireSearchTaller(LoginRequiredMixin, View):
             'pagination': pagination,
             'vehiculos_list': vehiculos_list,
             'llantas': llantas_list,
+            'km_max': km_max,
+            'km_min': km_min
         }
 
         json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
@@ -1319,3 +1346,83 @@ class ClearContexto(LoginRequiredMixin, View):
         json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
 
         return HttpResponse(json_context, content_type='application/json')
+
+
+
+class CopiarGalgo(LoginRequiredMixin, View):
+        # Vista del panel de renovado
+
+    def get(self, request , *args, **kwargs):
+        #Queryparams
+        contrasena = self.request.GET.get('contrasena', None)
+        print(contrasena)
+        if contrasena == 'Cn195929':
+            perfil = Perfil.objects.get(user__username = 'GalgoTest')
+            user_galgo = perfil.user
+            compania_galgo = perfil.companias.first()
+            aplicaciones_galgo = perfil.aplicacion.first()
+            ubicaciones_galgo = perfil.ubicaciones.first()
+            talleres_galgo = perfil.talleres.first()
+            print(compania_galgo)
+            print(aplicaciones_galgo)
+            print(ubicaciones_galgo)
+            print(talleres_galgo)
+            
+            compania_copy = Compania.objects.get(compania = 'PruebaBI')
+            vehiculos = Vehiculo.objects.filter(compania = compania_copy)
+            
+            productos = Producto.objects.filter(compania = compania_copy)
+            for producto in productos:
+                producto_nuevo = Producto.objects.get(id = producto.id)
+                producto_nuevo.id == None
+                producto_nuevo.compania = compania_galgo
+                
+            
+            for vehiculo in vehiculos:
+                llantas_actual = Llanta.objects.filter(vehiculo = vehiculo, inventario = 'Rodante')
+                print(llantas_actual)
+                print(llantas_actual.count())
+                
+                print()
+                
+                
+                vehiculo_nuevo = Vehiculo.objects.get(id = vehiculo.id)
+                vehiculo_nuevo.id = None
+                nuevo_num_eco = vehiculo_nuevo.numero_economico[1:]
+                vehiculo_nuevo.numero_economico = f'G{nuevo_num_eco}'
+                vehiculo_nuevo.compania = compania_galgo 
+                vehiculo_nuevo.aplicacion = aplicaciones_galgo 
+                vehiculo_nuevo.ubicacion = ubicaciones_galgo 
+                vehiculo_nuevo.save()
+                contador = 0
+                for llanta in llantas_actual:
+                    contador += 1
+                    try:
+                        producto_nuevo = Producto.objects.get(producto = llanta.producto.producto, compania = compania_galgo)
+                    except:
+                        producto = None
+
+                    llanta_nuevo = Llanta.objects.get(id = llanta.id)
+                    llanta_nuevo.id = None
+                    llanta_nuevo.compania = compania_galgo
+                    llanta_nuevo.vehiculo = vehiculo_nuevo
+                    llanta_nuevo.numero_economico = f'{vehiculo_nuevo}-{contador}'
+                    llanta_nuevo.producto = producto_nuevo
+                    if llanta.taller != None:
+                        llanta_nuevo.taller = talleres_galgo
+                    llanta_nuevo.save()
+                    
+            
+            
+            dict_context = {
+                'Estado': 'Oki',
+            }
+
+            json_context = json.dumps(dict_context, indent=None, sort_keys=False, default=str)
+
+            return HttpResponse(json_context, content_type='application/json')
+        else:
+            
+            json_context = json.dumps({'Contraseña': 'Incorrecta'}, indent=None, sort_keys=False, default=str)
+            return HttpResponse(json_context, content_type='application/json')
+                

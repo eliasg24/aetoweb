@@ -27,8 +27,12 @@
       <main class="main__container">
         <div class="config__container">
 
-          <header class="config__header">
+          <header class="config__header flex-row">
             <h1>VEHÍCULO {{vehiculo_actual}}</h1>
+
+            <button class="btn modal" type="button">
+              <i class="icon-truck"></i>
+            </button>
           </header>
          
           <div class="relative config__wrapper">
@@ -46,7 +50,7 @@
                         </span>
                       </div>
 
-                      <div class="tire__medium {{eje.0.3}}">
+                      <div class="tire__medium {{eje.0.7}}">
                         <span class="tire__data">
                           {{eje.0.0.posicion}}
                         </span>
@@ -67,8 +71,10 @@
                       </div>
                     </div>
             
-                    <div class="axle">
-                      <span class="axle-white"></span>
+                    <div class="eje">
+                      <span>{{eje.0.6.presion_minima}} - {{eje.0.6.presion_maxima}}</span>
+                          <div class="axle"></div>
+                      <span class="axle__prof">{{eje.0.0.producto.dimension}}</span>
                     </div>
             
                     <div class="tire" data-tire-id="{{eje.1.0.id}}">
@@ -78,7 +84,7 @@
                         </span>
                       </div>
 
-                      <div class="tire__medium {{eje.1.3}}">
+                      <div class="tire__medium {{eje.1.7}}">
                         <span class="tire__data">
                           {{eje.1.0.posicion}}
                         </span>
@@ -111,7 +117,7 @@
                           </span>
                         </div>
 
-                        <div class="tire__medium {{eje.0.3}}">
+                        <div class="tire__medium {{eje.0.7}}">
                           <span class="tire__data">
                             {{eje.0.0.posicion}}
                           </span>
@@ -138,7 +144,7 @@
                           </span>
                         </div>
 
-                        <div class="tire__medium {{eje.1.3}}">
+                        <div class="tire__medium {{eje.1.7}}">
                           <span class="tire__data">
                             {{eje.1.0.posicion}}
                           </span>
@@ -160,7 +166,11 @@
                       </div>
                     </div>
             
-                    <div class="axle"></div>
+                    <div class="eje">
+                      <span>{{eje.0.6.presion_minima}} - {{eje.0.6.presion_maxima}}</span>
+                          <div class="axle"></div>
+                      <span class="axle__prof">{{eje.0.0.producto.dimension}}</span>
+                    </div>
             
                     <div class="double-tire">
                       <div class="tire" data-tire-id="{{eje.2.0.id}}">
@@ -170,7 +180,7 @@
                           </span>
                         </div>
 
-                        <div class="tire__medium {{eje.2.3}}">
+                        <div class="tire__medium {{eje.2.7}}">
                           <span class="tire__data">
                             {{eje.2.0.posicion}}
                           </span>
@@ -197,7 +207,7 @@
                           </span>
                         </div>
 
-                        <div class="tire__medium {{eje.3.3}}">
+                        <div class="tire__medium {{eje.3.7}}">
                           <span class="tire__data">
                             {{eje.3.0.posicion}}
                           </span>
@@ -231,7 +241,7 @@
                         </span>
                       </div>
 
-                      <div class="tire__medium {{eje.0.3}}">
+                      <div class="tire__medium {{eje.0.7}}">
                         <span class="tire__data">
                           {{eje.0.0.posicion}}
                         </span>
@@ -337,12 +347,9 @@
             <div class="relative">
               <div class="absolute">
 
-                <div class="flex-row" style="justify-content: space-between;">
-                  <h3>Llanta</h3>
-                  <button class="btn modal" type="button">
-                    <i class="icon-truck"></i>
-                  </button>
-                </div>
+                <header class="config__header">
+                  <h2>Llanta</h2>
+                </header>
   
                 {% for eje in ejes %}
                   {% for ej in eje %}
@@ -361,7 +368,8 @@
                           list="llantas_option"
                           autocomplete="off"
                           value = "{{ej.2.numero_economico.value}}"
-                          required
+                          data-required
+                          data-posicion="{{ ej.0.posicion }}"
                         />
                         <label for="economico" class="form__label">
                           Número económico
@@ -384,39 +392,19 @@
                       </datalist>
   
                       <!-- End input -->
-    
-                      <!-- Start input -->
-                      <div class="form__group field">
-                        <input
-                          class="form__field"
-                          type="text"
-                          placeholder="producto"
-                          name="producto"
-                          autocomplete="off"
-                          list="producto"
-                          value = "{{ej.0.producto}}"
-                          
-                        />
-                        <label for="producto" class="form__label">
-                          Producto
-                        </label>
-                        <div class="alert__error">
-                          El valor no se encuentra en la lista de productos, por favor seleccione una opción valida.
-                        </div>
-                        <div class="alert__warn">
-                          El campo no puede estar vacio 
-                        </div>
-                        <datalist id="producto">
-                          
-                          {% for i in ej.2.producto %}
-                        
-                              <option value="{{i.data.label}}">{{i.data.label}}</option>
-    
-                          {% endfor %}
-                  
-                        </datalist>
+                      <label for="producto">
+                        Producto
+                      </label>
+                      <select name="producto" class="select-input" id="producto" data-required data-posicion="{{ ej.0.posicion }}">
+                        <option value="">Seleccione un producto...</option>
+                        <option value="{{ ej.0.producto }}" selected>{{ej.0.producto}}</option>
+                        {% for i in ej.2.producto %}
+                          <option value="{{i.data.label}}" {% if i.data.label == ej.0.producto %} selected {% endif %} >{{i.data.label}}</option>  
+                        {% endfor %}
+                      </select>
+                      <div class="alert__warn">
+                        El campo no puede estar vacio 
                       </div>
-                      <!-- End input -->
           
                       <!-- Start input -->
                       <div class="form__group field">
@@ -427,6 +415,8 @@
                           name="vida"
                           autocomplete="off"
                           list="vida"
+                          data-required
+                          data-posicion="{{ ej.0.posicion }}"
                           value = {{ej.2.vida.value}}
                         />
                         <label for="vida" class="form__label">

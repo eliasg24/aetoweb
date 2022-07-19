@@ -43,6 +43,7 @@
   margin-top: 0.25rem;
   outline: none;
   padding: 0.25rem;
+  width: auto;
   /* width: 100%; */
 }
 
@@ -114,6 +115,10 @@
 .context-context th,
 .context-context td {
   padding: 0.75rem;
+}
+
+.context-context td {
+  vertical-align: baseline;
 }
 
 .item {
